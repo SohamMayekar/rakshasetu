@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m15 · intake.accept + idempotency (T1)
+**Current milestone:** m16 · desk paste form + signed partner API
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -22,6 +22,7 @@
 | m12 | Cookie auth (signed user id, httpOnly, SameSite=Strict), role+scope reloaded per request, require(action) from roles.yaml, Scope.case_where/event_where in SQL; picker local-only; /v1/me; GET /v1/cases(+/{ref}) scoped; WS needs a session; JSON-only mutations; assignments table (one live per case) | pytest (104 passed): picker local-only, public needs password, forged cookie 401, role change applies without re-login, 415 on form posts, district-scoped case lists (Gopalganj/Muzaffarpur/admin), OD officer sees no BR case, SEOC 403 on queue, team lead 403 'Not assigned to your team', WS 4401 without session. Live through Caddy: public picker 401, public password 200, cookie HttpOnly |
 | m13 | Permission suite: roles.yaml checked against the PRD §4.2 matrix (transcribed); one endpoint test per row (rows whose endpoint isn't built are skipped with the milestone that builds it); IDOR tests for case (public and numeric id, team lead) and WebSocket/polling events | pytest: matrix equality passes; queue.view and audit.read rows pass for allowed + denied roles; case IDOR 404 across districts, 403 for team lead; WS never delivers another district's event. 17 rows skipped until their endpoints land (listed in the test with their milestone) |
 | m14 | Job queue: jobs table, lanes from config (live_voice > whatsapp_partner > import > surge > backfill), SKIP LOCKED claims, reclaim after 60 s, retries with back-off then dead; threaded worker woken by LISTEN jobs | pytest: rollback leaves no job; dedupe_key makes enqueue idempotent; lane order voice > import > surge; two workers never claim the same job; a dead worker's job is reclaimed only after 60 s and runs exactly once; failures back off then go dead |
+| m15 | intake.accept(): report + job in one transaction, namespaced idempotency (ON CONFLICT … DO NOTHING), report.received event; POST /v1/ingest/reports (signed-in users); report.process pipeline skeleton creating one case per report (P4 catch-all until extraction exists; needs_location; district from the desk user or the incident's first district) | T1 (tests/scenarios): same JSON twice → one report, one job, one event, replay 200 + Idempotent-Replay; other caller's same key → separate report; double processing → one case; 422 on unknown channel or a priority field. Live: report via Caddy → worker → BR-199 in 2 s, chain ✓ |
 
 ## NOT DONE (engineering)
 

@@ -5,5 +5,5 @@
 
 
 def register_handlers() -> None:
-    # Each import registers @handler functions with app.core.jobs.HANDLERS. Stages arrive in m15+.
-    pass
+    # Each import registers @handler functions with app.core.jobs.HANDLERS.
+    from app.pipeline import run  # noqa: F401  (report.process)
