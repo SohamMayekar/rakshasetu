@@ -53,7 +53,8 @@ def test_roles_yaml_encodes_the_prd_matrix_exactly():
 ENDPOINTS = [
     ("queue.view", "GET", "/v1/cases?incident=BR", None, "priya", "seoc", None),
     ("audit.read", "GET", "/v1/audit/verify", None, "rdas", "priya", None),
-    ("report.submit", "POST", "/v1/ingest/desk", {}, "priya", "seoc", "m16"),
+    ("report.submit", "POST", "/v1/ingest/desk", {"incident": "BR", "text": "6 log chhat par", "client_id": "perm-0001"},
+     "priya", "seoc", None),
     ("case.status_public", "GET", "/v1/public/cases/BR-151/status", None, None, None, "m21"),
     ("totals.view", "GET", "/v1/metrics/promises?incident=BR", None, "seoc", "boat5", "m47"),
     ("case.check", "POST", "/v1/cases/BR-151/check", {}, "priya", "boat5", "m24"),

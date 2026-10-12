@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m16 · desk paste form + signed partner API
+**Current milestone:** m17 · providers + fixture mode + usage caps
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -23,6 +23,7 @@
 | m13 | Permission suite: roles.yaml checked against the PRD §4.2 matrix (transcribed); one endpoint test per row (rows whose endpoint isn't built are skipped with the milestone that builds it); IDOR tests for case (public and numeric id, team lead) and WebSocket/polling events | pytest: matrix equality passes; queue.view and audit.read rows pass for allowed + denied roles; case IDOR 404 across districts, 403 for team lead; WS never delivers another district's event. 17 rows skipped until their endpoints land (listed in the test with their milestone) |
 | m14 | Job queue: jobs table, lanes from config (live_voice > whatsapp_partner > import > surge > backfill), SKIP LOCKED claims, reclaim after 60 s, retries with back-off then dead; threaded worker woken by LISTEN jobs | pytest: rollback leaves no job; dedupe_key makes enqueue idempotent; lane order voice > import > surge; two workers never claim the same job; a dead worker's job is reclaimed only after 60 s and runs exactly once; failures back off then go dead |
 | m15 | intake.accept(): report + job in one transaction, namespaced idempotency (ON CONFLICT … DO NOTHING), report.received event; POST /v1/ingest/reports (signed-in users); report.process pipeline skeleton creating one case per report (P4 catch-all until extraction exists; needs_location; district from the desk user or the incident's first district) | T1 (tests/scenarios): same JSON twice → one report, one job, one event, replay 200 + Idempotent-Replay; other caller's same key → separate report; double processing → one case; 422 on unknown channel or a priority field. Live: report via Caddy → worker → BR-199 in 2 s, chain ✓ |
+| m16 | Channel adapter registry; desk paste/type adapter POST /v1/ingest/desk (local only, client_id idempotency, pasted forward → forwarder); HMAC-signed partner ingestion on /v1/ingest/reports (raw-byte HMAC, ±300 s, required Idempotency-Key = body key, per-partner scopes/incidents/rate cap/kill switch) | pytest: desk paste → case; desk 404 on public; signed partner → case once (replay 200); bad signature, body changed after signing, stale timestamp ('replay rejected'), unknown/disabled partner → 401; missing/mismatched key → 400; out-of-scope incident 403; permission row report.submit enabled. Live: the contract card's curl+openssl recipe through :8080 → 202 then 200 Idempotent-Replay |
 
 ## NOT DONE (engineering)
 

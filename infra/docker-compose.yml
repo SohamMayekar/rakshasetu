@@ -13,6 +13,7 @@ x-api-env: &api-env
   DEMO_MODE: ${DEMO_MODE:-true}
   PUBLIC_URL: ${PUBLIC_URL:-}
   SECRET_KEY: ${SECRET_KEY}
+  PARTNER_DEMO_SECRET: ${PARTNER_DEMO_SECRET:-}
   DATA_DIR: /data
   FILES_DIR: /files
   CONTRACTS_DIR: /contracts
