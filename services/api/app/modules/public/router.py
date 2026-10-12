@@ -38,6 +38,22 @@ MAX_UPLOAD = 2 * 1024 * 1024
 REPLY = {"en": "Your report is registered. You don't need to remember anything."}
 
 
+def audio_mime(head: bytes) -> str:
+    """The clip's real type from its first bytes (never the browser's say-so): the desk and a partner get a file
+    a player can open, and evidence files are served with nosniff."""
+    if head.startswith(b"OggS"):
+        return "audio/ogg"
+    if head.startswith(b"\x1aE\xdf\xa3"):
+        return "audio/webm"
+    if head[4:8] == b"ftyp":
+        return "audio/mp4"
+    if head.startswith(b"RIFF") and head[8:12] == b"WAVE":
+        return "audio/wav"
+    if head.startswith(b"ID3") or head[:2] in (b"\xff\xfb", b"\xff\xf3", b"\xff\xf2"):
+        return "audio/mpeg"
+    return "application/octet-stream"
+
+
 def device_hash(device_id: str) -> str:
     return hashlib.sha256(device_id.encode()).hexdigest()
 
@@ -86,7 +102,8 @@ def _register_voice(upload_path: str, device_id: str, session_id: str, incident:
     if seconds < caps["min_clip_seconds"] or loudness < 0.003:
         raise HTTPException(422, {"code": "empty_clip", "message": "Didn't hear anything, try again."})
     with open(upload_path, "rb") as f:
-        orig_sha, orig_size = storage.store_bytes(f.read(), MAX_UPLOAD)
+        original = f.read()
+    orig_sha, orig_size = storage.store_bytes(original, MAX_UPLOAD)
     wav_sha, _ = storage.store_bytes(wav, 10 * MAX_UPLOAD)
     report = CanonicalReport(schema_version="1", idempotency_key=session_id, channel="voice", incident_hint=incident,
                              reporter=Reporter(device_id=device_id, relation="unknown"),
@@ -96,8 +113,8 @@ def _register_voice(upload_path: str, device_id: str, session_id: str, incident:
         if not res.replay:
             conn.execute(text(
                 "INSERT INTO evidence (report_id, type, uri, sha256, mime, bytes, added_by, meta)"
-                " VALUES (:r, 'audio', :uri, :sha, 'audio/original', :n, 'reporter', CAST(:meta AS jsonb))"),
-                {"r": res.report_id, "uri": storage.uri_for(orig_sha), "sha": orig_sha, "n": orig_size,
+                " VALUES (:r, 'audio', :uri, :sha, :mime, :n, 'reporter', CAST(:meta AS jsonb))"),
+                {"r": res.report_id, "uri": storage.uri_for(orig_sha), "sha": orig_sha, "n": orig_size, "mime": audio_mime(original[:16]),
                  "meta": f'{{"wav_sha256": "{wav_sha}", "seconds": {seconds:.2f}}}'})
     return {"report_id": res.report_id, "replay": res.replay}
 

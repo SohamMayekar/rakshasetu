@@ -24,7 +24,7 @@ from sqlalchemy import Engine, text
 
 from app.core.eventlog import SYSTEM, append_event
 from app.core.jobs import drain
-from app.db import get_engine
+from app.db import engine_for, get_engine
 from app.modules.escalations.ticker import tick
 from app.pipeline import register_handlers
 from app.seed import seed
@@ -224,21 +224,23 @@ def reset(scene: str = "son", *, owner_url: str | None = None, http: httpx.Clien
         raise ScriptError("DEMO_OWNER_DATABASE_URL is not set")
     t0 = time.monotonic()
     register_handlers()
-    seed(owner_url, reason=f"demo reset to scene {scene!r}")
-    timings = {"seed": round(time.monotonic() - t0, 1)}
-    s = script()
-    own = http is None
-    http = http or httpx.Client(base_url=LOCAL, timeout=60)
-    try:
-        st = Stage(http, get_engine())
-        for step in ids[:ids.index(scene)]:
-            t = time.monotonic()
-            PLAY[step](st, s)
-            timings[step] = round(time.monotonic() - t, 1)
-    finally:
-        if own:
-            http.close()
-    real_clock(st.db)
+    from app.modules.partners.webhooks import quiet_streams
+    with quiet_streams(engine_for(owner_url)):   # partners hear nothing of the seed or the replay
+        seed(owner_url, reason=f"demo reset to scene {scene!r}")
+        timings = {"seed": round(time.monotonic() - t0, 1)}
+        s = script()
+        own = http is None
+        http = http or httpx.Client(base_url=LOCAL, timeout=60)
+        try:
+            st = Stage(http, get_engine())
+            for step in ids[:ids.index(scene)]:
+                t = time.monotonic()
+                PLAY[step](st, s)
+                timings[step] = round(time.monotonic() - t, 1)
+        finally:
+            if own:
+                http.close()
+        real_clock(st.db)
     son = st.state.get("son")
     return {"scene": scene, "seconds": round(time.monotonic() - t0, 1), "timings": timings,
             "son_case": st.one("SELECT public_id FROM cases WHERE id = :c", c=son) if son else None}

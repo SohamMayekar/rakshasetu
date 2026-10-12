@@ -31,7 +31,7 @@ export default function PartnerLog() {
     <AppShell>
       <Page wide>
         <PageHeader title="Partner log"
-                    sub="Every call from a partner system, signed or not. Our rules decide what each annotation does: a credibility note marks one evidence item, a priority is a suggestion an officer accepts or ignores, an anchor is checked against our chain." />
+                    sub="Every call between us and a partner system, signed or not, both ways. Our rules decide what each annotation does: a credibility note marks one evidence item, a priority is a suggestion an officer accepts or ignores, an anchor is checked against our chain. What we send out is facts, never people." />
         {error && <p className="mt-4 rounded-xl bg-paper px-4 py-2 text-sm">{error}</p>}
 
         {!!data?.anchors.length && (
@@ -60,7 +60,8 @@ export default function PartnerLog() {
                     <span className="sm:hidden">: {c.method} {c.endpoint}</span></span></td>
                   <td className="hidden py-2.5 pr-3 sm:table-cell">{c.method} {c.endpoint}</td>
                   <td className="py-2.5 pr-3">{c.status >= 400 ? <b>{c.note ?? c.status}</b> : c.status}</td>
-                  <td className="py-2.5 pr-3">{c.signature_ok == null ? "–" : c.signature_ok ? "✓" : <b>✗</b>}</td>
+                  <td className="py-2.5 pr-3">{c.direction === "out" ? <span className="whitespace-nowrap text-ink-2">signed by us</span>
+                    : c.signature_ok == null ? "–" : c.signature_ok ? "✓" : <b>✗</b>}</td>
                   <td className="tabular hidden py-2.5 pr-3 sm:table-cell">{c.latency_ms ?? "–"}</td>
                   <td className="tabular hidden py-2.5 pr-5 text-xs text-ink-3 sm:table-cell">{c.body_sha256 ? `${c.body_sha256.slice(0, 12)}…` : "–"}</td>
                 </tr>

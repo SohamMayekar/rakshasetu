@@ -14,6 +14,7 @@ x-api-env: &api-env
   PUBLIC_URL: ${PUBLIC_URL:-}
   SECRET_KEY: ${SECRET_KEY}
   PARTNER_DEMO_SECRET: ${PARTNER_DEMO_SECRET:-}
+  DEMO_PARTNER_WEBHOOK_URL: ${DEMO_PARTNER_WEBHOOK_URL:-}
   # Free-tier provider keys (empty = that provider is skipped; no keys at all still works).
   PROVIDER_MODE: ${PROVIDER_MODE:-auto}
   SARVAM_API_KEY: ${SARVAM_API_KEY:-}

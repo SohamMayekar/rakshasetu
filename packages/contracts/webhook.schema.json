@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rakshasetu.local/contracts/webhook.schema.json",
+  "title": "Webhook delivery from RakshaSetu to a partner (PRD §11.4)",
+  "description": "Signed with X-RakshaSetu-Timestamp + X-RakshaSetu-Signature (v1=HMAC-SHA256(secret, ts + '.' + raw body)). Dedupe by id: a delivery can arrive twice. Never contains a phone number, a person's name or a reporter's words.",
+  "type": "object",
+  "required": ["id", "topic", "sent_at", "data"],
+  "properties": {
+    "id": {"type": "string", "format": "uuid", "description": "Also in X-RakshaSetu-Delivery; the same for every retry of this delivery."},
+    "topic": {"enum": ["report.created", "evidence.created", "case.updated", "audit.head"]},
+    "sent_at": {"type": "string", "format": "date-time"},
+    "data": {"type": "object"}
+  },
+  "$defs": {
+    "circle": {"type": ["object", "null"], "properties": {"lat": {"type": "number"}, "lng": {"type": "number"}, "radius_m": {"type": "integer"},
+                                                          "confidence": {"enum": ["high", "medium", "low", null]}}},
+    "case": {"type": "object", "required": ["case", "incident", "status", "priority", "version"], "properties": {
+      "case": {"type": "string"}, "incident": {"type": "string"}, "status": {"type": "string"}, "priority": {"enum": ["P1", "P2", "P3", "P4"]},
+      "people": {"type": "object", "properties": {"count": {"type": ["integer", "null"]}, "kind": {"type": ["string", "null"]}, "remaining": {"type": ["integer", "null"]}}},
+      "hazards": {"type": "array", "items": {"type": "string"}}, "needs": {"type": "array", "items": {"type": "string"}},
+      "vulnerable": {"type": "array", "items": {"type": "string"}}, "place": {"type": ["string", "null"]},
+      "circle": {"$ref": "#/$defs/circle"}, "version": {"type": "integer"}, "updated_at": {"type": "string", "format": "date-time"}}}
+  },
+  "allOf": [
+    {"if": {"properties": {"topic": {"const": "report.created"}}},
+     "then": {"properties": {"data": {"allOf": [{"$ref": "#/$defs/case"}, {"required": ["report_id", "received_at", "channel"],
+              "properties": {"report_id": {"type": "integer"}, "received_at": {"type": "string"}, "channel": {"type": "string"},
+                             "is_forward": {"type": "boolean"}, "read_by": {"type": ["string", "null"]}}}]}}}},
+    {"if": {"properties": {"topic": {"const": "case.updated"}}}, "then": {"properties": {"data": {"$ref": "#/$defs/case"}}}},
+    {"if": {"properties": {"topic": {"const": "evidence.created"}}},
+     "then": {"properties": {"data": {"required": ["evidence_id", "sha256", "url", "url_expires_at"], "properties": {
+              "evidence_id": {"type": "integer"}, "case": {"type": ["string", "null"]}, "incident": {"type": ["string", "null"]},
+              "type": {"const": "audio"}, "sha256": {"type": "string"}, "mime": {"type": "string"}, "bytes": {"type": "integer"},
+              "captured_at": {"type": "string"}, "url": {"type": "string"}, "url_expires_at": {"type": "string", "format": "date-time"}}}}}},
+    {"if": {"properties": {"topic": {"const": "audit.head"}}},
+     "then": {"properties": {"data": {"required": ["seq", "head_hash", "at"], "properties": {"seq": {"type": "integer"},
+              "head_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "at": {"type": "string"}}}}}}
+  ]
+}

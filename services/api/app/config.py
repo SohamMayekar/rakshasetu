@@ -134,6 +134,7 @@ class Config(Strict):
     llm: dict
     voice_caps: dict
     status_page: dict
+    webhooks: dict = {}
 
     @model_validator(mode="after")
     def _last_rule_catches_all(self):
@@ -153,6 +154,7 @@ class Partner(Strict):
     rate_per_min: int = 60
     enabled: bool = True
     lane: str | None = None      # job lane for this partner's reports; default whatsapp_partner (surge: synthetic load)
+    webhook_url_env: str | None = None   # env var holding the partner's webhook URL; unset or empty = nothing is sent
 
 
 class Roles(Strict):

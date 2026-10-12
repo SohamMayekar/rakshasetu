@@ -94,3 +94,6 @@ providers:                         # all free (PRD §12.5); first = primary, sec
 llm: {timeout_s: 8, retries: 1, batch_rows: 20, parallel_batches: 1, reasoning_effort: low, live_reserve_tokens_per_min: 3000}
 voice_caps: {per_device_per_min: 5, global_per_min: 20, max_clip_seconds: 30, min_clip_seconds: 1.0}
 status_page: {poll_seconds: 3, lookups_per_min_per_ip: 60}
+
+# Outbound partner webhooks (PRD §11.4): signed like every partner call; delivered as jobs, retried with backoff.
+webhooks: {audit_head_every: 5m, evidence_url_ttl: 15m, timeout_s: 5, max_attempts: 6, batch: 500}

@@ -7,4 +7,5 @@
 def register_handlers() -> None:
     # Each import registers @handler functions with app.core.jobs.HANDLERS.
     from app.modules.imports import job  # noqa: F401  (import.run)
+    from app.modules.partners import webhooks  # noqa: F401  (webhook.deliver)
     from app.pipeline import run  # noqa: F401  (report.process, llm.backfill)

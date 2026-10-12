@@ -320,7 +320,9 @@ def main() -> None:
     url = os.environ.get("DEMO_OWNER_DATABASE_URL")
     if not url:
         sys.exit("DEMO_OWNER_DATABASE_URL is not set")
-    print(seed(url, tuple(args.packs.split(","))))
+    from app.modules.partners.webhooks import quiet_streams
+    with quiet_streams(engine_for(url)):   # partners never receive the seed as news
+        print(seed(url, tuple(args.packs.split(","))))
 
 
 if __name__ == "__main__":

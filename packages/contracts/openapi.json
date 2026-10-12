@@ -4236,6 +4236,74 @@
         ]
       }
     },
+    "/v1/partners/evidence/{evidence_id}/file": {
+      "get": {
+        "description": "The link IS the permission: it names the partner, expires in 15 minutes and is signed with our key.\nMedia only (audio): text records never leave (they carry names and numbers).",
+        "operationId": "signed_media_v1_partners_evidence__evidence_id__file_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "evidence_id",
+            "required": true,
+            "schema": {
+              "title": "Evidence Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "p",
+            "required": true,
+            "schema": {
+              "title": "P",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "exp",
+            "required": true,
+            "schema": {
+              "title": "Exp",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sig",
+            "required": true,
+            "schema": {
+              "title": "Sig",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Signed Media",
+        "tags": [
+          "partners"
+        ]
+      }
+    },
     "/v1/partners/log": {
       "get": {
         "operationId": "partner_log_v1_partners_log_get",

@@ -5,20 +5,24 @@
     POST /v1/partner-annotations/{id}/accept the officer takes a partner's priority suggestion (with its reason)
     POST /v1/partner-annotations/{id}/ignore … or doesn't; both audited
     GET  /v1/partners/log                    the partner log: every call, signature ✓/✗, latency, body hash
+    GET  /v1/partners/evidence/{id}/file     a media file, by the 15-minute signed link in an evidence.created webhook
 """
 
 from typing import Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field, ValidationError
 from sqlalchemy import text
 
 from app.channels import partner as signing
+from app.config import get_bundle
 from app.core.auth import Scope, require
 from app.core.listener import require_local
+from app.core.storage import path_for
 from app.db import get_engine
 from app.modules.cases.service import NotAllowed, lock_case
-from app.modules.partners import service
+from app.modules.partners import service, webhooks
 
 router = APIRouter(tags=["partners"])
 
@@ -89,7 +93,23 @@ def partner_log(limit: int = 100, _: Scope = Depends(require("audit.read"))) -> 
     with get_engine().connect() as conn:
         rows = conn.execute(text("SELECT * FROM partner_calls ORDER BY id DESC LIMIT :n"), {"n": min(limit, 500)}).all()
         anchors = service.anchors(conn)
-    from app.config import get_bundle
     teams = {p.id: p.team for p in get_bundle().partners}
     return {"calls": [{**dict(r._mapping), "at": r.at.isoformat(), "team": teams.get(r.partner)} for r in rows],
             "anchors": anchors}
+
+
+@router.get("/v1/partners/evidence/{evidence_id}/file")
+def signed_media(evidence_id: int, p: str, exp: int, sig: str) -> FileResponse:
+    """The link IS the permission: it names the partner, expires in 15 minutes and is signed with our key.
+    Media only (audio): text records never leave (they carry names and numbers)."""
+    partner = next((x for x in get_bundle().partners if x.id == p and x.enabled), None)
+    if partner is None or not webhooks.link_ok(p, evidence_id, exp, sig):
+        raise HTTPException(403, "This link has expired or isn't valid")
+    with get_engine().connect() as conn:
+        e = conn.execute(text("SELECT e.sha256, e.mime, e.type, i.code FROM evidence e LEFT JOIN cases c ON c.id = e.case_id"
+                              " LEFT JOIN incidents i ON i.id = c.incident_id WHERE e.id = :i"), {"i": evidence_id}).one_or_none()
+    if (e is None or e.type not in webhooks.MEDIA or not e.sha256 or not path_for(e.sha256).exists()
+            or (partner.incidents and e.code not in partner.incidents)):
+        raise HTTPException(404, "No such media")
+    return FileResponse(path_for(e.sha256), media_type=e.mime or "application/octet-stream",
+                        headers={"X-Content-SHA256": e.sha256, "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})

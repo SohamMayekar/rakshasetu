@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rakshasetu.local/contracts/annotation.schema.json",
+  "title": "Partner annotation (POST /v1/partners/annotations, PRD §11.4)",
+  "description": "Something ABOUT an existing thing. Our rules decide its effect; see PARTNER_CONTRACT_CARD.md.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["idempotency_key", "kind", "target", "value"],
+  "properties": {
+    "idempotency_key": {"type": "string", "minLength": 8, "maxLength": 100, "description": "Must equal the Idempotency-Key header."},
+    "kind": {"enum": ["priority", "credibility", "anchor_receipt", "identity"], "description": "identity is refused with 422 (not yet)."},
+    "target": {"type": "object"},
+    "value": {"type": "string", "minLength": 1, "maxLength": 100},
+    "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "explanation": {"type": ["string", "null"], "maxLength": 300}
+  },
+  "allOf": [
+    {"if": {"properties": {"kind": {"const": "priority"}}},
+     "then": {"properties": {"target": {"required": ["case"], "properties": {"case": {"type": "string", "pattern": "^[A-Z]{2,4}-\\d+$"}}},
+                             "value": {"enum": ["P1", "P2", "P3", "P4"]}}}},
+    {"if": {"properties": {"kind": {"const": "credibility"}}},
+     "then": {"properties": {"target": {"required": ["evidence_sha256"], "properties": {"evidence_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}}}}},
+    {"if": {"properties": {"kind": {"const": "anchor_receipt"}}},
+     "then": {"properties": {"target": {"required": ["seq", "head_hash"], "properties": {"seq": {"type": "integer"}, "head_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}}}}}
+  ]
+}

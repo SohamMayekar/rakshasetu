@@ -1,4 +1,5 @@
-"""The `ticker` process: every 5 s, passed check-in deadlines become escalations (PRD F-S2).
+"""The `ticker` process: every 5 s, passed check-in deadlines become escalations (PRD F-S2), and new events become
+signed webhook deliveries for subscribed partners (PRD §11.4; the worker sends them).
 
 It is its own process so a 300-row import or a slow language-model call can never delay an escalation.
 The logic is app.modules.escalations.ticker.tick(); timers live in the database, so a restart loses nothing.
@@ -7,10 +8,12 @@ The logic is app.modules.escalations.ticker.tick(); timers live in the database,
 from app.db import get_engine
 from app.loop import run_forever
 from app.modules.escalations.ticker import tick
+from app.modules.partners import webhooks
 
 
 def step() -> None:
     tick(get_engine())
+    webhooks.dispatch(get_engine())
 
 
 if __name__ == "__main__":
