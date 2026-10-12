@@ -83,3 +83,5 @@ A person in danger, or their son in another city, should not have to choose a mo
 
 ### D28 · The demo page is the script: numbered scenes, Next scene, and the honesty lines in view
 A presenter under stage lights should not read paragraphs to find the next button. `/demo` now shows the six scenes as numbered buttons, the current one in big type with one line of what to do, and one big "Next scene", which only moves the presenter's place (kept in this browser): the scenes are played live on the desk and the phones, and "Reset to the start of this scene" is the fallback when something goes wrong, not the way forward. The honesty lines sit in view on the same screen ("Say it on stage"), so they are said every time. Everything else (reset to any scene, AI reading on/off, the rush, the partner moment, the clips) is under More controls. **Rejected:** Next scene resetting the database (it would wipe what the judge just watched, and the sheet scene takes 13 s to replay); a separate presenter-notes file (two scripts drift).
+
+### D29 · The release keeps the measure next to the proof

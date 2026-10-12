@@ -31,6 +31,7 @@ export default function SurgePage() {
   const [integ, setInteg] = useState<Integrity | null>(null);
   const [down, setDown] = useState(false);
   const [checking, setChecking] = useState(false);
+  const [details, setDetails] = useState(false);   // response-time percentiles and the per-queue backlog: a click away (m72)
   // The integrity check re-walks the whole hash chain (about 0.8 s of the API's CPU at 14,000 events). Run on a
   // timer during a surge it slowed the very ingest it was watching (p95 70 → 810 ms), so it runs on request.
   const check = useCallback(async () => {
@@ -71,23 +72,6 @@ export default function SurgePage() {
           <span className="text-ink-3"> · <span className="tabular">{n(i?.requests ?? 0)}</span> in the last minute
           · <span className="tabular">{n(i?.errors ?? 0)}</span> turned away</span>
         </Row>
-        <Row k="Time to say “received”">
-          <span className="tabular">half within <b>{ms(i?.p50_ms ?? null)}</b> · 95 % within <b>{ms(i?.p95_ms ?? null)}</b> · 99 % within <b>{ms(i?.p99_ms ?? null)}</b></span>
-          <span className="block text-ink-3">measured inside the server, from the request arriving to the receipt</span>
-        </Row>
-        <Row k="Waiting to be read">
-          <ul className="space-y-0.5">
-            {LANES.map(([lane, label]) => {
-              const l = s?.lanes[lane];
-              return (
-                <li key={lane} className="flex justify-between gap-4">
-                  <span>{label}</span>
-                  <span className="tabular">{l ? <><b>{n(l.waiting)}</b><span className="text-ink-3"> · oldest {l.oldest_s} s</span></> : <span className="text-ink-3">none</span>}</span>
-                </li>
-              );
-            })}
-          </ul>
-        </Row>
         <Row k="What they became">
           <span className="tabular"><b>{n(s?.last_minute.reports ?? 0)}</b> reports read · <b>{n(s?.last_minute.cases ?? 0)}</b> new cases ·{" "}
             <b>{n(s?.last_minute.merges ?? 0)}</b> merged into an existing case</span>
@@ -113,6 +97,27 @@ export default function SurgePage() {
           <Button size="sm" onClick={check} disabled={checking}>{checking ? "Checking…" : "Check again"}</Button>
           <span className="block text-ink-3">every rule that must always hold, and every history entry re-checked: run it after the rush</span>
         </Row>
+        {details && (<>
+        <Row k="Time to say “received”">
+            <span className="tabular">half within <b>{ms(i?.p50_ms ?? null)}</b> · 95 % within <b>{ms(i?.p95_ms ?? null)}</b> · 99 % within <b>{ms(i?.p99_ms ?? null)}</b></span>
+            <span className="block text-ink-3">measured inside the server, from the request arriving to the receipt</span>
+          </Row>
+          <Row k="Waiting to be read">
+            <ul className="space-y-0.5">
+              {LANES.map(([lane, label]) => {
+                const l = s?.lanes[lane];
+                return (
+                  <li key={lane} className="flex justify-between gap-4">
+                    <span>{label}</span>
+                    <span className="tabular">{l ? <><b>{n(l.waiting)}</b><span className="text-ink-3"> · oldest {l.oldest_s} s</span></> : <span className="text-ink-3">none</span>}</span>
+                  </li>
+                );
+              })}
+            </ul>
+          </Row>
+        </>)}
+        <div className="py-2.5"><Button size="sm" variant="quiet" onClick={() => setDetails(!details)} aria-expanded={details}>
+          {details ? "Hide details" : "Show details (response times, what is waiting in each queue)"}</Button></div>
       </Card>
       </Page>
     </AppShell>

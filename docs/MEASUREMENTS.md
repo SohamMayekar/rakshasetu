@@ -120,3 +120,8 @@ Only numbers we measured go here, each with how and where it was measured. Nothi
 
 - **How:** the commands named, on the same Docker Compose stack and VM as above, 12 Oct 2026. The webhook timing is local (no network between worker and receiver), so it measures our side only.
 - **Not measured:** anything on a real phone, over a real tunnel, on the demo laptop, or with a live STT/LLM call (no keys here). See `docs/VERIFICATION.md` § "For the humans".
+
+## m72 · the simplify run (12 Oct 2026, sandbox, headless Chromium)
+- `make e2e` on the final code: 37/37 checks in 148 s; BR-199 on the desk 1.5 s after the son's clip; demo reset to the start 2.6 s; the sheet in 15.0 s ("300 rows → 188 new cases · 90 merged · 14 to check · 0 dropped"); ✓ 1,870 events verified; integrity 0.
+- `make drills`: 14/14 in 137 s. `make test`: 418 passed in 192 s.
+- What competes for attention in each screen's first view (`make count`): docs/VERIFICATION.md §9.

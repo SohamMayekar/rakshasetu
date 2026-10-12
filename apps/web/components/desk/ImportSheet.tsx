@@ -23,6 +23,10 @@ const FIELDS = ["name", "phone", "headcount", "location", "village", "district",
 const OUTCOMES: [string, string][] = [["waiting", "waiting for a team"], ["new", "new"], ["merged", "merged"], ["to_check", "to check"],
   ["history", "closed history"], ["already", "already imported"], ["dropped", "dropped"], ["pending", "still processing"]];
 
+// A row's flag codes in plain words (the glossary, docs/SIMPLIFY_PLAN.md).
+const flagWord = (f: string) => ({ needs_location: "where exactly?", old_report: "old report", sheet_says_done: "the sheet says done" } as Record<string, string>)[f]
+  ?? f.replace(/_/g, " ");
+
 export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClose }: {
   incident: string; openId: number | null; initialFilter?: string; onOpenCase: (caseId: number) => void; onClose: () => void;
 }) {
@@ -132,7 +136,7 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
                   <li key={p.row} className="rounded-md bg-wash px-2 py-1.5 text-xs">
                     <span className="tabular text-ink-3">row {p.row} · </span>
                     {[r.name, r.headcount != null && `${r.headcount_kind === "estimated" ? "~" : ""}${r.headcount} people`, r.village, r.phone].filter(Boolean).join(" · ")}
-                    {p.flags.map((f) => <Chip key={f} tone="attention">{f}</Chip>)}
+                    {p.flags.map((f) => <Chip key={f} tone="attention">{flagWord(f)}</Chip>)}
                   </li>
                 );
               })}
@@ -169,7 +173,7 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
                   <span className="min-w-0">
                     <span className="tabular text-xs text-ink-3">row {r.row_number}</span>
                     <span className="block text-sm">{r.reason}</span>
-                    {r.flags.length > 0 && <span className="text-xs text-ink-2">{r.flags.join(" · ")}</span>}
+                    {r.flags.length > 0 && <span className="text-xs text-ink-2">{r.flags.map(flagWord).join(" · ")}</span>}
                   </span>
                   {r.case_id && <Button size="sm" className="shrink-0" onClick={() => onOpenCase(r.case_id!)}>{r.public_id}</Button>}
                 </li>

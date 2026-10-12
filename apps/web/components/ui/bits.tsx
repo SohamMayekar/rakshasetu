@@ -34,7 +34,7 @@ export function Receipt({ steps }: { steps: ReceiptStep[] }) {
           {i > 0 && <span aria-hidden>→</span>}
           <span>{STEP_WORD[s.step] ?? s.step}</span>
           <MethodChip method={(s.by.toLowerCase() as Method)} />
-          <span className="text-ink-2">{s.detail}</span>
+          <span className="text-ink-2">{s.detail.replace(/language model/g, "AI reading")}</span>
         </span>
       ))}
     </p>

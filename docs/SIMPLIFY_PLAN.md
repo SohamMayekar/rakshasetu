@@ -28,6 +28,26 @@
 | `/responder` (Boat 5, a new case on screen) | 5 + 11 = 16 | 5 + 11 = 16 |
 | `/responder/case/58` | 5 + 9 = 14 | 6 + 9 = 15 |
 
+## After (m72)
+The same measure on the final code, same state: see `docs/VERIFICATION.md` §9.
+
+| Screen | 1366×768 before → after | phone before → after |
+|---|---|---|
+| `/` signed out (front door) | 3 → 8 (two big choices + the team link) | 3 → 5 |
+| `/login` | 12 → **6** (3 profiles) | 13 → **6** |
+| `/` signed in | Incidents 36 → the duty officer goes straight to the desk; the Demo admin's All incidents 58 | 29 → desk; 43 |
+| `/desk/BR` | 71 → **62** | 59 → **45** |
+| case panel (`?case=BR-199`) | 105 → **76** | 109 → **59** |
+| `/audit` → History | 123 → **76** | 62 → **48** |
+| `/partners` (inside Demo) | 22 → 20 | 12 → 11 |
+| `/surge` (inside Demo) | 54 → **36** | 43 → **30** |
+| `/demo` (Demo admin) | 51 → **37** | 33 → **22** |
+| `/r` | 8 → 10 (the text box and Send are on screen, not behind "Type instead") | 8 → 10 |
+| `/s/BR-199` | 12 → 14 (one sentence, the steps folded) | 12 → 14 |
+| `/responder` (a new case on screen) | 16 → 18 (each card has its next action) | 16 → 18 |
+| `/responder/case/58` | 14 → 14 | 15 → 14 |
+
+
 ## Route by route
 
 ### `/` (the front door) · m64
