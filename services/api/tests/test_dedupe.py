@@ -94,7 +94,7 @@ def test_after_two_separate_households_the_phone_stops_counting_as_identity(desk
     drain(app_db)
     c = desk(desk_client, DEMO, phone="+91 98765 40023")
     drain(app_db)
-    assert one(app_db, "SELECT count(*) FROM merges WHERE source_report_id = :r", r=c) == 0
+    assert one(app_db, "SELECT count(*) FROM merges WHERE source_case_id = :c", c=case_of(app_db, c)) == 0
     reasons = rows(app_db, "SELECT reasons FROM merge_suggestions WHERE case_id = :c", c=case_of(app_db, c))
     assert any("isn't used as identity" in " ".join(r.reasons) for r in reasons)
 
@@ -108,8 +108,9 @@ def test_the_same_phone_with_the_same_details_auto_merges_into_the_older_case(de
     target = case_of(app_db, a)
     assert one(app_db, "SELECT status FROM reports WHERE id = :r", r=c) == "merged"
     assert "child" in one(app_db, "SELECT vulnerable FROM cases WHERE id = :t", t=target)   # needs/vulnerable = union
-    m = rows(app_db, "SELECT decided_by, reasons, snapshot FROM merges WHERE source_report_id = :r", r=c)[0]
+    m = rows(app_db, "SELECT decided_by, reasons, snapshot, source_case_id FROM merges ORDER BY id DESC LIMIT 1")[0]
     assert m.decided_by == "rule" and "same phone" in m.reasons and m.snapshot["target"]["id"] == target
+    assert one(app_db, "SELECT status FROM cases WHERE id = :s", s=m.source_case_id) == "merged"   # its own id redirects
     assert one(app_db, "SELECT count(*) FROM evidence WHERE case_id = :t AND type = 'merge'", t=target) == 1
 
 
@@ -161,5 +162,4 @@ def test_the_relay_phone_rule_keeps_ten_households_on_one_volunteer_phone_apart(
     ids = {r[0] for r in rows(app_db, "SELECT case_id FROM reports WHERE reporter_phone_hash IS NOT NULL"
                                       " AND idempotency_key NOT LIKE 'br-%' AND text LIKE '%Paswan ka parivar%'")}
     assert len(ids) == 10                                                    # ten households, ten cases
-    assert one(app_db, "SELECT count(*) FROM merges WHERE decided_by = 'rule' AND source_report_id IN"
-                       " (SELECT id FROM reports WHERE text LIKE '%Paswan ka parivar%')") == 0
+    assert one(app_db, "SELECT count(*) FROM merges WHERE decided_by = 'rule'") == 0

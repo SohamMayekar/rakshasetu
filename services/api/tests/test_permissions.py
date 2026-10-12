@@ -9,7 +9,7 @@
 import pytest
 
 from app.config import get_bundle
-from tests.conftest import login, needs_db
+from tests.conftest import login, needs_db, rows
 
 pytestmark = needs_db
 
@@ -60,7 +60,11 @@ ENDPOINTS = [
     ("case.check", "POST", "/v1/cases/BR-151/check", {}, "priya", "seoc", None),
     ("case.move_pin", "PATCH", "/v1/cases/BR-151/location", {"lat": 26.44, "lng": 84.40, "reason": "caller confirmed"},
      "priya", "seoc", None),
-    ("merge.decide", "POST", "/v1/merges", {}, "priya", "boat5", "m28"),
+    ("merge.decide", "POST", "/v1/merges",
+     lambda db: {"cases": [r[0] for r in rows(db, "SELECT public_id FROM cases WHERE district_id = (SELECT id FROM districts"
+                                                  " WHERE name = 'Gopalganj') AND status = 'reported' ORDER BY id LIMIT 2")],
+                 "reason": "same family, confirmed by phone"},
+     "priya", "seoc", None),
     ("import.run", "POST", "/v1/imports", {}, "priya", "boat5", "m29"),
     ("assignment.create", "POST", "/v1/assignments", {}, "rdas", "priya", "m40"),
     ("assignment.team_action", "POST", "/v1/assignments/1/acknowledge", {}, "boat5", "priya", "m40"),
@@ -80,7 +84,9 @@ PARAMS = [pytest.param(*e, id=e[0], marks=pytest.mark.skip(reason=f"endpoint arr
 
 
 @pytest.mark.parametrize("action,method,path,body,allowed,denied,built_in", PARAMS)
-def test_each_row_through_its_endpoint(seeded, client, action, method, path, body, allowed, denied, built_in):
+def test_each_row_through_its_endpoint(seeded, client, app_db, action, method, path, body, allowed, denied, built_in):
+    if callable(body):
+        body = body(app_db)
     login(client, denied)
     r = client.request(method, path, json=body)
     assert r.status_code == 403, f"{denied} should be refused {action}: {r.status_code} {r.text}"

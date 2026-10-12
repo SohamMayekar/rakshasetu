@@ -23,7 +23,7 @@ from app.core.jobs import RetryLater, enqueue, handler
 from app.modules.cases.service import create_case
 from app.modules.dedupe.candidates import candidates, landmark_keys
 from app.modules.dedupe.decide import decide, reason_line
-from app.modules.dedupe.merge import attach_report, record_suggestion
+from app.modules.dedupe.merge import merge_cases, record_suggestion
 from app.modules.dedupe.signals import Household
 from app.modules.location.ladder import resolve as resolve_location
 from app.modules.triage.rules import triage
@@ -180,14 +180,17 @@ def process_report(engine: Engine, payload: dict) -> None:
         conn.execute(text("SELECT pg_advisory_xact_lock(hashtext(:k))"), {"k": f"dedupe:{locked.incident_id}"})
         new = household_of(report, fields)
         decision = decide(conn, new, candidates(conn, locked.incident_id, new))
-        if decision.kind == "auto_merge":
-            m = decision.target
-            attach_report(conn, target_id=m.candidate.case_id, report_id=report.id, fields=fields, score=m.score.total,
-                          signals=m.score.signals, reasons=m.reasons, reason_line=reason_line(m), actor=WORKER)
-            return
+        # Every report gets its own case first (so the reporter always has an id that later redirects);
+        # an auto-merge then folds it into the older case at once, undoable like any merge.
         created = create_case(conn, incident_id=locked.incident_id,
                               district_id=(located.district_id if located and located.district_id else district_hint),
                               report_id=report.id, fields=fields, actor=WORKER, queue_since=report.received_at)
+        if decision.kind == "auto_merge":
+            m = decision.target
+            merge_cases(conn, target_id=m.candidate.case_id, source_id=created["case_id"], actor=WORKER,
+                        decided_by="rule", score=m.score.total, signals=m.score.signals, reasons=m.reasons,
+                        line=reason_line(m))
+            return
         for m in decision.suggestions:
             record_suggestion(conn, incident_id=locked.incident_id, district_id=created["district_id"],
                               case_id=created["case_id"], match=m, line=reason_line(m), actor=WORKER)
