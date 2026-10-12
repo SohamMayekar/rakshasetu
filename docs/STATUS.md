@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m11 · real-time (LISTEN → WS)
+**Current milestone:** m12 · cookie auth + roles + Scope
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -18,6 +18,7 @@
 | m08 | Test harness: fixtures (seeded, owner_db, app_db, client, public_client), scenario/slow markers, tests/README.md; ruff in `make test` | `make test` → ruff clean + 67 passed in the container, against rakshasetu_test |
 | m09 | append_event(): advisory lock, canonical TEXT body, sha256(prev‖body), pg_notify on commit; verify_chain(); seed writes chain.genesis + one event per seeded entity | pytest: canonical body + hash formula; rollback leaves no event; 200 concurrent appends → seqs contiguous and chain verifies; NOTIFY only after commit; a slow writer can't be overtaken (seq order = commit order) |
 | m10 | GET /v1/audit/verify, /v1/audit/head (public), /v1/audit (filtered list); `make verify`, `make tamper SEQ=N` (scripts/tamper.sql as superuser) | pytest: verify ok after seed; head public = last event; verify/list 404 on public; body edit, column edit, actor swap → broken at that seq; delete → broken at next; forged row with recomputed hash → broken at next. Live: make tamper SEQ=12 → '✗ broken at #12'; reseed → ✓ 88 events |
+| m11 | Real-time: one LISTEN → hub → WebSocket fan-out with ?since= back-fill and re-catch-up; GET /v1/events?since=; 25 s ping; case.updated coalesced to 1/s/case; incident filter (Scope arrives m12) | pytest: polling back-fill filtered by incident; live event on an open socket < 2 s; disconnect, 3 events, reconnect with since → exactly those 3; other incidents' events not sent; 5 case.updated → 2 sent. Live: WS works through Caddy :80 and :8080 |
 
 ## NOT DONE (engineering)
 

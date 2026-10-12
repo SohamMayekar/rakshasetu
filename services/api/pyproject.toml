@@ -13,7 +13,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "httpx>=0.27", "ruff>=0.6", "jsonschema>=4.23"]
+dev = ["pytest>=8", "httpx>=0.27", "ruff>=0.6", "jsonschema>=4.23", "pytest-timeout>=2.3"]
 
 [tool.setuptools.packages.find]
 include = ["app*"]
@@ -21,6 +21,7 @@ include = ["app*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+timeout = 120
 filterwarnings = ["ignore:Using `httpx` with `starlette.testclient` is deprecated"]
 markers = [
   "scenario: the PRD §13.6 field-reality scenario tests T1-T10",
