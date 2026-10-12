@@ -3308,6 +3308,7 @@
     },
     "/v1/merge-suggestions": {
       "get": {
+        "description": "Open suggestions in the caller's scope; ?case= keeps those with that case on either side (the drawer).",
         "operationId": "list_suggestions_v1_merge_suggestions_get",
         "parameters": [
           {
@@ -3324,6 +3325,22 @@
                 }
               ],
               "title": "Incident"
+            }
+          },
+          {
+            "in": "query",
+            "name": "case",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Case"
             }
           }
         ],
@@ -3604,6 +3621,30 @@
           }
         },
         "summary": "Promise Bar",
+        "tags": [
+          "metrics"
+        ]
+      }
+    },
+    "/v1/metrics/surge": {
+      "get": {
+        "description": "Ingest p95 over the last minute (this API process) and the queue behind it, per lane.",
+        "operationId": "surge_metrics_v1_metrics_surge_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Surge Metrics V1 Metrics Surge Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Surge Metrics",
         "tags": [
           "metrics"
         ]

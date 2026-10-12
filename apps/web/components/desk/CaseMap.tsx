@@ -28,16 +28,50 @@ function ring(lat: number, lng: number, metres: number, steps = 48): [number, nu
   return out;
 }
 
+// A normal incident draws every case as its honest circle at every zoom. In a surge (more than MANY placed
+// cases) the circles only start at street-ish zoom; further out, nearby cases gather into grey bubbles with a
+// count, and a lone case is still a circle of its true size (at least 4 px), hollow when its place is uncertain.
+// That keeps thousands of cases cheap to draw without ever showing a bare pin.
+const MANY = 300;
+const CIRCLES_FROM_ZOOM = 11;
+const SURGE_REFRESH_MS = 5000;
+const EARTH = 40_075_016.686;
+
+function points(cases: Case[], dim: Set<number>) {
+  return {
+    type: "FeatureCollection" as const,
+    features: cases.filter((c) => c.lat != null && c.lng != null).map((c) => ({
+      type: "Feature" as const, id: c.id,
+      properties: { id: c.id, hue: dim.has(c.id) ? "#a1a1aa" : HUE[c.priority],
+                    low: c.location_confidence === "low" || c.location_confidence === "very_low",
+                    k: ((c.radius_m ?? 300) * 512) / (EARTH * Math.cos((c.lat! * Math.PI) / 180)) },   // px at zoom 0
+      geometry: { type: "Point" as const, coordinates: [c.lng!, c.lat!] },
+    })),
+  };
+}
+
+// circle-radius in pixels for the true radius: k * 2^zoom, never under 4 px
+const TRUE_SIZE = ["interpolate", ["exponential", 2], ["zoom"],
+  ...[5, 7, 9, 11].flatMap((z) => [z, ["max", 4, ["*", ["get", "k"], 2 ** z]]])] as unknown as number;
+
+// A case's ring is 64 points of trigonometry; a surge re-sends thousands of cases every second, so each case
+// object keeps its ring (a refetched case is a new object and gets a new one).
+const rings = new WeakMap<Case, number[][]>();
+
 function features(cases: Case[], dim: Set<number>) {
   return {
     type: "FeatureCollection" as const,
-    features: cases.filter((c) => c.lat != null && c.lng != null && c.radius_m).map((c) => ({
-      type: "Feature" as const,
-      id: c.id,
-      properties: { id: c.id, hue: dim.has(c.id) ? "#a1a1aa" : HUE[c.priority], low: c.location_confidence === "low" || c.location_confidence === "very_low",
-                    dim: dim.has(c.id), label: c.public_id },
-      geometry: { type: "Polygon" as const, coordinates: [ring(c.lat!, c.lng!, c.radius_m!)] },
-    })),
+    features: cases.filter((c) => c.lat != null && c.lng != null && c.radius_m).map((c) => {
+      let r = rings.get(c);
+      if (!r) { r = ring(c.lat!, c.lng!, c.radius_m!); rings.set(c, r); }
+      return {
+        type: "Feature" as const,
+        id: c.id,
+        properties: { id: c.id, hue: dim.has(c.id) ? "#a1a1aa" : HUE[c.priority], low: c.location_confidence === "low" || c.location_confidence === "very_low",
+                      dim: dim.has(c.id), label: c.public_id },
+        geometry: { type: "Polygon" as const, coordinates: [r] },
+      };
+    }),
   };
 }
 
@@ -62,7 +96,8 @@ export function CaseMap({ cases, selected, dim = new Set(), onSelect, picking = 
     let fallback: ReturnType<typeof setTimeout> | undefined;
     import("maplibre-gl").then(({ Map, NavigationControl }) => {
       if (gone || !box.current) return;
-      const m = new Map({ container: box.current, style: STYLE, center: [84.39, 26.43], zoom: 9, attributionControl: { compact: false } });
+      const m = new Map({ container: box.current, style: STYLE, center: [84.39, 26.43], zoom: 9, attributionControl: { compact: false },
+                            fadeDuration: 0 });   // no label fades: each one is a run of repaints
       m.addControl(new NavigationControl({ showCompass: false }), "bottom-right");
       const toPaper = () => { if (!m.isStyleLoaded()) { setTilesDown(true); m.setStyle(BLANK); } };
       fallback = setTimeout(toPaper, 6000);
@@ -70,23 +105,45 @@ export function CaseMap({ cases, selected, dim = new Set(), onSelect, picking = 
       m.on("style.load", () => {   // fires for the tile style, or for the plain fallback
         clearTimeout(fallback);
         m.addSource("cases", { type: "geojson", data: features([], new Set()) });
-        m.addLayer({ id: "fill", type: "fill", source: "cases", paint: { "fill-color": ["get", "hue"], "fill-opacity": ["case", ["get", "dim"], 0.03, 0.08] } });
+        m.addSource("pts", { type: "geojson", data: points([], new Set()), cluster: true, clusterRadius: 36, clusterMaxZoom: CIRCLES_FROM_ZOOM - 1 });
+        m.addLayer({ id: "fill", type: "fill", source: "cases",
+                     paint: { "fill-color": ["get", "hue"], "fill-opacity": ["case", ["get", "dim"], 0.03, 0.08] } });
         m.addLayer({ id: "line", type: "line", source: "cases", filter: ["!", ["get", "low"]],
                      paint: { "line-color": ["get", "hue"], "line-width": ["case", ["boolean", ["feature-state", "sel"], false], 3, 1.4] } });
         m.addLayer({ id: "line-low", type: "line", source: "cases", filter: ["get", "low"],
                      paint: { "line-color": ["get", "hue"], "line-dasharray": [2, 2],
                               "line-width": ["case", ["boolean", ["feature-state", "sel"], false], 3, 1.4] } });
+        m.addLayer({ id: "dot", type: "circle", source: "pts", maxzoom: CIRCLES_FROM_ZOOM, filter: ["!", ["has", "point_count"]],
+                     layout: { visibility: "none" },
+                     paint: { "circle-color": ["get", "hue"], "circle-radius": TRUE_SIZE, "circle-opacity": ["case", ["get", "low"], 0, 0.15],
+                              "circle-stroke-color": ["get", "hue"], "circle-stroke-width": 1.4 } });
+        m.addLayer({ id: "cluster", type: "circle", source: "pts", maxzoom: CIRCLES_FROM_ZOOM, filter: ["has", "point_count"],
+                     layout: { visibility: "none" },
+                     paint: { "circle-color": "#ffffff", "circle-stroke-color": "#8a8a8a", "circle-stroke-width": 1.5,
+                              "circle-radius": ["step", ["get", "point_count"], 11, 10, 14, 100, 18, 1000, 22] } });
+        if (m.getStyle().glyphs) m.addLayer({ id: "cluster-count", type: "symbol", source: "pts", maxzoom: CIRCLES_FROM_ZOOM, filter: ["has", "point_count"],
+                     layout: { visibility: "none", "text-field": ["get", "point_count_abbreviated"], "text-size": 11,
+                               "text-font": ["Noto Sans Regular"], "text-allow-overlap": true },
+                     paint: { "text-color": "#111111" } });
+        m.on("click", "cluster", async (e) => {   // a cluster zooms in to what it holds
+          const f = e.features?.[0];
+          if (!f) return;
+          const zoom = await (m.getSource("pts") as GeoJSONSource).getClusterExpansionZoom(Number(f.properties?.cluster_id));
+          m.easeTo({ center: (f.geometry as GeoJSON.Point).coordinates as [number, number], zoom });
+        });
         m.addSource("pick", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
         m.addLayer({ id: "pick", type: "line", source: "pick", paint: { "line-color": "#111111", "line-width": 2 } });
         ready.current = true;
         prevSel.current = null;
+        drawn.current = null;
         draw();
       });
       m.on("click", (e) => {   // in "Move pin" mode, a click places the pin; otherwise it selects a circle
         if (pickRef.current.picking) { pickRef.current.onPick?.({ lat: e.lngLat.lat, lng: e.lngLat.lng }); return; }
-        const hit = m.queryRenderedFeatures(e.point, { layers: ["fill"] })[0];
+        const hit = m.queryRenderedFeatures(e.point, { layers: ["fill", "dot"] })[0];
         if (hit?.properties?.id != null) onSelectRef.current(Number(hit.properties.id));
       });
+      m.on("zoomend", () => { if (drawn.current && !drawn.current.rings) draw(); });   // surge: circles once zoomed in
       m.on("mouseenter", "fill", () => { if (!pickRef.current.picking) m.getCanvas().style.cursor = "pointer"; });
       m.on("mouseleave", "fill", () => { m.getCanvas().style.cursor = pickRef.current.picking ? "crosshair" : ""; });
       map.current = m;
@@ -95,18 +152,41 @@ export function CaseMap({ cases, selected, dim = new Set(), onSelect, picking = 
       ro.observe(box.current);
       resizeObs.current = ro;
     });
-    return () => { gone = true; clearTimeout(fallback); resizeObs.current?.disconnect(); map.current?.remove(); map.current = null; ready.current = false; };
+    return () => { gone = true; clearTimeout(fallback); if (later.current) clearTimeout(later.current); resizeObs.current?.disconnect(); map.current?.remove(); map.current = null; ready.current = false; };
   }, []);
 
   const onSelectRef = useRef(onSelect);
   onSelectRef.current = onSelect;
   const prevSel = useRef<number | null>(null);
 
+  const drawn = useRef<{ cases: Case[]; dim: Set<number>; many: boolean; rings: boolean } | null>(null);
+  const lastPush = useRef(0);
+  const later = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   function draw() {
     const m = map.current;
     if (!m || !ready.current) return;
     const { cases, selected, dim } = latest.current;
-    (m.getSource("cases") as GeoJSONSource).setData(features(cases, dim));
+    const changed = drawn.current?.cases !== cases || drawn.current?.dim !== dim;
+    const many = changed && cases.filter((c) => c.lat != null).length > MANY;
+    const since = performance.now() - lastPush.current;
+    if (changed && many && drawn.current?.many && since < SURGE_REFRESH_MS) {
+      // A surge changes the cases every second; the map (an overview: the queue is where work happens) follows
+      // every 5 s, so the browser isn't repainting the whole map all the time.
+      later.current ??= setTimeout(() => { later.current = null; draw(); }, SURGE_REFRESH_MS - since);
+    } else if (changed) {   // rebuild only what changed
+      lastPush.current = performance.now();
+      if (many) (m.getSource("pts") as GeoJSONSource).setData(points(cases, dim));
+      for (const id of ["fill", "line", "line-low"]) m.setLayerZoomRange(id, many ? CIRCLES_FROM_ZOOM : 0, 24);
+      for (const id of ["dot", "cluster", "cluster-count"]) if (m.getLayer(id)) m.setLayoutProperty(id, "visibility", many ? "visible" : "none");
+      drawn.current = { cases, dim, many, rings: false };
+    }
+    // The circles: always in a normal incident; in a surge only once zoomed in far enough to show them.
+    const d = drawn.current;
+    if (d && !d.rings && (!d.many || m.getZoom() >= CIRCLES_FROM_ZOOM - 0.5)) {
+      (m.getSource("cases") as GeoJSONSource).setData(features(d.cases, d.dim));
+      d.rings = true;
+    }
     if (prevSel.current != null) m.setFeatureState({ source: "cases", id: prevSel.current }, { sel: false });
     if (selected != null) m.setFeatureState({ source: "cases", id: selected }, { sel: true });
     prevSel.current = selected;

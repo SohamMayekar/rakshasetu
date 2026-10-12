@@ -36,6 +36,8 @@ def test_t3_suggested_then_merged_then_undone_exactly(seeded, client, app_db):
     s = sug[0]
     assert any("same village (Thawe)" in r for r in s["reasons"]) and any("same landmarks" in r for r in s["reasons"])
     older, newer = s["candidate_case_id"], s["case_id"]
+    for side in (older, newer):     # the drawer asks for one case's matches, from either side of the pair
+        assert [x["id"] for x in client.get("/v1/merge-suggestions", params={"case": side}).json()] == [s["id"]]
     before = state(app_db, older, newer)
 
     merged = client.post(f"/v1/merge-suggestions/{s['id']}/accept", json={}).json()

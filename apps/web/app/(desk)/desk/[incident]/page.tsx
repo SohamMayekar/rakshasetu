@@ -4,7 +4,7 @@
 // in 1-second frames; the cases they name are re-read from the API (scoped), so the screen shows only what
 // this user may see, and it is never more than a second behind the database.
 
-import { use, useCallback, useEffect, useMemo, useState } from "react";
+import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { CaseMap } from "@/components/desk/CaseMap";
 import { Drawer, type Picked } from "@/components/desk/Drawer";
@@ -57,11 +57,28 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
   const [escalations, setEscalations] = useState<Escalation[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const [filter, setFilter] = useState<QueueFilter>(null);
+  // One queue read at a time: in a surge, frames arrive every second and a read of 2,000+ rows mustn't pile up
+  // behind itself. Asks that come in meanwhile collapse into one more read, 2 s after this one lands.
+  const queueBusy = useRef(false);
+  const queueAgain = useRef(false);
+  const [matchesTick, setMatchesTick] = useState(0);
   const loadQueue = useCallback(() => {
-    api<Escalation[]>(`/v1/escalations?incident=${encodeURIComponent(incident)}`).then(setEscalations).catch(() => setEscalations([]));
-    api<Queue>(`/v1/queue?incident=${encodeURIComponent(incident)}`).then(setQueue).catch(() => {});
-    api<Suggestion[]>(`/v1/merge-suggestions?incident=${encodeURIComponent(incident)}`).then(setSuggestions).catch(() => setSuggestions([]));
+    setMatchesTick((t) => t + 1);
+    if (queueBusy.current) { queueAgain.current = true; return; }
+    queueBusy.current = true;
+    const q = encodeURIComponent(incident);
+    Promise.all([
+      api<Escalation[]>(`/v1/escalations?incident=${q}`).then(setEscalations).catch(() => setEscalations([])),
+      api<Queue>(`/v1/queue?incident=${q}`).then(setQueue).catch(() => {}),
+    ]).finally(() => {
+      queueBusy.current = false;
+      if (queueAgain.current) { queueAgain.current = false; setTimeout(loadQueue, 2000); }
+    });
   }, [incident]);
+  useEffect(() => {   // the open case's possible duplicates (the drawer's Matches), from either side of each pair
+    if (selected == null) { setSuggestions([]); return; }
+    api<Suggestion[]>(`/v1/merge-suggestions?case=${selected}`).then(setSuggestions).catch(() => setSuggestions([]));
+  }, [selected, matchesTick]);
 
   useEffect(() => {
     api<Me>("/v1/me").then(setMe).catch((e) => { if (e instanceof ApiError && e.status === 401) location.href = "/login"; });
@@ -108,10 +125,10 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
 
   const open = useMemo(() => [...cases.values()].filter((c) => !CLOSED.has(c.status) && c.status !== "closed"), [cases]);
   // The map shows the queue's cases (and the selected one) in colour; every other open case is grey.
-  const dim = useMemo(() => {
+  const dim = useMemo(() => {   // (not keyed on the selection: the selected circle is drawn bold on top anyway)
     const inQueue = new Set(queue?.rows.flatMap((r) => r.members ?? [r.id]));
-    return new Set(open.filter((c) => !inQueue.has(c.id) && c.id !== selected).map((c) => c.id));
-  }, [open, queue, selected]);
+    return new Set(open.filter((c) => !inQueue.has(c.id)).map((c) => c.id));
+  }, [open, queue]);
   const current = selected != null ? cases.get(selected) ?? null : null;
 
   const onAction = useCallback(async (row: QueueRow) => {

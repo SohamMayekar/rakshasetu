@@ -58,3 +58,31 @@ Only numbers we measured go here, each with how and where it was measured. Nothi
 | ETA chip tapped → "Sent" (includes the deliberate 10 s Undo window) | **12.8 s** after the assignment (one run) | — |
 
 - **How:** a throwaway Playwright script with two browser contexts (officer API session + the phone). Local stack, 12 Oct 2026, milestone 44. Not yet measured on a real mid-range Android phone over mobile data (PRD F-C7 "done when"): that needs the humans and the tunnel.
+
+## Surge: 3,000 synthetic partner reports at 50 a second (m49)
+
+| What | Measured | Target |
+|---|---|---|
+| Reports accepted | **3,000 of 3,000** (all 202), 50.0/s for 60.0 s | — |
+| Time to say "received", inside the server (the surge screen, 60 s window mid-surge) | p50 **22–29 ms**, p95 **52–89 ms**, p99 **79–285 ms** (five runs on a warm stack); one run started straight after a rebuild: p95 **253–302 ms** | the screen shows ingest p95 (F-C5) |
+| Same, from the generator (client side, same machine) | p50 **24.6–26.2 ms**, p95 **56.8–83.5 ms**, p99 **85.8–252.9 ms** (two runs) | — |
+| Reading them: one worker, 4 threads, rules only | **~25 reports/s**; the backlog drained **58–66 s** after the last report (three runs) | — |
+| Wrong automatic merges (a case holding two of the generator's households, by phone) | **0** of 299–331 merges | 0 |
+| Repeat reports left as a separate case | BR: 124 households (village-only: D10 makes these strong "to check" suggestions); OD/HP: 91 (district-only: no suggestion at all, PRD F-D1 minimum evidence) | — |
+| Promise bar after the backlog drained (BR) | 2,414 reports = 2,115 cases + 299 merged + 0 to check + 0 without a home ✓ · 3,503 to check · 2,328 kept apart | adds up |
+| Integrity after the surge | **0 problems**, 12,652 events verified | 0 |
+| Reseed with 857 jobs still waiting | **7.2 s**, integrity 0 (before the m49 fix: failed with a deadlock) | — |
+
+- **How:** `make seed`, `make surge` (50/s, 60 s) on the local stack, `/surge` open in headless Chromium; numbers from `/v1/metrics/surge`, the generator's printout and the database. Same VM for everything, 12 Oct 2026.
+- **The integrity check costs ~0.8 s of the API's CPU at 14,000 events.** Polled every 10 s during a surge, it pushed ingest p95 to **~810 ms**, so the surge screen now runs it only on request.
+
+## The desk with 2,000+ open cases (m49)
+
+| What | Measured | Target (PRD §15) |
+|---|---|---|
+| `GET /v1/queue` (2,800 open cases, 7,000 suggestions) | **3.2 s → 0.32 s** with migration 016 | — |
+| Click a queue row → the case drawer in the DOM, no surge, 2,128 open cases | before m49: **1.7–2.8 s**; after: **16–70 ms** (8 + 8 clicks) | < 100 ms |
+| Same, **during** a 50/s surge, 2,145 open cases | before the m49 desk fixes: **23–310 ms**; after: **19–165 ms**, 10 of 12 under 100 ms | < 100 ms |
+| Main thread during a surge (8 s CPU profile) | before: busy ~7.5 s of 8 (59 long tasks); after: idle 5.6 s (9 long tasks of 130–210 ms) | — |
+
+- **How:** throwaway Playwright scripts: clicks timed with `performance.now()` from `click()` to the drawer's `aside` changing, and a CDP CPU profile. Headless Chromium at 1366×768 with **software WebGL** (no GPU in this sandbox). Our own JavaScript is ~0.3 s of the 8 s profile; the remaining long tasks are native browser work, which looks like the map canvas being composited in software. **Not yet measured on the demo laptop with a GPU** (NOT DONE).

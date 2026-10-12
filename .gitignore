@@ -21,3 +21,6 @@ test-results/
 playwright-report/
 *.egg-info/
 infra/certs/*.crt
+
+# throwaway measurement scripts (kept out of the repo)
+apps/web/e2e/_*.mjs

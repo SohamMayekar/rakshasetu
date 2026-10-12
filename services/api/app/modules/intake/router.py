@@ -29,9 +29,9 @@ def _respond(res, response: Response) -> dict:
     return {"report_id": res.report_id, "replay": res.replay}
 
 
-def _accept(report: CanonicalReport, source_ns: str, actor: Actor, district_id: int | None):
+def _accept(report: CanonicalReport, source_ns: str, actor: Actor, district_id: int | None, lane: str | None = None):
     with get_engine().begin() as conn:
-        return accept(conn, report, source_ns=source_ns, actor=actor, district_id=district_id)
+        return accept(conn, report, source_ns=source_ns, actor=actor, district_id=district_id, lane=lane)
 
 
 _REPORT_BODY = {"requestBody": {"required": True, "content": {"application/json": {
@@ -50,7 +50,8 @@ async def ingest_report(request: Request, response: Response) -> dict:
         if key != report.idempotency_key:
             raise HTTPException(400, "Idempotency-Key header must equal the body's idempotency_key")
         report = partner.to_canonical(report, p)
-        res = await run_in_threadpool(_accept, report, f"partner:{p.id}", Actor("partner", p.id, "partner"), None)
+        # The surge generator's partner (app/surge.py) queues in the surge lane, behind live voice, partners and imports.
+        res = await run_in_threadpool(_accept, report, f"partner:{p.id}", Actor("partner", p.id, "partner"), None, p.lane)
         return _respond(res, response)
     scope = optional_scope(request)
     if scope.kind == "public":

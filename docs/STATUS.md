@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m49 surge generator + ingest p95 (F-C5)
+**Current milestone:** m50 demo controls (per-scene reset, surge, LM toggle, play clip, QR)
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -48,7 +48,8 @@
 
 | What | Estimate |
 |---|---|
-| m32–m60: the desk UI, ownership (assignments, deadlines, responder app, rescue sheet), promise bar and metrics, demo controls, surge, the full scenario set, release docs | see the milestone plan in the build prompt |
+| m50–m60: demo controls, judge-legibility caption, evidence hardening, the full scenario set (T1–T10), golden-path e2e, failure drills, P1 items, partner annotations, polish, release docs | see the milestone plan in the build prompt |
+| Desk latency on the demo laptop with a GPU during `make surge`: measured only in headless Chromium with software WebGL (19–165 ms, 10 of 12 clicks under the 100 ms target) | one run on the laptop: open /desk/BR during `make surge`, click 10 rows |
 | The responder path on a real mid-range Android phone over mobile data through the tunnel (PRD F-C7 "done when"); only a Chromium phone viewport on the local stack has been measured | needs the humans, a phone and the tunnel |
 | The demo sheet with a live language model: the 19 `needs_ai` rows have only been read by rules (no keys here), so "AI asked about 19" is designed, not measured | needs LLM keys (BLOCKED below) |
 
@@ -68,6 +69,8 @@
 
 - **Demo village = Thawe, Gopalganj** (decision D5): Muzaffarpur's OSM data has no village with a mapped temple and bridge within 500 m. The pitch line changes from "[village], Muzaffarpur" to "Thawe, Gopalganj". Evidence in `data/scenarios/BR/README.md`.
 
+- **Open question (m49): repeat reports of a district-only household are never linked.** In OD and HP (no gazetteer) a family reporting twice from the same phone, with the same name and headcount, becomes two cases with no suggestion between them, because PRD F-D1's minimum evidence needs a place or geo match. Seen in the surge: 91 such households. Options: leave it (rule as written), or let same phone + same name + same district suggest (never merge). A rule change for the team to decide, not made here.
+
 ## Process notes
 
 - **m13 was merged while `make test` was red** (a ruff import-order error; the merge command checked `tail`'s exit code instead of the tests'). Fixed within minutes on `fix-m13-import-order`, merged to main. The merge helper now runs `make test` itself and refuses to merge on failure.
@@ -77,6 +80,8 @@
 - **Bug found and fixed in m37:** after `make seed` (which restarts the event log), the realtime hub kept its old cursor, so open desks stopped receiving live updates until the API restarted. Tests didn't catch it because each test starts a fresh app. The hub now detects a new genesis and tells every screen to reload (`tests/test_realtime.py::test_a_reset_log_tells_every_open_screen_to_reload`).
 
 - **Bug found and fixed in m44:** the API let an officer assign a team to a case that had already been merged into another (the merged case had no reports, so the phone showed no caller's words). Assigning now requires an open case; a merged one answers "This case was merged into BR-199: assign that one" (tested).
+
+- **Bugs found and fixed in m49 (the surge):** the worker wrote its health file only when the queue was empty, so a 60 s backlog read as a hang and `make up --wait` failed; `make seed` during a backlog deadlocked with reports being filed and failed (it now pauses waiting jobs and retries the wipe); the surge screen's 10 s integrity poll slowed ingest (p95 ~810 ms) and now runs on request; `GET /v1/queue` had no index for its per-row match lookup (3.2 s at 2,800 cases).
 
 ## Environment notes for this build
 

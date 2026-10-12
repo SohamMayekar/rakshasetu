@@ -56,15 +56,18 @@ def _run(fn):
 
 
 @router.get("/v1/merge-suggestions")
-def list_suggestions(incident: str | None = None, scope: Scope = Depends(require("merge.decide"))) -> list[dict]:
+def list_suggestions(incident: str | None = None, case: int | None = None,
+                     scope: Scope = Depends(require("merge.decide"))) -> list[dict]:
+    """Open suggestions in the caller's scope; ?case= keeps those with that case on either side (the drawer)."""
     where, params = scope.case_where("c")
     with get_engine().connect() as conn:
         rows = conn.execute(text(
             "SELECT s.id, s.case_id, c.public_id, s.candidate_case_id, k.public_id AS candidate, s.score, s.strength,"
             " s.reasons, s.conflicts, s.signals, s.created_at FROM merge_suggestions s"
             " JOIN cases c ON c.id = s.case_id JOIN cases k ON k.id = s.candidate_case_id JOIN incidents i ON i.id = c.incident_id"
-            f" WHERE s.status = 'open' AND {where} AND (CAST(:inc AS text) IS NULL OR i.code = :inc) ORDER BY s.id"),
-            {**params, "inc": incident}).all()
+            f" WHERE s.status = 'open' AND {where} AND (CAST(:inc AS text) IS NULL OR i.code = :inc)"
+            " AND (CAST(:case AS bigint) IS NULL OR s.case_id = :case OR s.candidate_case_id = :case) ORDER BY s.id"),
+            {**params, "inc": incident, "case": case}).all()
     return [{**dict(r._mapping), "score": float(r.score), "created_at": r.created_at.isoformat()} for r in rows]
 
 

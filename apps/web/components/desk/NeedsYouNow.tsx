@@ -11,11 +11,15 @@ import { Button, Chip, Empty, Priority } from "@/components/ui";
 import type { Queue, QueueRow } from "@/lib/queue";
 
 type Shown = QueueRow & { handled?: boolean };
+const PAGE = 80;
 
 export function NeedsYouNow({ queue, selected, onSelect, onAction }: {
   queue: Queue | null; selected: number | null; onSelect: (id: number) => void; onAction: (row: QueueRow) => void;
 }) {
   const [shown, setShown] = useState<Shown[] | null>(null);
+  // During a surge there can be thousands of rows: render them a page at a time (the order already puts what
+  // matters first), so a click stays instant.
+  const [limit, setLimit] = useState(PAGE);
 
   // Merge the latest server list into what's on screen without reordering it.
   useEffect(() => {
@@ -34,7 +38,7 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction }: {
   }, [queue, shown]);
 
   if (!queue || !shown) return <Empty>Loading…</Empty>;
-  const showAll = () => setShown(queue.rows);
+  const showAll = () => { setShown(queue.rows); setLimit(PAGE); };
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -57,7 +61,7 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction }: {
         <Empty>Nothing needs you. <span className="tabular">{queue.on_it}</span> {queue.on_it === 1 ? "household has" : "households have"} a live owner.</Empty>
       ) : (
         <ol className="flex-1 divide-y divide-line overflow-y-auto" aria-label="Needs you now">
-          {shown.map((r) => (
+          {shown.slice(0, limit).map((r) => (
             <li key={r.id} className={r.handled ? "stale" : ""}>
               <div role="button" tabIndex={0} onClick={() => onSelect(r.id)} onKeyDown={(e) => e.key === "Enter" && onSelect(r.id)}
                    aria-current={selected === r.id}
@@ -83,6 +87,11 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction }: {
               </div>
             </li>
           ))}
+          {shown.length > limit && (
+            <li className="p-3 text-center">
+              <Button size="sm" onClick={() => setLimit(limit + 200)}>Show more ({shown.length - limit} below, in the same order)</Button>
+            </li>
+          )}
         </ol>
       )}
       <details className="border-t border-line px-4 py-2 text-sm text-ink-2">

@@ -23,6 +23,12 @@ log = logging.getLogger("rakshasetu.worker")
 STOP = threading.Event()
 
 
+def beat() -> None:
+    """The container's health check reads this file's age (infra/docker-compose.yml)."""
+    open("/tmp/worker.heartbeat", "a").close()
+    os.utime("/tmp/worker.heartbeat")
+
+
 def worker_thread(n: int) -> None:
     worker_id = f"{socket.gethostname()}:{os.getpid()}:{n}"
     engine = get_engine()
@@ -31,9 +37,8 @@ def worker_thread(n: int) -> None:
         while not STOP.is_set():
             try:
                 while not STOP.is_set() and run_one(engine, worker_id):
-                    pass
-                open("/tmp/worker.heartbeat", "a").close()
-                os.utime("/tmp/worker.heartbeat")
+                    beat()            # a long backlog (a surge) is work, not a hang: beat after every job
+                beat()
                 for _ in listen.notifies(timeout=1.0, stop_after=1):
                     pass
             except Exception:

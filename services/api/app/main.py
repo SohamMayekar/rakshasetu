@@ -1,5 +1,6 @@
 """FastAPI entry point for the `api` process."""
 
+import time
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -20,6 +21,7 @@ from app.modules.evidence.router import router as evidence_router
 from app.modules.imports.router import router as imports_router
 from app.modules.incidents.router import router as incidents_router
 from app.modules.intake.router import router as intake_router
+from app.modules.metrics import surge
 from app.modules.metrics.router import router as metrics_router
 from app.modules.public.router import router as public_router
 from app.modules.queue.router import router as queue_router
@@ -47,6 +49,16 @@ def create_app() -> FastAPI:
             if ctype not in ("application/json", "multipart/form-data"):
                 return JSONResponse({"detail": "Send JSON (application/json)"}, status_code=415)
         return await call_next(request)
+
+    @app.middleware("http")
+    async def time_ingest(request: Request, call_next):
+        """Ingest acknowledges after the database write; this times exactly that, for the surge screen's p95."""
+        if not (request.method == "POST" and request.url.path.startswith("/v1/ingest/")):
+            return await call_next(request)
+        t0 = time.perf_counter()
+        response = await call_next(request)
+        surge.record((time.perf_counter() - t0) * 1000, response.status_code)
+        return response
 
     @app.get("/healthz")
     def healthz() -> dict:

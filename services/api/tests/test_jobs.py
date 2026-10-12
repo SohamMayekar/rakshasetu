@@ -88,3 +88,24 @@ def test_a_failing_job_retries_with_backoff_then_goes_dead(clean_jobs, app_db):
     jobs.run_one(app_db, "w")
     assert one(app_db, "SELECT dead_at IS NOT NULL FROM jobs")
     assert "provider down" in one(app_db, "SELECT error FROM jobs")
+
+
+def test_a_reset_pauses_waiting_jobs_but_not_the_one_a_worker_holds(clean_jobs, app_db, owner_db):
+    """The seed's wipe must not race a surge backlog (m49: TRUNCATE deadlocked with reports being filed)."""
+    from app.seed import pause_jobs
+    with app_db.begin() as c:
+        for n in range(3):
+            jobs.enqueue(c, "test.x", {"n": n}, "surge")
+    held = owner_db.connect()
+    tx = held.begin()
+    busy = held.execute(text("SELECT id FROM jobs ORDER BY id LIMIT 1 FOR UPDATE")).scalar_one()   # a worker's job
+    try:
+        with owner_db.begin() as c:
+            assert pause_jobs(c) == 2                       # the held row is skipped, never waited on
+    finally:
+        tx.rollback()
+        held.close()
+    assert one(app_db, "SELECT count(*) FROM jobs WHERE run_at > now() + interval '50 minutes'") == 2
+    with app_db.begin() as c:                               # only the held one is still runnable
+        assert jobs.claim(c, "w1").id == busy
+        assert jobs.claim(c, "w2") is None

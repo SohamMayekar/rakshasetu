@@ -9,12 +9,15 @@ Runs as rakshasetu_owner (it truncates tables, which the app role can't), and on
 import argparse
 import os
 import sys
+import time
 from datetime import timedelta
 from functools import lru_cache
 from pathlib import Path
 
 import yaml
+from psycopg import errors
 from sqlalchemy import Connection, text
+from sqlalchemy.exc import OperationalError
 
 from app.core.eventlog import SYSTEM, append_event
 from app.core.passwords import hash_password
@@ -257,10 +260,44 @@ def load_users(conn: Connection, root: Path, packs: dict) -> int:
     return n
 
 
+def pause_jobs(conn: Connection) -> int:
+    """Push every waiting job an hour out, so the worker stops starting new ones before the wipe (rows a
+    worker holds right now are skipped; those finish on their own). The wipe then empties the table anyway."""
+    return conn.execute(text(
+        "UPDATE jobs SET run_at = now() + interval '1 hour' WHERE id IN (SELECT id FROM jobs"
+        " WHERE done_at IS NULL AND dead_at IS NULL FOR UPDATE SKIP LOCKED)")).rowcount
+
+
+def _wipe_and_load(owner_url: str, root: Path, packs) -> dict:
+    """The wipe, retried: TRUNCATE takes its table locks one by one, so a report the worker is still
+    filing can deadlock with it. Postgres then cancels one side; if that is us, wait and try again."""
+    for attempt in range(1, 6):
+        try:
+            return _load(owner_url, root, packs)
+        except OperationalError as e:
+            if attempt == 5 or not isinstance(e.orig, (errors.DeadlockDetected, errors.LockNotAvailable)):
+                raise
+            time.sleep(attempt)
+    raise AssertionError("unreachable")
+
+
 def seed(owner_url: str, packs=PACKS, root: Path | None = None) -> dict:
     root = root or get_settings().data_dir / "scenarios"
     with engine_for(owner_url).begin() as conn:
+        pause_jobs(conn)
+    loaded, users, now = _wipe_and_load(owner_url, root, packs)
+    cases = seed_cases(owner_url, root, loaded, now)
+    with engine_for(owner_url).begin() as conn:
+        owned = seed_owners(conn, root, loaded)
+    return {"owned_p1": owned, "incidents": len(loaded), "cases": cases, "teams": sum(len(p["teams"]) for p in loaded.values()),
+            "users": users}
+
+
+def _load(owner_url: str, root: Path, packs):
+    with engine_for(owner_url).begin() as conn:
+        conn.execute(text("SET LOCAL lock_timeout = '10s'"))
         wipe(conn)
+        conn.execute(text("SET LOCAL lock_timeout = 0"))
         # A reset starts a new chain: the genesis event records why (PRD F-C8).
         append_event(conn, actor=SYSTEM, action="chain.genesis", entity_type="chain",
                      data={"reason": "demo seed", "packs": list(packs)})
@@ -271,11 +308,7 @@ def seed(owner_url: str, packs=PACKS, root: Path | None = None) -> dict:
             pack["checker_id"] = conn.execute(text(
                 "SELECT id FROM users WHERE role = 'call_taker' AND :i = ANY(incident_ids) ORDER BY id LIMIT 1"),
                 {"i": pack["incident_id"]}).scalar()
-    cases = seed_cases(owner_url, root, loaded, now)
-    with engine_for(owner_url).begin() as conn:
-        owned = seed_owners(conn, root, loaded)
-    return {"owned_p1": owned, "incidents": len(loaded), "cases": cases, "teams": sum(len(p["teams"]) for p in loaded.values()),
-            "users": users}
+    return loaded, users, now
 
 
 def main() -> None:

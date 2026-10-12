@@ -152,6 +152,7 @@ class Partner(Strict):
     incidents: list[str] = []
     rate_per_min: int = 60
     enabled: bool = True
+    lane: str | None = None      # job lane for this partner's reports; default whatsapp_partner (surge: synthetic load)
 
 
 class Roles(Strict):
