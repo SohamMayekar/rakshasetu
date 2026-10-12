@@ -29,11 +29,18 @@ export default function Audit() {
     })().catch(() => setEvents([]));
   }, []);
 
-  const run = async () => { setBusy(true); try { setVerify(await api<Verify>("/v1/audit/verify")); } finally { setBusy(false); } };
+  const [anchors, setAnchors] = useState<{ annotation_id: number; team: string; seq: number; matches: boolean }[]>([]);
+  const run = async () => {
+    setBusy(true);
+    try {
+      setVerify(await api<Verify>("/v1/audit/verify"));
+      setAnchors((await api<{ anchors: typeof anchors }>("/v1/partners/log?limit=1").catch(() => ({ anchors: [] }))).anchors);
+    } finally { setBusy(false); }
+  };
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-6">
-      <p className="text-sm"><a href="/" className="underline underline-offset-2">Incidents</a></p>
+      <p className="text-sm"><a href="/" className="underline underline-offset-2">Incidents</a> · <a href="/partners" className="underline underline-offset-2">Partner log</a></p>
       <div className="mt-2 flex flex-wrap items-baseline justify-between gap-3">
         <h1 className="text-2xl font-semibold tracking-tight">Audit{caseId ? ` · case #${caseId}` : ""}</h1>
         <span className="flex items-center gap-3">
@@ -43,6 +50,10 @@ export default function Audit() {
           <Button variant="primary" onClick={run} disabled={busy}>{busy ? "Verifying…" : "Verify chain"}</Button>
         </span>
       </div>
+      {anchors.map((a) => (
+        <p key={a.annotation_id} className="mt-1 text-sm">{a.matches ? "✓" : <b>✗</b>} Head <span className="tabular">#{a.seq.toLocaleString("en-IN")}</span> anchored by {a.team}
+          {a.matches ? ": our chain still matches it" : <b>: our chain no longer matches what they anchored</b>}</p>
+      ))}
       <p className="mt-1 text-sm text-ink-2">Every change is one event, hash-chained to the one before. Tamper-evident: an edit to history breaks the chain at that row.</p>
       <table className="mt-4 w-full text-sm">
         <thead><tr className="border-b border-line text-left text-xs text-ink-3"><th className="py-1.5 pr-3">seq</th><th className="pr-3">time</th><th className="pr-3">who</th><th className="pr-3">what</th><th className="pr-3">reason</th><th>hash</th></tr></thead>

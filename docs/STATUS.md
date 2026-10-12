@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m58 partner annotations + log
+**Current milestone:** m59 outbound webhooks + contract card
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -50,7 +50,7 @@
 
 | What | Estimate |
 |---|---|
-| m51–m60: judge-legibility caption, evidence hardening, the full scenario set (T1–T10), golden-path e2e, failure drills, P1 items, partner annotations, polish, release docs | see the milestone plan in the build prompt |
+| m59–m60: outbound partner webhooks (`report.created`, `evidence.created`, `case.updated`, `audit.head`) and the one-page contract card; polish; release docs | see the milestone plan in the build prompt |
 | P1 items not built (PRD order): #4 count conflict and "the other N?", #6 follow-up question and multi-clip continuation, #8 bulk approve (the capacity-gap header exists), #9 exact/near-duplicate forwards and the 72 h closed-case check, #10 LLM header suggestion for sheets, #12 the "last confirmed" fade on rows and a dedicated 409 banner (409 messages name who and when, shown inline); #5 WhatsApp is BLOCKED (no Meta test number). The reporter's "not sent yet" state exists but keeps the clip only in memory (no automatic retry, nothing survives a reload) | P1: only with time left |
 | Desk latency on the demo laptop with a GPU during `make surge`: measured only in headless Chromium with software WebGL (19–165 ms, 10 of 12 clicks under the 100 ms target) | one run on the laptop: open /desk/BR during `make surge`, click 10 rows |
 | The responder path on a real mid-range Android phone over mobile data through the tunnel (PRD F-C7 "done when"); only a Chromium phone viewport on the public listener (localhost) has been run, in the golden path | needs the humans, a phone and the tunnel |

@@ -1,7 +1,7 @@
 # One row per partner (PRD §11.4). Adding a partner is a config row, not code. `enabled` is the kill switch.
 partners:
   - id: demo-partner
-    team: "RakshaSetu test harness"
+    team: "Demo partner (simulated by RakshaSetu)"
     domain: test
     secret_env: PARTNER_DEMO_SECRET
     scopes: [report.submit, partner.annotate]

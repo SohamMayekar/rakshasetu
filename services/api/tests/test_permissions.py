@@ -83,7 +83,6 @@ ENDPOINTS = [
     ("priority.override", "POST", "/v1/cases/BR-151/priority", {"priority": "P1", "reason": "pregnant, said on second call"}, "rdas", "priya", None),
     ("phone.reveal", "POST", lambda db: f"/v1/cases/{_case_with_phone(db)}/reveal-contact", {"reason": "calling back"},
      "priya", "seoc", None),
-    ("partner.annotate", "POST", "/v1/partners/annotations", {}, None, None, "m58"),
 ]
 
 
@@ -141,5 +140,6 @@ def test_each_row_through_its_endpoint(seeded, client, app_db, action, method, p
 def test_every_action_in_the_matrix_has_an_endpoint_check():
     checked = {e[0] for e in ENDPOINTS} | {"phone.view_masked", "case.edit",   # case detail / test_case_edits.py
                                            "case.status_public",             # test_status_page.py
-                                           "rescue.family_confirm"}          # linked device only: scenarios/test_t9
+                                           "rescue.family_confirm",          # linked device only: scenarios/test_t9
+                                           "partner.annotate"}               # signed partners, not users: test_partners.py
     assert checked == set(PRD_MATRIX)

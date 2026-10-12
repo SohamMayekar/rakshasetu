@@ -53,28 +53,38 @@ def _rate_ok(p: Partner) -> bool:
         return True
 
 
+def _refuse(status: int, why: str, signature_ok: bool | None) -> HTTPException:
+    """Refuse, and say in the partner log whether the signature held (None: never checked)."""
+    from app.modules.partners.log import note
+    note(note=f"{status} · {why}", signature_ok=signature_ok)
+    return HTTPException(status, why)
+
+
 def verify_partner(headers, raw_body: bytes, scope_needed: str) -> Partner:
+    from app.modules.partners.log import body_hash, note
+    note(body_sha256=body_hash(raw_body))
     pid = headers.get("x-rakshasetu-partner", "")
     ts = headers.get("x-rakshasetu-timestamp", "")
     sig = headers.get("x-rakshasetu-signature", "")
     p = next((x for x in get_bundle().partners if x.id == pid), None)
     if p is None or not p.enabled:
-        raise HTTPException(401, "Unknown or disabled partner")
+        raise _refuse(401, "Unknown or disabled partner", None)
     secret = os.environ.get(p.secret_env, "")
     if not secret:
-        raise HTTPException(401, "Partner secret not configured")
+        raise _refuse(401, "Partner secret not configured", None)
     try:
         skew = abs(time.time() - int(ts))
     except ValueError:
-        raise HTTPException(401, "Missing or malformed timestamp") from None
+        raise _refuse(401, "Missing or malformed timestamp", None) from None
     if skew > WINDOW_SECONDS:
-        raise HTTPException(401, "Stale timestamp: replay rejected")
+        # a replay is usually a request that WAS correctly signed, just too long ago: the log says which
+        raise _refuse(401, "Stale timestamp: replay rejected", hmac.compare_digest(sig, sign(secret, ts, raw_body)))
     if not hmac.compare_digest(sig, sign(secret, ts, raw_body)):
-        raise HTTPException(401, "Bad signature")
+        raise _refuse(401, "Bad signature", False)
     if scope_needed not in p.scopes:
-        raise HTTPException(403, f"Partner not allowed: {scope_needed}")
+        raise _refuse(403, f"Partner not allowed: {scope_needed}", True)
     if not _rate_ok(p):
-        raise HTTPException(429, "Rate cap reached")
+        raise _refuse(429, "Rate cap reached", True)
     return p
 
 

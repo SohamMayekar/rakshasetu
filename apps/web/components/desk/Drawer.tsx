@@ -10,7 +10,7 @@ import { Facts } from "@/components/desk/Facts";
 import { Matches } from "@/components/desk/Matches";
 import { Timeline } from "@/components/desk/Timeline";
 import { Because, Button, Chip, Priority, Section } from "@/components/ui";
-import { api, type Case, type CaseDetail, type Escalation, type Evidence, type Me, type Suggestion, type TimelineEvent } from "@/lib/api";
+import { api, type Case, type CaseDetail, type Escalation, type Evidence, type Me, type PartnerNote, type Suggestion, type TimelineEvent } from "@/lib/api";
 
 export type Picked = { lat: number; lng: number } | null;
 
@@ -98,6 +98,7 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
   const can = (a: string) => !!me?.permissions.includes(a);
   const [detail, setDetail] = useState<CaseDetail | null>(null);
   const [tl, setTl] = useState<{ events: TimelineEvent[]; evidence: Evidence[] } | null>(null);
+  const [notes, setNotes] = useState<PartnerNote[]>([]);
   const [quote, setQuote] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const body = useRef<HTMLDivElement>(null);
@@ -105,6 +106,7 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
   const load = useCallback(() => {
     api<CaseDetail>(`/v1/cases/${c.id}`).then(setDetail).catch(() => {});
     api<{ events: TimelineEvent[]; evidence: Evidence[] }>(`/v1/cases/${c.id}/timeline`).then(setTl).catch(() => {});
+    api<PartnerNote[]>(`/v1/cases/${c.id}/annotations`).then(setNotes).catch(() => setNotes([]));
   }, [c.id]);
   useEffect(load, [load, c.version, c.updated_at, refreshKey]);   // refreshKey: a live event about this case
   useEffect(() => { setError(null); }, [c.id]);
@@ -142,6 +144,18 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
           ? <Because>{c.priority} · {(() => { const o = c.priority_override as NonNullable<Override>;
               return `${o.level < o.from ? "raised" : o.level > o.from ? "lowered" : "kept"} by ${o.by}: “${o.reason}” · the rules said ${o.rules_said}`; })()}</Because>
           : c.priority_reasons.length > 0 && <Because>{c.priority} · {c.priority_reasons.join(" · ")}</Because>}
+        {notes.filter((n) => n.kind === "priority").map((n) => (   // a partner suggests; an officer decides
+          <div key={n.id} className="mt-2 rounded-lg border border-line px-3 py-2 text-sm">
+            <p><b>{n.team}</b> suggests <b>{n.value}</b>{n.confidence != null ? ` · ${n.confidence.toFixed(2)}` : ""}{n.explanation ? ` · ${n.explanation}` : ""}</p>
+            {n.decision ? <p className="text-xs text-ink-3">{n.decision} by an officer</p>
+              : can("priority.override") && (
+                <p className="mt-1.5 flex gap-2">
+                  <Button size="sm" variant="primary" onClick={() => act(() => api(`/v1/partner-annotations/${n.id}/accept`, { method: "POST", json: {} }))}>Accept</Button>
+                  <Button size="sm" onClick={() => act(() => api(`/v1/partner-annotations/${n.id}/ignore`, { method: "POST", json: {} }))}>Ignore</Button>
+                </p>
+              )}
+          </div>
+        ))}
         <div className="mt-3 flex flex-wrap gap-2">
           {!c.checked_at && can("case.check") && (
             <Button size="sm" variant="primary" onClick={() => act(() => api(`/v1/cases/${c.id}/check`, { method: "POST", json: {} }))}>Check</Button>
@@ -185,7 +199,7 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
           <Section title="Timeline & evidence">
             <Matches c={c} suggestions={suggestions} lookup={lookup} canDecide={can("merge.decide")}
                      onDone={(kept) => { onChanged(); load(); if (kept && kept !== c.id) onSelect(kept); }} />
-            {tl && detail ? <Timeline events={tl.events} evidence={tl.evidence} reports={detail.reports} quote={quote}
+            {tl && detail ? <Timeline events={tl.events} evidence={tl.evidence} reports={detail.reports} quote={quote} notes={notes}
                                       canUndo={can("merge.decide")} onChanged={() => { onChanged(); load(); }} />
                           : <p className="text-sm text-ink-3">Loading…</p>}
             {can("merge.decide") && <ManualMerge c={c} onDone={(kept) => { onChanged(); load(); if (kept !== c.id) onSelect(kept); }} />}

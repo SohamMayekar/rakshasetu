@@ -483,6 +483,18 @@
         "title": "NewIncident",
         "type": "object"
       },
+      "PartnerMoment": {
+        "properties": {
+          "case": {
+            "default": "BR-199",
+            "pattern": "^[A-Z]{2,4}-\\d+$",
+            "title": "Case",
+            "type": "string"
+          }
+        },
+        "title": "PartnerMoment",
+        "type": "object"
+      },
       "PinMove": {
         "properties": {
           "lat": {
@@ -1706,6 +1718,53 @@
         ]
       }
     },
+    "/v1/cases/{ref}/annotations": {
+      "get": {
+        "operationId": "case_annotations_v1_cases__ref__annotations_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ref",
+            "required": true,
+            "schema": {
+              "title": "Ref",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response Case Annotations V1 Cases  Ref  Annotations Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Case Annotations",
+        "tags": [
+          "partners"
+        ]
+      }
+    },
     "/v1/cases/{ref}/cancel": {
       "post": {
         "operationId": "case_cancel_v1_cases__ref__cancel_post",
@@ -2301,6 +2360,50 @@
           }
         },
         "summary": "Language Model",
+        "tags": [
+          "demo"
+        ]
+      }
+    },
+    "/v1/demo/partner-moment": {
+      "post": {
+        "description": "PRD §16.1 4:05: the SIMULATED partner's calls (app/partner_demo.py), signed, through the public listener.",
+        "operationId": "partner_moment_v1_demo_partner_moment_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartnerMoment"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Partner Moment V1 Demo Partner Moment Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Partner Moment",
         "tags": [
           "demo"
         ]
@@ -4019,6 +4122,162 @@
         "summary": "Surge Metrics",
         "tags": [
           "metrics"
+        ]
+      }
+    },
+    "/v1/partner-annotations/{annotation_id}/accept": {
+      "post": {
+        "operationId": "accept_v1_partner_annotations__annotation_id__accept_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "annotation_id",
+            "required": true,
+            "schema": {
+              "title": "Annotation Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Accept V1 Partner Annotations  Annotation Id  Accept Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Accept",
+        "tags": [
+          "partners"
+        ]
+      }
+    },
+    "/v1/partner-annotations/{annotation_id}/ignore": {
+      "post": {
+        "operationId": "ignore_v1_partner_annotations__annotation_id__ignore_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "annotation_id",
+            "required": true,
+            "schema": {
+              "title": "Annotation Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Ignore V1 Partner Annotations  Annotation Id  Ignore Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Ignore",
+        "tags": [
+          "partners"
+        ]
+      }
+    },
+    "/v1/partners/annotations": {
+      "post": {
+        "operationId": "annotate_v1_partners_annotations_post",
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Annotate V1 Partners Annotations Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Annotate",
+        "tags": [
+          "partners"
+        ]
+      }
+    },
+    "/v1/partners/log": {
+      "get": {
+        "operationId": "partner_log_v1_partners_log_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Partner Log V1 Partners Log Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Partner Log",
+        "tags": [
+          "partners"
         ]
       }
     },

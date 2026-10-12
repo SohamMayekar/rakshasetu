@@ -10,7 +10,7 @@
 import { useState } from "react";
 
 import { Button, ChannelTag, Clock, Receipt } from "@/components/ui";
-import { api, type Evidence, type Report, type TimelineEvent } from "@/lib/api";
+import { api, type Evidence, type PartnerNote, type Report, type TimelineEvent } from "@/lib/api";
 
 function Undo({ mergeId, onDone }: { mergeId: number; onDone: () => void }) {
   const [open, setOpen] = useState(false);
@@ -117,6 +117,10 @@ function EvidenceItem({ e }: { e: Evidence }) {
       </p>
     );
   }
+  if (e.type === "partner_annotation") {
+    const m = e.meta as { team?: string; kind?: string; value?: string; confidence?: number | null };
+    return <p className="mt-1.5 text-xs text-ink-2">Partner note · {m.team}: {m.kind} {m.value}{m.confidence != null ? ` · ${Number(m.confidence).toFixed(2)}` : ""} · {open} <Hash e={e} /></p>;
+  }
   if (e.type === "merge") {
     const m = e.meta as { source?: string; target?: string };
     return <p className="mt-1.5 text-xs text-ink-2">Merge record · {m.source} into {m.target} · {open} <Hash e={e} /></p>;
@@ -124,7 +128,22 @@ function EvidenceItem({ e }: { e: Evidence }) {
   return null;
 }
 
-function ReportCard({ r, evidence, quote }: { r: Report; evidence: Evidence[]; quote: string | null }) {
+// A partner's credibility note sits on THAT item, as a chip: it never blocks a dispatch or lowers a priority.
+function Notes({ e, notes }: { e: Evidence; notes: PartnerNote[] }) {
+  const mine = notes.filter((n) => n.kind === "credibility" && n.evidence_id === e.id);
+  if (!mine.length) return null;
+  return (
+    <p className="mt-1 flex flex-wrap gap-1.5">
+      {mine.map((n) => (
+        <span key={n.id} className="rounded-full border border-line px-2 py-0.5 text-[11px] text-ink-2" title={n.explanation ?? ""}>
+          {n.team}: {n.value}{n.confidence != null ? ` · ${n.confidence.toFixed(2)}` : ""}{n.explanation ? ` · ${n.explanation}` : ""}
+        </span>
+      ))}
+    </p>
+  );
+}
+
+function ReportCard({ r, evidence, quote, notes }: { r: Report; evidence: Evidence[]; quote: string | null; notes: PartnerNote[] }) {
   const words = r.transcript ?? r.text;
   return (
     <div className="mt-1.5 rounded-lg bg-wash px-3 py-2">
@@ -137,7 +156,7 @@ function ReportCard({ r, evidence, quote }: { r: Report; evidence: Evidence[]; q
       {words ? <p className="mt-1 whitespace-pre-line text-sm leading-snug" lang={r.language ?? undefined}><Highlight text={words} quote={quote} /></p>
              : <p className="mt-1 text-sm text-ink-3">audio only: listen</p>}
       {r.receipt && <div className="mt-1"><Receipt steps={r.receipt} /></div>}
-      {evidence.map((e) => <EvidenceItem key={e.id} e={e} />)}
+      {evidence.map((e) => <div key={e.id}><EvidenceItem e={e} /><Notes e={e} notes={notes} /></div>)}
     </div>
   );
 }
@@ -145,8 +164,9 @@ function ReportCard({ r, evidence, quote }: { r: Report; evidence: Evidence[]; q
 // A report's own evidence (clip, transcript, message, sheet row) shows inside its report card; a case's own
 // records (rescue, radio log, merge) show under their "Evidence kept" line.
 
-export function Timeline({ events, evidence, reports, quote, canUndo = false, onChanged }: {
+export function Timeline({ events, evidence, reports, quote, canUndo = false, onChanged, notes = [] }: {
   events: TimelineEvent[]; evidence: Evidence[]; reports: Report[]; quote: string | null; canUndo?: boolean; onChanged?: () => void;
+  notes?: PartnerNote[];
 }) {
   const reportById = new Map(reports.map((r) => [r.id, r]));
   const evidenceById = new Map(evidence.map((x) => [x.id, x]));
@@ -160,7 +180,7 @@ export function Timeline({ events, evidence, reports, quote, canUndo = false, on
           <li key={e.seq} className="text-sm">
             {item ? (   // a case's own record: the item itself is the line
               <div className="flex gap-2"><span className="w-11 shrink-0 pt-2 text-xs text-ink-3"><Clock iso={e.at} /></span>
-                <div className="min-w-0 flex-1"><EvidenceItem e={item} /></div></div>
+                <div className="min-w-0 flex-1"><EvidenceItem e={item} /><Notes e={item} notes={notes} /></div></div>
             ) : (
             <p className="flex gap-2">
               <span className="w-11 shrink-0 text-xs text-ink-3"><Clock iso={e.at} /></span>
@@ -174,7 +194,7 @@ export function Timeline({ events, evidence, reports, quote, canUndo = false, on
               </span>
             </p>
             )}
-            {r && <div className="pl-[52px]"><ReportCard r={r} evidence={evidence.filter((x) => x.report_id === r.id)} quote={quote} /></div>}
+            {r && <div className="pl-[52px]"><ReportCard r={r} evidence={evidence.filter((x) => x.report_id === r.id)} quote={quote} notes={notes} /></div>}
           </li>
         );
       })}

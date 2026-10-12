@@ -109,6 +109,17 @@ export default function DemoPage() {
         </div>
       </Section>
 
+      <Section title="Partner moment">
+        <div className="flex items-center justify-between gap-3">
+          <span>A <b>simulated</b> partner (our own script, signed, through the public address) suggests a priority for BR-199, notes its
+            clip, anchors our audit head, and has a replayed request refused. Say it&apos;s simulated. <a href="/partners" className="underline underline-offset-2">Partner log</a></span>
+          <Button size="sm" className="shrink-0 whitespace-nowrap" disabled={!!busy} onClick={() => run("Partner moment", async () => {
+            const r = await api<{ calls: string[] }>("/v1/demo/partner-moment", { method: "POST", json: { case: "BR-199" } });
+            return r.calls.join(" · ");
+          })}>Run it</Button>
+        </div>
+      </Section>
+
       <Section title="Play a recorded clip">
         <p className="mb-2 text-ink-2">The fallback if live voice fails: the clip goes through the same pipeline as the reporter page,
           from the son&apos;s phone. Say it&apos;s a recording.</p>

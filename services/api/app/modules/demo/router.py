@@ -114,6 +114,20 @@ def start_surge(body: Surge, scope: Scope = Depends(require("incident.admin"))) 
     return {"started": True, **_surge_running()}
 
 
+class PartnerMoment(BaseModel):
+    case: str = Field(default="BR-199", pattern=r"^[A-Z]{2,4}-\d+$")
+
+
+@router.post("/partner-moment")
+def partner_moment(body: PartnerMoment, _: Scope = Depends(require("incident.admin"))) -> dict:
+    """PRD §16.1 4:05: the SIMULATED partner's calls (app/partner_demo.py), signed, through the public listener."""
+    from app.partner_demo import run
+    try:
+        return {"calls": run(body.case)}
+    except RuntimeError as e:
+        raise HTTPException(409, str(e)) from None
+
+
 @router.get("/clips")
 def clips(_: Scope = Depends(require("incident.admin"))) -> list[dict]:
     folder = scenes.pack() / "clips"

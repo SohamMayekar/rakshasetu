@@ -82,3 +82,10 @@ export type Escalation = {
   id: number; kind: "team_overdue" | "capacity_gap"; team_id: number | null; team: string | null; case_ids: number[];
   level: number; role: string; line: string; status: "open" | "acked" | "resolved"; opened_at: string; acked_by_name: string | null;
 };
+
+// What a partner system said about a case (PRD §11.4); its effect is decided by our rules.
+export type PartnerNote = {
+  id: number; partner: string; team: string; kind: "credibility" | "priority" | "anchor_receipt"; value: string;
+  confidence: number | null; explanation: string | null; evidence_id: number | null; decision: "accepted" | "ignored" | null;
+  received_at: string;
+};

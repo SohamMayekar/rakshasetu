@@ -4,6 +4,7 @@ import time
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
+from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
@@ -23,6 +24,8 @@ from app.modules.incidents.router import router as incidents_router
 from app.modules.intake.router import router as intake_router
 from app.modules.metrics import surge
 from app.modules.metrics.router import router as metrics_router
+from app.modules.partners import log as partner_log
+from app.modules.partners.router import router as partners_router
 from app.modules.public.router import router as public_router
 from app.modules.queue.router import router as queue_router
 from app.modules.realtime.hub import hub
@@ -49,6 +52,27 @@ def create_app() -> FastAPI:
             if ctype not in ("application/json", "multipart/form-data"):
                 return JSONResponse({"detail": "Send JSON (application/json)"}, status_code=415)
         return await call_next(request)
+
+    @app.middleware("http")
+    async def partner_calls(request: Request, call_next):
+        """The partner log (P1 #13): every signed partner POST, refused or not, with its latency and body hash."""
+        pid = request.headers.get("x-rakshasetu-partner")
+        path = request.url.path
+        if request.method != "POST" or not pid or not path.startswith(("/v1/ingest/", "/v1/partners/")):
+            return await call_next(request)
+        p = next((x for x in get_bundle().partners if x.id == pid), None)
+        if p is not None and p.lane == "surge":       # synthetic load: not logged one by one
+            return await call_next(request)
+        call: dict = {}
+        token = partner_log.CALL.set(call)
+        t0 = time.perf_counter()
+        try:
+            response = await call_next(request)
+        finally:
+            partner_log.CALL.reset(token)
+        await run_in_threadpool(partner_log.write, pid, "in", request.method, path, response.status_code,
+                                int((time.perf_counter() - t0) * 1000), call)
+        return response
 
     @app.middleware("http")
     async def time_ingest(request: Request, call_next):
@@ -84,6 +108,7 @@ def create_app() -> FastAPI:
     app.include_router(escalations_router)
     app.include_router(teams_router)
     app.include_router(realtime_router)
+    app.include_router(partners_router)
     return app
 
 
