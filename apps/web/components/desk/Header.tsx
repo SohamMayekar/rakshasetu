@@ -17,7 +17,8 @@ export function Header({ me, incident, live }: { me: Me | null; incident: string
     <header className="flex items-center justify-between gap-4">
       <div className="min-w-0">
         <h1 className="truncate text-[22px] font-semibold leading-tight tracking-tight">{inc ? inc.name : incident}</h1>
-        <p className="truncate text-sm text-ink-2">{districts.length ? `${districts.join(" · ")} district desk` : "District desk"}</p>
+        <p className="truncate text-sm text-ink-2">{districts.length ? `${districts.join(" · ")} control room` : "District control room"}
+          {me?.demo_mode && <span className="text-ink-3"> · demo: made-up people, the clock runs 60× faster</span>}</p>
       </div>
       <div className="flex shrink-0 items-center gap-2 text-sm">
         {live.connected ? (
@@ -27,10 +28,10 @@ export function Header({ me, incident, live }: { me: Me | null; incident: string
         ) : (
           <Pill>Connecting…</Pill>
         )}
-        <Pill icon={CalendarDays}>
+        <span className="hidden sm:contents"><Pill icon={CalendarDays}>
           <span className="tabular">{new Date(now).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
           <span className="tabular font-medium text-ink">{new Date(now).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false })}</span>
-        </Pill>
+        </Pill></span>
       </div>
     </header>
   );

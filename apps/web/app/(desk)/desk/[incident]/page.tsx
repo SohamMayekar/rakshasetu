@@ -180,19 +180,7 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
       {me?.permissions.includes("totals.view") && <PromiseBar incident={incident} onFilter={setFilter} />}
       <div className="flex min-h-0 flex-1 gap-2.5">
         <nav className={`flex w-full shrink-0 flex-col overflow-hidden md:w-[356px] ${card}`} aria-label="Needs you now">
-          {me?.permissions.includes("report.submit") && (
-            <div className="flex items-center justify-between gap-2 px-4 pt-4">
-              <span className="flex shrink-0 gap-1.5">
-                <Button size="sm" variant="primary" className="whitespace-nowrap" onClick={() => { setComposing(true); setImporting(null); setSelected(null); }}>
-                  <Plus className="size-3.5" strokeWidth={2.4} aria-hidden />New report</Button>
-                {me?.permissions.includes("import.run") && (
-                  <Button size="sm" className="whitespace-nowrap" onClick={() => { setImporting({ id: null }); setComposing(false); setSelected(null); }}>
-                    <FileSpreadsheet className="size-3.5" strokeWidth={2} aria-hidden />Import sheet</Button>
-                )}
-              </span>
-              {saved && <span className="truncate text-xs text-ink-2">Report saved {saved.line}</span>}
-            </div>
-          )}
+          {saved && <p className="truncate px-4 pt-3 text-xs text-ink-2">Report saved {saved.line}</p>}
           <Escalations items={escalations} publicIds={(id) => cases.get(id)?.public_id}
                        onOpenCase={(id) => { setSelected(id); setFocus("Assignment"); setComposing(false); setImporting(null); }}
                        onChanged={loadQueue} />
@@ -202,7 +190,17 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
               <button className="underline underline-offset-2" onClick={() => setFilter(null)}>Show all</button>
             </p>
           )}
-          <NeedsYouNow key={filter ?? "all"} queue={queue && filter ? { ...queue, rows: queue.rows.filter((r) => matches(r, filter)) } : queue} selected={selected} onSelect={(id) => { if (id < 0) { setImporting({ id: -id, filter: "waiting" }); return; } setSelected(id); setFocus(null); setComposing(false); setImporting(null); }} onAction={onAction} />
+          <NeedsYouNow key={filter ?? "all"} queue={queue && filter ? { ...queue, rows: queue.rows.filter((r) => matches(r, filter)) } : queue} selected={selected} onSelect={(id) => { if (id < 0) { setImporting({ id: -id, filter: "waiting" }); return; } setSelected(id); setFocus(null); setComposing(false); setImporting(null); }} onAction={onAction}
+                       tools={me?.permissions.includes("report.submit") && (   // the two ways in for the desk itself: quiet, the rows' buttons come first
+                         <span className="flex shrink-0 gap-1">
+                           <Button size="sm" className="whitespace-nowrap" onClick={() => { setComposing(true); setImporting(null); setSelected(null); }}>
+                             <Plus className="size-3.5" strokeWidth={2.4} aria-hidden />New report</Button>
+                           {me?.permissions.includes("import.run") && (
+                             <Button size="sm" variant="quiet" className="!px-2.5" title="Add a volunteer sheet (Excel or CSV)" onClick={() => { setImporting({ id: null }); setComposing(false); setSelected(null); }}>
+                               <FileSpreadsheet className="size-4" strokeWidth={2} aria-hidden /><span className="sr-only">Add a sheet</span></Button>
+                           )}
+                         </span>
+                       )} />
         </nav>
         <main className={`relative hidden min-w-0 flex-1 overflow-hidden md:block ${card}`}>
           <CaseMap cases={open} selected={selected} dim={dim} onSelect={(id) => { if (!picking) { setSelected(id); setComposing(false); } }}

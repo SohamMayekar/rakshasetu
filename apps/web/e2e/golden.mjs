@@ -149,7 +149,7 @@ try {
 
   // ---- 1:15 the volunteer sheet --------------------------------------------------------------------------------
   const sheetStart = Date.now();
-  await O.getByRole("button", { name: "Import sheet" }).click();
+  await O.getByRole("button", { name: "Add a sheet" }).click();
   await O.locator('input[type="file"]').setInputFiles(SCRIPT.sheet);
   await O.getByRole("button", { name: "Confirm mapping and import" }).click();
   const summary = await until(async () => (await O.locator('[aria-label="Import a sheet"]').innerText({ timeout: 300 })).match(/300 rows → [^\n]*/)?.[0], 90000);

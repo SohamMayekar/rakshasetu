@@ -14,8 +14,20 @@ import { plainAction, plainChip, withWords } from "@/lib/words";
 type Shown = QueueRow & { handled?: boolean };
 const PAGE = 80;
 
-export function NeedsYouNow({ queue, selected, onSelect, onAction }: {
-  queue: Queue | null; selected: number | null; onSelect: (id: number) => void; onAction: (row: QueueRow) => void;
+// A row says four things (m67): the place, how many people, how long they've waited, and the one next step.
+// The rest of the summary ("roof · water inside · medicine") is in the row's tooltip and the case panel.
+function parts(r: QueueRow) {
+  if (r.kind === "group") return { place: "", people: null, waiting: withWords(r.line2), owner: "" };   // "38 Urgent · 113 High · waiting 4 min"
+  const bits = r.line2.split(" · ");
+  const waiting = bits.find((b) => b.startsWith("waiting ")) ?? "";
+  const place = bits[0] === "no location yet" ? "place not known" : bits[0];
+  const owner = bits.slice(1).filter((b) => !b.startsWith("waiting ")).join(" · ");
+  const people = r.line1?.match(/^~?\d+ (?:people|person)/)?.[0] ?? null;
+  return { place, people, waiting, owner };
+}
+
+export function NeedsYouNow({ queue, selected, onSelect, onAction, tools }: {
+  queue: Queue | null; selected: number | null; onSelect: (id: number) => void; onAction: (row: QueueRow) => void; tools?: React.ReactNode;
 }) {
   const [shown, setShown] = useState<Shown[] | null>(null);
   // During a surge there can be thousands of rows: render them a page at a time (the order already puts what
@@ -43,10 +55,11 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction }: {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex items-center justify-between px-4 pt-4 pb-2">
-        <h2 className="flex items-center gap-2 text-[15px] font-semibold tracking-tight">
+      <div className="flex items-center justify-between gap-2 px-4 pt-4 pb-2">
+        <h2 className="flex items-center gap-2 whitespace-nowrap text-[17px] font-semibold tracking-tight">
           Needs you now <span className="tabular rounded-full bg-wash px-2 py-0.5 text-xs font-semibold text-ink-2">{queue.rows.length}</span>
         </h2>
+        {tools}
       </div>
       {(waiting.fresh > 0 || waiting.handled > 0) && (
         <div className="sticky top-0 z-10 py-1.5">
@@ -68,25 +81,27 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction }: {
                    aria-current={selected === r.id}
                    className={`flex w-full cursor-pointer gap-3 rounded-2xl px-2.5 py-2.5 text-left transition-colors hover:bg-wash ${selected === r.id ? "bg-wash ring-1 ring-line" : ""}`}>
                 <PriorityWell level={r.priority} />
-                <span className="block min-w-0 flex-1">
-                <span className="flex items-center justify-between gap-2">
-                  <span className="flex min-w-0 items-baseline gap-2"><Priority level={r.priority} shape={false} />
-                    {r.kind === "group" ? <span className="truncate font-semibold">Sheet · {r.public_id}</span> : <span className="tabular font-semibold">{r.public_id}</span>}
-                  </span>
-                  {r.handled ? <span className="text-xs text-ink-3">handled</span> : r.chip && <Chip tone="attention">{plainChip(r.chip)}</Chip>}
-                </span>
-                <span className="mt-0.5 block truncate text-sm">{r.line1 && withWords(r.line1)}</span>
-                {plainAction(r.action.label).length > 22 ? (   // a long action ("Assign → SDRF Boat 2 · 2.1 km · boat") gets its own line
-                  <>
-                    <span className="block truncate text-xs text-ink-2">{withWords(r.line2)}</span>
-                    {!r.handled && <span className="mt-1.5 block"><Button size="sm" className="max-w-full truncate" onClick={(e) => { e.stopPropagation(); onAction(r); }}>{plainAction(r.action.label)}</Button></span>}
-                  </>
-                ) : (
-                  <span className="flex items-center justify-between gap-2">
-                    <span className="truncate text-xs text-ink-2">{withWords(r.line2)}</span>
-                    {!r.handled && <Button size="sm" className="shrink-0" onClick={(e) => { e.stopPropagation(); onAction(r); }}>{plainAction(r.action.label)}</Button>}
-                  </span>
-                )}
+                <span className="block min-w-0 flex-1" title={r.line1 ?? undefined}>
+                {(() => {
+                  const { place, people, waiting, owner } = parts(r);
+                  const label = plainAction(r.action.label);
+                  const button = !r.handled && (
+                    <Button size="sm" className={label.length > 24 ? "max-w-full truncate" : "shrink-0"} onClick={(e) => { e.stopPropagation(); onAction(r); }}>{label}</Button>);
+                  const head = r.kind === "group" ? `Sheet · ${r.public_id}` : `${place}${people ? ` · ${people}` : ""}`;
+                  const sub = r.kind === "group" ? `${r.line1 ? withWords(r.line1) : ""} · ${waiting}` : `${r.public_id} · ${waiting}${owner ? ` · ${owner}` : ""}`;
+                  return (
+                    <>
+                      <span className="flex items-center justify-between gap-2">
+                        <span className="truncate text-[15px] font-semibold">{head}</span>
+                        {r.handled ? <span className="text-xs text-ink-3">handled</span> : r.chip && <Chip tone="attention">{plainChip(r.chip)}</Chip>}
+                      </span>
+                      <span className={`flex gap-2 ${label.length > 24 ? "flex-col" : "items-center justify-between"}`}>
+                        <span className="truncate text-xs text-ink-2"><Priority level={r.priority} shape={false} /> · {sub}</span>
+                        {button && <span className={label.length > 24 ? "block" : "shrink-0"}>{button}</span>}
+                      </span>
+                    </>
+                  );
+                })()}
                 </span>
               </div>
             </li>
@@ -100,7 +115,7 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction }: {
       )}
       <details className="border-t border-line px-4 py-2.5 text-sm text-ink-2">
         <summary className="cursor-pointer select-none">
-          A team is on it: <span className="tabular">{queue.on_it}</span> · rescued, closing <span className="tabular">{queue.rescued_closing}</span> · closed <span className="tabular">{queue.closed}</span>
+          {`A team is on it: ${queue.on_it} · rescued, closing: ${queue.rescued_closing} · closed: ${queue.closed}`}
         </summary>
         <p className="mt-1 text-xs text-ink-3">A family whose team has checked in on time leaves this list. It comes back the moment a promise breaks.</p>
       </details>

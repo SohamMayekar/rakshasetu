@@ -1,12 +1,13 @@
 "use client";
 
-// Escalations for this desk's role, above the queue (PRD F-S2): one per silent team, one capacity-gap header
-// per district. The officer acknowledges ("I'm on it"), radios the team (Extend), or reassigns from the case.
+// Alerts (escalations, PRD F-S2) for this desk's role, above the queue: one per silent team, one capacity-gap
+// header per district. One line and one button (open the case, m67); "I'm on it" and "Heard on radio" are under More.
 
 import { useState } from "react";
 
 import { Button } from "@/components/ui";
 import { api, type Escalation } from "@/lib/api";
+import { withWords } from "@/lib/words";
 
 const CHANNELS = ["VHF", "HAM", "satellite", "phone"];
 
@@ -38,22 +39,26 @@ export function Escalations({ items, publicIds, onOpenCase, onChanged }: {
     <section aria-label="Alerts" className="mx-3 mt-3 space-y-2 rounded-2xl bg-wash p-2.5">
       {items.map((e) => (
         <div key={e.id} className="rounded-xl bg-paper p-3 shadow-[var(--shadow-card)] ring-1 ring-ink">
-          <p className="text-sm font-medium leading-snug">{e.line}</p>
+          <p className="text-sm font-medium leading-snug">{withWords(e.line)}</p>
           <p className="mt-0.5 text-xs text-ink-3">
             For the {e.role === "incharge" ? "senior officer (nobody answered in time)" : "duty officer"}
             {e.status === "acked" && e.acked_by_name ? ` · ${e.acked_by_name} is on it` : ""}
           </p>
-          {e.case_ids.length > 0 && (
-            <p className="mt-1.5 flex flex-wrap gap-1">
-              {e.case_ids.slice(0, 8).map((id) => (
-                <button key={id} onClick={() => onOpenCase(id)} className="rounded-full border border-line px-2 text-xs tabular hover:bg-wash">{publicIds(id) ?? `#${id}`}</button>
-              ))}
-              {e.case_ids.length > 8 && <span className="text-xs text-ink-3">+{e.case_ids.length - 8}</span>}
-            </p>
-          )}
-          <div className="mt-2 flex flex-wrap gap-2">
-            {e.status === "open" && <Button size="sm" onClick={() => run(() => api(`/v1/escalations/${e.id}/ack`, { method: "POST", json: {} }))}>I&rsquo;m on it</Button>}
-            {e.kind === "team_overdue" && <Extend id={e.id} run={run} />}
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            {e.case_ids.slice(0, 1).map((id) => (
+              <Button key={id} size="sm" variant="primary" onClick={() => onOpenCase(id)}>Open {publicIds(id) ?? `#${id}`}</Button>
+            ))}
+            <details className="text-xs">
+              <summary className="cursor-pointer select-none px-1 py-1.5 text-ink-2">More</summary>
+              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                {e.case_ids.slice(1, 8).map((id) => (
+                  <button key={id} onClick={() => onOpenCase(id)} className="rounded-full border border-line px-2 text-xs tabular hover:bg-wash">{publicIds(id) ?? `#${id}`}</button>
+                ))}
+                {e.case_ids.length > 8 && <span className="text-xs text-ink-3">+{e.case_ids.length - 8}</span>}
+                {e.status === "open" && <Button size="sm" onClick={() => run(() => api(`/v1/escalations/${e.id}/ack`, { method: "POST", json: {} }))}>I&rsquo;m on it</Button>}
+                {e.kind === "team_overdue" && <Extend id={e.id} run={run} />}
+              </div>
+            </details>
           </div>
         </div>
       ))}
