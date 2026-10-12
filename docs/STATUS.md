@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m09 · append_event + hash chain
+**Current milestone:** m10 · verify + audit head + tamper
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -16,6 +16,7 @@
 | m06 | Team-owned config: rakshasetu.config.yaml (PRD §9 values), roles.yaml (§4.2 matrix), flags.yaml, partners.yaml; validated loader; api fails at boot on a bad file | pytest: committed config loads; weights must sum to 1.0; heartbeat_extends_deadline and transitive_merges can't be turned on; P4 catch-all required; unknown keys refused |
 | m07 | Seed loader (owner role, DEMO_MODE only): BR/OD/HP packs, 12 demo users, timestamps relative to the seed moment; deterministic BR case generator; phone protection (E.164, HMAC, Fernet, mask); scrypt passwords | `make seed` → 3 incidents, 57 cases, 15 teams, 12 users; pytest: radio-only + out-of-service BR teams, 40+ BR cases, newest < 1 h old, Low + needs-location cases present, sequential BR-151…, phones never in clear (67 passed) |
 | m08 | Test harness: fixtures (seeded, owner_db, app_db, client, public_client), scenario/slow markers, tests/README.md; ruff in `make test` | `make test` → ruff clean + 67 passed in the container, against rakshasetu_test |
+| m09 | append_event(): advisory lock, canonical TEXT body, sha256(prev‖body), pg_notify on commit; verify_chain(); seed writes chain.genesis + one event per seeded entity | pytest: canonical body + hash formula; rollback leaves no event; 200 concurrent appends → seqs contiguous and chain verifies; NOTIFY only after commit; a slow writer can't be overtaken (seq order = commit order) |
 
 ## NOT DONE (engineering)
 

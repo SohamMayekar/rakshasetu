@@ -15,6 +15,7 @@ from pathlib import Path
 import yaml
 from sqlalchemy import Connection, create_engine, text
 
+from app.core.eventlog import SYSTEM, append_event
 from app.core.passwords import hash_password
 from app.core.phones import protect
 from app.settings import get_settings
@@ -48,6 +49,8 @@ def load_pack(conn: Connection, root: Path, code: str, now) -> dict:
         " RETURNING id"), dict(code=inc["code"], name=inc["name"], type=inc["type"], states=inc["states"],
                                language=inc.get("language", "hi"), center=_point(inc.get("center")),
                                status=inc.get("status", "active"), next=inc.get("next_case_number", 1))).scalar_one()
+    append_event(conn, actor=SYSTEM, action="incident.seeded", entity_type="incident", entity_id=incident_id,
+                 incident_id=incident_id, data={"code": inc["code"], "name": inc["name"], "type": inc["type"]})
     districts = {}
     for d in inc["districts"]:
         districts[d["name"]] = conn.execute(text(
@@ -66,6 +69,9 @@ def load_pack(conn: Connection, root: Path, code: str, now) -> dict:
                  caps=t.get("capabilities", []), app=t.get("has_app", True), radio=t.get("radio_channel"),
                  geom=_point(t["base"]), now=now, age=t.get("position_age_min", 0), max=t.get("max_active", 2),
                  status=t.get("status", "available"), reason=t.get("status_reason"))).scalar_one()
+        append_event(conn, actor=SYSTEM, action="team.seeded", entity_type="team", entity_id=teams[t["name"]],
+                     incident_id=incident_id, district_id=districts[t["district"]], team_id=teams[t["name"]],
+                     data={"name": t["name"], "has_app": t.get("has_app", True), "status": t.get("status", "available")})
 
     cases = sorted(_yaml(root / code / "cases.yaml").get("cases", []), key=lambda c: -c["minutes_ago"])
     for c in cases:
@@ -111,14 +117,18 @@ def _insert_case(conn: Connection, incident_id: int, code: str, districts: dict,
              conf=f.get("loc_confidence"), method=f.get("loc_method"), src=f.get("loc_source"),
              ltext=f.get("location_text"), flags=flags, at=at)).scalar_one()
     phone = protect(c.get("phone"))
-    conn.execute(text(
+    report_id = conn.execute(text(
         "INSERT INTO reports (incident_id, channel, source_ns, idempotency_key, received_at, reporter_phone_enc,"
         " reporter_phone_hash, reporter_phone_masked, reporter_relation, is_forward, language, text, status, case_id, source)"
         " VALUES (:i, :channel, 'seed', :key, :at, :enc, :hash, :masked, :rel, :fwd, NULL, :text, 'processed', :case,"
-        "         CAST(:source AS jsonb))"),
+        "         CAST(:source AS jsonb)) RETURNING id"),
         dict(i=incident_id, channel=c["channel"], key=c["key"], at=at, enc=phone["enc"], hash=phone["hash"],
              masked=phone["masked"], rel=c.get("relation", "unknown"), fwd=c.get("relation") == "forwarder",
-             text=c["text"], case=case_id, source='{"system": "seed"}'))
+             text=c["text"], case=case_id, source='{"system": "seed"}')).scalar_one()
+    append_event(conn, actor=SYSTEM, action="case.seeded", entity_type="case", entity_id=case_id,
+                 incident_id=incident_id, district_id=districts[c["district"]], case_id=case_id,
+                 data={"public_id": f"{code}-{number}", "status": c.get("status", "reported"), "report_id": report_id,
+                       "channel": c["channel"], "minutes_ago": c["minutes_ago"]})
     return case_id
 
 
@@ -138,10 +148,13 @@ def load_users(conn: Connection, root: Path, packs: dict) -> int:
         team_id = None
         if u.get("team"):
             team_id = next(p["teams"][u["team"]] for p in packs.values() if u["team"] in p["teams"])
-        conn.execute(text(
+        uid = conn.execute(text(
             "INSERT INTO users (username, name, role, incident_ids, district_ids, team_id, password_hash)"
-            " VALUES (:u, :n, :r, :inc, :dist, :team, :pw)"),
-            dict(u=u["username"], n=u["name"], r=u["role"], inc=incident_ids, dist=district_ids, team=team_id, pw=pw))
+            " VALUES (:u, :n, :r, :inc, :dist, :team, :pw) RETURNING id"),
+            dict(u=u["username"], n=u["name"], r=u["role"], inc=incident_ids, dist=district_ids, team=team_id,
+                 pw=pw)).scalar_one()
+        append_event(conn, actor=SYSTEM, action="user.seeded", entity_type="user", entity_id=uid, team_id=team_id,
+                     data={"username": u["username"], "role": u["role"]})
         n += 1
     return n
 
@@ -151,6 +164,9 @@ def seed(owner_url: str, packs=PACKS, root: Path | None = None) -> dict:
     engine = create_engine(owner_url, future=True)
     with engine.begin() as conn:
         wipe(conn)
+        # A reset starts a new chain: the genesis event records why (PRD F-C8).
+        append_event(conn, actor=SYSTEM, action="chain.genesis", entity_type="chain",
+                     data={"reason": "demo seed", "packs": list(packs)})
         now = conn.execute(text("SELECT now()")).scalar_one()
         loaded = {code: load_pack(conn, root, code, now) for code in packs}
         users = load_users(conn, root, loaded)
