@@ -10,6 +10,7 @@ Fixtures
   public_client TestClient on the public listener (phones through the tunnel)
 Helpers
   rows(engine, sql, **params) / one(engine, sql, **params)
+  login(client, username, password=None)   sign a TestClient in (the local picker needs no password)
 """
 
 import os
@@ -77,3 +78,10 @@ def public_client():
     from app.main import create_app
     with TestClient(create_app(), headers={"X-RS-Listener": "public"}) as c:
         yield c
+
+
+def login(client, username, password=None):
+    body = {"username": username} if password is None else {"username": username, "password": password}
+    r = client.post("/v1/auth/login", json=body)
+    assert r.status_code == 200, r.text
+    return client

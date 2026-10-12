@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m12 · cookie auth + roles + Scope
+**Current milestone:** m13 · permission + IDOR suite
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -19,6 +19,7 @@
 | m09 | append_event(): advisory lock, canonical TEXT body, sha256(prev‖body), pg_notify on commit; verify_chain(); seed writes chain.genesis + one event per seeded entity | pytest: canonical body + hash formula; rollback leaves no event; 200 concurrent appends → seqs contiguous and chain verifies; NOTIFY only after commit; a slow writer can't be overtaken (seq order = commit order) |
 | m10 | GET /v1/audit/verify, /v1/audit/head (public), /v1/audit (filtered list); `make verify`, `make tamper SEQ=N` (scripts/tamper.sql as superuser) | pytest: verify ok after seed; head public = last event; verify/list 404 on public; body edit, column edit, actor swap → broken at that seq; delete → broken at next; forged row with recomputed hash → broken at next. Live: make tamper SEQ=12 → '✗ broken at #12'; reseed → ✓ 88 events |
 | m11 | Real-time: one LISTEN → hub → WebSocket fan-out with ?since= back-fill and re-catch-up; GET /v1/events?since=; 25 s ping; case.updated coalesced to 1/s/case; incident filter (Scope arrives m12) | pytest: polling back-fill filtered by incident; live event on an open socket < 2 s; disconnect, 3 events, reconnect with since → exactly those 3; other incidents' events not sent; 5 case.updated → 2 sent. Live: WS works through Caddy :80 and :8080 |
+| m12 | Cookie auth (signed user id, httpOnly, SameSite=Strict), role+scope reloaded per request, require(action) from roles.yaml, Scope.case_where/event_where in SQL; picker local-only; /v1/me; GET /v1/cases(+/{ref}) scoped; WS needs a session; JSON-only mutations; assignments table (one live per case) | pytest (104 passed): picker local-only, public needs password, forged cookie 401, role change applies without re-login, 415 on form posts, district-scoped case lists (Gopalganj/Muzaffarpur/admin), OD officer sees no BR case, SEOC 403 on queue, team lead 403 'Not assigned to your team', WS 4401 without session. Live through Caddy: public picker 401, public password 200, cookie HttpOnly |
 
 ## NOT DONE (engineering)
 

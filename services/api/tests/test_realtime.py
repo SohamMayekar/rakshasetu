@@ -3,7 +3,7 @@
 import time
 
 from app.core.eventlog import SYSTEM, append_event
-from tests.conftest import needs_db, one
+from tests.conftest import login, needs_db, one
 
 pytestmark = needs_db
 
@@ -32,15 +32,19 @@ def _recv_until(ws, seq):
 
 
 def test_polling_backfill_returns_envelopes_filtered_by_incident(seeded, client, app_db):
+    login(client, "rdas")
     events = client.get("/v1/events", params={"since": 0, "incident": "BR"}).json()
     br = _br(app_db)
     assert events[0]["type"] == "chain.genesis" and events[0]["incident_id"] is None
     assert {e["incident_id"] for e in events} <= {None, br}
+    gopalganj = one(app_db, "SELECT id FROM districts WHERE name = 'Gopalganj'")
+    assert {e["district_id"] for e in events} <= {None, gopalganj}   # never Muzaffarpur's events
     assert any(e["type"] == "case.seeded" for e in events)
     assert [e["seq"] for e in events] == sorted(e["seq"] for e in events)
 
 
 def test_live_event_reaches_an_open_socket_within_2_seconds(seeded, client, app_db):
+    login(client, "rdas")
     head = one(app_db, "SELECT max(seq) FROM events")
     with client.websocket_connect(f"/v1/ws?since={head}&incident=BR") as ws:
         assert ws.receive_json()["type"] == "hello"
@@ -52,6 +56,7 @@ def test_live_event_reaches_an_open_socket_within_2_seconds(seeded, client, app_
 
 
 def test_reconnect_with_since_loses_nothing(seeded, client, app_db):
+    login(client, "rdas")
     br = _br(app_db)
     head = one(app_db, "SELECT max(seq) FROM events")
     with client.websocket_connect(f"/v1/ws?since={head}&incident=BR") as ws:
@@ -65,6 +70,7 @@ def test_reconnect_with_since_loses_nothing(seeded, client, app_db):
 
 
 def test_other_incidents_events_are_not_sent(seeded, client, app_db):
+    login(client, "rdas")
     od = one(app_db, "SELECT id FROM incidents WHERE code = 'OD'")
     head = one(app_db, "SELECT max(seq) FROM events")
     with client.websocket_connect(f"/v1/ws?since={head}&incident=BR") as ws:
@@ -76,6 +82,7 @@ def test_other_incidents_events_are_not_sent(seeded, client, app_db):
 
 
 def test_case_updates_are_coalesced_to_one_per_second(seeded, client, app_db):
+    login(client, "rdas")
     br = _br(app_db)
     case_id = one(app_db, "SELECT min(id) FROM cases WHERE incident_id = :i", i=br)
     head = one(app_db, "SELECT max(seq) FROM events")

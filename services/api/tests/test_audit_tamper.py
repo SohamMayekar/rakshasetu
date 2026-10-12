@@ -3,12 +3,13 @@
 import pytest
 from sqlalchemy import text
 
-from tests.conftest import needs_db, one
+from tests.conftest import login, needs_db, one
 
 pytestmark = needs_db
 
 
 def verify(client):
+    login(client, "admin")
     r = client.get("/v1/audit/verify")
     assert r.status_code == 200
     return r.json()
@@ -64,6 +65,7 @@ def test_a_forged_row_with_a_recomputed_hash_still_breaks_the_link(seeded, clien
 
 def test_event_list_filters_by_case(seeded, client, app_db):
     case_id = one(app_db, "SELECT min(id) FROM cases")
+    login(client, "rdas")
     events = client.get("/v1/audit", params={"case_id": case_id}).json()
     assert events and all(e["case_id"] == case_id for e in events)
     assert events[0]["action"] == "case.seeded"
