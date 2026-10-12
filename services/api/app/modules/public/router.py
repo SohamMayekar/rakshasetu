@@ -18,7 +18,7 @@ import hashlib
 import os
 import tempfile
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 from fastapi.concurrency import run_in_threadpool
 from pydantic import BaseModel, Field
 from sqlalchemy import text
@@ -177,3 +177,56 @@ def add_callback(public_id: str, body: Callback) -> dict:
                          action="report.callback_added", entity_type="report", entity_id=r.id, incident_id=r.incident_id,
                          district_id=r.district_id, case_id=r.case_id, data={"phone": p["masked"]})
     return {"ok": True, "saved": bool(n)}
+
+
+# --- status page (PRD F-L3) -------------------------------------------------------------------------------
+# What the public may see about a case: its step and when it last changed. Never names, phone numbers,
+# location, priority, escalation state or an ETA. "Help assigned", never "help on the way": we don't know
+# the boat is moving. When a team goes quiet the page doesn't change; only "last update" ages.
+
+STEPS = ["registered", "help_assigned", "team_reached", "rescued"]
+STEP_OF = {"reported": "registered", "checked": "registered", "assigned": "help_assigned",
+           "acknowledged": "help_assigned", "reached": "team_reached", "rescued": "rescued", "closed": "rescued"}
+STEP_EVENTS = ("case.created", "assignment.created", "assignment.reached", "rescue.recorded",
+               "rescue.partial", "case.closed", "case.reopened", "case.cancelled")
+_lookups: dict[str, list[float]] = {}
+
+
+def _rate_limit(request) -> None:
+    import time
+    key = request.headers.get("cf-connecting-ip") or (request.client.host if request.client else "?")
+    per_min = get_config().status_page.get("lookups_per_min_per_ip", 60)
+    now = time.monotonic()
+    recent = [t for t in _lookups.get(key, []) if now - t < 60]
+    if len(recent) >= per_min:
+        raise HTTPException(429, "Too many lookups; wait a minute")
+    recent.append(now)
+    _lookups[key] = recent
+
+
+def public_status(public_id: str) -> dict | None:
+    with get_engine().connect() as c:
+        case = c.execute(text("SELECT id, public_id, status, parent_case_id, created_at FROM cases WHERE public_id = :p"),
+                         {"p": public_id}).one_or_none()
+        if case is None:
+            return None
+        merged_into = None
+        if case.status == "merged" and case.parent_case_id:   # P1 #12: the merged-ID redirect
+            parent = c.execute(text("SELECT id, public_id, status, created_at FROM cases WHERE id = :i"),
+                               {"i": case.parent_case_id}).one()
+            merged_into, case = parent.public_id, parent
+        others = c.execute(text("SELECT count(*) FROM reports WHERE case_id = :c"), {"c": case.id}).scalar() - 1
+        last = c.execute(text("SELECT max(at) FROM events WHERE case_id = :c AND action = ANY(:a)"),
+                         {"c": case.id, "a": list(STEP_EVENTS)}).scalar() or case.created_at
+    step = "closed" if case.status == "cancelled" else STEP_OF.get(case.status, "registered")
+    return {"public_id": public_id, "tracked_as": merged_into, "other_reports": max(others, 0) if merged_into else None,
+            "step": step, "steps": STEPS, "last_update_at": last.isoformat()}
+
+
+@router.get("/cases/{public_id}/status")
+def case_status(public_id: str, request: Request) -> dict:
+    _rate_limit(request)
+    st = public_status(public_id)
+    if st is None:
+        raise HTTPException(404, "No case with that number")
+    return st

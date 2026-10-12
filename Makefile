@@ -5,7 +5,7 @@ WEB := apps/web
 
 COMPOSE := docker compose -f infra/docker-compose.yml --env-file .env
 
-.PHONY: help env up down nuke ps logs smoke psql contracts seed verify tamper provider-check keys dev-api dev-web test test-api test-web lint
+.PHONY: help env up down nuke ps logs smoke psql contracts seed verify tamper provider-check keys copy-check dev-api dev-web test test-api test-web lint
 
 help: ## List the targets
 	@grep -E '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) | awk -F':.*?## ' '{printf "  make %-12s %s\n", $$1, $$2}'
@@ -58,7 +58,10 @@ dev-api: ## Run the API natively on :8000 (needs services/api/.venv)
 dev-web: ## Run the web app natively on :3000
 	cd $(WEB) && npm run dev
 
-test: up test-api ## Rebuild if needed, then run every test (the web app is type-checked by its own build)
+test: up copy-check test-api ## Rebuild if needed, then run every test (the web app is type-checked by its own build)
+
+copy-check: ## Never-say words must not appear on any screen (CLAUDE.md §7)
+	python3 scripts/check_copy.py
 
 test-api: ## Lint + API tests, inside the api container, against the rakshasetu_test database
 	$(COMPOSE) exec -T api sh -c "ruff check app tests && pytest"

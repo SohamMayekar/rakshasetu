@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m21 · status page + copy rules
+**Current milestone:** m22 · OSM gazetteer import
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -28,6 +28,7 @@
 | m18 | Keyword extractor (team-owned dictionaries/hi.yaml: Hindi, Hinglish, English) filling the closed Extraction contract with quotes; Devanagari→Latin transliteration; structured partner fields used as given; case fields + per-field provenance + template summary; desk live-chips preview; demo control 'language model off' (runtime flag + event) | T10 (LM off): typed demo line → case in < 5 s, 6 people · roof · water inside · medicine · elderly, every chip method=rule with its quote. Keyword tests: demo line (Latin + Devanagari), seed texts 48/48 on headcount/hazards/needs/vulnerable, ranges/estimates, collapse words, routine vs urgent medicine, injection text extracts nothing, names + phone |
 | m19 | LLM extraction: closed contract, Pydantic + one retry, fixed system prompt with the report as delimited data, quote check (amber), keyword cross-check (dropped facts kept, amber), extraction cache, back-fill job when the model was down (RetryLater while switched off); receipts per step | pytest with a stand-in model (test double): AI chips + 'quotes ✓'; invented quote → amber; dropped 'dawai' kept as Rule + amber; priority field → retried once → rules; outage → rule-made case now, AI back-fill later (+ case.updated); no keys → no back-fill; cache avoids a second call; back-fill waits while LM is off without using attempts. T10: LLM error → case < 5 s. NOT verified: a live model call (no keys) |
 | m20 | Reporter PWA /r: tap-to-talk (MediaRecorder, auto-stop after 2 s silence, 30 s cap), device id, type-instead, 'Not sent yet, call 112/1077' state, registered view with the fixed reply + optional callback; backend: content-addressed upload, ffmpeg 16 kHz WAV (-t 30, 10 s timeout), empty/short/broken clip → 422 + no case, voice caps 5/device/min + 20/min, STT stage (Sarvam → Groq → recorded fixture), audio-only case on total STT failure, evidence linked with sha256 in the chain | pytest (9): clip → case with audio evidence whose sha256 = upload and an evidence.added event; STT failure → 'audio only: listen'; silence / 0.4 s / non-audio → 422 and no report; 6th clip in a minute → 429; retry = one report; only the sending device can poll; typed text → case. Live: headless Chromium with a fake mic on :8080/r → BR-200 registered (audio-only: no STT keys); screenshots checked at 390×844 |
+| m21 | Public status: GET /v1/public/cases/{id}/status (step + last step change only; merged → 'tracked as'; rate-limited per caller) and the /s/[id] page (3 s poll, bilingual stepper, 'last update … ago', offline note); copy-rules check (scripts/check_copy.py) in make test | pytest: body has exactly {public_id, tracked_as, other_reports, step, steps, last_update_at}, no phone/name/location/priority/ETA words; a status change shows on the next poll; 404 unknown; 61st lookup/min → 429, other callers unaffected. copy check fails on a planted 'Help is on the way' and passes on the real code. Live: /s/BR-160 at 390×844 checked |
 
 ## NOT DONE (engineering)
 

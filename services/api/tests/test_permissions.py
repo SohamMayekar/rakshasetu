@@ -55,7 +55,7 @@ ENDPOINTS = [
     ("audit.read", "GET", "/v1/audit/verify", None, "rdas", "priya", None),
     ("report.submit", "POST", "/v1/ingest/desk", {"incident": "BR", "text": "6 log chhat par", "client_id": "perm-0001"},
      "priya", "seoc", None),
-    ("case.status_public", "GET", "/v1/public/cases/BR-151/status", None, None, None, "m21"),
+    # case.status_public: anyone with the case number, no login (tests/test_status_page.py).
     ("totals.view", "GET", "/v1/metrics/promises?incident=BR", None, "seoc", "boat5", "m47"),
     ("case.check", "POST", "/v1/cases/BR-151/check", {}, "priya", "boat5", "m24"),
     ("case.move_pin", "PATCH", "/v1/cases/BR-151/location", {}, "priya", "rdas_denied", "m24"),
@@ -89,5 +89,6 @@ def test_each_row_through_its_endpoint(seeded, client, action, method, path, bod
 
 
 def test_every_action_in_the_matrix_has_an_endpoint_check():
-    checked = {e[0] for e in ENDPOINTS} | {"phone.view_masked", "case.edit"}   # covered by case detail / m24
+    checked = {e[0] for e in ENDPOINTS} | {"phone.view_masked", "case.edit",   # case detail / m24
+                                           "case.status_public"}             # test_status_page.py
     assert checked == set(PRD_MATRIX)

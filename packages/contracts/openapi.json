@@ -1275,6 +1275,50 @@
         ]
       }
     },
+    "/v1/public/cases/{public_id}/status": {
+      "get": {
+        "operationId": "case_status_v1_public_cases__public_id__status_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "public_id",
+            "required": true,
+            "schema": {
+              "title": "Public Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Case Status V1 Public Cases  Public Id  Status Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Case Status",
+        "tags": [
+          "public"
+        ]
+      }
+    },
     "/v1/public/text-turns": {
       "post": {
         "operationId": "text_turn_v1_public_text_turns_post",
