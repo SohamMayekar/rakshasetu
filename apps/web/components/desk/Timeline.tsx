@@ -49,7 +49,7 @@ function Hash({ e }: { e: Evidence }) {
   if (!e.sha256) return null;
   const ok = e.file_ok !== false && e.chain_ok;
   return (
-    <span className="tabular text-[11px] text-ink-3" title={`Fingerprint ${e.sha256}: the file is checked against the copy in the history`}>
+    <span className="tabular text-micro text-ink-3" title={`Fingerprint ${e.sha256}: the file is checked against the copy in the history`}>
       {ok ? "✓ unchanged since it was saved" : <b className="text-ink">✗ changed since it was saved</b>}
     </span>
   );
@@ -141,7 +141,7 @@ function Notes({ e, notes }: { e: Evidence; notes: PartnerNote[] }) {
   return (
     <p className="mt-1 flex flex-wrap gap-1.5">
       {mine.map((n) => (
-        <span key={n.id} className="rounded-full border border-line px-2 py-0.5 text-[11px] text-ink-2" title={n.explanation ?? ""}>
+        <span key={n.id} className="rounded-full border border-line px-2 py-0.5 text-micro text-ink-2" title={n.explanation ?? ""}>
           {n.team}: {n.value}{n.confidence != null ? ` · ${n.confidence.toFixed(2)}` : ""}{n.explanation ? ` · ${n.explanation}` : ""}
         </span>
       ))}
@@ -159,7 +159,7 @@ function ReportCard({ r, evidence, quote, notes }: { r: Report; evidence: Eviden
         {r.is_forward && <span>a forward</span>}
         {r.reporter_phone_masked && <span className="tabular">{r.reporter_phone_masked}</span>}
       </p>
-      {words ? <p className="mt-1.5 whitespace-pre-line text-[15px] leading-relaxed" lang={r.language ?? undefined}><Highlight text={words} quote={quote} /></p>
+      {words ? <p className="mt-1.5 whitespace-pre-line text-body leading-relaxed" lang={r.language ?? undefined}><Highlight text={words} quote={quote} /></p>
              : <p className="mt-1 text-sm text-ink-3">voice only: listen to it</p>}
       {r.receipt && <div className="mt-1"><Receipt steps={r.receipt} /></div>}
       {evidence.map((e) => <div key={e.id}><EvidenceItem e={e} /><Notes e={e} notes={notes} /></div>)}

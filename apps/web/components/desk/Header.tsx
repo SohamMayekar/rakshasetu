@@ -16,7 +16,7 @@ export function Header({ me, incident, live }: { me: Me | null; incident: string
   return (
     <header className="flex items-center justify-between gap-4">
       <div className="min-w-0">
-        <h1 className="truncate text-[22px] font-semibold leading-tight tracking-tight">{inc ? inc.name : incident}</h1>
+        <h1 className="truncate text-title font-semibold leading-tight tracking-tight">{inc ? inc.name : incident}</h1>
         <p className="truncate text-sm text-ink-2">{districts.length ? `${districts.join(" · ")} control room` : "District control room"}
           {me?.demo_mode && <span className="text-ink-3"> · demo data, clock 60× faster</span>}</p>
       </div>

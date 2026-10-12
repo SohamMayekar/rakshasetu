@@ -55,7 +55,7 @@ export function PhoneBar({ me }: { me: Me | null }) {
         const Icon = i.icon;
         return (
           <a key={i.href} href={i.href} aria-current={isOn(i, path) ? "page" : undefined}
-             className={`flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3 text-[13px] ${isOn(i, path) ? "bg-paper font-medium text-ink shadow-[var(--shadow-card)]" : "text-ink-2"}`}>
+             className={`flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3 text-small ${isOn(i, path) ? "bg-paper font-medium text-ink shadow-[var(--shadow-card)]" : "text-ink-2"}`}>
             <Icon className="size-4" strokeWidth={1.8} aria-hidden />{i.label}
           </a>
         );
@@ -70,11 +70,11 @@ export function Sidebar({ me, compact = false }: { me: Me | null; compact?: bool
   const on = (i: Item) => isOn(i, path);
 
   return (
-    <aside className={`sticky top-0 hidden h-screen shrink-0 flex-col py-5 md:flex ${compact ? "w-[68px] items-center px-2" : "w-60 px-4"}`}
+    <aside className={`sticky top-0 hidden h-dvh shrink-0 flex-col py-5 md:flex ${compact ? "w-[68px] items-center px-2" : "w-60 px-4"}`}
            aria-label="Navigation">
       <a href="/" className={`flex items-center gap-2.5 text-ink ${compact ? "" : "px-2"}`} title="RakshaSetu">
         <Mark className="size-8 shrink-0" />
-        {!compact && <span className="text-[17px] font-semibold tracking-tight">RakshaSetu</span>}
+        {!compact && <span className="text-heading font-semibold tracking-tight">RakshaSetu</span>}
       </a>
 
       <nav className={`mt-8 flex flex-col gap-1 ${compact ? "items-center" : ""}`}>

@@ -9,7 +9,7 @@ export function Section({ title, icon: Icon, aside, children }: { title: string;
   return (
     <section className="border-t border-line py-5 first:border-t-0">
       <div className="mb-3 flex items-center justify-between gap-2">
-        <h3 className="flex items-center gap-2 text-[15px] font-semibold tracking-tight">
+        <h3 className="flex items-center gap-2 text-body font-semibold tracking-tight">
           {Icon && <Icon className="size-4 text-ink-3" strokeWidth={1.9} aria-hidden />}{title}
         </h3>
         {aside}

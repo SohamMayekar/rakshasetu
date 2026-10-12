@@ -30,7 +30,7 @@ function Fold({ title, icon: Icon, hint, open, onToggle, children }: {
     <section data-section={title} className="border-t border-line first:border-t-0">
       <button onClick={onToggle} aria-expanded={open} className="flex w-full items-center gap-2 py-3.5 text-left">
         <Icon className="size-4 shrink-0 text-ink-3" strokeWidth={1.9} aria-hidden />
-        <span className="text-[15px] font-semibold tracking-tight">{title}</span>
+        <span className="text-body font-semibold tracking-tight">{title}</span>
         {hint && !open && <span className="min-w-0 flex-1 truncate text-sm text-ink-3">· {hint}</span>}
         <ChevronDown className={`ml-auto size-4 shrink-0 text-ink-3 transition-transform ${open ? "rotate-180" : ""}`} aria-hidden />
       </button>
@@ -212,7 +212,7 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
   const evidenceCount = tl?.evidence.length ?? 0;
 
   return (
-    <aside className="fixed inset-0 z-40 flex flex-col overflow-hidden bg-paper md:static md:h-full md:w-[440px] md:shrink-0 md:rounded-[20px] md:border md:border-line/80 md:shadow-[var(--shadow-card)]" aria-label={`Case ${c.public_id}`}>
+    <aside className="fixed inset-0 z-40 flex flex-col overflow-hidden bg-paper md:static md:h-full md:w-[440px] md:shrink-0 md:rounded-card md:border md:border-line/80 md:shadow-[var(--shadow-card)]" aria-label={`Case ${c.public_id}`}>
       <div ref={body} className="scroll-quiet flex-1 overflow-y-auto">
       <div className="m-3 mb-0 rounded-2xl bg-wash px-4 py-4">
         <div className="flex items-start justify-between gap-3">
@@ -225,7 +225,7 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
           </div>
           <Button variant="quiet" size="sm" onClick={onClose} aria-label="Close" title="Close"><X className="size-4" aria-hidden />Close</Button>
         </div>
-        <p className="mt-3 text-[17px] font-semibold leading-snug">{c.summary}</p>
+        <p className="mt-3 text-heading font-semibold leading-snug">{c.summary}</p>
         <p className="mt-1.5 flex items-start gap-1.5 text-sm">
           <MapPin className="mt-0.5 size-4 shrink-0 text-ink-3" aria-hidden />
           <span>{c.location_text ?? "Place not known yet"}{c.radius_m ? <span className="text-ink-2"> · {within(c.radius_m)}</span> : null}

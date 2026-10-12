@@ -30,7 +30,7 @@ export function Ring({ due, windowMs, overdue, label = "check-in due", demo }: {
       </svg>
       {late ? <span className="rounded-full bg-ink px-2 py-0.5 text-xs font-medium text-paper">Contact overdue {mmss(-left)}</span>
             : <span className="tabular text-sm">{label} <b>{mmss(left)}</b></span>}
-      {demo && <span className="text-[10px] text-ink-3">demo clock: 60× faster</span>}
+      {demo && <span className="text-micro text-ink-3">demo clock: 60× faster</span>}
     </span>
   );
 }

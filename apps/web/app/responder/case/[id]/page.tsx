@@ -38,7 +38,7 @@ export default function ResponderCase({ params }: { params: Promise<{ id: string
   if (denied) {
     return (
       <main className="mx-auto max-w-md px-5 py-10">
-        <p className="text-sm font-semibold uppercase tracking-widest text-ink-3">Not your team&rsquo;s case</p>
+        <p className="text-small font-medium text-ink-2">Not your team&rsquo;s case</p>
         <h1 className="mt-1 text-2xl font-semibold">{denied}</h1>
         <p className="mt-2 text-ink-2">Your team can open only the cases assigned to it. Ask the control room on radio if you think this one should be yours.</p>
         {/* a rescue record that hands the case back (someone still there) ends the team's access: its taps still show */}
@@ -60,9 +60,9 @@ export default function ResponderCase({ params }: { params: Promise<{ id: string
   const step = !a ? null : a.phase === "offered" ? "acknowledge" : a.phase === "acknowledged" ? "reached" : "rescue";
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col bg-canvas pb-6">
-      <div className="m-3 mb-0 h-44 overflow-hidden rounded-[24px] bg-wash shadow-[var(--shadow-card)]">{c.lat != null && <CaseMap cases={[c]} selected={c.id} onSelect={() => {}} />}</div>
-      <div className="mx-3 mt-3 flex-1 rounded-[24px] bg-paper px-5 py-4 shadow-[var(--shadow-card)]">
+    <main className="mx-auto flex min-h-dvh max-w-md flex-col bg-canvas pb-6">
+      <div className="m-3 mb-0 h-44 overflow-hidden rounded-card bg-wash shadow-[var(--shadow-card)]">{c.lat != null && <CaseMap cases={[c]} selected={c.id} onSelect={() => {}} />}</div>
+      <div className="mx-3 mt-3 flex-1 rounded-card bg-paper px-5 py-4 shadow-[var(--shadow-card)]">
         <p className="flex items-baseline gap-3 text-3xl font-semibold tracking-tight"><Priority level={c.priority} /><span className="tabular">{c.public_id}</span></p>
         {words && (
           <p className="mt-3 whitespace-pre-line rounded-2xl rounded-tl-md bg-wash px-4 py-3 text-xl leading-snug" lang={words.language ?? undefined}>&ldquo;{words.transcript ?? words.text}&rdquo;</p>

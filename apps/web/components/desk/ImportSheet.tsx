@@ -81,7 +81,7 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
   const count = (k: string) => rows?.filter((r) => k === "waiting" ? r.outcome === "new" && !r.owned && r.status !== "closed" : r.outcome === k).length ?? 0;
 
   return (
-    <aside className="fixed inset-0 z-40 flex flex-col overflow-hidden bg-paper md:static md:h-full md:w-[500px] md:shrink-0 md:rounded-[20px] md:border md:border-line/80 md:shadow-[var(--shadow-card)]" aria-label="Import a sheet">
+    <aside className="fixed inset-0 z-40 flex flex-col overflow-hidden bg-paper md:static md:h-full md:w-[500px] md:shrink-0 md:rounded-card md:border md:border-line/80 md:shadow-[var(--shadow-card)]" aria-label="Import a sheet">
       <div className="flex items-center justify-between border-b border-line px-5 py-4">
         <h2 className="text-lg font-semibold tracking-tight">{imp ? imp.file_name : "Import a volunteer sheet"}</h2>
         <Button variant="quiet" size="sm" onClick={onClose}>Close</Button>
@@ -128,7 +128,7 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
                 ))}
               </tbody>
             </table>
-            <h3 className="mt-5 text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-3">How the first rows read</h3>
+            <h3 className="mt-5 text-small font-semibold text-ink-2">How the first rows read</h3>
             <ol className="mt-1 space-y-1.5">
               {imp.preview.map((p) => {
                 const r = p.reads_as;
@@ -149,7 +149,7 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
           <div>
             <p className="font-medium">Importing row by row…</p>
             <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-wash">
-              <div className="h-full bg-ink transition-all" style={{ width: `${imp.rows_total ? (100 * imp.rows_done) / imp.rows_total : 0}%` }} />
+              <div className="h-full bg-ink transition-[width] duration-300" style={{ width: `${imp.rows_total ? (100 * imp.rows_done) / imp.rows_total : 0}%` }} />
             </div>
             <p className="mt-2 tabular text-ink-2">{imp.rows_done} of {imp.rows_total} · {imp.new_cases} new · {imp.merged} merged · {imp.to_check} to check · rules read {imp.rules_read}, AI asked about {imp.ai_asked}</p>
           </div>
@@ -157,7 +157,7 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
 
         {imp?.status === "done" && (
           <>
-            <p className="text-[15px] font-medium leading-snug">{imp.summary}</p>
+            <p className="text-body font-medium leading-snug">{imp.summary}</p>
             <div className="mt-3 flex flex-wrap gap-1.5">
               {OUTCOMES.filter(([k]) => count(k) > 0).map(([k, label]) => (
                 <button key={k} onClick={() => setFilter(k)}

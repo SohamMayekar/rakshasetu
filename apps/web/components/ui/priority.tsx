@@ -21,7 +21,7 @@ const WELL: Record<Level, string> = { P1: "bg-p1/10 text-p1", P2: "bg-p2/10 text
 
 export function PriorityWell({ level, size = "md" }: { level: Level; size?: "md" | "lg" }) {
   return (
-    <span className={`grid shrink-0 place-items-center rounded-full ${WELL[level]} ${size === "lg" ? "size-11 text-base" : "size-9 text-[13px]"}`}
+    <span className={`grid shrink-0 place-items-center rounded-full ${WELL[level]} ${size === "lg" ? "size-11 text-base" : "size-9 text-small"}`}
           title={`${WORD[level]} (${level})`} aria-hidden>
       <span className="leading-none">{SHAPE[level]}</span>
     </span>

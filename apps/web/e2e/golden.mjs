@@ -125,7 +125,7 @@ try {
   }, 8000);
   check(!!lit && /6/.test(lit), `hovering "6" lights up the son's own words: “${lit}”`);
   const factsText = await facts.innerText();
-  check(/RULE|AI/.test(factsText), "every fact carries its method chip");
+  check(/\b(Rule|AI)\b/.test(factsText), "every fact carries its method chip (Rule or AI)");
   const where = (await facts.innerText()).match(/because[^\n]*/)?.[0] ?? "";
   say(`the circle: ${where}`);
   const receipt = await O.locator('[data-section="Timeline & evidence"]').innerText();

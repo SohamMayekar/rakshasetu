@@ -163,9 +163,9 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
     setFocus({ pin: "Facts", match: "Timeline & evidence", radio: "Assignment", assign: "Assignment", open: null, check: null }[row.action.kind] ?? null);
   }, [loadQueue]);
 
-  const card = "rounded-[20px] border border-line/80 bg-paper shadow-[var(--shadow-card)]";
+  const card = "rounded-card border border-line/80 bg-paper shadow-[var(--shadow-card)]";
   return (
-    <div className="flex h-screen bg-canvas">
+    <div className="flex h-dvh bg-canvas">
       <Sidebar me={me} compact />
       <div className="flex min-w-0 flex-1 flex-col gap-2.5 p-3 md:pl-0">
       <Header me={me} incident={incident} live={live} />

@@ -30,7 +30,7 @@ function Receipt({ p, children, onQuote }: { p: Prov; children: React.ReactNode;
       <Check state={state} title={p.amber} />
       <span>{children}</span>
       <MethodChip method={method(p)} />
-      {p.source === "sheet column" && <span className="text-[10px] text-ink-3">from the sheet</span>}
+      {p.source === "sheet column" && <span className="text-micro text-ink-3">from the sheet</span>}
     </span>
   );
 }

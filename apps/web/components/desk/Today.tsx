@@ -20,9 +20,9 @@ function Tile({ icon, label, value, alert, children }: {
     <div className={`flex min-w-0 items-center gap-3 rounded-2xl bg-paper px-4 py-2.5 shadow-[var(--shadow-card)] ${alert ? "ring-2 ring-ink" : ""}`}>
       <IconWell icon={icon} tone={alert ? "ink" : "wash"} />
       <div className="min-w-0 leading-tight">
-        <p className="text-[13px] text-ink-2">{label}</p>
+        <p className="text-small text-ink-2">{label}</p>
         <p className="flex flex-wrap items-baseline gap-x-2">
-          <span className="tabular text-[24px] font-semibold tracking-tight">{value ?? "–"}</span>
+          <span className="tabular text-title font-semibold tracking-tight">{value ?? "–"}</span>
           {children}
         </p>
       </div>

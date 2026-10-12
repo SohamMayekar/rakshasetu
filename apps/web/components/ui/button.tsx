@@ -11,6 +11,6 @@ export function Button({ variant = "secondary", size = "md", className = "", ...
     secondary: "border border-line bg-paper text-ink shadow-[0_1px_2px_rgba(21,21,21,0.04)] hover:bg-wash disabled:text-ink-3",
     quiet: "text-ink-2 hover:bg-black/[0.04] hover:text-ink disabled:text-ink-3",
   }[variant];
-  const s = { sm: "h-8 rounded-full px-3.5 text-[13px]", md: "h-10 rounded-full px-5 text-sm", field: "min-h-16 w-full rounded-2xl px-5 text-lg" }[size];
-  return <button {...rest} className={`inline-flex items-center justify-center gap-1.5 font-medium transition-colors disabled:cursor-not-allowed ${v} ${s} ${className}`} />;
+  const s = { sm: "h-8 rounded-full px-3.5 text-small", md: "h-10 rounded-full px-5 text-sm", field: "min-h-16 w-full rounded-card px-5 text-lg" }[size];
+  return <button {...rest} className={`inline-flex items-center justify-center gap-1.5 font-medium transition-[background-color,color,transform] duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:active:scale-100 ${v} ${s} ${className}`} />;
 }

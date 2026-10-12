@@ -7,7 +7,7 @@ import type { ElementType, ReactNode } from "react";
 export function Card({ as: As = "div", className = "", children, ...rest }: {
   as?: ElementType; className?: string; children: ReactNode; [k: string]: unknown;
 }) {
-  return <As {...rest} className={`rounded-[20px] border border-line/80 bg-paper shadow-[var(--shadow-card)] ${className}`}>{children}</As>;
+  return <As {...rest} className={`rounded-card border border-line/80 bg-paper shadow-[var(--shadow-card)] ${className}`}>{children}</As>;
 }
 
 export function IconWell({ icon: Icon, size = "md", tone = "wash", label }: {
@@ -26,8 +26,8 @@ export function PageHeader({ title, sub, aside }: { title: ReactNode; sub?: Reac
   return (
     <header className="flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">
-        <h1 className="text-[28px] font-semibold leading-tight tracking-tight">{title}</h1>
-        {sub && <p className="mt-1 text-[15px] text-ink-2">{sub}</p>}
+        <h1 className="text-display font-semibold leading-tight tracking-tight">{title}</h1>
+        {sub && <p className="mt-1 text-body text-ink-2">{sub}</p>}
       </div>
       {aside && <div className="flex items-center gap-2">{aside}</div>}
     </header>

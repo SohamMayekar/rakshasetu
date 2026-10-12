@@ -102,10 +102,10 @@ export default function ReporterPage() {
     <main className="mx-auto flex min-h-dvh max-w-md flex-col bg-canvas px-5 pb-8 pt-6">
       <header className="mb-4">
         <p className="flex items-center gap-2 text-sm font-semibold text-ink"><Mark className="size-6" />RakshaSetu</p>
-        <h1 className="mt-4 text-[26px] font-semibold leading-tight tracking-tight">Tell us who needs help, and where</h1>
+        <h1 className="mt-4 text-display font-semibold leading-tight tracking-tight">Tell us who needs help, and where</h1>
       </header>
 
-      <section aria-live="polite" className="flex flex-1 flex-col items-center justify-center rounded-[28px] bg-paper px-5 py-8 text-center shadow-[var(--shadow-card)]">
+      <section aria-live="polite" className="flex flex-1 flex-col items-center justify-center rounded-card bg-paper px-5 py-8 text-center shadow-[var(--shadow-card)]">
         {state.kind === "registered" ? (
           <Registered publicId={state.publicId} reply={state.reply} onAgain={() => setState({ kind: "idle" })} />
         ) : (
@@ -196,7 +196,7 @@ function Registered({ publicId, reply, onAgain }: { publicId: string; reply: Rep
   const [asking, setAsking] = useState(false);
   return (
     <div className="w-full">
-      <p className="text-[28px] font-semibold leading-tight tracking-tight">We have your report.</p>
+      <p className="text-display font-semibold leading-tight tracking-tight">We have your report.</p>
       <p className="mt-3 text-lg leading-relaxed text-ink-2">{reply.en}</p>
       <p className="mt-5 text-sm text-ink-3">Your case number is <span className="tabular font-semibold text-ink">{publicId}</span>, in case a rescuer asks. You don&rsquo;t need to remember it.</p>
       <a href={`/s/${publicId}`} className="mt-5 inline-block rounded-full bg-ink px-6 py-3 font-medium text-paper">See what happens next</a>

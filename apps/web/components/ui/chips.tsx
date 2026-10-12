@@ -24,7 +24,7 @@ const METHOD: Record<Method, { label: string; title: string }> = {
 export function MethodChip({ method }: { method: Method }) {
   const m = METHOD[method];
   return (
-    <span title={m.title} className={`inline-flex items-center rounded-md bg-wash px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide text-ink-2 ${method === "ai" ? "italic" : ""}`}>
+    <span title={m.title} className={`inline-flex items-center rounded-md bg-wash px-1.5 py-px text-micro font-semibold text-ink-2 ${method === "ai" ? "italic" : ""}`}>
       {m.label}
     </span>
   );
@@ -41,5 +41,5 @@ export function Check({ state, title }: { state: "checked" | "unchecked" | "ambe
 const CHANNEL: Record<string, string> = { voice: "Voice", whatsapp: "WhatsApp", spreadsheet: "Sheet", web_form: "Typed at the desk", partner: "Partner system" };
 
 export function ChannelTag({ channel }: { channel: string }) {
-  return <span className="text-[11px] font-semibold text-ink-3">{CHANNEL[channel] ?? channel}</span>;
+  return <span className="text-micro font-semibold text-ink-3">{CHANNEL[channel] ?? channel}</span>;
 }

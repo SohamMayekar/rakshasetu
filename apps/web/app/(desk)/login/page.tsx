@@ -35,10 +35,10 @@ export default function Login() {
   }, []);
 
   return (
-    <main className="grid min-h-screen place-items-center bg-canvas px-4 py-10">
+    <main className="grid min-h-dvh place-items-center bg-canvas px-4 py-10">
       <Card className="w-full max-w-xl p-6 md:p-8">
-        <div className="flex items-center gap-2.5"><Mark className="size-8 text-ink" /><span className="text-[17px] font-semibold tracking-tight">RakshaSetu</span></div>
-        <h1 className="mt-6 text-[26px] font-semibold tracking-tight">Sign in</h1>
+        <div className="flex items-center gap-2.5"><Mark className="size-8 text-ink" /><span className="text-heading font-semibold tracking-tight">RakshaSetu</span></div>
+        <h1 className="mt-6 text-display font-semibold tracking-tight">Sign in</h1>
         {picker ? (
           <>
             <p className="mt-1 text-sm text-ink-2">Pick who you are. Everyone here is made up for the demo.</p>
@@ -51,7 +51,7 @@ export default function Login() {
                             className="flex w-full items-center gap-4 rounded-2xl border border-line px-4 py-3.5 text-left transition-colors hover:bg-wash">
                       <span className="grid size-11 shrink-0 place-items-center rounded-full bg-wash text-ink" aria-hidden><Icon className="size-5" strokeWidth={1.8} /></span>
                       <span className="min-w-0 flex-1">
-                        <span className="block text-[17px] font-semibold">{u.title}</span>
+                        <span className="block text-heading font-semibold">{u.title}</span>
                         <span className="block text-sm text-ink-2">{u.line}{u.role !== "team_lead" && u.role !== "admin" ? ` · ${u.name}` : ""}</span>
                       </span>
                       <ChevronRight className="size-5 shrink-0 text-ink-3" aria-hidden />

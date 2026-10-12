@@ -89,7 +89,7 @@ export default function DemoPage() {
 
       <Card className="mt-4 px-6 py-6">
         <p className="text-sm text-ink-3">Step {at + 1} of {SCRIPT.length}</p>
-        <h2 className="mt-1 text-[28px] font-semibold leading-tight tracking-tight">{scene.title}</h2>
+        <h2 className="mt-1 text-display font-semibold leading-tight tracking-tight">{scene.title}</h2>
         <p className="mt-2 text-lg leading-snug">{scene.do}</p>
         <div className="mt-5 flex flex-wrap items-center gap-3">
           {at < SCRIPT.length - 1
@@ -130,7 +130,7 @@ export default function DemoPage() {
         </Card>
       </div>
 
-      <details className="mt-4 rounded-[20px] bg-paper px-5 py-3 shadow-[var(--shadow-card)]">
+      <details className="mt-4 rounded-card bg-paper px-5 py-3 shadow-[var(--shadow-card)]">
         <summary className="cursor-pointer select-none py-1 text-sm font-medium">More controls</summary>
         <div className="text-sm">
           <Shows />

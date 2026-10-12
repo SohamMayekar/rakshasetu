@@ -1,5 +1,7 @@
 # design system · ink on paper, on a soft canvas; hue = priority
 
+- **Foundations (m78):** six text sizes as tokens (`text-display` 32 · `text-title` 22 · `text-heading` 17 · `text-body` 15 · `text-small` 13 · `text-micro` 11); one shape rule (`rounded-card` 16 px for a card on the canvas, 12 px for a well or row inside it, pills for buttons and chips); shadows tinted to the canvas and only on floating surfaces; an ink focus ring on every control; buttons press at 0.98; reduced motion honoured; no all-caps labels. Findings and phases: `docs/DESIGN_AUDIT.md`.
+
 - **m76:** `/ui` is "Building blocks", described in plain words (how urgent, the numbers on the desk, one label per row, where each fact came from, the place circle, buttons, the list), and `make copy-check` covers it like every other screen.
 
 - **What it is:** `apps/web/components/ui/` — the small set of pieces every screen is built from, shown together at **`/ui`** (local listener only). Tokens live in `app/globals.css` (`@theme`): ink, three warm greys, one hairline, a quiet wash, the canvas, paper, the four priority hues, amber, and two shadows.

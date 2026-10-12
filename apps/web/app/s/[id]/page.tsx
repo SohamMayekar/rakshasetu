@@ -82,7 +82,7 @@ export default function StatusPage({ params }: { params: Promise<{ id: string }>
   return (
     <Shell>
       <p className="text-sm text-ink-3">Case <span className="tabular">{st.tracked_as ?? st.public_id}</span></p>
-      <p className="mt-2 text-[26px] font-semibold leading-snug tracking-tight">{SENTENCE[st.step] ?? LABEL[st.step]}</p>
+      <p className="mt-2 text-display font-semibold leading-snug tracking-tight">{SENTENCE[st.step] ?? LABEL[st.step]}</p>
       {st.tracked_as && (
         <p className="mt-3 rounded-xl bg-wash px-4 py-3 text-ink">
           Your report {st.public_id} is now tracked as <b className="tabular">{st.tracked_as}</b>, together with{" "}
@@ -161,7 +161,7 @@ function Shell({ children }: { children: React.ReactNode }) {
   return (
     <main className="mx-auto min-h-dvh max-w-md bg-canvas px-5 pb-8 pt-6">
       <p className="mb-5 flex items-center gap-2 text-sm font-semibold text-ink"><Mark className="size-6" />RakshaSetu</p>
-      <div className="rounded-[28px] bg-paper px-6 py-7 shadow-[var(--shadow-card)]">{children}</div>
+      <div className="rounded-card bg-paper px-6 py-7 shadow-[var(--shadow-card)]">{children}</div>
       <p className="mt-4 flex items-center gap-3 rounded-2xl bg-paper px-4 py-3 text-sm text-ink-2 shadow-[var(--shadow-card)]">
         <span className="grid size-9 shrink-0 place-items-center rounded-full bg-wash"><Phone className="size-4 text-ink" aria-hidden /></span>
         <span>You don&rsquo;t need to do anything here. If someone is in danger right now, call <b>112</b> or <b>1077</b>.</span>

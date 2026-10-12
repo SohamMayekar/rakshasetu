@@ -10,7 +10,7 @@ import { Because, Button, Card, ChannelTag, Check, Chip, CircleLegend, Empty, Es
 export default function BuildingBlocks() {
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="text-[28px] font-semibold tracking-tight">Building blocks</h1>
+      <h1 className="text-display font-semibold tracking-tight">Building blocks</h1>
       <p className="mt-1 text-sm text-ink-2">Black on white. Colour is used for one thing only: how urgent a family is.</p>
       <Card className="mt-6 px-6">
 

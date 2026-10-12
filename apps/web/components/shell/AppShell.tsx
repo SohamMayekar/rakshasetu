@@ -13,7 +13,7 @@ export function AppShell({ me: given, compact = false, children }: { me?: Me | n
   useEffect(() => { if (given === undefined) api<Me>("/v1/me").then(setFetched).catch(() => {}); }, [given]);
   const me = given === undefined ? fetched : given;
   return (
-    <div className="flex min-h-screen bg-canvas">
+    <div className="flex min-h-dvh bg-canvas">
       <Sidebar me={me} compact={compact} />
       <div className="min-w-0 flex-1"><PhoneBar me={me} />{children}</div>
     </div>

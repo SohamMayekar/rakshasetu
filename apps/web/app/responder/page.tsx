@@ -25,7 +25,7 @@ function Login({ onIn }: { onIn: () => void }) {
     <main className="mx-auto min-h-dvh max-w-md bg-canvas px-5 py-8">
       <p className="flex items-center gap-2 text-sm font-semibold"><Mark className="size-6" />RakshaSetu · Team</p>
       <h1 className="mt-6 text-3xl font-semibold tracking-tight">Sign in as your team</h1>
-      <form className="mt-6 space-y-3 rounded-[28px] bg-paper p-5 shadow-[var(--shadow-card)]" onSubmit={async (e) => {
+      <form className="mt-6 space-y-3 rounded-card bg-paper p-5 shadow-[var(--shadow-card)]" onSubmit={async (e) => {
         e.preventDefault();
         const f = new FormData(e.currentTarget);
         try { await api("/v1/auth/login", { method: "POST", json: { username: f.get("u"), password: f.get("p") } }); onIn(); }
@@ -53,7 +53,7 @@ const where = (c: MyCase) => `${c.location_text ?? "place not known"}${c.distanc
 function NewCase({ c }: { c: MyCase }) {
   return (
     <main className="fixed inset-0 z-50 flex flex-col bg-paper px-5 pb-6 pt-8">
-      <p className="text-sm font-semibold uppercase tracking-widest text-ink-3">New case</p>
+      <p className="text-small font-medium text-ink-2">New case for your team</p>
       <p className="mt-2 flex items-baseline gap-3 text-4xl font-semibold tracking-tight"><Priority level={c.priority} /><span className="tabular">{c.public_id}</span></p>
       <p className="mt-4 text-2xl leading-snug">{c.summary}</p>
       <p className="mt-2 text-lg text-ink-2">{where(c)}</p>
@@ -138,14 +138,14 @@ export default function Responder() {
         </p>
       )}
       {cases.length === 0 && (
-        <p className="mt-6 flex items-center gap-3 rounded-[24px] bg-paper px-5 py-6 text-lg text-ink-2 shadow-[var(--shadow-card)]">
+        <p className="mt-6 flex items-center gap-3 rounded-card bg-paper px-5 py-6 text-lg text-ink-2 shadow-[var(--shadow-card)]">
           <span className="grid size-11 shrink-0 place-items-center rounded-full bg-wash text-ink"><LifeBuoy className="size-5" strokeWidth={1.8} aria-hidden /></span>
           No cases assigned to your team right now.
         </p>
       )}
       <ul className="mt-6 space-y-3">
         {cases.map((c) => (
-          <li key={c.id} className="rounded-[24px] bg-paper p-4 shadow-[var(--shadow-card)]">
+          <li key={c.id} className="rounded-card bg-paper p-4 shadow-[var(--shadow-card)]">
             <a href={`/responder/case/${c.id}`} className="block active:opacity-70">
               <p className="flex items-baseline justify-between gap-2">
                 <span className="flex items-baseline gap-2 text-xl font-semibold"><Priority level={c.priority} /><span className="tabular">{c.public_id}</span></span>

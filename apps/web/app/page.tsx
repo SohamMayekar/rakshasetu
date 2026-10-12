@@ -49,12 +49,12 @@ const DESK_ROLES = ["call_taker", "duty_officer", "incharge", "admin"];
 
 // Two big choices, nothing else competing: who are you? (Works from 320 px phones to the projector.)
 function FrontDoor() {
-  const choice = "group flex flex-col items-start gap-4 rounded-[28px] border border-line/80 bg-paper p-6 text-left shadow-[var(--shadow-card)] transition-colors hover:bg-wash md:p-8";
+  const choice = "group flex flex-col items-start gap-4 rounded-card border border-line/80 bg-paper p-6 text-left shadow-[var(--shadow-card)] transition-colors hover:bg-wash md:p-8";
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center bg-canvas px-4 py-10">
       <div className="w-full max-w-3xl">
         <p className="flex items-center justify-center gap-2.5 text-ink"><Mark className="size-9" /><span className="text-2xl font-semibold tracking-tight">RakshaSetu</span></p>
-        <h1 className="mt-4 text-center text-[26px] font-semibold leading-tight tracking-tight md:text-[32px]">Get every family to safety.</h1>
+        <h1 className="mt-4 text-center text-display font-semibold leading-tight tracking-tight ">Get every family to safety.</h1>
         <p className="mx-auto mt-2 max-w-xl text-center text-ink-2">In a flood, every call for help reaches the control room once, gets one rescue team, and is followed until the family is safe.</p>
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           <a href="/r" className={choice}>

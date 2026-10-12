@@ -62,7 +62,7 @@ export function NewReport({ incident, onSaved, onClose }: {
   };
 
   return (
-    <aside className="fixed inset-0 z-40 flex flex-col overflow-hidden bg-paper md:static md:h-full md:w-[440px] md:shrink-0 md:rounded-[20px] md:border md:border-line/80 md:shadow-[var(--shadow-card)]" aria-label="New report">
+    <aside className="fixed inset-0 z-40 flex flex-col overflow-hidden bg-paper md:static md:h-full md:w-[440px] md:shrink-0 md:rounded-card md:border md:border-line/80 md:shadow-[var(--shadow-card)]" aria-label="New report">
       <div className="flex items-center justify-between border-b border-line px-5 py-4">
         <h2 className="text-lg font-semibold tracking-tight">New report</h2>
         <Button variant="quiet" size="sm" onClick={onClose}>Close</Button>
@@ -72,7 +72,7 @@ export function NewReport({ incident, onSaved, onClose }: {
           <span className="text-sm text-ink-2">What did they say? Type the call, or paste a forwarded message.</span>
           <textarea value={text} onChange={(e) => setText(e.target.value)} rows={6} required autoFocus
                     placeholder="In Thawe village, behind the Durga temple, near the bridge, 6 people are stuck on the roof…"
-                    className="mt-1 w-full rounded-lg border border-line p-3 text-[15px] leading-snug" />
+                    className="mt-1 w-full rounded-lg border border-line p-3 text-body leading-snug" />
         </label>
         <div aria-live="polite" className="min-h-14">
           {chips.length > 0 && (

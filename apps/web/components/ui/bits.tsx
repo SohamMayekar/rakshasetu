@@ -28,7 +28,7 @@ export type ReceiptStep = { step: string; by: string; detail: string };
 export function Receipt({ steps }: { steps: ReceiptStep[] }) {
   if (!steps?.length) return null;
   return (
-    <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[11px] leading-snug text-ink-3">
+    <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-micro leading-snug text-ink-3">
       {steps.map((s, i) => (
         <span key={i} className="inline-flex items-center gap-1">
           {i > 0 && <span aria-hidden>→</span>}

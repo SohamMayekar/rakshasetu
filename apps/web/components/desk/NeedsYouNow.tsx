@@ -56,7 +56,7 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction, tools }: {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex items-center justify-between gap-2 px-4 pt-4 pb-2">
-        <h2 className="flex items-center gap-2 whitespace-nowrap text-[17px] font-semibold tracking-tight">
+        <h2 className="flex items-center gap-2 whitespace-nowrap text-heading font-semibold tracking-tight">
           Needs you now
         </h2>
         {tools}
@@ -92,7 +92,7 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction, tools }: {
                   return (
                     <>
                       <span className="flex items-center justify-between gap-2">
-                        <span className="truncate text-[15px] font-semibold">{head}</span>
+                        <span className="truncate text-body font-semibold">{head}</span>
                         {r.handled ? <span className="text-xs text-ink-3">handled</span> : r.chip && <Chip tone="attention">{plainChip(r.chip)}</Chip>}
                       </span>
                       <span className={`flex gap-2 ${label.length > 24 ? "flex-col" : "items-center justify-between"}`}>
