@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m51 judge-legibility caption (DEMO_MODE templates)
+**Current milestone:** m52 evidence hardening
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -78,6 +78,8 @@
 
 - **m13 was merged while `make test` was red** (a ruff import-order error; the merge command checked `tail`'s exit code instead of the tests'). Fixed within minutes on `fix-m13-import-order`, merged to main. The merge helper now runs `make test` itself and refuses to merge on failure.
 - **m30's three commits were first made on local `main`** (the milestone branch hadn't been started). They were never pushed from there: they were moved to `m30-import-job` before merging, and the commit helper now refuses to commit on `main`.
+
+- **m51's two commits were first made on local `main`** (I committed with plain git after merging m50, without starting the m51 branch). They were never pushed from there: they were moved to `m51-caption` before merging, and a local pre-commit hook now refuses plain commits on `main`.
 
 
 - **Bug found and fixed in m37:** after `make seed` (which restarts the event log), the realtime hub kept its old cursor, so open desks stopped receiving live updates until the API restarted. Tests didn't catch it because each test starts a fresh app. The hub now detects a new genesis and tells every screen to reload (`tests/test_realtime.py::test_a_reset_log_tells_every_open_screen_to_reload`).
