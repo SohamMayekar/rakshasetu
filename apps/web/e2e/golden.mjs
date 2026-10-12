@@ -298,6 +298,13 @@ try {
   const denied = await until(async () => (await phone()).match(/Not assigned to your team/)?.[0], 10000);
   check(!!denied, `the team lead opens ${other.public_id}: 403 "${denied}"`);
   await shot(A, "14-phone-403-not-your-team");
+  // the desk's other tabs tell the same story: the case, the teams, the alert, the sheet
+  const tab = async (path, want) => { await O.goto(`${DESK}/desk/BR/${path}`); return until(async () => want.test(await O.locator("main").innerText({ timeout: 300 })), 10000); };
+  await O.goto(`${DESK}/desk/BR/cases`);
+  await O.getByRole("searchbox").fill(pid);
+  const found = await until(async () => (await O.locator("main li").first().innerText({ timeout: 300 })).match(new RegExp(`${pid}[\\s\\S]*(Rescued|Closed)`))?.[0], 10000);
+  const tabs = [!!found, await tab("teams", /Fire & Rescue Boat 5/), await tab("alerts", /Dealt with[\s\S]*SDRF Boat 2/), await tab("sheets", /volunteer_sheet\.csv[\s\S]*Done/)];
+  check(tabs.every(Boolean), `Cases finds ${pid} rescued; Teams lists Boat 5; Alerts shows Boat 2's alert dealt with; Sheets shows the volunteer sheet done`);
   say("part 2 (1:45 → 3:05) done: the golden path ran end to end");
 } catch (e) {
   await shot(O, "FAILED-desk").catch(() => {});

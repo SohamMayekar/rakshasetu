@@ -1,5 +1,7 @@
 # desk · queue, map, drawer, live
 
+- **The tabs (m85):** next to the desk, four read-only pages for the same incident: `/desk/BR/cases` (every family, filter by where they stand, search), `/desk/BR/teams` (contact overdue first, last contact), `/desk/BR/alerts` (open alerts, then the ones dealt with) and `/desk/BR/sheets` (volunteer sheets and their rows). Each row opens the case or sheet on the desk (`?case=BR-214`, `?import=12`, `?import=new`), where all acting happens. Shared frame: `components/desk/IncidentPage.tsx`. Show it: sign in as R. Das and click through the sidebar.
+
 - **Case panel layout (m80):** the case number in the title size, the families line in the heading size, where and status in one icon column, then the one action; the four sections have 48 px headers with a short hint; facts use a label column that fits its longest label.
 
 - **Layout (m79):** one grid with 12 px gaps. The three numbers share one strip; each Needs you now row has the same three lines (place and people with one label; priority, case and wait; the action at the same left edge), separated by hairlines; the header's Live and time are plain text.

@@ -4,7 +4,7 @@
 // person and phone on screen is synthetic. On the desk it folds to icons so the map keeps its width.
 // Calm: neutral only (hue means priority), the current page is a quiet wash, never a colour.
 
-import { ClipboardList, LayoutGrid, LogOut, type LucideIcon, ShieldCheck } from "lucide-react";
+import { BellRing, ClipboardList, FileSpreadsheet, LayoutGrid, LifeBuoy, ListChecks, LogOut, type LucideIcon, ShieldCheck } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import type { Me } from "@/lib/api";
@@ -26,15 +26,22 @@ function initials(name: string) {
   return name.replace(/[^A-Za-z ]/g, " ").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("");
 }
 
-// Two places (m83): your desk (or, if you see several incidents, all of them) and History (the audit trail).
-function navItems(me: Me | null): Item[] {
+// The desk's places (m85): the live desk, every case, the teams, the alerts and the volunteer sheets of one incident,
+// then History (the audit trail). Someone who sees several incidents also gets All incidents; the incident tabs
+// follow the incident they have open.
+function navItems(me: Me | null, path: string): Item[] {
   const can = (p: string) => !!me?.permissions.includes(p);
   const desk = !!me && ["call_taker", "duty_officer", "incharge", "admin"].includes(me.user.role);
-  const one = me?.incidents.length === 1 ? me.incidents[0] : null;
+  const one = me?.incidents.length === 1 ? me.incidents[0].code : null;
+  const code = path.match(/^\/desk\/([A-Za-z]+)/)?.[1] ?? one;
+  const base = `/desk/${code}`;
   const all: Item[] = [
-    desk && one
-      ? { href: `/desk/${one.code}`, label: "Desk", icon: ClipboardList, show: true, match: (p: string) => p.startsWith("/desk/") }
-      : { href: "/", label: "All incidents", icon: LayoutGrid, show: true, match: (p: string) => p === "/" || p.startsWith("/desk/") },
+    { href: "/", label: "All incidents", icon: LayoutGrid, show: !one, match: (p: string) => p === "/" },
+    { href: base, label: "Desk", icon: ClipboardList, show: desk && !!code, match: (p: string) => p === base },
+    { href: `${base}/cases`, label: "Cases", icon: ListChecks, show: desk && !!code && can("queue.view") },
+    { href: `${base}/teams`, label: "Teams", icon: LifeBuoy, show: desk && !!code && can("queue.view") },
+    { href: `${base}/alerts`, label: "Alerts", icon: BellRing, show: desk && !!code && can("escalation.ack") },
+    { href: `${base}/sheets`, label: "Sheets", icon: FileSpreadsheet, show: desk && !!code && can("import.run") },
     { href: "/audit", label: "History", icon: ShieldCheck, show: can("audit.read") },
   ];
   return all.filter((i) => i.show);
@@ -48,7 +55,7 @@ export function PhoneBar({ me }: { me: Me | null }) {
   return (
     <nav className="flex items-center gap-1 overflow-x-auto px-3 pt-3 md:hidden" aria-label="Navigation">
       <a href="/" className="mr-1 shrink-0 text-ink" title="RakshaSetu"><Mark className="size-7" /></a>
-      {navItems(me).map((i) => {
+      {navItems(me, path).map((i) => {
         const Icon = i.icon;
         return (
           <a key={i.href} href={i.href} aria-current={isOn(i, path) ? "page" : undefined}
@@ -63,7 +70,7 @@ export function PhoneBar({ me }: { me: Me | null }) {
 
 export function Sidebar({ me, compact = false }: { me: Me | null; compact?: boolean }) {
   const path = usePathname() ?? "/";
-  const items = navItems(me);
+  const items = navItems(me, path);
   const on = (i: Item) => isOn(i, path);
 
   return (

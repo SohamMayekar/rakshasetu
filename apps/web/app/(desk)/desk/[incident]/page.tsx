@@ -80,9 +80,12 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
     listCases({ incident }).then(({ cases, seq }) => {
       setCases(new Map(cases.map((c) => [c.id, c])));
       setSince(seq);
-      const want = new URLSearchParams(location.search).get("case");   // deep link: /desk/BR?case=BR-214
+      const query = new URLSearchParams(location.search);
+      const want = query.get("case");   // deep link: /desk/BR?case=BR-214
       const hit = want ? cases.find((c) => c.public_id === want || String(c.id) === want) : undefined;
       if (hit) setSelected(hit.id);
+      const sheet = query.get("import");   // from the Sheets page: /desk/BR?import=new or ?import=12
+      if (sheet) setImporting({ id: sheet === "new" ? null : Number(sheet) || null });
     })
       .catch((e) => { if (e instanceof ApiError && e.status === 401) location.href = "/login"; });
     loadQueue();

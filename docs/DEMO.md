@@ -98,3 +98,4 @@ screen reloads itself. The steps are `son` (1), `merge` (3), `sheet` (4), `stale
 | "Can it take a flood of reports?" | `make surge RATE=50 DURATION=60`: 3,000 made-up reports; the desk's numbers keep adding up. |
 | "Can other teams' systems connect?" | `make partner-demo CASE=BR-199`: a simulated partner's signed note appears on the case. |
 | "Who can see what?" | Phone B opens another team's case: "Not your team's case". |
+| "Where do I see every family, or every team?" | **Cases** (search "Thawe") and **Teams** in the sidebar; **Alerts** shows Boat 2's alert and how it was dealt with; **Sheets** shows the volunteer sheet's rows. |
