@@ -16,9 +16,12 @@ from pydantic import ValidationError
 from rapidfuzz import fuzz
 from sqlalchemy import text
 
+from app.config import get_config
 from app.contracts import Extraction
+from app.core.flags import language_model_enabled
 from app.db import get_engine
 from app.providers import llm
+from app.providers.base import api_key
 from app.settings import get_settings
 
 SYSTEM_PROMPT = (
@@ -49,6 +52,14 @@ def cached(t: str) -> tuple[Extraction, str] | None:
         return Extraction.model_validate(r.result), f"{r.provider}/{r.model}"
     except ValidationError:
         return None
+
+
+def could_ask(t: str) -> bool:
+    """Would asking the model about this text get an answer now? The switch is on, and there is a cached
+    result or a configured key. (With no keys and an empty cache the answer is no, and rules stand.)"""
+    if not language_model_enabled():
+        return False
+    return cached(t) is not None or any(api_key(n) for n in get_config().providers["llm"])
 
 
 def remember(t: str, provider: str, model: str, ex: Extraction) -> None:

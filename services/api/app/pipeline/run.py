@@ -11,10 +11,11 @@ Stages are filled in milestone by milestone; each records a step in the report's
 """
 
 import json
+from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from pydantic import ValidationError
-from sqlalchemy import Engine, text
+from sqlalchemy import Connection, Engine, text
 
 from app.contracts import Extraction
 from app.core.eventlog import WORKER, append_event
@@ -70,7 +71,7 @@ def transcribe(engine: Engine, report) -> tuple[str | None, dict]:
     return res.value.text.strip(), {"step": "stt", "by": by, "detail": label, "language": res.value.language}
 
 
-def extract(report, allow_model: bool = True) -> Extracted:
+def extract(report, allow_model: bool = True, rules_why: str = "seeded report") -> Extracted:
     """Stage 1b (network; never inside a transaction).
     Pre-structured partner/surge fields → used as given (validated). Language model on → the model's
     extraction (cache first), quote-checked and cross-checked by rules. Model off, down, out of quota or
@@ -83,9 +84,9 @@ def extract(report, allow_model: bool = True) -> Extracted:
         except ValidationError:
             pass   # read the text instead
     keywords = extract_keywords(text_in)
-    if not allow_model:     # seeding: never spend free quota on synthetic seed reports
+    if not allow_model:     # seeding (never spend free quota on seed reports); spreadsheet rows (rules first)
         return Extracted(keywords, "rules", [{"step": "extract", "by": "Rule",
-                                              "detail": f"seeded report, keywords: {_count(keywords)} fields"}])
+                                              "detail": f"{rules_why}, keywords: {_count(keywords)} fields"}])
     if not language_model_enabled():
         return Extracted(keywords, "rules", [{"step": "extract", "by": "Rule",
                                               "detail": f"language model off: {_count(keywords)} fields"}], backfill=True)
@@ -121,11 +122,20 @@ def _count(ex: Extraction) -> int:
             + bool(ex.location.village_or_locality) + len(ex.location.landmarks))
 
 
-@handler("report.process")
-def process_report(engine: Engine, payload: dict) -> None:
-    report = load_report(engine, payload["report_id"])
-    if report is None or report.case_id is not None:
-        return                                            # idempotent: already processed
+@dataclass
+class Prepared:
+    """Stage 1's result for one report: everything decided by rules and the AI, nothing written yet."""
+    out: Extracted
+    fields: dict
+    located: object | None
+    receipt: list[dict]
+    district_hint: int | None
+
+
+def prepare(engine: Engine, report, *, allow_model: bool = True, rules_why: str = "seeded report",
+            adjust: Callable[[Extraction, str], tuple[Extraction, set[str]]] | None = None) -> Prepared:
+    """Stage 1 (network allowed; no transaction held). `adjust` lets a channel add facts it holds as data,
+    e.g. a spreadsheet's mapped columns; the keys it fills are labelled Rule, with the column as the quote."""
     stt_steps: list[dict] = []
     audio_only = False
     if report.channel == "voice" and not report.transcript:
@@ -141,9 +151,15 @@ def process_report(engine: Engine, payload: dict) -> None:
     if audio_only:
         out = Extracted(Extraction.empty(), "rules", [])
     else:
-        out = extract(report, allow_model=not payload.get("seed"))
+        out = extract(report, allow_model=allow_model, rules_why=rules_why)
+    from_columns: set[str] = set()
+    if adjust:
+        out.extraction, from_columns = adjust(out.extraction, out.method)
     extraction, method, receipt = out.extraction, out.method, stt_steps + out.receipt
     fields = fields_from_extraction(extraction, method, report.id, out.amber, out.extras)
+    for key in from_columns:
+        if isinstance(fields["provenance"].get(key), dict):
+            fields["provenance"][key].update(method="rule", source="sheet column")
     # Stage 1d: resolve location (rules over the committed gazetteer; read-only, no transaction held).
     district_hint = (report.source or {}).get("district_hint")
     with engine.connect() as c:
@@ -163,18 +179,30 @@ def process_report(engine: Engine, payload: dict) -> None:
     priority, reasons, rank = triage(fields)                  # Stage 3: rules, never the model
     fields.update(priority=priority, priority_reasons=reasons, p1_rank=rank)
     receipt.append({"step": "priority", "by": "Rule", "detail": f"{priority} · {' · '.join(reasons)}"})
+    return Prepared(out, fields, located, receipt, district_hint)
+
+
+def commit(engine: Engine, report, p: Prepared,
+           on_commit: Callable[[Connection, dict], None] | None = None) -> dict | None:
+    """Stages 2–3 in ONE short transaction under the incident lock. Returns what happened, or None if
+    another worker got there first. `on_commit(conn, result)` runs inside the same transaction."""
+    extraction, method, fields, located, district_hint = (p.out.extraction, p.out.method, p.fields, p.located,
+                                                          p.district_hint)
     with engine.begin() as conn:
         locked = conn.execute(text("SELECT case_id, incident_id, source FROM reports WHERE id = :id FOR UPDATE"),
                               {"id": report.id}).one()
         if locked.case_id is not None:
-            return
+            return None
         if locked.incident_id is None:
             conn.execute(text("UPDATE reports SET status = 'needs_review', review_reason = 'unknown incident'"
                               " WHERE id = :id"), {"id": report.id})
-            return
+            result = {"outcome": "needs_review", "case_id": None, "public_id": None, "line": "unknown incident"}
+            if on_commit:
+                on_commit(conn, result)
+            return result
         conn.execute(text("UPDATE reports SET extraction = CAST(:e AS jsonb), extraction_method = :m,"
                           " receipt = CAST(:r AS jsonb) WHERE id = :id"),
-                     {"e": extraction.model_dump_json(), "m": method, "r": json.dumps(receipt), "id": report.id})
+                     {"e": extraction.model_dump_json(), "m": method, "r": json.dumps(p.receipt), "id": report.id})
         # Stage 2: DEDUPE, under a per-incident lock so two reports about one household arriving in the same
         # second can't both create a case (rule R5).
         conn.execute(text("SELECT pg_advisory_xact_lock(hashtext(:k))"), {"k": f"dedupe:{locked.incident_id}"})
@@ -185,19 +213,37 @@ def process_report(engine: Engine, payload: dict) -> None:
         created = create_case(conn, incident_id=locked.incident_id,
                               district_id=(located.district_id if located and located.district_id else district_hint),
                               report_id=report.id, fields=fields, actor=WORKER, queue_since=report.received_at)
+        result = {"case_id": created["case_id"], "public_id": created["public_id"], "flags": fields.get("flags", [])}
         if decision.kind == "auto_merge":
             m = decision.target
+            line = reason_line(m)
             merge_cases(conn, target_id=m.candidate.case_id, source_id=created["case_id"], actor=WORKER,
-                        decided_by="rule", score=m.score.total, signals=m.score.signals, reasons=m.reasons,
-                        line=reason_line(m))
-            return
-        for m in decision.suggestions:
-            record_suggestion(conn, incident_id=locked.incident_id, district_id=created["district_id"],
-                              case_id=created["case_id"], match=m, line=reason_line(m), actor=WORKER)
-        if out.backfill:
-            # When the language model is back it re-reads this report (F-C14). Seen as "waiting" in jobs.
-            enqueue(conn, "llm.backfill", {"report_id": report.id, "case_id": created["case_id"]}, "backfill",
-                    dedupe_key=f"report:{report.id}:backfill")
+                        decided_by="rule", score=m.score.total, signals=m.score.signals, reasons=m.reasons, line=line)
+            result.update(outcome="merged", case_id=m.candidate.case_id, line=line)
+        else:
+            lines = []
+            for m in decision.suggestions:
+                lines.append(reason_line(m))
+                record_suggestion(conn, incident_id=locked.incident_id, district_id=created["district_id"],
+                                  case_id=created["case_id"], match=m, line=lines[-1], actor=WORKER)
+            open_ = [m for m in decision.suggestions if m.strength != "refused"]
+            result.update(outcome="suggested" if open_ else ("refused" if decision.suggestions else "new"),
+                          line=lines[0] if lines else None)
+            if p.out.backfill:
+                # When the language model is back it re-reads this report (F-C14). Seen as "waiting" in jobs.
+                enqueue(conn, "llm.backfill", {"report_id": report.id, "case_id": created["case_id"]}, "backfill",
+                        dedupe_key=f"report:{report.id}:backfill")
+        if on_commit:
+            on_commit(conn, result)
+        return result
+
+
+@handler("report.process")
+def process_report(engine: Engine, payload: dict) -> dict | None:
+    report = load_report(engine, payload["report_id"])
+    if report is None or report.case_id is not None:
+        return None                                       # idempotent: already processed
+    return commit(engine, report, prepare(engine, report, allow_model=not payload.get("seed")))
 
 
 def household_of(report, fields: dict) -> Household:

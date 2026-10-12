@@ -117,24 +117,30 @@ def status_done(raw: str) -> bool:
 OLD_AFTER = timedelta(hours=12)
 
 
+TEXT_FIELDS = ("location", "village", "district", "needs", "notes", "headcount")
+
+
 def normalise_row(cells: list[str], headers: list[str], mapping: dict[str, str], imported_at: datetime) -> dict:
     """One sheet row → the values the import uses, each from a mapped column, plus every flag raised."""
-    by_field: dict[str, str] = {}
+    by_field: dict[str, tuple[str, str]] = {}          # field → (header, cell)
     for h, v in zip(headers, cells, strict=False):
         f = mapping.get(h)
         if f and f not in ("ignore", "unknown") and v:
-            by_field[f] = v
+            by_field[f] = (h, v)
+    cell = {f: v for f, (_, v) in by_field.items()}
     flags: list[str] = []
-    e164, pflag = phone(by_field.get("phone", ""))
-    count, count_kind = headcount(by_field.get("headcount", ""))
-    at, tflag = when(by_field.get("time", ""), imported_at)
+    e164, pflag = phone(cell.get("phone", ""))
+    count, count_kind = headcount(cell.get("headcount", ""))
+    at, tflag = when(cell.get("time", ""), imported_at)
     for f in (pflag, tflag):
         if f:
             flags.append(f)
     if at and at < imported_at - OLD_AFTER:
         flags.append("old report: confirm before sending a team")
-    # The text the keyword extractor reads: every mapped free-text column, in a fixed order.
-    text = " · ".join(by_field[f] for f in ("location", "village", "district", "needs", "notes") if by_field.get(f))
-    return {"name": by_field.get("name"), "phone": e164, "headcount": count, "headcount_kind": count_kind,
-            "village": by_field.get("village"), "district": by_field.get("district"), "time": at,
-            "done": status_done(by_field.get("status", "")), "text": text, "flags": flags}
+    # The report text: the mapped free-text columns as "Header: value" lines, in the sheet's own words.
+    # Name and phone stay out of it (they're reporter fields; a phone never reaches the language model).
+    text = "\n".join(f"{h}: {v}" for h, v in ((by_field[f]) for f in TEXT_FIELDS if f in by_field))
+    return {"name": cell.get("name"), "phone": e164, "headcount": count, "headcount_kind": count_kind,
+            "headcount_cell": cell.get("headcount"), "village": cell.get("village"), "district": cell.get("district"),
+            "time": at, "done": status_done(cell.get("status", "")), "text": text, "flags": flags,
+            "raw": dict(zip(headers, cells, strict=False))}

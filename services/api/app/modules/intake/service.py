@@ -39,8 +39,9 @@ def _incident(conn: Connection, code: str | None) -> tuple[int | None, str | Non
 
 
 def accept(conn: Connection, report: CanonicalReport, *, source_ns: str, actor: Actor,
-           lane: str | None = None, district_id: int | None = None) -> Accepted:
-    """Insert the report and its job (one transaction, the caller's). Returns the id, or the original on replay."""
+           lane: str | None = None, district_id: int | None = None, job: bool = True) -> Accepted:
+    """Insert the report and its job (one transaction, the caller's). Returns the id, or the original on replay.
+    `job=False` only for a caller that is itself a durable, resumable job processing the report next (the importer)."""
     incident_id, incident_status = _incident(conn, report.incident_hint)
     if incident_status == "closed":
         incident_id = None   # a closed incident is read-only; the report still gets a home in review
@@ -67,8 +68,9 @@ def accept(conn: Connection, report: CanonicalReport, *, source_ns: str, actor: 
         r = conn.execute(text("SELECT id, incident_id FROM reports WHERE source_ns = :ns AND idempotency_key = :key"),
                          {"ns": source_ns, "key": report.idempotency_key}).one()
         return Accepted(report_id=r.id, replay=True, incident_id=r.incident_id)
-    enqueue(conn, "report.process", {"report_id": new_id}, lane or CHANNEL_LANE[report.channel],
-            dedupe_key=f"report:{new_id}:process")
+    if job:
+        enqueue(conn, "report.process", {"report_id": new_id}, lane or CHANNEL_LANE[report.channel],
+                dedupe_key=f"report:{new_id}:process")
     append_event(conn, actor=actor, action="report.received", entity_type="report", entity_id=new_id,
                  incident_id=incident_id, district_id=district_id,
                  data={"report_id": new_id, "channel": report.channel, "source_ns": source_ns,

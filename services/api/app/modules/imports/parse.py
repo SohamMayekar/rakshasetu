@@ -30,6 +30,7 @@ class Sheet:
     rows: list[list[str]]
     encoding: str | None = None
     warnings: list[str] = field(default_factory=list)
+    numbers: list[int] = field(default_factory=list)    # each row's number as the volunteer sees it (header = 1)
 
 
 def _cell(v) -> str:
@@ -43,7 +44,7 @@ def _cell(v) -> str:
     return s
 
 
-def _check_shape(headers: list[str], rows: list[list[str]]) -> None:
+def _check_shape(headers: list[str], rows: list) -> None:
     if len(headers) > MAX_COLS:
         raise SheetError(f"more than {MAX_COLS} columns")
     if len(rows) > MAX_ROWS:
@@ -73,13 +74,7 @@ def _xlsx(data: bytes) -> Sheet:
             raise SheetError(f"more than {MAX_COLS} columns")
         out.append([_cell(v) for v in row])
     wb.close()
-    while out and not any(out[-1]):
-        out.pop()
-    if not out:
-        raise SheetError("the sheet is empty")
-    headers, rows = out[0], [r for r in out[1:] if any(r)]
-    _check_shape(headers, rows)
-    return Sheet("xlsx", headers, rows)
+    return _shape("xlsx", list(enumerate(out, start=1)))
 
 
 def _csv(data: bytes) -> Sheet:
@@ -93,15 +88,23 @@ def _csv(data: bytes) -> Sheet:
     if text is None:
         raise SheetError("couldn't read the text encoding")
     try:
-        rows = list(csv.reader(io.StringIO(text)))
+        records = list(csv.reader(io.StringIO(text)))
     except csv.Error as e:
         raise SheetError(f"not a readable CSV ({e})") from None
-    rows = [[_cell(c) for c in r] for r in rows if any(c.strip() for c in r)]
-    if not rows:
+    sheet = _shape("csv", [(n, [_cell(c) for c in r]) for n, r in enumerate(records, start=1)])
+    sheet.encoding = encoding
+    if encoding == "cp1252" or any(MOJIBAKE.search(c) for r in sheet.rows[:200] for c in r):
+        sheet.warnings.append("some text looks garbled (saved in a different encoding); check the preview")
+    return sheet
+
+
+def _shape(kind: str, numbered: list[tuple[int, list[str]]]) -> Sheet:
+    """Header = the first non-blank row; blank rows are skipped but every row keeps its own number."""
+    numbered = [(n, r) for n, r in numbered if any(c for c in r)]
+    if not numbered:
         raise SheetError("the sheet is empty")
-    headers, body = rows[0], rows[1:]
+    (_, headers), body = numbered[0], numbered[1:]
     _check_shape(headers, body)
-    warnings = []
-    if encoding == "cp1252" or any(MOJIBAKE.search(c) for r in body[:200] for c in r):
-        warnings.append("some text looks garbled (saved in a different encoding); check the preview")
-    return Sheet("csv", headers, body, encoding=encoding, warnings=warnings)
+    width = len(headers)
+    rows = [(r + [""] * width)[:width] if len(r) < width else r for _, r in body]
+    return Sheet(kind, headers, rows, numbers=[n for n, _ in body])

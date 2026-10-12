@@ -70,7 +70,7 @@ def test_normalise_row_flags_old_rows_and_builds_the_text():
                                  "04/10/2026 01:00", "done"], headers, m, AT)
     assert n["phone"] is None and "phone damaged by Excel" in n["flags"]
     assert n["headcount"] == 6 and n["headcount_kind"] == "estimated"
-    assert n["text"] == "mandir ke paas · Thawe · dawai chahiye"
+    assert n["text"] == "Location: mandir ke paas\nGaon: Thawe\nRemarks: dawai chahiye\nKitne log: 5-6"
     assert "old report: confirm before sending a team" in n["flags"]
     assert n["done"] is True
 

@@ -18,7 +18,7 @@ Phone numbers are always masked (`98xxxxxx21`). Events are filtered per subscrib
 | Cases | `case.created` · `case.updated` · `case.merged` · `case.unmerged` · `merge.suggested` · `merge.refused` |
 | Assignments | `assignment.created` · `assignment.acknowledged` · `assignment.contact` · `assignment.overdue` · `assignment.reassigned` · `assignment.released` · `team.status` |
 | Escalation and rescues | `escalation.raised` · `escalation.acked` · `rescue.recorded` · `rescue.partial` · `rescue.confirmed` · `rescue.disputed` |
-| Imports | `import.progress` · `import.completed` |
+| Imports | `import.uploaded` · `import.mapped` · `import.progress` (about once a second, with the counts) · `import.completed` (with the summary line) |
 | Chain | `chain.genesis` (a demo reset starts a new chain) |
 | Computed (not stored) | `metrics.promises` every 2 s |
 

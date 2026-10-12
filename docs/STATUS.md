@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m30 import clustering + rules-first + per-row commits + progress
+**Current milestone:** m31 demo sheet generator (300 rows + ground truth) + P/R script
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -37,6 +37,7 @@
 | m27 | Name tokens (given-name match = 1; shared surname alone = 0; differing given names = conflict → refused, red, with the template line 'Not merged with BR-n: Rajesh ≠ Ramesh. Village and headcount alone are weak.'); relay-phone rule (a phone/device with ≥ 2 separate cases stops counting as identity; reason says so) | T4 (tests/scenarios): Ramesh Das / Rajesh Das, same village + headcount + temple, different phones → two cases, one 'refused' suggestion with conflicts ['name Rajesh ≠ Ramesh'], score ≥ 0.6 (it would have looked strong), the exact line, no possible_duplicate flag. Same given name → strong. Relay: 10 families on one volunteer phone → 10 cases, 0 auto-merges; the relay trade-off is a test; surname alone scores 0 |
 | m28 | Merge/undo: every report gets its own case first; auto-merge and accepted suggestions fold the newer case into the older (reports + evidence move, status merged → redirect), exact JSON snapshot of both cases, reports, evidence and suggestions; undo restores them exactly and blocks the pair; reject blocks the pair; manual merge keeps the older case; merge guard 409 when both have live teams; endpoints GET /v1/merge-suggestions, POST …/accept|reject, POST /v1/merges, POST /v1/merges/{id}/undo | T3 (tests/scenarios): son's report suggested (strong, same village + landmarks), accept → 2 reports on the older case, undo → both cases, reports and evidence byte-identical to before (to_jsonb comparison), merge block with the reason, audit shows case.merged then case.unmerged by Priya with the reason. Also: second undo → 409 'Already undone by Priya Kumari at …'; reject blocks + clears possible_duplicate; refused pair needs a reason to merge; merge.decide permission row runs |
 | m29 | Spreadsheet upload: safe reading (values only, caps, encodings), header synonyms + person-confirmed mapping, Excel-damage guard, headcount/date normalisation, scoped | tests/test_imports.py (Excel guard, encodings, caps, formula not evaluated, ambiguous dates, scope, local only); import.run permission row |
+| m30 | Import job: rules first, mapped columns as data, per-row commits with the row's outcome in the same transaction, in-file clustering, LLM for leftover rows (20 at a time, one row per call), progress + completed events, summary = DB counts, resumable, closed history, old-report flag | tests/test_import_job.py (spreadsheet channel integration, summary = DB, evidence, re-import doubles nothing, resume, AI path via cache); T5 tests/scenarios/test_t5_excel_damage.py |
 
 ## NOT DONE (engineering)
 

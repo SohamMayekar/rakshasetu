@@ -3,7 +3,8 @@
 POST /v1/imports               upload a CSV/XLSX (multipart: file, incident) → stored by hash, headers read,
                                mapping proposed, preview of how the first rows read
 GET  /v1/imports/{id}          the import's state and counts
-POST /v1/imports/{id}/mapping  a person confirms (or corrects) the mapping; only then can rows be imported
+POST /v1/imports/{id}/mapping  a person confirms (or corrects) the mapping; that one click starts the import job
+GET  /v1/imports/{id}/rows     every row's outcome and its reason (the judge can pick any row)
 """
 
 import json
@@ -15,13 +16,14 @@ from sqlalchemy import text
 
 from app.core.auth import Scope, require
 from app.core.eventlog import Actor, append_event
+from app.core.jobs import enqueue
 from app.core.listener import require_local
 from app.core.phones import mask
 from app.core.storage import path_for, store_bytes
 from app.db import get_engine
 from app.modules.imports import mapping as mapping_mod
 from app.modules.imports.normalise import normalise_row
-from app.modules.imports.parse import MAX_BYTES, SheetError, read
+from app.modules.imports.parse import MAX_BYTES, Sheet, SheetError, read
 
 router = APIRouter(prefix="/v1/imports", tags=["imports"], dependencies=[Depends(require_local)])
 PREVIEW_ROWS = 8
@@ -39,11 +41,11 @@ def _where(scope: Scope) -> tuple[str, dict]:
             {"scope_incidents": list(scope.incident_ids), "scope_districts": list(scope.district_ids)})
 
 
-def preview(headers: list[str], rows: list[list[str]], mapping: dict[str, str], at: datetime) -> list[dict]:
+def preview(sheet: Sheet, mapping: dict[str, str], at: datetime) -> list[dict]:
     out = []
-    for i, cells in enumerate(rows[:PREVIEW_ROWS]):
-        n = normalise_row(cells, headers, mapping, at)
-        out.append({"row": i + 2, "cells": cells,   # row 1 is the header row, as the volunteer sees it in Excel
+    for number, cells in zip(sheet.numbers[:PREVIEW_ROWS], sheet.rows[:PREVIEW_ROWS], strict=True):
+        n = normalise_row(cells, sheet.headers, mapping, at)
+        out.append({"row": number, "cells": cells,   # numbered as the volunteer sees it in Excel (header = 1)
                     "reads_as": {"name": n["name"], "phone": mask(n["phone"]) if n["phone"] else None,
                                  "headcount": n["headcount"], "headcount_kind": n["headcount_kind"],
                                  "village": n["village"], "time": n["time"].isoformat() if n["time"] else None,
@@ -88,7 +90,7 @@ def upload(file: UploadFile = File(...), incident: str = Form(..., max_length=10
             "         CAST(:preview AS jsonb), :n, :warnings) RETURNING id"),
             dict(inc=inc.id, d=district_id, name=name, sha=sha, kind=sheet.kind, enc=sheet.encoding, u=scope.user_id,
                  headers=_json(sheet.headers), proposed=_json(proposed),
-                 preview=_json(preview(sheet.headers, sheet.rows, proposed, now)), n=len(sheet.rows),
+                 preview=_json(preview(sheet, proposed, now)), n=len(sheet.rows),
                  warnings=sheet.warnings)).scalar()
         append_event(conn, actor=_actor(scope), action="import.uploaded", entity_type="import", entity_id=iid,
                      incident_id=inc.id, district_id=district_id,
@@ -128,13 +130,29 @@ def confirm_mapping(iid: int, body: Mapping, scope: Scope = Depends(require("imp
         sheet = _reread(r)
         conn.execute(text("UPDATE imports SET mapping = CAST(:m AS jsonb), preview = CAST(:p AS jsonb), status = 'mapped'"
                           " WHERE id = :id"),
-                     {"m": _json(clean), "p": _json(preview(sheet.headers, sheet.rows, clean, r.created_at)), "id": iid})
+                     {"m": _json(clean), "p": _json(preview(sheet, clean, r.created_at)), "id": iid})
         changed = sorted(h for h in clean if clean[h] != (r.proposed or {}).get(h))
         append_event(conn, actor=_actor(scope), action="import.mapped", entity_type="import", entity_id=iid,
                      incident_id=r.incident_id, district_id=r.district_id,
                      data={"import_id": iid, "mapping": clean, "changed_from_proposal": changed})
+        enqueue(conn, "import.run", {"import_id": iid}, "import", dedupe_key=f"import:{iid}:run", max_attempts=3)
         r = conn.execute(text("SELECT * FROM imports m WHERE id = :id"), {"id": iid}).one()
     return _view(r)
+
+
+@router.get("/{iid}/rows")
+def import_rows(iid: int, outcome: str | None = None, limit: int = 500,
+                scope: Scope = Depends(require("import.run"))) -> list[dict]:
+    where, params = _where(scope)
+    with get_engine().connect() as conn:
+        if conn.execute(text(f"SELECT 1 FROM imports m WHERE m.id = :id AND {where}"), {**params, "id": iid}).first() is None:
+            raise HTTPException(404, "No such import")
+        rows = conn.execute(text(
+            "SELECT r.row_number, r.outcome, r.read_by, r.reason, r.flags, c.public_id, c.priority"
+            " FROM import_rows r LEFT JOIN cases c ON c.id = r.case_id"
+            " WHERE r.import_id = :id AND (CAST(:o AS text) IS NULL OR r.outcome = :o)"
+            " ORDER BY r.row_number LIMIT :lim"), {"id": iid, "o": outcome, "lim": min(max(limit, 1), 5000)}).all()
+    return [{**dict(r._mapping), "flags": list(r.flags)} for r in rows]
 
 
 def _reread(r):
