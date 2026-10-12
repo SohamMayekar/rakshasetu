@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m14 · job queue with lanes
+**Current milestone:** m15 · intake.accept + idempotency (T1)
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -21,6 +21,7 @@
 | m11 | Real-time: one LISTEN → hub → WebSocket fan-out with ?since= back-fill and re-catch-up; GET /v1/events?since=; 25 s ping; case.updated coalesced to 1/s/case; incident filter (Scope arrives m12) | pytest: polling back-fill filtered by incident; live event on an open socket < 2 s; disconnect, 3 events, reconnect with since → exactly those 3; other incidents' events not sent; 5 case.updated → 2 sent. Live: WS works through Caddy :80 and :8080 |
 | m12 | Cookie auth (signed user id, httpOnly, SameSite=Strict), role+scope reloaded per request, require(action) from roles.yaml, Scope.case_where/event_where in SQL; picker local-only; /v1/me; GET /v1/cases(+/{ref}) scoped; WS needs a session; JSON-only mutations; assignments table (one live per case) | pytest (104 passed): picker local-only, public needs password, forged cookie 401, role change applies without re-login, 415 on form posts, district-scoped case lists (Gopalganj/Muzaffarpur/admin), OD officer sees no BR case, SEOC 403 on queue, team lead 403 'Not assigned to your team', WS 4401 without session. Live through Caddy: public picker 401, public password 200, cookie HttpOnly |
 | m13 | Permission suite: roles.yaml checked against the PRD §4.2 matrix (transcribed); one endpoint test per row (rows whose endpoint isn't built are skipped with the milestone that builds it); IDOR tests for case (public and numeric id, team lead) and WebSocket/polling events | pytest: matrix equality passes; queue.view and audit.read rows pass for allowed + denied roles; case IDOR 404 across districts, 403 for team lead; WS never delivers another district's event. 17 rows skipped until their endpoints land (listed in the test with their milestone) |
+| m14 | Job queue: jobs table, lanes from config (live_voice > whatsapp_partner > import > surge > backfill), SKIP LOCKED claims, reclaim after 60 s, retries with back-off then dead; threaded worker woken by LISTEN jobs | pytest: rollback leaves no job; dedupe_key makes enqueue idempotent; lane order voice > import > surge; two workers never claim the same job; a dead worker's job is reclaimed only after 60 s and runs exactly once; failures back off then go dead |
 
 ## NOT DONE (engineering)
 
@@ -41,6 +42,10 @@
 ## For the humans to confirm
 
 - **Demo village = Thawe, Gopalganj** (decision D5): Muzaffarpur's OSM data has no village with a mapped temple and bridge within 500 m. The pitch line changes from "[village], Muzaffarpur" to "Thawe, Gopalganj". Evidence in `data/scenarios/BR/README.md`.
+
+## Process notes
+
+- **m13 was merged while `make test` was red** (a ruff import-order error; the merge command checked `tail`'s exit code instead of the tests'). Fixed within minutes on `fix-m13-import-order`, merged to main. The merge helper now runs `make test` itself and refuses to merge on failure.
 
 ## Environment notes for this build
 

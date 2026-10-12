@@ -75,7 +75,7 @@ demo:
 
 surge: {render_batch_ms: 1000, max_case_updates_per_sec: 1}
 scheduler: {ticker_seconds: 5, job_reclaim_after: 60s}
-lanes: [live_voice, whatsapp_partner, import, surge]
+lanes: [live_voice, whatsapp_partner, import, surge, backfill]   # claim order; backfill = the LLM re-reading rule-made cases
 providers:                         # all free (PRD §12.5); first = primary, second = fallback
   stt: [sarvam_saaras, groq_whisper_large_v3]
   llm: [groq_gpt_oss_120b, gemini_flash]
