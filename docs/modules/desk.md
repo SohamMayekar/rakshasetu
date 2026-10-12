@@ -24,3 +24,10 @@
 - **Timeline & evidence** (`GET /v1/cases/{id}/timeline`): every event of this case and of the cases folded into it, in order, as **plain lines from templates** ("Merged into BR-209: same phone · same village (Mirganj) · circles overlap…", "Checked by Priya Kumari"). Each report appears as a card: channel tag, time, relation, masked phone, its words in the caller's own script, its pipeline receipt, and its evidence inline — the audio player, or the spreadsheet row (file name, row number, the cells, a link to the file). Every evidence file is **re-hashed when the drawer opens**: "sha256 3f2a… ✓ matches the audit log" (the file still hashes to its name, and that hash is the one the chain recorded), or "✗ does not match".
 - **Evidence files** (`GET /v1/evidence/{id}/file`) are served only when the evidence's case is in the caller's scope (in the SQL); a Muzaffarpur officer gets 404 for a Gopalganj file (tested).
 - **Audit:** a link to the case's raw events (the Audit screen arrives in m48).
+
+## Merge decisions (m36)
+
+- **Likely duplicates** appear at the top of *Timeline & evidence*: "Likely same household as BR-180 (strong)", the rules' reasons as the *because* ("same phone · same village (Nawadah) · same headcount (5) · 4 h apart"), and the two cases side by side. **Merge** folds the newer case into the older one (reason optional); **Not the same household** blocks the pair for good. A person decides; the reasons come from the scoring rules, never a model.
+- **Kept apart:** pairs the rules refused (different given names) fold into one line, "Kept apart from 3 cases: the names differ", because in a busy village most neighbours look alike on village + landmark alone. Opened, each shows the names that kept it apart ("Rajesh ≠ Ramesh") and **Merge anyway**, which needs a reason.
+- **Undo:** every merge line in the timeline has **Undo merge** (reason required); undone merges say so and can't be undone twice. **Same household as another case…** merges any two visible cases by hand, with a reason.
+- **After a merge** the drawer moves to the kept case.

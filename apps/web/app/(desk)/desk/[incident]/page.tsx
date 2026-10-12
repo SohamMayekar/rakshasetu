@@ -10,7 +10,7 @@ import { CaseMap } from "@/components/desk/CaseMap";
 import { Drawer, type Picked } from "@/components/desk/Drawer";
 import { Header } from "@/components/desk/Header";
 import { NeedsYouNow } from "@/components/desk/NeedsYouNow";
-import { api, ApiError, type Case, listCases, type Me } from "@/lib/api";
+import { api, ApiError, type Case, listCases, type Me, type Suggestion } from "@/lib/api";
 import { type Envelope, useLive } from "@/lib/live";
 import type { Queue, QueueRow } from "@/lib/queue";
 
@@ -38,7 +38,11 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
   const [picking, setPicking] = useState(false);
   const [picked, setPicked] = useState<Picked>(null);
   const endPick = () => { setPicking(false); setPicked(null); };
-  const loadQueue = useCallback(() => api<Queue>(`/v1/queue?incident=${encodeURIComponent(incident)}`).then(setQueue).catch(() => {}), [incident]);
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const loadQueue = useCallback(() => {
+    api<Queue>(`/v1/queue?incident=${encodeURIComponent(incident)}`).then(setQueue).catch(() => {});
+    api<Suggestion[]>(`/v1/merge-suggestions?incident=${encodeURIComponent(incident)}`).then(setSuggestions).catch(() => setSuggestions([]));
+  }, [incident]);
 
   useEffect(() => {
     api<Me>("/v1/me").then(setMe).catch((e) => { if (e instanceof ApiError && e.status === 401) location.href = "/login"; });
@@ -99,7 +103,8 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
         </main>
         {current && <Drawer c={current} me={me} focus={focus} picking={picking} picked={picked}
                             onPickStart={() => { setPicking(true); setPicked(null); }} onPickEnd={endPick}
-                            onClose={() => { setSelected(null); endPick(); }} />}
+                            onClose={() => { setSelected(null); endPick(); }}
+                            suggestions={suggestions} lookup={(id) => cases.get(id)} onSelect={setSelected} onChanged={loadQueue} />}
       </div>
     </div>
   );

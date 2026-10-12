@@ -5,8 +5,30 @@
 // its pipeline receipt, and its evidence inline: the audio clip, the spreadsheet row with file name, row number
 // and sha256. Every file is re-hashed when the drawer opens: ✓ means it still matches the audit log.
 
-import { ChannelTag, Clock, Receipt } from "@/components/ui";
-import type { Evidence, Report, TimelineEvent } from "@/lib/api";
+import { useState } from "react";
+
+import { Button, ChannelTag, Clock, Receipt } from "@/components/ui";
+import { api, type Evidence, type Report, type TimelineEvent } from "@/lib/api";
+
+function Undo({ mergeId, onDone }: { mergeId: number; onDone: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  if (!open) return <Button size="sm" variant="quiet" onClick={() => setOpen(true)}>Undo merge</Button>;
+  return (
+    <form className="mt-1 flex flex-wrap gap-2" onSubmit={async (e) => {
+      e.preventDefault();
+      try {
+        await api(`/v1/merges/${mergeId}/undo`, { method: "POST", json: { reason: String(new FormData(e.currentTarget).get("reason")) } });
+        setOpen(false); onDone();
+      } catch (x) { setError(x instanceof Error ? x.message : String(x)); }
+    }}>
+      <input name="reason" required minLength={3} autoFocus placeholder="Why undo? (logged)" className="h-8 min-w-0 flex-1 rounded-md border border-line px-2 text-sm" />
+      <Button size="sm" variant="primary" type="submit">Undo merge</Button>
+      <Button size="sm" variant="quiet" type="button" onClick={() => setOpen(false)}>Cancel</Button>
+      {error && <span className="w-full text-xs">{error}</span>}
+    </form>
+  );
+}
 
 function Highlight({ text, quote }: { text: string; quote: string | null }) {
   if (!quote) return <>{text}</>;
@@ -76,8 +98,8 @@ function ReportCard({ r, evidence, quote }: { r: Report; evidence: Evidence[]; q
 
 const QUIET = new Set(["evidence.added"]);   // shown inline with their report instead
 
-export function Timeline({ events, evidence, reports, quote }: {
-  events: TimelineEvent[]; evidence: Evidence[]; reports: Report[]; quote: string | null;
+export function Timeline({ events, evidence, reports, quote, canUndo = false, onChanged }: {
+  events: TimelineEvent[]; evidence: Evidence[]; reports: Report[]; quote: string | null; canUndo?: boolean; onChanged?: () => void;
 }) {
   const reportById = new Map(reports.map((r) => [r.id, r]));
   return (
@@ -91,6 +113,10 @@ export function Timeline({ events, evidence, reports, quote }: {
               <span>
                 {e.line}
                 {e.reason && <span className="text-ink-2"> · &ldquo;{e.reason}&rdquo;</span>}
+                {e.type === "case.merged" && e.undone && <span className="text-ink-3"> · undone</span>}
+                {e.type === "case.merged" && !e.undone && canUndo && e.merge_id != null && (
+                  <span className="block"><Undo mergeId={e.merge_id} onDone={() => onChanged?.()} /></span>
+                )}
               </span>
             </p>
             {r && <div className="pl-[52px]"><ReportCard r={r} evidence={evidence.filter((x) => x.report_id === r.id)} quote={quote} /></div>}

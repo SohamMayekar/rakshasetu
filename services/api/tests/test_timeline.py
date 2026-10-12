@@ -40,6 +40,12 @@ def test_the_timeline_reads_in_order_with_folded_cases_and_sheet_evidence(seeded
     received = [e for e in t["events"] if e["type"] == "report.received"]
     assert len(received) == 2 and all(e["report_id"] for e in received)                    # both reports, with their cards
     assert lines[0] == "Report received (spreadsheet)"
+    merged = [e for e in t["events"] if e["type"] == "case.merged"]
+    assert merged and merged[0]["merge_id"] and merged[0]["undone"] is False             # the drawer's Undo needs it
+    r = client.post(f"/v1/merges/{merged[0]['merge_id']}/undo", json={"reason": "two families, checked on phone"})
+    assert r.status_code == 200, r.text
+    again = [e for e in client.get(f"/v1/cases/{pid}/timeline").json()["events"] if e["type"] == "case.merged"]
+    assert again[0]["undone"] is True
     rows = [e for e in t["evidence"] if e["type"] == "sheet_row"]
     assert sorted(e["meta"]["row"] for e in rows) == [2, 3]
     assert all(e["sha256"] == sha and e["file_ok"] and e["chain_ok"] for e in rows)

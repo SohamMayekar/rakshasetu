@@ -56,9 +56,14 @@ export type Report = {
   receipt: { step: string; by: string; detail: string }[] | null; status: string; source: Record<string, unknown> | null;
 };
 export type CaseDetail = Case & { reports: Report[] };
-export type TimelineEvent = { seq: number; at: string; type: string; line: string; who: string | null; role: string | null; reason: string | null; case_id: number; report_id: number | null; evidence_id: number | null };
+export type TimelineEvent = { seq: number; at: string; type: string; line: string; who: string | null; role: string | null; reason: string | null; case_id: number; report_id: number | null; evidence_id: number | null; merge_id: number | null; undone: boolean };
 export type Evidence = {
   id: number; case_id: number; report_id: number | null; type: string; uri: string | null; sha256: string | null; mime: string | null;
   bytes: number | null; added_by: string | null; meta: Record<string, unknown>; channel: string | null; captured_at: string;
   file_ok?: boolean | null; chain_ok?: boolean;
+};
+
+export type Suggestion = {
+  id: number; case_id: number; public_id: string; candidate_case_id: number; candidate: string; score: number;
+  strength: "strong" | "weak" | "refused"; reasons: string[]; conflicts: string[]; created_at: string;
 };

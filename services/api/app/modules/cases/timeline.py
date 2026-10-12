@@ -85,7 +85,12 @@ def timeline(conn: Connection, scope: Scope, case_id: int) -> list[dict]:
         out.append({"seq": r.seq, "at": r.at.isoformat(), "type": r.action, "line": line(r.action, d, who),
                     "who": who or {"system": "RakshaSetu", "partner": actor.get("id"), "reporter": "reporter"}.get(actor.get("type")),
                     "role": actor.get("role"), "reason": r.reason, "case_id": r.case_id,
-                    "report_id": d.get("report_id"), "evidence_id": d.get("evidence_id")})
+                    "report_id": d.get("report_id"), "evidence_id": d.get("evidence_id"), "merge_id": d.get("merge_id"),
+                    "undone": False})
+    undone = {json.loads(r.body).get("data", {}).get("merge_id") for r in rows if r.action == "case.unmerged"}
+    for e in out:   # a merge that was undone can't be undone again
+        if e["type"] == "case.merged" and e["merge_id"] in undone:
+            e["undone"] = True
     return out
 
 

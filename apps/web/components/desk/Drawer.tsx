@@ -6,15 +6,41 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { Facts } from "@/components/desk/Facts";
+import { Matches } from "@/components/desk/Matches";
 import { Timeline } from "@/components/desk/Timeline";
 import { Because, Button, Chip, Priority, Section } from "@/components/ui";
-import { api, type Case, type CaseDetail, type Evidence, type Me, type TimelineEvent } from "@/lib/api";
+import { api, type Case, type CaseDetail, type Evidence, type Me, type Suggestion, type TimelineEvent } from "@/lib/api";
 
 export type Picked = { lat: number; lng: number } | null;
 
-export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, onClose }: {
+// A person can merge any two cases they can see, with a reason; the older one is kept (undoable).
+function ManualMerge({ c, onDone }: { c: Case; onDone: (kept: number) => void }) {
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  if (!open) return <div className="mt-3"><Button size="sm" variant="quiet" onClick={() => setOpen(true)}>Same household as another case…</Button></div>;
+  return (
+    <form className="mt-3 flex flex-wrap gap-2 rounded-lg border border-line p-3" onSubmit={async (e) => {
+      e.preventDefault();
+      const f = new FormData(e.currentTarget);
+      try {
+        const r = await api<{ kept: string }>("/v1/merges", { method: "POST", json: { cases: [c.public_id, String(f.get("other")).trim().toUpperCase()], reason: String(f.get("reason")) } });
+        const kept = await api<Case>(`/v1/cases/${encodeURIComponent(r.kept)}`);
+        setOpen(false); onDone(kept.id);
+      } catch (x) { setError(x instanceof Error ? x.message : String(x)); }
+    }}>
+      <input name="other" required placeholder="BR-214" className="h-8 w-24 rounded-md border border-line px-2 text-sm tabular" autoFocus />
+      <input name="reason" required minLength={3} placeholder="Why (logged)" className="h-8 min-w-0 flex-1 rounded-md border border-line px-2 text-sm" />
+      <Button size="sm" variant="primary" type="submit">Merge</Button>
+      <Button size="sm" variant="quiet" type="button" onClick={() => setOpen(false)}>Cancel</Button>
+      {error && <span className="w-full text-xs">{error}</span>}
+    </form>
+  );
+}
+
+export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, onClose, suggestions, lookup, onSelect, onChanged }: {
   c: Case; me: Me | null; focus?: string | null; picking: boolean; picked: Picked;
   onPickStart: () => void; onPickEnd: () => void; onClose: () => void;
+  suggestions: Suggestion[]; lookup: (id: number) => Case | undefined; onSelect: (id: number) => void; onChanged: () => void;
 }) {
   const can = (a: string) => !!me?.permissions.includes(a);
   const [detail, setDetail] = useState<CaseDetail | null>(null);
@@ -90,8 +116,12 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
         </div>
         <div data-section="Timeline & evidence">
           <Section title="Timeline & evidence">
-            {tl && detail ? <Timeline events={tl.events} evidence={tl.evidence} reports={detail.reports} quote={quote} />
+            <Matches c={c} suggestions={suggestions} lookup={lookup} canDecide={can("merge.decide")}
+                     onDone={(kept) => { onChanged(); load(); if (kept && kept !== c.id) onSelect(kept); }} />
+            {tl && detail ? <Timeline events={tl.events} evidence={tl.evidence} reports={detail.reports} quote={quote}
+                                      canUndo={can("merge.decide")} onChanged={() => { onChanged(); load(); }} />
                           : <p className="text-sm text-ink-3">Loading…</p>}
+            {can("merge.decide") && <ManualMerge c={c} onDone={(kept) => { onChanged(); load(); if (kept !== c.id) onSelect(kept); }} />}
           </Section>
         </div>
         <div data-section="Audit">

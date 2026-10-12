@@ -32,3 +32,6 @@ Auto-merge needs 0.85 (with a phone match, place or geo, and no conflict). A she
 
 ### D11 · Plain Tailwind components, not the shadcn/ui generator
 The design system is a handful of hand-written components on Tailwind tokens (`components/ui/`). The desk has no modals, toasts or menus by design (PRD §13.5), which is most of what shadcn/ui and Radix bring, so the generator would add dependencies and generated code we'd then have to own. **Rejected:** shadcn/ui (CLAUDE.md §5 lists it; we keep its spirit — small, owned, accessible components — without the generator). Revisit if a real menu or dialog is ever needed.
+
+### D12 · A refusal's names are shown in ink, not red
+The PRD asks for refused pairs to show their names "in red", and also says hue means priority and nothing else (§13.5 #2). We keep the stricter rule: the names that kept two cases apart ("Rajesh ≠ Ramesh") are an **ink-inverted chip**, the same "look here" treatment as every other attention mark, so red always means P1. **Rejected:** red text for refusals (a P1-red line on a P3 case reads as an emergency).
