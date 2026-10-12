@@ -4,7 +4,7 @@
 // person and phone on screen is synthetic. On the desk it folds to icons so the map keeps its width.
 // Calm: neutral only (hue means priority), the current page is a quiet wash, never a colour.
 
-import { ClipboardList, LayoutGrid, LogOut, type LucideIcon, Presentation, ShieldCheck } from "lucide-react";
+import { ClipboardList, LayoutGrid, LogOut, type LucideIcon, ShieldCheck } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import type { Me } from "@/lib/api";
@@ -26,8 +26,7 @@ function initials(name: string) {
   return name.replace(/[^A-Za-z ]/g, " ").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("");
 }
 
-// At most three places (m69): your desk (or, if you see several incidents, all of them), History (the audit trail)
-// and Demo. Surge ("Show it under load") and the partner log ("Show a partner system") are inside Demo.
+// Two places (m83): your desk (or, if you see several incidents, all of them) and History (the audit trail).
 function navItems(me: Me | null): Item[] {
   const can = (p: string) => !!me?.permissions.includes(p);
   const desk = !!me && ["call_taker", "duty_officer", "incharge", "admin"].includes(me.user.role);
@@ -37,8 +36,6 @@ function navItems(me: Me | null): Item[] {
       ? { href: `/desk/${one.code}`, label: "Desk", icon: ClipboardList, show: true, match: (p: string) => p.startsWith("/desk/") }
       : { href: "/", label: "All incidents", icon: LayoutGrid, show: true, match: (p: string) => p === "/" || p.startsWith("/desk/") },
     { href: "/audit", label: "History", icon: ShieldCheck, show: can("audit.read") },
-    { href: "/demo", label: "Demo", icon: Presentation, show: !!me?.demo_mode && desk,
-      match: (p: string) => ["/demo", "/surge", "/partners"].some((x) => p.startsWith(x)) },
   ];
   return all.filter((i) => i.show);
 }
@@ -94,11 +91,8 @@ export function Sidebar({ me, compact = false }: { me: Me | null; compact?: bool
 
       <div className="flex-1" />
 
-      {!compact && me?.demo_mode && (
-        <div className="mb-4 rounded-2xl bg-paper p-4 text-small leading-relaxed text-ink-2 shadow-[0_1px_2px_rgba(20,20,20,0.05)]">
-          <p className="text-body font-semibold text-ink">Demo data</p>
-          <p className="mt-1">People and phone numbers are made up. The clock runs 60× faster.</p>
-        </div>
+      {!compact && me?.demo_mode && (   // honesty (CLAUDE.md §1.6): one line, not a banner
+        <p className="mb-4 px-2 text-small leading-snug text-ink-3">Demo data: made-up people and phone numbers. The clock runs 60× faster.</p>
       )}
 
       {me && (

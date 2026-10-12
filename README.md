@@ -13,7 +13,7 @@ Built at CodeAstra 2.0 for **Web PS 1, National-Scale Incident Command Operating
 
 AI does two things only: speech to text, and extracting facts **with their quotes**. Rules and people decide everything else ([`AI_USAGE.md`](AI_USAGE.md)).
 
-**A live demo, not a recording:** a judge scans the QR and asks for help from their own phone (typed, or spoken with a speech key; without one a voice clip still becomes a case to listen to); it lands on the desk in seconds; the officer sends a team; the team's phone accepts, reaches and records the rescue; the family's phone is asked "Is that right?". Everything runs on the real code paths; only the people, phone numbers and the 60× clock are demo values.
+**A live demo, performed by the team** ([`docs/DEMO.md`](docs/DEMO.md)): one of us asks for help from a phone as a son in Mumbai (typed, or spoken with a speech key); it lands on the desk in seconds; the officer sends a team; the team's phone accepts, reaches and records the rescue; the family's phone is asked "Is that right?". Everything runs on the real code paths; only the people, phone numbers and the 60× clock are demo values.
 
 ## Run it (one laptop, no paid service)
 
@@ -32,16 +32,16 @@ Open **http://localhost**. The front door has two choices: **I need help** (the 
 |---|---|---|---|
 | **Duty officer** | R. Das, Bihar only | the desk (`/desk/BR`), on the projector | need help now · a team on it · rescued, then Needs you now and the map; Desk · History · Demo |
 | **Rescue team** | Fire & Rescue Boat 5 | the team's phone app (`/responder`) | its own cases, each with one big next action |
-| **Demo admin** | all three incidents | `/demo` (open it at **http://127.0.0.1/demo**, so the desk on localhost stays signed in) | the six-step run sheet, Next step, the QR codes, what to say once |
+| **State admin** | all three incidents | All incidents (`/`) | the three disasters on a map of India, each with its numbers |
 
 Phones use the **public listener** on :8080, through a Cloudflare quick tunnel on the day. Nine more synthetic users stay seeded for the permission tests; they are not on the sign-in screen (D22).
 
 | Command | What it does |
 |---|---|
-| `make demo-reset SCENE=son` | Reset to a scene of the 5-minute demo (`son`, `merge`, `sheet`, `stale`, `rescue`, `receipts`); also on the /demo page (Reset to the start of this scene) |
+| `make demo-reset SCENE=son` | Reset to a step of the demo (`son`, `merge`, `sheet`, `stale`, `rescue`, `receipts`); the script is [`docs/DEMO.md`](docs/DEMO.md) |
 | `make drills` | Failure drills on the running stack: worker crash mid-surge, desk cut off, API restart, tiles down, language model off, tamper, scene reset |
-| `make surge RATE=50 DURATION=60` | 3,000 synthetic, pre-structured partner reports; watch Demo → Show it under load (`/surge`) |
-| `make partner-demo CASE=BR-199` | A **simulated** partner's signed notes; see Demo → Show a partner system (`/partners`) |
+| `make surge RATE=50 DURATION=60` | 3,000 synthetic, pre-structured partner reports; watch the desk's numbers |
+| `make partner-demo CASE=BR-199` | A **simulated** partner's signed notes; they appear on the case |
 | `make webhook-sink` | A partner's webhook receiver that checks our signature (set `DEMO_PARTNER_WEBHOOK_URL=http://api:9009/hook`) |
 | `make verify` · `make tamper SEQ=12` | Verify the hash chain · edit one past event as a superuser and watch History → Check nothing was changed break at it |
 | `make provider-check` | With keys in `.env`: one live call per STT/LLM provider |
@@ -51,7 +51,7 @@ Phones use the **public listener** on :8080, through a Cloudflare quick tunnel o
 
 ```
  phones ── tunnel ──▶ Caddy :8080 (public: reporter, status, team app, ingest, partners)
- projector ─────────▶ Caddy :80   (local: everything, incl. the desk and /demo)
+ projector ─────────▶ Caddy :80   (local: everything, incl. the desk and the demo reset API)
                           │
             ┌─────────────┴──────────────┐
             ▼                            ▼

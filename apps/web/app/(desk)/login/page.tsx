@@ -4,7 +4,7 @@
 // rescue team's phone app, the demo admin's controls. Local listener + DEMO_MODE only; the API answers 404
 // elsewhere, and then this page asks for a username and password instead.
 
-import { ChevronRight, LayoutDashboard, LifeBuoy, type LucideIcon, Presentation } from "lucide-react";
+import { ChevronRight, LayoutDashboard, LayoutGrid, LifeBuoy, type LucideIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { Mark } from "@/components/shell/Sidebar";
@@ -15,9 +15,9 @@ type Pick = { username: string; name: string; role: string; role_label: string; 
 
 const HOME: Record<string, (incident: string) => string> = {
   call_taker: (i) => `/desk/${i}`, duty_officer: (i) => `/desk/${i}`, incharge: (i) => `/desk/${i}`,
-  admin: () => "/demo", team_lead: () => "/responder", seoc_viewer: () => "/",
+  admin: () => "/", team_lead: () => "/responder", seoc_viewer: () => "/",
 };
-const ICON: Record<string, LucideIcon> = { team_lead: LifeBuoy, admin: Presentation };
+const ICON: Record<string, LucideIcon> = { team_lead: LifeBuoy, admin: LayoutGrid };
 
 async function enter(username: string, password?: string) {
   await api("/v1/auth/login", { method: "POST", json: password ? { username, password } : { username } });
@@ -41,7 +41,7 @@ export default function Login() {
         <h1 className="mt-6 text-display font-semibold tracking-tight">Sign in</h1>
         {picker ? (
           <>
-            <p className="mt-1 text-body text-ink-2">Pick who you are. Everyone here is made up for the demo.</p>
+            <p className="mt-1 text-body text-ink-2">Choose your account. These are demo accounts: the people are made up.</p>
             <ul className="mt-5 space-y-2">
               {(users ?? []).map((u) => {
                 const Icon = ICON[u.role] ?? LayoutDashboard;

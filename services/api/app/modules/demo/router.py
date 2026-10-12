@@ -1,13 +1,11 @@
-"""Demo controls (PRD F-C12): local listener only, DEMO_MODE only, never through the tunnel; System admin.
+"""Demo controls (PRD F-C12) for the terminal, the golden path and the drills: local listener only, DEMO_MODE only,
+never through the tunnel; the admin role. There is no demo page in the app (m83): `make demo-reset SCENE=<id>`.
 
     GET  /v1/demo/status              demo mode, listener, public URL, language model on/off, a running surge
-    GET  /v1/demo/scenes              the reset points, in demo order (data/scenarios/BR/demo.yaml)
     POST /v1/demo/reset {scene}       seed + replay the scenes before it (app/modules/demo/scenes.py)
-    POST /v1/demo/language-model {on} F-C14: STT stays on, so say "language model"
+    POST /v1/demo/language-model {on} F-C14 and T10: STT stays on, so say "language model"
     POST /v1/demo/surge {rate, duration}   app/surge.py in the background (synthetic, pre-structured)
-    GET  /v1/demo/clips               the recorded clips (data/scenarios/BR/clips/)
     POST /v1/demo/play-clip {clip}    one clip through the SAME voice pipeline as the reporter page
-    GET  /v1/demo/qr?target=reporter|son   an SVG QR code of a PUBLIC_URL page, for a phone to scan
 """
 
 import shutil
@@ -17,11 +15,8 @@ import tempfile
 import time
 import uuid
 
-import segno
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import Response
 from pydantic import BaseModel, Field
-from sqlalchemy import text
 
 from app.config import get_config
 from app.core.auth import Scope, require
@@ -30,7 +25,7 @@ from app.core.flags import language_model_enabled, set_flag
 from app.core.listener import listener_of, require_demo
 from app.db import get_engine
 from app.modules.demo import scenes
-from app.modules.public.router import _register_voice, device_hash  # the reporter page's own path, not a copy
+from app.modules.public.router import _register_voice  # the reporter page's own path, not a copy
 from app.providers.base import api_key
 from app.providers.base import mode as provider_mode
 from app.settings import get_settings
@@ -59,11 +54,6 @@ def demo_status(request: Request) -> dict:
     return {"demo_mode": s.demo_mode, "listener": listener_of(request), "public_url": s.public_url,
             "language_model": "on" if language_model_enabled() else "off", "provider_mode": provider_mode(),
             "keys": keyed, "surge": _surge_running()}
-
-
-@router.get("/scenes")
-def list_scenes(_: Scope = Depends(require("incident.admin"))) -> list[dict]:
-    return scenes.script()["scenes"]
 
 
 class ResetTo(BaseModel):
@@ -114,27 +104,6 @@ def start_surge(body: Surge, scope: Scope = Depends(require("incident.admin"))) 
     return {"started": True, **_surge_running()}
 
 
-class PartnerMoment(BaseModel):
-    case: str = Field(default="BR-199", pattern=r"^[A-Z]{2,4}-\d+$")
-
-
-@router.post("/partner-moment")
-def partner_moment(body: PartnerMoment, _: Scope = Depends(require("incident.admin"))) -> dict:
-    """PRD §16.1 4:05: the SIMULATED partner's calls (app/partner_demo.py), signed, through the public listener."""
-    from app.partner_demo import run
-    try:
-        return {"calls": run(body.case)}
-    except RuntimeError as e:
-        raise HTTPException(409, str(e)) from None
-
-
-@router.get("/clips")
-def clips(_: Scope = Depends(require("incident.admin"))) -> list[dict]:
-    folder = scenes.pack() / "clips"
-    return [{"clip": f"clips/{p.name}", "synthetic": ".synthetic." in p.name, "bytes": p.stat().st_size}
-            for p in sorted(folder.iterdir()) if p.suffix in AUDIO]
-
-
 class Play(BaseModel):
     clip: str = Field(pattern=r"^clips/[A-Za-z0-9._-]+$")
     device_id: str | None = Field(default=None, min_length=8, max_length=100)
@@ -156,28 +125,3 @@ def play_clip(body: Play, scope: Scope = Depends(require("incident.admin"))) -> 
         append_event(c, actor=_actor(scope), action="demo.clip_played", entity_type="report", entity_id=reg["report_id"],
                      data={"report_id": reg["report_id"], "clip": body.clip, "synthetic_voice": ".synthetic." in path.name})
     return reg
-
-
-@router.get("/qr")
-def qr(target: str, _: Scope = Depends(require("incident.admin"))) -> Response:
-    """A QR code for a phone: the reporter page, or the son's status page AS the son's phone (after a reset the
-    family's question is asked only of that device). Only PUBLIC_URL pages: a phone can't reach localhost."""
-    base = get_settings().public_url.rstrip("/")
-    if not base:
-        raise HTTPException(409, "Set PUBLIC_URL in .env to the tunnel's address first")
-    if target == "reporter":
-        url = f"{base}/r"
-    elif target == "son":
-        s = scenes.script()["son"]
-        with get_engine().connect() as c:
-            pid = c.execute(text("SELECT c.public_id FROM reports r JOIN cases c ON c.id = r.case_id"
-                                 " WHERE r.device_hash = :d ORDER BY r.id DESC LIMIT 1"),
-                            {"d": device_hash(s["device_id"])}).scalar()
-        if not pid:
-            raise HTTPException(404, "The son's phone hasn't reported yet (reset to a later scene, or play the clip)")
-        url = f"{base}/s/{pid}#device={s['device_id']}"
-    else:
-        raise HTTPException(422, "target is reporter or son")
-    svg = segno.make(url, error="m").svg_inline(scale=5, border=2)
-    return Response(svg, media_type="image/svg+xml", headers={"X-QR-URL": url, "Cache-Control": "no-store"})
-

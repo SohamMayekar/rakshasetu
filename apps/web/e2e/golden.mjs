@@ -1,6 +1,7 @@
 // The golden path (PRD §16.1, 0:00 → 3:05) driven through the real screens, end to end, on the running stack:
 // the officer's desk on the projector (http://localhost), the judge's phone and the team's phone on the PUBLIC
-// listener (http://127.0.0.1:8080, as through the tunnel), and the demo controls (http://127.0.0.1/demo).
+// listener (http://127.0.0.1:8080, as through the tunnel); the demo reset and the recorded clip go through the
+// admin's /v1/demo API (there is no demo page in the app since m83).
 // Every beat asserts what the judge should see and takes a screenshot (docs/screens/golden/). Exit code 1 on
 // the first thing that isn't so.
 //
@@ -55,7 +56,8 @@ const ctxOf = (w, h) => browser.newContext({ viewport: { width: w, height: h }, 
 const O = await (await ctxOf(1366, 768)).newPage();          // the Duty officer, on the projector
 const J = await (await ctxOf(390, 844)).newPage();           // the judge, as Ramesh's son in Mumbai
 const shot = async (page, name) => page.screenshot({ path: join(OUT, `${name}.png`) });
-const caption = () => O.locator("div[role=status] p").innerText({ timeout: 300 }).catch(() => "");
+const asOfficer = async (path) => (await O.request.get(`${DESK}${path}`)).json();
+const drawerText = () => drawer().innerText({ timeout: 300 }).catch(() => "");
 const row = (pid) => O.locator("ol[aria-label='Needs you now'] li", { hasText: pid }).first();
 const drawer = () => O.locator("aside[aria-label^='Case']");
 async function showNew() { const pill = O.getByRole("button", { name: /new: show/ }); if (await pill.isVisible().catch(() => false)) await pill.click(); }
@@ -139,14 +141,18 @@ try {
   await O.locator("textarea").fill(SCRIPT.forward);
   await O.getByText("This is a forwarded message").click();
   await O.getByRole("button", { name: "Save report" }).click();
-  const fwd = await until(async () => (await caption()).match(/^(BR-\d+) is likely the same household as (BR-\d+)/), 20000);
-  check(!!fwd && fwd[2] === pid, `the forward ${fwd?.[1]} is suggested as the same household as ${pid}, with reasons`);
-  await shot(O, "03-desk-the-forward-is-suggested");
+  const pidId = (await asOfficer(`/v1/cases/${pid}`)).id;
+  const sug = await until(async () => (await asOfficer(`/v1/merge-suggestions?case=${pidId}`))
+    .find((x) => x.strength !== "refused" && x.reasons.length && (x.case_id === pidId || x.candidate_case_id === pidId)), 20000);
+  const fwd = sug && [null, sug.case_id === pidId ? sug.candidate : sug.public_id];
+  check(!!fwd, `the forward ${fwd?.[1]} is suggested as the same family as ${pid}, with reasons: ${sug?.reasons.slice(0, 3).join(" · ")}`);
   await open(fwd[1]);
+  check(!!(await until(async () => (await drawerText()).includes(`Maybe the same family as ${pid}`), 10000)), `the forward's panel says "Maybe the same family as ${pid}"`);
+  await shot(O, "03-desk-the-forward-is-suggested");
   await drawer().getByRole("button", { name: /^Merge/ }).first().click();
   await drawer().locator("form").getByRole("button", { name: "Merge" }).click();
-  const merged = await until(async () => (await caption()).startsWith(`A person merged ${fwd[1]} into ${pid}`) && (await caption()), 15000);
-  check(!!merged, `merged by a person: “${merged.slice(0, 80)}…”`);
+  const merged = await until(async () => { const f = await asOfficer(`/v1/cases/${fwd[1]}`); return f.status === "merged" && f.parent_case_id === pidId; }, 15000);
+  check(!!merged, `merged by a person: ${fwd[1]} is now part of ${pid}`);
   await open(pid);
   await (await drawerButton("Mark checked")).click();
   await until(async () => !(await drawer().innerText({ timeout: 300 })).includes("not checked yet"), 10000);
@@ -155,8 +161,16 @@ try {
   await O.locator("textarea").fill(SCRIPT.das);
   await O.locator('input[name="phone"]').fill("98765 70003");
   await O.getByRole("button", { name: "Save report" }).click();
-  const refused = await until(async () => (await caption()).match(/^(BR-\d+) was not merged with (BR-\d+): Rajesh ≠ Ramesh/), 20000);
-  check(!!refused && refused[2] === pid, `the Das family is refused: “${refused?.[0]}…”`);
+  const refused = await until(async () => (await asOfficer(`/v1/merge-suggestions?case=${pidId}`))
+    .find((x) => x.strength === "refused" && x.conflicts.some((c) => /Rajesh/.test(c) && /Ramesh/.test(c))), 20000);
+  check(!!refused, `the Das family is kept apart from ${pid}: ${refused?.conflicts.join(", ")}`);
+  await open(pid);
+  const keptApart = await until(async () => {   // the line arrives with the panel's next read; open it once it is there
+    const fold = O.locator('[data-section="Timeline & evidence"] details', { hasText: "Kept apart from" }).first();
+    if (await fold.count() && !(await fold.getAttribute("open").catch(() => null))) await fold.locator("summary").click();
+    return (await drawerText()).includes("Rajesh ≠ Ramesh");
+  }, 15000);
+  check(!!keptApart, `${pid}'s panel shows "Kept apart from …" with "Rajesh ≠ Ramesh"`);
   await shot(O, "04-desk-rajesh-is-not-ramesh");
 
   // ---- 1:15 the volunteer sheet --------------------------------------------------------------------------------
@@ -199,8 +213,8 @@ try {
   const boat5 = panel.locator("li", { hasText: "Fire & Rescue Boat 5" }).first();
   check(await boat5.isVisible(), "Fire & Rescue Boat 5 is among the suggestions to reassign to");
   await boat5.getByRole("button", { name: "Send this team" }).click();
-  const moved = await until(async () => (await caption()).match(/moved from SDRF Boat 2 to Fire & Rescue Boat 5[^\n]*/)?.[0], 15000);
-  check(!!moved, `reassigned by the officer: "${moved}"`);
+  const moved = await until(async () => (await pane()).includes("Assigned to Fire & Rescue Boat 5"), 15000);
+  check(!!moved, "another team sent by the officer: \"Assigned to Fire & Rescue Boat 5\"");
   await shot(O, "08-desk-reassigned-to-boat-5");
 
   // ---- 2:30 the rescue -----------------------------------------------------------------------------------------
@@ -243,8 +257,9 @@ try {
     .catch(async () => { await panel.getByText(/^Other teams/).click(); await panel.locator("li", { hasText: "Fire & Rescue Boat 5" }).getByRole("button", { name: "Send", exact: true }).click(); });
   await A.goto(`${PUBLIC}/responder`);
   await trip(2, 0, false, "Rescued 2 · nobody left");
-  const rescued = await until(async () => (await caption()).match(/^Rescued 6 of 6[^\n]*/)?.[0], 20000);
-  check(!!rescued, `"${rescued}"`);
+  await open(pid);
+  const rescued = await until(async () => (await drawerText()).match(/Rescued 6 of 6/)?.[0], 20000);
+  check(!!rescued, `the case panel says "${rescued}"`);
 
   // the family: only the phone that reported is asked, and need not answer
   await J.reload();
@@ -253,8 +268,8 @@ try {
   await shot(J, "11-phone-the-family-is-asked");
   await J.getByRole("button", { name: "Yes", exact: true }).click();
   const thanked = await until(async () => (await J.locator("body").innerText({ timeout: 300 })).includes("Thank you"), 10000);
-  const conf = await until(async () => (await caption()).startsWith("The family confirmed 6 rescued") && (await caption()), 15000);
-  check(thanked && !!conf, `he taps Yes: "${conf}"`);
+  const conf = await until(async () => (await asOfficer(`/v1/cases/${pidId}/timeline`)).events.find((e) => e.type === "rescue.confirmed")?.line, 15000);
+  check(thanked && !!conf, `he taps Yes; the timeline says "${conf}"`);
   await shot(O, "11-desk-confirmed-by-family");
 
   // ---- 3:05 the receipts ---------------------------------------------------------------------------------------

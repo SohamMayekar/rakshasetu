@@ -5,7 +5,7 @@
 - **Lanes:** a partner's `lane` in `config/partners.yaml` decides where its reports queue. Only `surge-generator` uses the `surge` lane (behind live voice, WhatsApp/partners and imports). A real partner's simulated reports keep their own lane, so a surge never delays them (tested).
 - **Ingest timing:** the API times every `POST /v1/ingest/*` in memory, from the request arriving to the receipt (the database write happens first). Nothing is stored; it covers one API process, the only one.
 - **`GET /v1/metrics/surge`** (local listener, `totals.view`): the last 60 s of ingest (rate, p50/p95/p99, errors), the backlog per lane (waiting, oldest), and the last minute's reports read, new cases and merges, from the event log.
-- **The surge screen** (`/surge`, linked from Incidents): those numbers once a second, in plain lines, plus each incident's promise bar and the integrity check. "Without a home" during a surge is the backlog: stored with a receipt, not yet read, and it returns to 0 as the backlog clears.
+- **The surge screen** was removed in m83 with the demo page. During `make surge` the desk's numbers and list show the effect; `GET /v1/metrics/surge` still reports rate, p50/p95/p99 and the backlog per lane.
   - **The integrity check runs on request** ("Check again"), not on a timer: it re-walks the whole hash chain (~0.8 s of the API's CPU at 14,000 events). Polled every 10 s during a surge it pushed ingest p95 from ~70 ms to ~810 ms, because the check and ingest share the API process.
 - **The desk in a surge** (2,000+ open cases):
   - Queue reads never overlap. Asks that arrive meanwhile collapse into one more read, 2 s later. The list still never re-sorts under the cursor.

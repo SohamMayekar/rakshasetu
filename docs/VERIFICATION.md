@@ -18,7 +18,7 @@
 |---|---|---|---|
 | 1 | **Incident lifecycle** | the case panel's status line moves "Waiting for a team" → "has it: accepted" → "contact overdue" → "2 of 6 still there" → "Rescued 6 of 6"; three incidents on All incidents (the Demo admin's home) | `tests/test_incidents.py`, `tests/test_case_edits.py`, T8, T9; the golden path follows BR-199 through every state |
 | 2 | **Role/permission system** | three profiles, three surfaces (desk, team app, demo controls); the team lead's **403** ("Not your team's case") on another team's case; nine more roles and districts seeded for the tests (D22) | `tests/test_permissions.py` (one test per PRD §4.2 row), `tests/test_idor.py` (one per resource), `tests/test_auth.py`; the golden path's last check (403 "Not assigned to your team") |
-| 3 | **Event ingestion API** | voice (0:00), pasted forward with New report (0:50), the 300-row sheet with Add a sheet (1:15), Demo → Show it under load (3:45), Demo → Show a partner system (4:05) | `tests/test_ingest_channels.py`, `tests/test_voice.py`, `tests/test_imports.py`, `tests/test_import_job.py`, `tests/test_surge.py`, `tests/test_partners.py`, T1, T5; one code path, `intake.accept()` |
+| 3 | **Event ingestion API** | the son's request from a phone (0:00), a pasted forward with New report (0:50), the 300-row sheet (1:15); on a judge's question, `make surge` and `make partner-demo` | `tests/test_ingest_channels.py`, `tests/test_voice.py`, `tests/test_imports.py`, `tests/test_import_job.py`, `tests/test_surge.py`, `tests/test_partners.py`, T1, T5; one code path, `intake.accept()` |
 | 5 | **Task assignment** | the row's and the panel's "Send SDRF Boat 2"; "Send another team" → Fire & Rescue Boat 5; the team's phone shows the new case full screen | `tests/test_assignments.py`, `tests/test_dispatch.py`, T7; the golden path's assign, reassign and trip checks; measured 1.3 s to the phone (m44) |
 | 6 | **Escalation** | the radio boat's ETA passes → **contact overdue** → one alert above the list ("Open BR-199") → greyed out → the case stays → the officer sends another team | T6 (8 tests), T7; the golden path's "Contact overdue", "still Boat 2's" and escalation checks; measured 0.21 s from the deadline (m41) |
 | 7 | **Evidence references** | in Timeline & evidence (one click): the voice clip + transcript, the forward, the sheet row, the merge record, the radio log, two rescue records with the team's position, each "✓ unchanged since it was saved" | `tests/test_evidence.py`; the golden path: **7 items, each "✓ matches the audit log"** |
@@ -63,14 +63,14 @@ IDOR: case, WebSocket and polling, evidence, assignment: all passed.
 2. **Record real voices** into `data/scenarios/BR/clips/`: the son's line (README there; the shipped one is a synthetic espeak-ng voice) and the rehearsed judge inputs. With keys, no transcript file is needed. Never present a fixture as live.
 3. **Record the reply clip (H-05):** "Your report is registered. You don't need to remember anything." → `apps/web/public/audio/en/registered.mp3`.
 4. **Confirm the demo village:** Thawe, Gopalganj (D5). The pitch line says "Thawe, Gopalganj", not Muzaffarpur.
-5. **Set `PUBLIC_URL`** to the tunnel's address on the day (the /demo QR codes and the webhook media links use it). Change `SECRET_KEY` and the database passwords from their dev values.
+5. **Set `PUBLIC_URL`** to the tunnel's address on the day (the phones open it, and the webhook media links use it). Change `SECRET_KEY` and the database passwords from their dev values.
 6. **Run the team app on a real mid-range Android phone over mobile data** through the tunnel (PRD F-C7 "done when"); only Chromium's phone viewport has been run.
 7. **Measure the desk on the demo laptop** during `make surge` (with a GPU): click 10 rows and check < 100 ms; the sandbox only had software WebGL (19–165 ms).
 8. **A partner team:** give them `packages/contracts/PARTNER_CONTRACT_CARD.md`, add their row to `config/partners.yaml` with their own secret, and set their webhook URL's env var. To rehearse without one: `make webhook-sink` + `DEMO_PARTNER_WEBHOOK_URL=http://api:9009/hook`, and `make partner-demo`.
 9. **Decide the open question** in `docs/STATUS.md` (district-only repeat reports are never suggested; PRD F-D1 minimum evidence).
 10. **Push the tags** from a normal clone: `git push origin --tags`.
 
-**On stage, say** (the /demo page shows these lines): the people and phone numbers are synthetic and the places are real; the demo clock runs 60× faster; the surge is pre-structured reports; the demo partner is simulated by us; a recorded clip is a recording.
+**On stage, say** (the script is `docs/DEMO.md`): the people and phone numbers are synthetic and the places are real; the demo clock runs 60× faster; the surge is pre-structured reports; the demo partner is simulated by us; a recorded clip is a recording.
 
 ## 8. Fresh-clone check
 A clean `git clone` of the release branch (commit `7df4cb9`, the content merged as m62) into an empty folder, run as its **own Docker Compose project** (`COMPOSE_PROJECT_NAME=rsfresh`: new images, an empty database volume) with the main stack stopped, 12 Oct 2026:

@@ -16,8 +16,7 @@ import { NewReport } from "@/components/desk/NewReport";
 import { FileSpreadsheet, Plus } from "lucide-react";
 
 import { Sidebar } from "@/components/shell/Sidebar";
-import { Button, Caption } from "@/components/ui";
-import { caption } from "@/lib/caption";
+import { Button } from "@/components/ui";
 import { Escalations } from "@/components/desk/Escalations";
 import { api, ApiError, type Case, type Escalation, listCases, type Me, type Suggestion } from "@/lib/api";
 import { type Envelope, useLive } from "@/lib/live";
@@ -89,23 +88,7 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
     loadQueue();
   }, [incident, loadQueue]);
 
-  // The judge-legibility caption: DEMO_MODE, the projector's local desk only, one sentence per frame (lib/caption).
-  const [cap, setCap] = useState<string | null>(null);
-  const capTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const seen = useRef({ me, cases });
-  seen.current = { me, cases };
-  useEffect(() => () => { if (capTimer.current) clearTimeout(capTimer.current); }, []);
-
   const onFrame = useCallback(async (events: Envelope[]) => {
-    const { me: who, cases: known } = seen.current;
-    if (who?.demo_mode && who.listener === "local") {
-      const line = caption(events, (id) => known.get(id)?.public_id);
-      if (line) {
-        setCap(line);
-        if (capTimer.current) clearTimeout(capTimer.current);
-        capTimer.current = setTimeout(() => setCap(null), 9000);
-      }
-    }
     const ids = caseIds(events);
     if (events.some((e) => /^(escalation|team|assignment)\./.test(e.type))) { loadQueue(); setRefreshKey((k) => k + 1); }
     if (!ids.length) return;
@@ -205,7 +188,6 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
                             escalations={escalations} refreshKey={refreshKey} />}
       </div>
       </div>
-      <Caption text={cap} />
     </div>
   );
 }

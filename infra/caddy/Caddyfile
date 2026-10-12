@@ -38,7 +38,7 @@
 	request_body {
 		max_size 2MB
 	}
-	@demo path /v1/demo /v1/demo/* /demo /demo/* /login /login/*
+	@demo path /v1/demo /v1/demo/* /login /login/*
 	handle @demo {
 		respond "Not available on the public address" 404
 	}

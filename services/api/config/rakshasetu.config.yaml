@@ -73,7 +73,7 @@ demo:
   sign_in_picker:                          # the 3 profiles on the demo's sign-in screen (D22); every other seeded user stays, off the picker
     - {username: rdas,  title: "Duty officer", line: "Runs the control room desk for Bihar"}
     - {username: boat5, title: "Rescue team",  line: "Fire & Rescue Boat 5's phone app"}
-    - {username: admin, title: "Demo admin",   line: "Resets the demo scenes and shows the QR codes"}
+    - {username: admin, title: "State admin",  line: "Sees all three disasters across the state"}
   seed_timestamps_relative_to_reset: true
   heartbeat_seconds: 10
 

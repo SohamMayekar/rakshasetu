@@ -1,7 +1,7 @@
 "use client";
 
 // Pieces of the desk: the "new items" pill (the list never re-sorts under the cursor), empty states,
-// the pipeline receipt line, the confidence circle legend and the judge-legibility caption.
+// the pipeline receipt line and the confidence circle legend.
 
 import type { ReactNode } from "react";
 
@@ -52,16 +52,6 @@ export function CircleLegend() {
           {label}
         </span>
       ))}
-    </div>
-  );
-}
-
-// The judge-legibility caption (DEMO_MODE only): one plain sentence about what just happened, from a template.
-export function Caption({ text }: { text: string | null }) {
-  if (!text) return null;
-  return (
-    <div role="status" aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-4 z-50 flex justify-center px-4">
-      <p className="max-w-3xl rounded-xl bg-ink/90 px-4 py-2 text-center text-body text-paper shadow-lg">{text}</p>
     </div>
   );
 }

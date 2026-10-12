@@ -98,22 +98,9 @@ def test_demo_controls_are_the_admins_on_the_local_listener_only(seeded, client,
     login(client, "rdas")
     for method, path, body in (("post", "/v1/demo/reset", {"scene": "son"}), ("post", "/v1/demo/surge", {}),
                                ("post", "/v1/demo/play-clip", {"clip": "clips/son-line.synthetic.ogg"}),
-                               ("get", "/v1/demo/qr?target=reporter", None), ("get", "/v1/demo/scenes", None)):
+                               ("post", "/v1/demo/language-model", {"on": False})):
         r = getattr(client, method)(path, **({"json": body} if body is not None else {}))
         assert r.status_code == 403, (path, r.status_code)
     login(client, "admin")
-    assert [s["id"] for s in client.get("/v1/demo/scenes").json()] == ["son", "merge", "sheet", "stale", "rescue", "receipts"]
     assert client.post("/v1/demo/play-clip", json={"clip": "clips/../demo.yaml"}).status_code == 422     # no path tricks
     assert client.post("/v1/demo/play-clip", json={"clip": "clips/nope.ogg"}).status_code == 404
-    assert [c["clip"] for c in client.get("/v1/demo/clips").json()] == ["clips/son-line.synthetic.ogg"]
-
-
-def test_the_qr_codes_point_at_the_public_address(seeded, client, monkeypatch):
-    login(client, "admin")
-    monkeypatch.setenv("PUBLIC_URL", "")
-    assert client.get("/v1/demo/qr", params={"target": "reporter"}).status_code == 409
-    monkeypatch.setenv("PUBLIC_URL", "https://example.trycloudflare.com/")
-    r = client.get("/v1/demo/qr", params={"target": "reporter"})
-    assert r.status_code == 200 and r.headers["content-type"].startswith("image/svg+xml") and r.text.startswith("<svg")
-    assert r.headers["x-qr-url"] == "https://example.trycloudflare.com/r"
-    assert client.get("/v1/demo/qr", params={"target": "son"}).status_code == 404       # the son hasn't reported yet

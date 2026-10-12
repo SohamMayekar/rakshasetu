@@ -32,11 +32,11 @@ def test_the_picker_list_is_local_only(seeded, client, public_client):
 
 
 def test_the_picker_shows_three_profiles_and_the_other_users_still_exist(seeded, client, app_db):
-    """m65 (D22): the sign-in screen lists exactly the duty officer, the rescue team and the demo admin. The other
+    """m65 (D22): the sign-in screen lists exactly the duty officer, the rescue team and the state admin. The other
     seeded users stay (the permission and IDOR tests sign in as them); they are only off the picker."""
     users = client.get("/v1/auth/users").json()
     assert [(u["title"], u["username"], u["role"]) for u in users] == [
-        ("Duty officer", "rdas", "duty_officer"), ("Rescue team", "boat5", "team_lead"), ("Demo admin", "admin", "admin")]
+        ("Duty officer", "rdas", "duty_officer"), ("Rescue team", "boat5", "team_lead"), ("State admin", "admin", "admin")]
     assert users[1]["team"] == "Fire & Rescue Boat 5"
     assert one(app_db, "SELECT count(*) FROM users") == 12
     login(client, "asinha")   # off the picker, still a real user with their own role

@@ -12,7 +12,7 @@ Two jobs: speech to text, and pulling facts out of the words with each fact's ex
 `POST /v1/public/voice-turns` stores the original file content-addressed and creates the report and its job **in one transaction** (never lost, R3). The worker transcodes it, gets text (STT, or a recorded transcript, or "audio only"), extracts facts (language model or keyword rules), places it, scores duplicates and sets the priority. *`app/modules/public/router.py`, `app/pipeline/run.py`.*
 
 **4. What if the language model is down?**
-The keyword rules fill the same schema and the case appears in under 5 s with **Rule** chips. Show it: /demo → More controls → AI reading → "Switch off", then type the demo line. *`app/pipeline/keywords.py`, T10.*
+The keyword rules fill the same schema and the case appears in under 5 s with **Rule** chips. Show it: with no LLM key set (the default), type the demo line on /r: every fact says **Rule**. *`app/pipeline/keywords.py`, T10.*
 
 **5. Why was the son's forward merged but the Das family refused?**
 The forward agreed on village, landmarks, circle and headcount, so it was suggested and a person merged it. The Das report had a different given name with the same surname ("Rajesh ≠ Ramesh"). A name conflict is a refusal rule: village and headcount alone are weak evidence. *`app/modules/dedupe/`, T3, T4.*
@@ -63,7 +63,7 @@ Real: every code path, the database, the hash chain, the OpenStreetMap places, t
 Nothing: Postgres + PostGIS, one FastAPI codebase run three ways, one Next.js app, Caddy, free-tier STT and LLM with fallbacks, OpenFreeMap tiles, open-source icons and fonts. English only on screen because the team asked for it for now (D17). The rules still read Hindi and Hinglish, so the screens can switch back without touching the pipeline.
 
 **21. Who can sign in, and why only three?**
-The sign-in screen lists three people: the **Duty officer** (R. Das, the Bihar desk), the **Rescue team** (Fire & Rescue Boat 5's phone app) and the **Demo admin** (scene resets and QR codes, all three incidents). Nine more synthetic users stay in the database, off the picker, because the permission and IDOR tests sign in as them (a call-taker can't assign, another district's officer can't see Gopalganj, another team gets a 403). *`config/rakshasetu.config.yaml` `demo.sign_in_picker`, D22.*
+The sign-in screen lists three people: the **Duty officer** (R. Das, the Bihar desk), the **Rescue team** (Fire & Rescue Boat 5's phone app) and the **State admin** (all three incidents). Nine more synthetic users stay in the database, off the picker, because the permission and IDOR tests sign in as them (a call-taker can't assign, another district's officer can't see Gopalganj, another team gets a 403). *`config/rakshasetu.config.yaml` `demo.sign_in_picker`, D22.*
 
 **22. Why does the screen say "Urgent" when the code says P1?**
 The API keeps its short codes (P1, "unchecked P1", "Assign → SDRF Boat 2 · 2.2 km"), which tests, partners and webhooks rely on; the screens say them in plain words through one glossary file, and `make copy-check` refuses jargon (SEOC, hash chain, ×60, P1 on its own…) in shown text. The PS's section names (Assignment · Facts · Timeline & evidence · Audit) stay. *`apps/web/lib/words.ts`, `scripts/check_copy.py`, D23.*

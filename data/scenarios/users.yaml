@@ -10,7 +10,7 @@ users:
   - {username: spatra,   name: "S. Patra",       role: duty_officer, incidents: [OD], districts: {OD: all}}
   - {username: nthakur,  name: "N. Thakur",      role: duty_officer, incidents: [HP], districts: {HP: all}}
   - {username: seoc,     name: "SEOC Bihar (1070)", role: seoc_viewer, incidents: [BR], districts: {BR: all}}
-  - {username: admin,    name: "Demo admin",     role: admin,        incidents: [BR, OD, HP], districts: {BR: all, OD: all, HP: all}}
+  - {username: admin,    name: "State admin",    role: admin,        incidents: [BR, OD, HP], districts: {BR: all, OD: all, HP: all}}
   - {username: boat5,    name: "Lead, Fire & Rescue Boat 5", role: team_lead, incidents: [BR], districts: {BR: [Gopalganj]}, team: "Fire & Rescue Boat 5"}
   - {username: ndrf03,   name: "Lead, NDRF T-03",  role: team_lead, incidents: [BR], districts: {BR: [Gopalganj]}, team: "NDRF T-03 (deployed)"}
   - {username: amitra,   name: "Lead, Aapda Mitra Thawe", role: team_lead, incidents: [BR], districts: {BR: [Gopalganj]}, team: "Aapda Mitra team, Thawe block"}

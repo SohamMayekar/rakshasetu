@@ -7,7 +7,7 @@ roles:
   incharge:     {label: "Senior officer",     login: true,  surface: desk}
   team_lead:    {label: "Rescue team",        login: true,  surface: responder}
   seoc_viewer:  {label: "State viewer",       login: true,  surface: incidents}
-  admin:        {label: "Demo admin",         login: true,  surface: desk}
+  admin:        {label: "State admin",        login: true,  surface: desk}
   partner:      {label: "Partner system",     login: false}
 
 permissions:

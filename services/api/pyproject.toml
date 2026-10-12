@@ -17,7 +17,6 @@ dependencies = [
   "tzdata>=2024.1",
   "openpyxl>=3.1",
   "defusedxml>=0.7",
-  "segno>=1.6",          # QR codes on the demo page (BSD, pure Python, no dependencies)
 ]
 
 [project.optional-dependencies]
