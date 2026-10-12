@@ -1,7 +1,6 @@
-"""One IDOR test per resource (PRD F-C9): case, WebSocket, and (as they land) evidence and assignment.
+"""One IDOR test per resource (PRD F-C9): case, WebSocket (and polling), evidence, assignment.
 Guessing another district's or another team's id must never return its data."""
 
-import pytest
 
 from app.core.eventlog import SYSTEM, append_event
 from tests.conftest import login, needs_db, one
@@ -56,11 +55,40 @@ def test_polling_events_idor(seeded, client, app_db):
     assert events and gop not in {e["district_id"] for e in events}
 
 
-@pytest.mark.skip(reason="evidence endpoints arrive in m35/m52")
-def test_evidence_idor():
-    pass
+def test_evidence_idor(seeded, client, app_db):
+    """A Gopalganj case's evidence file, guessed by id from outside its scope, never comes back."""
+    from app.core.jobs import drain
+    from app.pipeline import register_handlers
+    register_handlers()
+    login(client, "rdas")
+    rid = client.post("/v1/ingest/desk", json={"incident": "BR", "text": "Mirganj mein 4 log fase hain",
+                                               "phone": "+91 98765 72001", "client_id": "idor-ev-0001"}).json()["report_id"]
+    drain(app_db)
+    eid = one(app_db, "SELECT id FROM evidence WHERE report_id = :r AND type = 'message'", r=rid)
+    assert client.get(f"/v1/evidence/{eid}/file").status_code == 200
+    login(client, "mkumar")                               # Muzaffarpur duty officer
+    assert client.get(f"/v1/evidence/{eid}/file").status_code == 404
+    login(client, "boat5")                                # a team lead: only the cases its team holds
+    assert client.get(f"/v1/evidence/{eid}/file").status_code == 404
+    login(client, "seoc")                                 # totals only
+    assert client.get(f"/v1/evidence/{eid}/file").status_code == 403
 
 
-@pytest.mark.skip(reason="assignment endpoints arrive in m40")
-def test_assignment_idor():
-    pass
+def test_assignment_idor(seeded, client, app_db):
+    """Another team's lead, or another district's officer, can't act on an assignment by guessing its id."""
+    pid = one(app_db, "SELECT c.public_id FROM cases c JOIN districts d ON d.id = c.district_id WHERE d.name = 'Gopalganj'"
+                      " AND c.status IN ('reported', 'checked') AND c.geom IS NOT NULL AND NOT EXISTS (SELECT 1 FROM assignments a"
+                      " WHERE a.case_id = c.id AND a.state IN ('open', 'overdue')) ORDER BY c.id LIMIT 1")
+    login(client, "rdas")
+    aid = client.post("/v1/assignments", json={"case": pid, "team_id": one(app_db, "SELECT id FROM teams WHERE name ="
+                                                                                    " 'Fire & Rescue Boat 5'")}).json()["assignment_id"]
+    for user in ("ndrf03", "boat1", "mkumar"):            # another Gopalganj team, a Muzaffarpur team, a Muzaffarpur officer
+        login(client, user)
+        for step, body in (("acknowledge", {"eta_minutes": 15, "channel": "VHF"}), ("reached", {"channel": "VHF"}),
+                           ("release", {"reason": "not ours", "channel": "VHF"})):
+            r = client.post(f"/v1/assignments/{aid}/{step}", json=body)
+            assert r.status_code in (403, 404), (user, step, r.status_code, r.text)
+        r = client.post(f"/v1/cases/{pid}/rescues", json={"people_taken": 1, "anyone_left": "no", "channel": "VHF"})
+        assert r.status_code in (403, 404), (user, "rescue", r.status_code)
+    assert one(app_db, "SELECT phase || '/' || state FROM assignments WHERE id = :a", a=aid) == "offered/open"
+    assert one(app_db, "SELECT count(*) FROM rescues") == 0

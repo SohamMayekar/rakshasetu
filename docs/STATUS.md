@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m53 T1–T10 + IDOR all green (T2 worker kill)
+**Current milestone:** m54 golden-path e2e, part 1 (0:00–1:45)
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -43,6 +43,7 @@
 | m40 | Assignments: officer assigns (one live per case, 409 naming who + DB index), acknowledge with ETA chip / reached (long operation) / release with reason, team lead own-team only, officer on behalf with channel, Idempotency-Key replay, DB-clock deadlines, demo clock ×60 for live demo cases only, case + team status, timeline lines; seeded P1s start owned (E22), Boat 5 free; BR pack capacity; dispatch path /dispatch-suggestions | tests/test_assignments.py (7 incl. T7), permission rows assignment.create + assignment.team_action, dispatch tests adapted |
 | m41 | Ticker: overdue by one conditional UPDATE (case stays with the team), team overdue → greyed in dispatch, one escalation per team (role duty_officer, rises to incharge after 10 min), capacity-gap header per district, self-resolving; escalations list + ack (409 naming who); heartbeat display-only endpoint | tests/scenarios/test_t6_contact_overdue.py (5: T6 ×2, T7 ack, rise+resolve, capacity gap); permission row escalation.ack; live lag 0.21 s |
 | m42 | Team-level radio contact (refreshes every live assignment, clears overdue, resolves escalation, acks stand-downs), Extend/Reassign on escalations (stand-down owed, 409 naming who on a resolved one), teams list | tests/scenarios/test_t6_contact_overdue.py now 8 (radio restores, T7 extend, reassign + stand-down); permission row team.radio_contact |
+| m53 | All ten PRD scenario tests and one IDOR test per resource are in the suite and green: new T2 (a real worker process SIGKILLed mid-surge, its jobs reclaimed: every report in exactly one case, integrity 0, chain ✓), new T7 file (two officers on one escalation; the DB refuses a second open assignment), evidence and assignment IDOR (were skipped placeholders until now); docs/TESTS.md maps T1–T10 + IDOR to files and results | make test: all passed; T2 run: 76/300 in cases at the kill, 4 jobs held, 300/300 after reclaim |
 
 ## NOT DONE (engineering)
 
@@ -87,6 +88,8 @@
 - **Bug found and fixed in m44:** the API let an officer assign a team to a case that had already been merged into another (the merged case had no reports, so the phone showed no caller's words). Assigning now requires an open case; a merged one answers "This case was merged into BR-199: assign that one" (tested).
 
 - **Bugs found and fixed in m49 (the surge):** the worker wrote its health file only when the queue was empty, so a 60 s backlog read as a hang and `make up --wait` failed; `make seed` during a backlog deadlocked with reports being filed and failed (it now pauses waiting jobs and retries the wipe); the surge screen's 10 s integrity poll slowed ingest (p95 ~810 ms) and now runs on request; `GET /v1/queue` had no index for its per-row match lookup (3.2 s at 2,800 cases).
+
+- **Until m53 two IDOR tests were skipped placeholders** (evidence, assignment), written before those endpoints existed and never filled in. The scope rules were enforced and tested elsewhere (`test_timeline.py`, `test_assignments.py`), but PRD F-C9's "one IDOR test per resource" wasn't met until m53.
 
 - **Bug found and fixed in m50:** a case rescued in two trips (4, then 2) closed as "Rescued 2 of 6" and the family was asked about 2 people: the closure and the question used the last trip only, and a second partial trip was judged against the original headcount. Found while scripting the demo's two-trip rescue; now one running total (tested).
 
