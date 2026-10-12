@@ -10,11 +10,10 @@ import argparse
 import os
 import sys
 from datetime import timedelta
+from functools import lru_cache
 from pathlib import Path
 
 import yaml
-from functools import lru_cache
-
 from sqlalchemy import Connection, text
 
 from app.core.eventlog import SYSTEM, append_event
