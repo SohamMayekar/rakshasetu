@@ -53,7 +53,7 @@ export default function DemoPage() {
   if (me && me.user.role !== "admin") {   // the duty officer on the projector: the script and the two "show" pages
     return (
       <AppShell me={me}><Page>
-        <PageHeader title="Demo" sub="The 5-minute story, scene by scene. Every person and phone number is made up; the demo clock runs 60× faster." />
+        <PageHeader title="Demo" sub="Run it live: real phones, the real desk." />
         <Shows />
         <Card className="mt-4 px-5 py-4 text-sm">
           <ol className="space-y-2">{SCRIPT.map((x, i) => <li key={x.id}><b className="tabular">{i + 1}. {x.title}</b> <span className="text-ink-2">· {x.do}</span></li>)}</ol>
@@ -73,7 +73,7 @@ export default function DemoPage() {
   return (
     <AppShell me={me}>
     <Page>
-      <PageHeader title="Demo" sub="The 5-minute story, one scene at a time. Every button here is written in the history." />
+      <PageHeader title="Demo" sub="Run it live: real phones, the real desk." />
       {line && <p className="mt-4 rounded-xl bg-paper px-4 py-2.5 text-sm shadow-[var(--shadow-card)]" role="status">{line}</p>}
 
       <ol className="mt-5 grid grid-cols-3 gap-2 sm:grid-cols-6" aria-label="Scenes">
@@ -88,44 +88,43 @@ export default function DemoPage() {
       </ol>
 
       <Card className="mt-4 px-6 py-6">
-        <p className="text-sm text-ink-3">Scene {at + 1} of {SCRIPT.length}{scenes[at] ? ` · at ${scenes[at].at}` : ""}</p>
+        <p className="text-sm text-ink-3">Step {at + 1} of {SCRIPT.length}</p>
         <h2 className="mt-1 text-[28px] font-semibold leading-tight tracking-tight">{scene.title}</h2>
         <p className="mt-2 text-lg leading-snug">{scene.do}</p>
         <div className="mt-5 flex flex-wrap items-center gap-3">
           {at < SCRIPT.length - 1
-            ? <Button variant="primary" className="!h-12 !px-7 !text-base" onClick={() => go(at + 1)}>Next scene<ArrowRight className="size-4" aria-hidden /></Button>
-            : <Button variant="primary" className="!h-12 !px-7 !text-base" onClick={() => go(0)}>Back to scene 1</Button>}
+            ? <Button variant="primary" className="!h-12 !px-7 !text-base" onClick={() => go(at + 1)}>Next step<ArrowRight className="size-4" aria-hidden /></Button>
+            : <Button variant="primary" className="!h-12 !px-7 !text-base" onClick={() => go(0)}>Back to step 1</Button>}
           {scene.id === "son" && sonClip && (
             <Button disabled={!!busy} onClick={() => run("Play the son's clip", async () => {
               const r = await api<{ report_id: number }>("/v1/demo/play-clip", { method: "POST", json: { clip: sonClip.clip } });
               return `Played the son's clip (${sonClip.synthetic ? "a synthetic voice, a recording" : "a recording"}): report ${r.report_id} is being read. Watch the desk.`;
-            })}>Play the son&rsquo;s clip (a recording)</Button>
+            })}>No phone? Send the recorded clip</Button>
           )}
           {scene.id === "receipts" && <a href="/audit" className="text-sm underline underline-offset-4">Open History</a>}
           <Button variant="quiet" disabled={!!busy} onClick={() => reset(scene.id, scene.title)}>
-            <RotateCcw className="size-4" aria-hidden />{busy === `Reset to ${scene.title}` ? "Resetting…" : "Reset to the start of this scene"}</Button>
+            <RotateCcw className="size-4" aria-hidden />{busy === `Reset to ${scene.title}` ? "Resetting…" : "Start this step again"}</Button>
         </div>
       </Card>
 
       <div className="mt-4 grid gap-4 md:grid-cols-[1fr_1.2fr]">
         <Card className="px-5 py-4 text-sm">
-          <p className="font-semibold">Say it on stage</p>
+          <p className="font-semibold">Say it once</p>
           <ul className="mt-2 space-y-1.5 text-ink-2">
-            <li>Every person and phone number is made up.</li>
-            <li>The demo clock runs 60× faster.</li>
-            <li>The partner system is simulated by us.</li>
-            <li>{status?.keys.stt.length ? "The son's voice goes through live speech to text." : "The son's clip is a recording, not live speech to text."}</li>
-            <li>AI only turns speech into text and reads facts with their quotes; rules and people decide.</li>
+            <li>People and phone numbers are made up.</li>
+            <li>The clock runs 60× faster, so a 15-minute wait takes 15 seconds.</li>
+            <li>The partner system is our own, simulated.</li>
+            {!status?.keys.stt.length && <li>Without a speech key, voice clips are recordings.</li>}
           </ul>
         </Card>
         <Card className="px-5 py-4 text-sm">
           <p className="font-semibold">Phones</p>
           {status && !status.public_url
-            ? <p className="mt-2 text-ink-2">Set <code>PUBLIC_URL</code> in <code>.env</code> to the tunnel&apos;s address to show the QR codes.</p>
+            ? <p className="mt-2 text-ink-2">Start the tunnel and put its address in <code>PUBLIC_URL</code> (<code>.env</code>): the QR codes appear here.</p>
             : (
               <div className="mt-2 grid gap-4 sm:grid-cols-2">
-                <Qr key={`r${qrKey}`} target="reporter" title="I need help (the judge's phone)" note="Opens the phone app for people." />
-                <Qr key={`s${qrKey}`} target="son" title="The son's phone" note="After the rescue, only this phone is asked “Is that right?”." />
+                <Qr key={`r${qrKey}`} target="reporter" title="Ask for help" note="Any judge's phone: speak or type." />
+                <Qr key={`s${qrKey}`} target="son" title="The family's phone" note="Follows the case; asked “Is that right?” after the rescue." />
               </div>
             )}
         </Card>
@@ -205,13 +204,13 @@ export default function DemoPage() {
 
 // The presenter's script: one line per scene, what to do and say (the ids are data/scenarios/BR/demo.yaml's).
 const SCRIPT = [
-  { id: "son", title: "The son", do: "A son in Mumbai speaks one sentence into the phone app; it becomes a case on the desk." },
-  { id: "merge", title: "Never doubled", do: "A neighbour's forward is the same family: merge it. Rajesh ≠ Ramesh: kept apart." },
-  { id: "sheet", title: "The volunteer sheet", do: "Add a 300-row sheet: new families, repeats merged, nothing dropped." },
-  { id: "stale", title: "Never stale", do: "Send SDRF Boat 2; it goes quiet; contact overdue; send another team." },
-  { id: "rescue", title: "The rescue", do: "Boat 5's phone: accept, reached, 4 taken, then 2: rescued 6 of 6; the son says yes." },
-  { id: "receipts", title: "The receipts", do: "Timeline & evidence, each item ✓; History: nothing was changed." },
-];
+  { id: "son", title: "A family asks for help", do: "Scan the QR with any phone and ask for help, by voice or text. It reaches the desk in seconds." },
+  { id: "merge", title: "The same family, twice", do: "Paste a neighbour's message about the same family: merge it. A different family with the same surname stays apart." },
+  { id: "sheet", title: "A volunteer's spreadsheet", do: "Add the 300-row sheet: new families appear, repeats merge, nothing is dropped." },
+  { id: "stale", title: "A team goes quiet", do: "Send SDRF Boat 2 (radio only). It misses its check-in: contact overdue. Send another team." },
+  { id: "rescue", title: "The rescue", do: "On Boat 5's phone: accept, reached, 4 taken, then 2. Rescued 6 of 6, and the family taps Yes." },
+  { id: "receipts", title: "Proof", do: "Open the case's timeline: every item unchanged. History: nothing was changed." },
+]
 
 // The two pages that show the system under pressure and talking to another team's system (m69: out of the sidebar).
 function Shows() {

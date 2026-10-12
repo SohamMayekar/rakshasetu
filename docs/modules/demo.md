@@ -1,5 +1,7 @@
 # demo · the controls behind the 5-minute run (PRD F-C12, §16)
 
+- **m74, a run sheet of real actions:** six steps people do for real: ask for help from any phone (QR), paste a neighbour's message, add the sheet, send a radio boat that goes quiet, the rescue on Boat 5's phone, proof. "Next step", "Start this step again", and "No phone? Send the recorded clip" as the fallback. "Say it once": made-up people, the 60× clock, our simulated partner, recordings without a speech key.
+
 - **The page (m71):** `/demo` is a numbered walk through the six scenes. The current scene is in big type with one line of what to do, a big **Next scene**, the scene's own button where there is one (play the son's clip, a recording; open History) and "Reset to the start of this scene". "Say it on stage" holds the honesty lines, one short line each; Phones shows the two QR codes (with `PUBLIC_URL` set). Reset to any scene, AI reading on/off, the rush of reports, the partner moment and the recorded clips are under **More controls**, next to Show it under load and Show a partner system. The duty officer sees the same script read-only; the controls stay with the Demo admin.
 
 - **Where:** `/demo` (linked from Incidents for the System admin) and `POST /v1/demo/*`. **Local listener only**, **DEMO_MODE only**, refused if Cloudflare's `CF-Connecting-IP` is present, and **System admin only** (tested: the public listener gets 403, every other role 403). Every control is an audit event.

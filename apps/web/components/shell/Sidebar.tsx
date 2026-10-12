@@ -96,8 +96,8 @@ export function Sidebar({ me, compact = false }: { me: Me | null; compact?: bool
 
       {!compact && me?.demo_mode && (
         <div className="mb-4 rounded-2xl bg-paper p-4 text-xs leading-relaxed text-ink-2 shadow-[0_1px_2px_rgba(20,20,20,0.05)]">
-          <p className="text-sm font-semibold text-ink">Demo mode</p>
-          <p className="mt-1">Every person and phone number here is made up. The demo clock runs 60× faster.</p>
+          <p className="text-sm font-semibold text-ink">Demo data</p>
+          <p className="mt-1">People and phone numbers are made up. The clock runs 60× faster.</p>
         </div>
       )}
 

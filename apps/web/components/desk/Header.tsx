@@ -18,7 +18,7 @@ export function Header({ me, incident, live }: { me: Me | null; incident: string
       <div className="min-w-0">
         <h1 className="truncate text-[22px] font-semibold leading-tight tracking-tight">{inc ? inc.name : incident}</h1>
         <p className="truncate text-sm text-ink-2">{districts.length ? `${districts.join(" · ")} control room` : "District control room"}
-          {me?.demo_mode && <span className="text-ink-3"> · demo: made-up people, the clock runs 60× faster</span>}</p>
+          {me?.demo_mode && <span className="text-ink-3"> · demo data, clock 60× faster</span>}</p>
       </div>
       <div className="flex shrink-0 items-center gap-2 text-sm">
         {live.connected ? (

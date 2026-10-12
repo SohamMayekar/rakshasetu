@@ -1,5 +1,7 @@
 # caption · one plain sentence for the judges (DEMO_MODE)
 
+- **m74:** facts only, one short sentence ("BR-199 moved from SDRF Boat 2 to Fire & Rescue Boat 5, by a person."), no explanations of how the system works. The golden path still reads its checks from these lines.
+
 - **What it does:** on the **projector desk only** (local listener, DEMO_MODE on), a dark line at the bottom of the screen says, in one sentence, the most important thing that just happened and why. It shows for 9 s. It is built from the live event frames the desk already receives (`apps/web/lib/caption.ts`); there is no extra server path.
 - **Template-based, never a model.** Every sentence is a template over the event's own data: the same reason lines the timeline and the merge table use. It says what the **rules or a person** did. When the language model read a report, the caption doesn't speak for it: it says "Rules set the priority; every fact keeps its quote".
 - **Examples** (measured in Chromium on the demo spine, 12 Oct 2026):
