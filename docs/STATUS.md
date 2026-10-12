@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m31 demo sheet generator (300 rows + ground truth) + P/R script
+**Current milestone:** m32 design system /ui
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -38,12 +38,14 @@
 | m28 | Merge/undo: every report gets its own case first; auto-merge and accepted suggestions fold the newer case into the older (reports + evidence move, status merged → redirect), exact JSON snapshot of both cases, reports, evidence and suggestions; undo restores them exactly and blocks the pair; reject blocks the pair; manual merge keeps the older case; merge guard 409 when both have live teams; endpoints GET /v1/merge-suggestions, POST …/accept|reject, POST /v1/merges, POST /v1/merges/{id}/undo | T3 (tests/scenarios): son's report suggested (strong, same village + landmarks), accept → 2 reports on the older case, undo → both cases, reports and evidence byte-identical to before (to_jsonb comparison), merge block with the reason, audit shows case.merged then case.unmerged by Priya with the reason. Also: second undo → 409 'Already undone by Priya Kumari at …'; reject blocks + clears possible_duplicate; refused pair needs a reason to merge; merge.decide permission row runs |
 | m29 | Spreadsheet upload: safe reading (values only, caps, encodings), header synonyms + person-confirmed mapping, Excel-damage guard, headcount/date normalisation, scoped | tests/test_imports.py (Excel guard, encodings, caps, formula not evaluated, ambiguous dates, scope, local only); import.run permission row |
 | m30 | Import job: rules first, mapped columns as data, per-row commits with the row's outcome in the same transaction, in-file clustering, LLM for leftover rows (20 at a time, one row per call), progress + completed events, summary = DB counts, resumable, closed history, old-report flag | tests/test_import_job.py (spreadsheet channel integration, summary = DB, evidence, re-import doubles nothing, resume, AI path via cache); T5 tests/scenarios/test_t5_excel_damage.py |
+| m31 | Demo volunteer sheet: 300 synthetic rows + ground truth (repeats, relay phone, 14 Excel-damaged phones, Das pair, seeded duplicates, no-location, old, needs-AI, done); make demo-sheet / make sheet-eval | tests/scenarios/test_demo_sheet.py: 16.6 s, 300/300 outcomes, precision 1.000, recall 0.965 (docs/MEASUREMENTS.md) |
 
 ## NOT DONE (engineering)
 
 | What | Estimate |
 |---|---|
-| Everything from m02 onwards (PRD P0) | see the milestone plan in the build prompt |
+| m32–m60: the desk UI, ownership (assignments, deadlines, responder app, rescue sheet), promise bar and metrics, demo controls, surge, the full scenario set, release docs | see the milestone plan in the build prompt |
+| The demo sheet with a live language model: the 19 `needs_ai` rows have only been read by rules (no keys here), so "AI asked about 19" is designed, not measured | needs LLM keys (BLOCKED below) |
 
 ## BLOCKED (credential or external)
 
@@ -52,7 +54,7 @@
 | Overpass API unreachable from the build sandbox (the egress proxy drops the tunnel to overpass-api.de, its mirrors and Geofabrik) | `overpass-api.de` | `scripts/import_osm.py --source overpass` can't run here; the BR gazetteer is built from the openstreetmap.fr Bihar extract instead (real OSM data, ODbL; decision D6) | On a laptop with open internet: `python scripts/import_osm.py --source overpass` and compare counts with the committed extract |
 | Git tags can't be pushed from this sandbox (the proxy answers 403 to tag refs; branches and main push fine) | GitHub via the session proxy | The `mNN` tags exist locally only | From a normal clone with this session's history: `git push origin --tags` |
 | Speech-to-text keys | `SARVAM_API_KEY`, `GROQ_API_KEY` | Live STT. Without them a voice clip with no recorded transcript becomes an "audio only: listen" case | Put the keys in `.env` (no inline comments), `make up`, then `make provider-check` → `OK sarvam_saaras …` |
-| LLM keys | `GROQ_API_KEY`, `GEMINI_API_KEY` | Live extraction. Without them the keyword path creates every case (chips read **Rule**). The request shapes are tested offline against the providers' docs; a live call has not been made | Same; `OK groq_gpt_oss_120b …` |
+| LLM keys | `GROQ_API_KEY`, `GEMINI_API_KEY` | Live extraction. Without them the keyword path creates every case (chips read **Rule**), and a spreadsheet's rows are all read by rules ("AI asked about 0"). The request shapes are tested offline against the providers' docs; a live call has not been made | Same; `OK groq_gpt_oss_120b …`; then `make sheet-eval` should show "AI asked about 19" |
 | WhatsApp test number | `WHATSAPP_*` | P1 #5 only | — |
 
 ## For the humans to confirm
@@ -64,6 +66,7 @@
 ## Process notes
 
 - **m13 was merged while `make test` was red** (a ruff import-order error; the merge command checked `tail`'s exit code instead of the tests'). Fixed within minutes on `fix-m13-import-order`, merged to main. The merge helper now runs `make test` itself and refuses to merge on failure.
+- **m30's three commits were first made on local `main`** (the milestone branch hadn't been started). They were never pushed from there: they were moved to `m30-import-job` before merging, and the commit helper now refuses to commit on `main`.
 
 ## Environment notes for this build
 

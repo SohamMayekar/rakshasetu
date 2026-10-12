@@ -12,4 +12,5 @@
 - **The summary** is computed from `import_rows`, so it equals the database: "8 rows → 3 new cases · 1 merged · 2 to check · 1 dropped · 1 already done (closed history) · rules read 7, AI asked about 0 · 2 phone numbers damaged by Excel, not used". Progress streams as `import.progress` about once a second; `import.completed` carries the line.
 - **Durability:** a killed worker resumes the import where it stopped (finished rows are skipped). A slow import refreshes its job lease each progress tick and holds a per-import advisory lock, so two workers never run one import.
 - **Sheet rows and auto-merge (D10):** a village-only row has a Low circle and no geo signal, so phone + village is a strong *suggestion*, not a merge; a row naming a mappable landmark gets a Medium pin and can auto-merge.
-- **Not yet:** the desk side sheet (m38); "only the to-check rows enter the queue" is a desk rule (m34); the 300-row demo sheet and its ≤ 45 s measurement (m31).
+- **The demo sheet (m31):** `data/scenarios/BR/sheet/` (300 rows + ground truth, `make demo-sheet`). Measured with `make sheet-eval`: 16.6 s, 300/300 outcomes as expected, merge precision 1.000, recall 0.965 (docs/MEASUREMENTS.md).
+- **Not yet:** the desk side sheet (m38); "only the to-check rows enter the queue" is a desk rule (m34).

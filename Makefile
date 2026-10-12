@@ -5,7 +5,7 @@ WEB := apps/web
 
 COMPOSE := docker compose -f infra/docker-compose.yml --env-file .env
 
-.PHONY: help env up down nuke ps logs smoke psql contracts seed verify tamper provider-check keys copy-check dev-api dev-web test test-api test-web lint
+.PHONY: help env up down nuke ps logs smoke psql demo-sheet sheet-eval contracts seed verify tamper provider-check keys copy-check dev-api dev-web test test-api test-web lint
 
 help: ## List the targets
 	@grep -E '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) | awk -F':.*?## ' '{printf "  make %-12s %s\n", $$1, $$2}'
@@ -48,6 +48,12 @@ logs: ## Follow logs (make logs s=worker)
 
 smoke: ## Check both Caddy listeners from outside (rule R18)
 	./scripts/smoke_listeners.sh
+
+demo-sheet: ## Regenerate the 300-row demo volunteer sheet and its ground truth (deterministic)
+	services/api/.venv/bin/python scripts/gen_demo_sheet.py
+
+sheet-eval: ## Import the demo sheet into the TEST database and print time, outcome agreement, merge precision/recall
+	$(COMPOSE) exec -T api pytest -s -q -p no:cacheprovider tests/scenarios/test_demo_sheet.py
 
 contracts: ## Regenerate packages/contracts/openapi.json from the code
 	services/api/.venv/bin/python scripts/export_openapi.py

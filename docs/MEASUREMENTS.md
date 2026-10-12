@@ -1,0 +1,18 @@
+# Measurements
+
+Only numbers we measured go here, each with how and where it was measured. Nothing is estimated.
+
+## Spreadsheet import · the 300-row demo sheet (m31)
+
+| What | Measured | Target (PRD) |
+|---|---|---|
+| Time to import 300 rows (job start → done, `imports.finished_at − started_at`) | **16.6 s** | ≤ 45 s |
+| Rows whose outcome matches the ground truth | **300 / 300** | — |
+| Automatic merges: pairwise precision | **1.000** (0 wrong merges) | never a wrong merge |
+| Automatic merges: pairwise recall | **0.965** (110 of 114 same-household row pairs) | — |
+| Summary line | 300 rows → 188 new cases · 90 merged · 14 to check · 0 dropped · 8 already done (closed history) · rules read 300, AI asked about 0 · 14 phone numbers damaged by Excel, not used | equals the database (tested) |
+
+- **How:** `make sheet-eval` (`tests/scenarios/test_demo_sheet.py`): the real API and job, the test database seeded with the BR/OD/HP packs, `PROVIDER_MODE=fixture` and no keys, so **no language model was called** ("AI asked about 0"). With keys, the 19 rows the generator marks `needs_ai` (no headcount the rules can read) go to the model instead; that run has **not** been measured yet.
+- **Where:** the Docker Compose stack on a cloud VM (4 vCPU Intel Xeon 2.8 GHz, 15 GB RAM), 12 Oct 2026, at commit after `607cde0` (milestone 31).
+- **The 4 missed pairs** are the four households whose second row has an Excel-damaged phone: they are shown to a person as likely duplicates ("to check"), by design (T5).
+- **Ground truth** is the generator's own record of which household each row is (`data/scenarios/BR/sheet/ground_truth.csv`), so this measures the importer against a synthetic sheet built to look like a real one, not against real field data.

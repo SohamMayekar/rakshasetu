@@ -1,0 +1,301 @@
+row,household,kind,village,people,phone_damaged,relay_phone,seed_case,needs_ai,expect,note
+2,H066,repeat3,Kuchaikote,5,False,False,,False,new,the same household again
+3,H022,repeat2,Kalu Chhapra,5,False,False,,False,new,the same household again
+4,H052,repeat3,Katiya,6,False,False,,False,new,the same household again
+5,H073,repeat_damaged_phone,Nirkhi Chhapra,6,False,False,,False,new,
+6,H086,relay_phone,Kalu Chhapra,3,False,True,,False,new,"volunteer's phone, different family"
+7,H007,repeat2,Kalu Chhapra,8,False,False,,False,new,
+8,H090,relay_phone,Hathua,6,False,True,,False,new,"volunteer's phone, different family"
+9,H027,repeat2,Nirkhi Chhapra,5,False,False,,False,new,
+10,H002,repeat2,Barauli,3,False,False,,False,new,the same household again
+11,H025,repeat2,Barasra,3,False,False,,False,new,
+12,H029,repeat2,Mirganj,7,False,False,,False,new,the same household again
+13,H029,repeat2,Mirganj,7,False,False,,False,merged,
+14,H195,single,Nawadah,4,False,False,,False,new,
+15,H060,repeat3,Kuchaikote,4,False,False,,False,new,the same household again
+16,H200,single,Baikunthpur,3,False,False,,False,new,
+17,H066,repeat3,Kuchaikote,5,False,False,,False,merged,the same household again
+18,H131,done,Khanpur,5,False,False,,False,history,
+19,H068,repeat3,Nirkhi Chhapra,3,False,False,,False,new,
+20,H085,relay_phone,Kalu Chhapra,5,False,True,,False,new,"volunteer's phone, different family"
+21,H049,repeat2,Sidhwalia,5,False,False,,False,new,the same household again
+22,H037,repeat2,Hathua,5,False,False,,False,new,
+23,H016,repeat2,Manjha,8,False,False,,False,new,
+24,H201,single,Nautan,3,False,False,,False,new,
+25,H145,single,Barauli,6,False,False,,False,new,
+26,H123,needs_ai,Phulwaria,,False,False,,True,new,no number of people the rules can read
+27,H052,repeat3,Katiya,6,False,False,,False,merged,the same household again
+28,H049,repeat2,Sidhwalia,5,False,False,,False,merged,
+29,H008,repeat2,Kalu Chhapra,5,False,False,,False,new,the same household again
+30,H023,repeat2,Katiya,5,False,False,,False,new,the same household again
+31,H133,single,Bijaipur,4,False,False,,False,new,
+32,H171,single,Harpur,4,False,False,,False,new,
+33,H107,needs_ai,Manjha,,False,False,,True,new,no number of people the rules can read
+34,H026,repeat2,Hathua,3,False,False,,False,new,the same household again
+35,H056,repeat3,Kuchaikote,6,False,False,,False,new,the same household again
+36,H127,done,Lakri Nabiganj,4,False,False,,False,history,
+37,H153,single,Lakri Nabiganj,5,False,False,,False,new,
+38,H132,single,Khanpur,5,False,False,,False,new,
+39,H065,repeat3,Nirkhi Chhapra,7,False,False,,False,new,the same household again
+40,H183,single,Ansari Dumri,9,False,False,,False,new,
+41,H030,repeat2,Babutola,7,False,False,,False,new,
+42,H203,single,Dewapur,4,False,False,,False,new,
+43,H130,done,Lakri Nabiganj,2,False,False,,False,history,
+44,H012,repeat2,Phulwaria,5,False,False,,False,new,
+45,H063,repeat3,Babutola,5,False,False,,False,new,
+46,H150,single,Katiya,5,False,False,,False,new,
+47,H012,repeat2,Phulwaria,5,False,False,,False,merged,the same household again
+48,H072,repeat_damaged_phone,Hathua,3,True,False,,False,new,"same household, but its phone was damaged by Excel: a likely duplicate for a person to confirm"
+49,H022,repeat2,Kalu Chhapra,5,False,False,,False,merged,
+50,H050,repeat2,Manjha,8,False,False,,False,new,
+51,H196,single,Nautan,7,False,False,,False,new,
+52,H060,repeat3,Kuchaikote,4,False,False,,False,merged,the same household again
+53,H055,repeat3,Panchdeuri,4,False,False,,False,new,the same household again
+54,H015,repeat2,Phulwaria,7,False,False,,False,new,the same household again
+55,H083,damaged_phone,Taiya Dumri,5,True,False,,False,new,
+56,H105,needs_ai,Mirganj,,False,False,,True,new,no number of people the rules can read
+57,H139,single,Hathua,5,False,False,,False,new,
+58,H034,repeat2,Babutola,5,False,False,,False,new,
+59,H189,single,Nirkhi Chhapra,6,False,False,,False,new,
+60,H075,damaged_phone,Nawadah,3,True,False,,False,new,
+61,H117,needs_ai,Nirkhi Chhapra,,False,False,,True,new,no number of people the rules can read
+62,H071,repeat_damaged_phone,Katiya,5,True,False,,False,new,"same household, but its phone was damaged by Excel: a likely duplicate for a person to confirm"
+63,H172,single,Meera Chhapra,7,False,False,,False,new,
+64,H149,single,Babutola,5,False,False,,False,new,
+65,H046,repeat2,Babutola,5,False,False,,False,new,the same household again
+66,H124,done,Harpur,3,False,False,,False,history,
+67,H062,repeat3,Bhore,7,False,False,,False,new,
+68,H135,single,Ansari Dumri,7,False,False,,False,new,
+69,H065,repeat3,Nirkhi Chhapra,7,False,False,,False,merged,the same household again
+70,H147,single,Dewapur,5,False,False,,False,new,
+71,H041,repeat2,Kuchaikote,5,False,False,,False,new,the same household again
+72,H121,needs_ai,Kuchaikote,,False,False,,True,new,no number of people the rules can read
+73,H058,repeat3,Hathua,6,False,False,,False,new,
+74,H073,repeat_damaged_phone,Nirkhi Chhapra,6,True,False,,False,to_check,"same household, but its phone was damaged by Excel: a likely duplicate for a person to confirm"
+75,H174,single,Nawadah,7,False,False,,False,new,
+76,H004,repeat2,Bhore,7,False,False,,False,new,the same household again
+77,H101,no_location,,4,False,False,,False,to_check,no village: needs a person
+78,H061,repeat3,Barasra,4,False,False,,False,new,the same household again
+79,H074,repeat_damaged_phone,Sidhwalia,7,False,False,,False,new,
+80,H166,single,Baikunthpur,2,False,False,,False,new,
+81,H158,single,Harpur,9,False,False,,False,new,
+82,H093,das_pair,Meera Chhapra,5,False,False,,False,new,Ramesh ≠ Rajesh: never merged
+83,H111,needs_ai,Bhore,,False,False,,True,new,no number of people the rules can read
+84,H028,repeat2,Bhore,5,False,False,,False,new,the same household again
+85,H161,single,Nirkhi Chhapra,7,False,False,,False,new,
+86,H056,repeat3,Kuchaikote,6,False,False,,False,merged,
+87,H020,repeat2,Nirkhi Chhapra,7,False,False,,False,new,
+88,H146,single,Panditpur,6,False,False,,False,new,
+89,H066,repeat3,Kuchaikote,5,False,False,,False,merged,
+90,H004,repeat2,Bhore,7,False,False,,False,merged,
+91,H129,done,Harpur,5,False,False,,False,history,
+92,H186,single,Sidhwalia,8,False,False,,False,new,
+93,H011,repeat2,Kalu Chhapra,6,False,False,,False,new,the same household again
+94,H060,repeat3,Kuchaikote,4,False,False,,False,merged,
+95,H108,needs_ai,Nawadah,,False,False,,True,new,no number of people the rules can read
+96,H155,single,Sidhwalia,7,False,False,,False,new,
+97,H136,single,Barauli,7,False,False,,False,new,
+98,H017,repeat2,Nirkhi Chhapra,6,False,False,,False,new,
+99,H094,das_pair,Meera Chhapra,5,False,False,,False,new,Ramesh ≠ Rajesh: never merged
+100,H011,repeat2,Kalu Chhapra,6,False,False,,False,merged,
+101,H028,repeat2,Bhore,5,False,False,,False,merged,
+102,H169,single,Meera Chhapra,5,False,False,,False,new,
+103,H051,repeat3,Meera Chhapra,8,False,False,,False,new,
+104,H067,repeat3,Kuchaikote,8,False,False,,False,new,
+105,H070,repeat3,Bhore,7,False,False,,False,new,
+106,H110,needs_ai,Harpur,,False,False,,True,new,no number of people the rules can read
+107,H062,repeat3,Bhore,7,False,False,,False,merged,the same household again
+108,H191,single,Nirkhi Chhapra,5,False,False,,False,new,
+109,H192,single,Sidhwalia,3,False,False,,False,new,
+110,H036,repeat2,Mirganj,3,False,False,,False,new,the same household again
+111,H058,repeat3,Hathua,6,False,False,,False,merged,the same household again
+112,H084,damaged_phone,Taiya Dumri,4,True,False,,False,new,
+113,H034,repeat2,Babutola,5,False,False,,False,merged,the same household again
+114,H017,repeat2,Nirkhi Chhapra,6,False,False,,False,merged,the same household again
+115,H206,single,Bhore,6,False,False,,False,new,
+116,H053,repeat3,Sidhwalia,4,False,False,,False,new,the same household again
+117,H033,repeat2,Babutola,4,False,False,,False,new,
+118,H184,single,Taiya Dumri,7,False,False,,False,new,
+119,H013,repeat2,Mirganj,5,False,False,,False,new,the same household again
+120,H020,repeat2,Nirkhi Chhapra,7,False,False,,False,merged,the same household again
+121,H141,single,Kalu Chhapra,5,False,False,,False,new,
+122,H125,done,Uchkagaon,5,False,False,,False,history,
+123,H054,repeat3,Barauli,5,False,False,,False,new,
+124,H005,repeat2,Hathua,3,False,False,,False,new,the same household again
+125,H179,single,Dewapur,8,False,False,,False,new,
+126,H035,repeat2,Manjha,5,False,False,,False,new,the same household again
+127,H164,single,Ansari Dumri,8,False,False,,False,new,
+128,H009,repeat2,Panchdeuri,8,False,False,,False,new,
+129,H137,single,Taiya Dumri,3,False,False,,False,new,
+130,H069,repeat3,Nirkhi Chhapra,6,False,False,,False,new,the same household again
+131,H091,relay_phone,Dewapur,3,False,True,,False,new,"volunteer's phone, different family"
+132,H026,repeat2,Hathua,3,False,False,,False,merged,
+133,H047,repeat2,Sidhwalia,4,False,False,,False,new,the same household again
+134,H142,single,Nawadah,7,False,False,,False,new,
+135,H038,repeat2,Kuchaikote,5,False,False,,False,new,
+136,H193,single,Harpur,8,False,False,,False,new,
+137,H177,single,Meera Chhapra,3,False,False,,False,new,
+138,H126,done,Baikunthpur,4,False,False,,False,history,
+139,H027,repeat2,Nirkhi Chhapra,5,False,False,,False,merged,the same household again
+140,H044,repeat2,Babutola,6,False,False,,False,new,
+141,H159,single,Panchdeuri,5,False,False,,False,new,
+142,H080,damaged_phone,Dewapur,4,True,False,,False,new,
+143,H038,repeat2,Kuchaikote,5,False,False,,False,merged,the same household again
+144,H064,repeat3,Barasra,5,False,False,,False,new,
+145,H128,done,Taiya Dumri,4,False,False,,False,history,
+146,H055,repeat3,Panchdeuri,4,False,False,,False,merged,
+147,H043,repeat2,Katiya,8,False,False,,False,new,the same household again
+148,H050,repeat2,Manjha,8,False,False,,False,merged,the same household again
+149,H170,single,Nirkhi Chhapra,3,False,False,,False,new,
+150,H081,damaged_phone,Khanpur,4,True,False,,False,new,
+151,H151,single,Khanpur,5,False,False,,False,new,
+152,H067,repeat3,Kuchaikote,8,False,False,,False,merged,the same household again
+153,H079,damaged_phone,Lakri Nabiganj,4,True,False,,False,new,
+154,H035,repeat2,Manjha,5,False,False,,False,merged,
+155,H103,old_report,Taiya Dumri,4,False,False,,False,to_check,old report: confirm before sending a team
+156,H072,repeat_damaged_phone,Hathua,3,False,False,,False,to_check,
+157,H063,repeat3,Babutola,5,False,False,,False,merged,the same household again
+158,H097,seeded_duplicate,Nawadah,5,False,False,br-030,False,to_check,already reported as seed case br-030; village-only pins can't auto-merge (D10)
+159,H065,repeat3,Nirkhi Chhapra,7,False,False,,False,merged,
+160,H001,repeat2,Phulwaria,7,False,False,,False,new,
+161,H040,repeat2,Mirganj,6,False,False,,False,new,
+162,H039,repeat2,Mirganj,6,False,False,,False,new,
+163,H044,repeat2,Babutola,6,False,False,,False,merged,the same household again
+164,H156,single,Manjha,8,False,False,,False,new,
+165,H021,repeat2,Hathua,7,False,False,,False,new,the same household again
+166,H055,repeat3,Panchdeuri,4,False,False,,False,merged,the same household again
+167,H019,repeat2,Manjha,4,False,False,,False,new,
+168,H015,repeat2,Phulwaria,7,False,False,,False,merged,
+169,H010,repeat2,Hathua,7,False,False,,False,new,
+170,H010,repeat2,Hathua,7,False,False,,False,merged,the same household again
+171,H088,relay_phone,Bhore,6,False,True,,False,new,"volunteer's phone, different family"
+172,H076,damaged_phone,Ansari Dumri,6,True,False,,False,new,
+173,H104,old_report,Harpur,3,False,False,,False,to_check,old report: confirm before sending a team
+174,H118,needs_ai,Nirkhi Chhapra,,False,False,,True,new,no number of people the rules can read
+175,H119,needs_ai,Lakri Nabiganj,,False,False,,True,new,no number of people the rules can read
+176,H173,single,Ansari Dumri,8,False,False,,False,new,
+177,H061,repeat3,Barasra,4,False,False,,False,merged,the same household again
+178,H082,damaged_phone,Nawadah,6,True,False,,False,new,
+179,H068,repeat3,Nirkhi Chhapra,3,False,False,,False,merged,the same household again
+180,H178,single,Barasra,3,False,False,,False,new,
+181,H069,repeat3,Nirkhi Chhapra,6,False,False,,False,merged,
+182,H054,repeat3,Barauli,5,False,False,,False,merged,the same household again
+183,H024,repeat2,Panchdeuri,6,False,False,,False,new,the same household again
+184,H167,single,Lakri Nabiganj,4,False,False,,False,new,
+185,H190,single,Bijaipur,7,False,False,,False,new,
+186,H045,repeat2,Nirkhi Chhapra,8,False,False,,False,new,
+187,H045,repeat2,Nirkhi Chhapra,8,False,False,,False,merged,the same household again
+188,H064,repeat3,Barasra,5,False,False,,False,merged,the same household again
+189,H140,single,Panditpur,6,False,False,,False,new,
+190,H182,single,Bijaipur,2,False,False,,False,new,
+191,H059,repeat3,Sidhwalia,3,False,False,,False,new,the same household again
+192,H109,needs_ai,Katiya,,False,False,,True,new,no number of people the rules can read
+193,H048,repeat2,Bhore,5,False,False,,False,new,
+194,H194,single,Barauli,3,False,False,,False,new,
+195,H033,repeat2,Babutola,4,False,False,,False,merged,the same household again
+196,H018,repeat2,Nirkhi Chhapra,5,False,False,,False,new,the same household again
+197,H047,repeat2,Sidhwalia,4,False,False,,False,merged,
+198,H157,single,Panditpur,6,False,False,,False,new,
+199,H021,repeat2,Hathua,7,False,False,,False,merged,
+200,H162,single,Barauli,5,False,False,,False,new,
+201,H031,repeat2,Panchdeuri,8,False,False,,False,new,
+202,H115,needs_ai,Nawadah,,False,False,,True,new,no number of people the rules can read
+203,H120,needs_ai,Harpur,,False,False,,True,new,no number of people the rules can read
+204,H144,single,Taiya Dumri,4,False,False,,False,new,
+205,H002,repeat2,Barauli,3,False,False,,False,merged,
+206,H160,single,Hathua,5,False,False,,False,new,
+207,H043,repeat2,Katiya,8,False,False,,False,merged,
+208,H074,repeat_damaged_phone,Sidhwalia,7,True,False,,False,to_check,"same household, but its phone was damaged by Excel: a likely duplicate for a person to confirm"
+209,H096,seeded_duplicate,Manjha,7,False,False,br-013,False,to_check,already reported as seed case br-013; village-only pins can't auto-merge (D10)
+210,H031,repeat2,Panchdeuri,8,False,False,,False,merged,the same household again
+211,H197,single,Bijaipur,7,False,False,,False,new,
+212,H053,repeat3,Sidhwalia,4,False,False,,False,merged,the same household again
+213,H152,single,Katiya,6,False,False,,False,new,
+214,H175,single,Panditpur,7,False,False,,False,new,
+215,H042,repeat2,Phulwaria,6,False,False,,False,new,the same household again
+216,H001,repeat2,Phulwaria,7,False,False,,False,merged,the same household again
+217,H122,needs_ai,Bhore,,False,False,,True,new,no number of people the rules can read
+218,H056,repeat3,Kuchaikote,6,False,False,,False,merged,the same household again
+219,H006,repeat2,Nirkhi Chhapra,3,False,False,,False,new,
+220,H154,single,Baikunthpur,9,False,False,,False,new,
+221,H019,repeat2,Manjha,4,False,False,,False,merged,the same household again
+222,H051,repeat3,Meera Chhapra,8,False,False,,False,merged,the same household again
+223,H025,repeat2,Barasra,3,False,False,,False,merged,the same household again
+224,H048,repeat2,Bhore,5,False,False,,False,merged,the same household again
+225,H204,single,Panditpur,9,False,False,,False,new,
+226,H057,repeat3,Sidhwalia,3,False,False,,False,new,
+227,H087,relay_phone,Bhore,4,False,True,,False,new,"volunteer's phone, different family"
+228,H051,repeat3,Meera Chhapra,8,False,False,,False,merged,the same household again
+229,H070,repeat3,Bhore,7,False,False,,False,merged,the same household again
+230,H180,single,Khanpur,7,False,False,,False,new,
+231,H202,single,Babutola,5,False,False,,False,new,
+232,H168,single,Ansari Dumri,8,False,False,,False,new,
+233,H069,repeat3,Nirkhi Chhapra,6,False,False,,False,merged,the same household again
+234,H095,seeded_duplicate,Barauli,6,False,False,br-010,False,to_check,already reported as seed case br-010; village-only pins can't auto-merge (D10)
+235,H007,repeat2,Kalu Chhapra,8,False,False,,False,merged,the same household again
+236,H009,repeat2,Panchdeuri,8,False,False,,False,merged,the same household again
+237,H138,single,Taiya Dumri,6,False,False,,False,new,
+238,H205,single,Babutola,6,False,False,,False,new,
+239,H039,repeat2,Mirganj,6,False,False,,False,merged,the same household again
+240,H089,relay_phone,Hathua,3,False,True,,False,new,"volunteer's phone, different family"
+241,H023,repeat2,Katiya,5,False,False,,False,merged,
+242,H040,repeat2,Mirganj,6,False,False,,False,merged,the same household again
+243,H078,damaged_phone,Harpur,4,True,False,,False,new,
+244,H134,single,Barasra,5,False,False,,False,new,
+245,H059,repeat3,Sidhwalia,3,False,False,,False,merged,
+246,H064,repeat3,Barasra,5,False,False,,False,merged,the same household again
+247,H163,single,Uchkagaon,8,False,False,,False,new,
+248,H113,needs_ai,Kalu Chhapra,,False,False,,True,new,no number of people the rules can read
+249,H041,repeat2,Kuchaikote,5,False,False,,False,merged,
+250,H052,repeat3,Katiya,6,False,False,,False,merged,
+251,H063,repeat3,Babutola,5,False,False,,False,merged,the same household again
+252,H100,no_location,,3,False,False,,False,to_check,no village: needs a person
+253,H030,repeat2,Babutola,7,False,False,,False,merged,the same household again
+254,H037,repeat2,Hathua,5,False,False,,False,merged,the same household again
+255,H016,repeat2,Manjha,8,False,False,,False,merged,the same household again
+256,H181,single,Ansari Dumri,5,False,False,,False,new,
+257,H036,repeat2,Mirganj,3,False,False,,False,merged,
+258,H008,repeat2,Kalu Chhapra,5,False,False,,False,merged,
+259,H057,repeat3,Sidhwalia,3,False,False,,False,merged,the same household again
+260,H068,repeat3,Nirkhi Chhapra,3,False,False,,False,merged,the same household again
+261,H013,repeat2,Mirganj,5,False,False,,False,merged,
+262,H067,repeat3,Kuchaikote,8,False,False,,False,merged,the same household again
+263,H106,needs_ai,Uchkagaon,,False,False,,True,new,no number of people the rules can read
+264,H024,repeat2,Panchdeuri,6,False,False,,False,merged,
+265,H165,single,Taiya Dumri,7,False,False,,False,new,
+266,H062,repeat3,Bhore,7,False,False,,False,merged,the same household again
+267,H042,repeat2,Phulwaria,6,False,False,,False,merged,
+268,H014,repeat2,Barasra,6,False,False,,False,new,the same household again
+269,H057,repeat3,Sidhwalia,3,False,False,,False,merged,the same household again
+270,H176,single,Nautan,8,False,False,,False,new,
+271,H059,repeat3,Sidhwalia,3,False,False,,False,merged,the same household again
+272,H003,repeat2,Panchdeuri,5,False,False,,False,new,the same household again
+273,H198,single,Lakri Nabiganj,6,False,False,,False,new,
+274,H053,repeat3,Sidhwalia,4,False,False,,False,merged,
+275,H003,repeat2,Panchdeuri,5,False,False,,False,merged,
+276,H054,repeat3,Barauli,5,False,False,,False,merged,the same household again
+277,H006,repeat2,Nirkhi Chhapra,3,False,False,,False,merged,the same household again
+278,H061,repeat3,Barasra,4,False,False,,False,merged,
+279,H018,repeat2,Nirkhi Chhapra,5,False,False,,False,merged,
+280,H092,relay_phone,Dewapur,4,False,True,,False,new,"volunteer's phone, different family"
+281,H114,needs_ai,Nirkhi Chhapra,,False,False,,True,new,no number of people the rules can read
+282,H032,repeat2,Nirkhi Chhapra,6,False,False,,False,new,
+283,H070,repeat3,Bhore,7,False,False,,False,merged,the same household again
+284,H187,single,Hathua,6,False,False,,False,new,
+285,H188,single,Harpur,4,False,False,,False,new,
+286,H098,seeded_duplicate,Sidhwalia,6,False,False,br-015,False,to_check,already reported as seed case br-015; village-only pins can't auto-merge (D10)
+287,H099,no_location,,4,False,False,,False,to_check,no village: needs a person
+288,H102,old_report,Dewapur,4,False,False,,False,to_check,old report: confirm before sending a team
+289,H046,repeat2,Babutola,5,False,False,,False,merged,
+290,H148,single,Lakri Nabiganj,4,False,False,,False,new,
+291,H112,needs_ai,Bijaipur,,False,False,,True,new,no number of people the rules can read
+292,H032,repeat2,Nirkhi Chhapra,6,False,False,,False,merged,the same household again
+293,H199,single,Nirkhi Chhapra,3,False,False,,False,new,
+294,H071,repeat_damaged_phone,Katiya,5,False,False,,False,to_check,
+295,H005,repeat2,Hathua,3,False,False,,False,merged,
+296,H116,needs_ai,Harpur,,False,False,,True,new,no number of people the rules can read
+297,H077,damaged_phone,Bijaipur,5,True,False,,False,new,
+298,H058,repeat3,Hathua,6,False,False,,False,merged,the same household again
+299,H014,repeat2,Barasra,6,False,False,,False,merged,
+300,H185,single,Khanpur,6,False,False,,False,new,
+301,H143,single,Baikunthpur,9,False,False,,False,new,
