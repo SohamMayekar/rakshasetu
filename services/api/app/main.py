@@ -23,6 +23,7 @@ from app.modules.public.router import router as public_router
 from app.modules.queue.router import router as queue_router
 from app.modules.realtime.hub import hub
 from app.modules.realtime.router import router as realtime_router
+from app.modules.rescues.router import router as rescues_router
 from app.modules.teams.router import router as teams_router
 
 
@@ -55,6 +56,7 @@ def create_app() -> FastAPI:
     app.include_router(assignments_router)
     app.include_router(audit_router)
     app.include_router(dispatch_router)
+    app.include_router(rescues_router)
     app.include_router(cases_router)
     app.include_router(intake_router)
     app.include_router(imports_router)

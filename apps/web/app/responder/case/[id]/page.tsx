@@ -8,6 +8,7 @@
 import { use, useCallback, useEffect, useState } from "react";
 
 import { CaseMap } from "@/components/desk/CaseMap";
+import { RescueSheet } from "@/components/rescue/RescueSheet";
 import { BigButton, TapStatus } from "@/components/responder/Field";
 import { Priority, Ring } from "@/components/ui";
 import { api, ApiError, type CaseDetail } from "@/lib/api";
@@ -19,6 +20,7 @@ export default function ResponderCase({ params }: { params: Promise<{ id: string
   const [denied, setDenied] = useState<string | null>(null);
   const [more, setMore] = useState(false);
   const [releasing, setReleasing] = useState(false);
+  const [rescuing, setRescuing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(() => {
@@ -91,7 +93,17 @@ export default function ResponderCase({ params }: { params: Promise<{ id: string
         {step === "reached" && (
           <BigButton onClick={() => tap({ url: `/v1/assignments/${a!.id}/reached`, label: "Reached", caseId: c.id })}>Reached · पहुँच गए</BigButton>
         )}
-        {step === "rescue" && <BigButton disabled>Record rescue (rescue sheet: next milestone)</BigButton>}
+        {step === "rescue" && !rescuing && <BigButton onClick={() => setRescuing(true)}>Record rescue · बचाव दर्ज करें</BigButton>}
+        {rescuing && (
+          <RescueSheet reported={c.people_count} onRecord={(body, label) => {
+            // the team phone's own location at that moment (not the family's), if the phone will give it quickly
+            const send = (pos?: GeolocationPosition) => tap({ url: `/v1/cases/${c.id}/rescues`, label, caseId: c.id,
+              body: { ...body, ...(pos ? { lat: pos.coords.latitude, lng: pos.coords.longitude } : {}) } });
+            if (navigator.geolocation) navigator.geolocation.getCurrentPosition((p) => send(p), () => send(), { timeout: 3000, maximumAge: 60_000 });
+            else send();
+            setRescuing(false);
+          }} />
+        )}
         <button onClick={() => setMore(!more)} className="min-h-12 w-full text-base underline underline-offset-4">More</button>
         {more && a && (
           <div className="space-y-2">

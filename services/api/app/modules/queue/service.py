@@ -54,6 +54,15 @@ def classify(c, now: datetime, unowned_after_s: float) -> dict:
         reasons.append(("disputed", True))
     if reopened:
         reasons.append(("reopened", True))
+    if "other_tell_officer" in flags:
+        reasons.append(("tell officer", True))
+    if "partial_rescue" in flags and not owned:
+        left = f"{c.people_remaining} of {c.people_count}" if c.people_remaining is not None and c.people_count else "some"
+        reasons.append((f"{left} still there", True))
+    if "nobody_here" in flags and not owned:
+        reasons.append(("nobody here: search", True))
+    if "couldnt_reach" in flags and not owned:
+        reasons.append(("couldn't reach", True))
     if p1_late:
         reasons.append((f"no owner {_minutes(waited_s)}", True))
     if needs_location:
@@ -113,7 +122,8 @@ def queue(conn: Connection, scope: Scope, incident_code: str) -> dict:
     rows = conn.execute(text(f"""
         SELECT c.id, c.public_id, c.status, c.priority, c.priority_reasons, c.p1_rank, c.summary, c.location_text,
                c.location_confidence, ST_Y(c.geom::geometry) AS lat, ST_X(c.geom::geometry) AS lng, c.flags,
-               c.queue_since, c.people_count, c.hazards, c.needs, c.incident_id, c.district_id, c.checked_at,
+               c.queue_since, c.people_count, c.people_remaining, c.hazards, c.needs, c.incident_id, c.district_id,
+               c.checked_at, c.attributes,
                c.version, a.state AS assignment_state, a.next_contact_due, a.phase, t.name AS team,
                (SELECT k.public_id FROM merge_suggestions s JOIN cases k ON k.id = s.candidate_case_id
                  WHERE s.case_id = c.id AND s.status = 'open' AND s.strength <> 'refused'
@@ -148,6 +158,9 @@ def queue(conn: Connection, scope: Scope, incident_code: str) -> dict:
             continue
         where_line = c.location_text or "no location yet"
         owner = f" · {c.team}" if k["owned"] else ""
+        last = (c.attributes or {}).get("last_rescue") or {}
+        if last.get("outcome") == "couldnt_reach" and not k["owned"]:
+            owner = f" · {last.get('team')} couldn't reach ({last.get('reason')})"
         out.append({
             "id": c.id, "kind": "case", "public_id": c.public_id, "priority": c.priority, "status": c.status, "version": c.version,
             "line1": c.summary, "line2": f"{where_line}{owner} · waiting {_minutes(k['waited_s'])}",

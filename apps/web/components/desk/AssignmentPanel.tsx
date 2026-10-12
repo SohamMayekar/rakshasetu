@@ -6,6 +6,7 @@
 import { useEffect, useState } from "react";
 
 import { Because, Button, Chip, Ring } from "@/components/ui";
+import { RescueSheet } from "@/components/rescue/RescueSheet";
 import { api, type Assignment, type Case, type Dispatch, type Escalation } from "@/lib/api";
 
 const CHANNELS = ["VHF", "HAM", "satellite", "phone"];
@@ -44,7 +45,8 @@ export function AssignmentPanel({ c, assignment, escalation, can, onChanged }: {
   c: Case; assignment: Assignment | null; escalation?: Escalation; can: (a: string) => boolean; onChanged: () => void;
 }) {
   const [dispatch, setDispatch] = useState<Dispatch | null>(null);
-  const [mode, setMode] = useState<"radio" | "release" | "reassign" | null>(null);
+  const [mode, setMode] = useState<"radio" | "release" | "reassign" | "rescue" | null>(null);
+  const [via, setVia] = useState("VHF");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -78,8 +80,20 @@ export function AssignmentPanel({ c, assignment, escalation, can, onChanged }: {
           {a.state === "overdue" && escalation && can("assignment.create") && (
             <Button size="sm" onClick={() => setMode(mode === "reassign" ? null : "reassign")}>Reassign</Button>
           )}
+          {can("assignment.team_action") && <Button size="sm" onClick={() => setMode(mode === "rescue" ? null : "rescue")}>Log radio report</Button>}
           {can("assignment.team_action") && <Button size="sm" variant="quiet" onClick={() => setMode(mode === "release" ? null : "release")}>Release</Button>}
         </div>
+        {mode === "rescue" && (
+          <div className="rounded-lg border border-line p-3">
+            <p className="mb-2 flex items-center gap-2 text-xs text-ink-2">The team&rsquo;s rescue sheet, recorded on its behalf · via
+              <select value={via} onChange={(e) => setVia(e.target.value)} className="h-7 rounded-md border border-line bg-paper px-1.5">
+                {["VHF", "HAM", "satellite", "phone"].map((x) => <option key={x}>{x}</option>)}
+              </select> · {a.team}
+            </p>
+            <RescueSheet big={false} reported={c.people_count}
+                         onRecord={(body) => run(() => api(`/v1/cases/${c.id}/rescues`, { method: "POST", json: { ...body, channel: via } }))} />
+          </div>
+        )}
         {mode === "reassign" && escalation && dispatch && (
           <ol className="space-y-1.5">
             {dispatch.suggestions.map((t) => (

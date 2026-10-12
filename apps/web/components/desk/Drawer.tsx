@@ -14,6 +14,28 @@ import { api, type Case, type CaseDetail, type Escalation, type Evidence, type M
 
 export type Picked = { lat: number; lng: number } | null;
 
+// An officer's decisions on a case, each with a reason (PRD §5.2): close, cancel, reopen.
+function Decide({ c, onDone }: { c: Case; onDone: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const kinds = ["closed", "cancelled", "rescued"].includes(c.status) ? ["reopen"] : ["close", "cancel"];
+  if (!open) return <Button size="sm" variant="quiet" onClick={() => setOpen(true)}>{kinds[0] === "reopen" ? "Reopen…" : "Close or cancel…"}</Button>;
+  return (
+    <form className="mt-2 flex w-full flex-wrap gap-2" onSubmit={async (e) => {
+      e.preventDefault();
+      const f = new FormData(e.currentTarget);
+      try { await api(`/v1/cases/${c.id}/${f.get("kind")}`, { method: "POST", json: { reason: String(f.get("reason")) } }); setOpen(false); onDone(); }
+      catch (x) { setError(x instanceof Error ? x.message : String(x)); }
+    }}>
+      <select name="kind" className="h-8 rounded-md border border-line bg-paper px-2 text-sm">{kinds.map((k) => <option key={k}>{k}</option>)}</select>
+      <input name="reason" required minLength={3} autoFocus placeholder="Why (logged)" className="h-8 min-w-0 flex-1 rounded-md border border-line px-2 text-sm" />
+      <Button size="sm" variant="primary" type="submit">Confirm</Button>
+      <Button size="sm" variant="quiet" type="button" onClick={() => setOpen(false)}>Cancel</Button>
+      {error && <span className="w-full text-xs">{error}</span>}
+    </form>
+  );
+}
+
 // A person can merge any two cases they can see, with a reason; the older one is kept (undoable).
 function ManualMerge({ c, onDone }: { c: Case; onDone: (kept: number) => void }) {
   const [open, setOpen] = useState(false);
@@ -92,6 +114,7 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
             <Button size="sm" variant="primary" onClick={() => act(() => api(`/v1/cases/${c.id}/check`, { method: "POST", json: {} }))}>Check</Button>
           )}
           {can("case.move_pin") && !picking && <Button size="sm" onClick={onPickStart}>Move pin</Button>}
+          {can("case.decide") && <Decide c={c} onDone={() => { onChanged(); load(); }} />}
         </div>
         {picking && (
           <form className="mt-3 space-y-2 rounded-lg border border-line p-3 text-sm" onSubmit={(e) => { e.preventDefault(); savePin(new FormData(e.currentTarget)); }}>

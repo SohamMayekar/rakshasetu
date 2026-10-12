@@ -12,6 +12,7 @@ nothing; every change is one conditional UPDATE, so two tickers (or a ticker and
    requisitions anyone; a person asks the SEOC.
 4. An escalation nobody acknowledges within `ack_within` rises to the EOC In-charge.
 5. An escalation whose cause is gone (the team was heard from; P1s got owners) resolves itself.
+6. A rescued case closes after its review window unless something blocks it (PRD F-S3).
 Heartbeats are never read here: "last seen" can't extend a deadline.
 """
 
@@ -23,6 +24,7 @@ from app.config import get_config, parse_duration
 from app.core.clock import hhmm
 from app.core.eventlog import SYSTEM, append_event
 from app.modules.assignments.service import _team_status
+from app.modules.rescues.service import close_reviewed
 
 
 def tick(engine: Engine) -> dict:
@@ -34,7 +36,8 @@ def tick(engine: Engine) -> dict:
         teams = escalate_teams(conn)
         gaps = capacity_gaps(conn)
         risen = rise(conn)
-        return {"overdue": overdue, "team_escalations": teams, "capacity_gaps": gaps, "risen": risen}
+        closed = close_reviewed(conn)
+        return {"overdue": overdue, "team_escalations": teams, "capacity_gaps": gaps, "risen": risen, "closed": closed}
 
 
 def mark_overdue(conn: Connection) -> int:

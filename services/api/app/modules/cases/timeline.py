@@ -70,6 +70,27 @@ def line(action: str, d: dict, who: str | None) -> str:
             return f"Contact overdue: no check-in from {d.get('team')} (the case stays with the team)"
         case "assignment.released":
             return f"{d.get('team')} released the case{by}"
+        case "rescue.recorded":
+            via = f" · via {d['channel']}{by}" if d.get("channel") not in (None, "app") else ""
+            return (f"{d.get('team')}: {d.get('people_taken')} of {d.get('people_reported') or '?'} rescued, nobody left"
+                    + (" · recorded away from the pin" if d.get("away_from_pin") else "") + via)
+        case "rescue.partial":
+            left = f"{d['remaining']} still there" if d.get("remaining") is not None else "someone may still be there"
+            return f"{d.get('team')}: took {d.get('people_taken')}, {left} · back to the queue with its original time"
+        case "rescue.nobody_here":
+            return f"{d.get('team')}: nobody here · back to the queue as P1 (search the circle, ask for a new place)"
+        case "rescue.couldnt_reach":
+            return f"{d.get('team')}: couldn't reach ({d.get('reason')}) · the next team will see why"
+        case "rescue.other":
+            return f"{d.get('team')}: other, tell the officer · family messages paused"
+        case "rescue.corroborated":
+            return f"The same trip confirmed again via {d.get('channel')}" + ("" if d.get("agrees") else " · the counts differ")
+        case "case.closed":
+            return f"Closed: {d.get('resolution')}" if d.get("resolution") else f"Closed{by}"
+        case "case.cancelled":
+            return f"Cancelled{by}"
+        case "case.reopened":
+            return f"Reopened{by}"
         case "contact.revealed":
             return f"Phone number shown to {d.get('by') or who}{'' if not d.get('masked') else ' (' + d['masked'] + ')'}"
         case "report.callback_added":
