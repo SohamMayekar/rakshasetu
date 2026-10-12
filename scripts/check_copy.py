@@ -29,8 +29,7 @@ JARGON = re.compile(
 JARGON_WHERE = ["apps/web/app", "apps/web/lib", "apps/web/components", "services/api/app/modules/public",
                 "services/api/app/modules/cases/timeline.py", "services/api/app/modules/escalations/ticker.py",
                 "services/api/app/pipeline/run.py"]
-JARGON_SKIP = {"apps/web/lib/words.ts",      # the glossary itself: it maps the API's codes to plain words
-               "apps/web/app/ui"}            # the design-system reference page for the team (not linked from any screen)
+JARGON_SKIP = {"apps/web/lib/words.ts"}      # the glossary itself: it maps the API's codes to plain words
 STRING = re.compile(r'"((?:[^"\\]|\\.)*)"|\'((?:[^\'\\]|\\.)*)\'|`((?:[^`\\]|\\.)*)`')
 JSX_TEXT = re.compile(r">([^<>{}]+)<|>([^<>{}]+)$")
 CODE = re.compile(r"\b(SELECT|INSERT|UPDATE|DELETE|WHERE|FROM|JOIN|VALUES|RETURNING)\b")

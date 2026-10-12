@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m75 (the focus run, m73–m77: about families, teams and rescues) (the simplify run, m63–m72: docs/SIMPLIFY_PLAN.md); last release m62: see docs/VERIFICATION.md
+**Current milestone:** m76 (the focus run, m73–m77: about families, teams and rescues) (the simplify run, m63–m72: docs/SIMPLIFY_PLAN.md); last release m62: see docs/VERIFICATION.md
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)

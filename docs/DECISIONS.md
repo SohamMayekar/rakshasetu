@@ -94,3 +94,6 @@ The team asked for a demo that is real use rather than a staged show. Everything
 
 ### D32 · No screen explains how the system works
 A real control-room tool doesn't caption itself. Subtitles, footnotes and hints that described the machinery ("each row commits on its own", "measured inside the server", "only a real tap counts as a check-in", "the case stays with the team until you act") were cut; what is left says what is happening to families and teams. The explanations live where they belong: the docs, the teach-back, and the presenter's mouth. Two things stay because people need them to act safely: the 112/1077 line on the phone pages and the team app's one line about check-ins. **Rejected:** tooltips holding the same explanations (hidden filler is still filler, and it hides from judges on a projector anyway).
+
+### D33 · The team's reference page follows the same words as the app
+`/ui` was left behind at m66 (old labels, design jargon) and excluded from the jargon check, which meant the page that teaches the team the pieces taught the old words. It now shows only what the app uses, described as a student would say it, and the check no longer skips it. **Rejected:** deleting `/ui` (each team member uses it to explain a component in the teach-back, CLAUDE.md §1.5).
