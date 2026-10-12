@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rakshasetu.local/contracts/extraction.schema.json",
+  "title": "Extraction v1",
+  "description": "What the language model (or the keyword path) may return (PRD §8.2, rule R13). Closed enums; every field carries the quote it came from. There is NO priority field and NO free-text summary: rules set priority, and the row summary is a template.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["language", "people_count", "hazards", "needs", "vulnerable", "location", "person_names", "callback_phone", "reporter_on_site"],
+  "$defs": {
+    "quote": {"type": "string", "minLength": 1, "maxLength": 300},
+    "hazard": {"enum": ["trapped_on_roof", "trapped_inside", "water_entering", "water_rising", "strong_current", "buried", "structure_collapsed", "landslide", "cut_off"]},
+    "need": {"enum": ["rescue", "medicine", "medical_urgent", "food", "drinking_water", "shelter", "baby_supplies"]},
+    "vulnerable": {"enum": ["elderly", "infant", "child", "pregnant", "disabled", "sick", "injured"]},
+    "landmark_type": {"enum": ["temple", "mosque", "church", "gurdwara", "place_of_worship", "bridge", "school", "hospital", "water_tower", "railway_station", "police_station", "market", "panchayat_bhawan", "canal", "tower"]},
+    "relation": {"enum": ["behind", "near", "opposite", "beside", "in_front", "inside", "unknown"]}
+  },
+  "properties": {
+    "language": {"type": ["string", "null"], "maxLength": 10},
+    "people_count": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["value", "kind", "quote"],
+      "properties": {
+        "value": {"type": "integer", "minimum": 0, "maximum": 5000},
+        "kind": {"enum": ["stated", "estimated"]},
+        "quote": {"$ref": "#/$defs/quote"}
+      }
+    },
+    "hazards": {"type": "array", "maxItems": 10, "items": {
+      "type": "object", "additionalProperties": false, "required": ["type", "quote"],
+      "properties": {"type": {"$ref": "#/$defs/hazard"}, "quote": {"$ref": "#/$defs/quote"}}}},
+    "needs": {"type": "array", "maxItems": 10, "items": {
+      "type": "object", "additionalProperties": false, "required": ["type", "quote"],
+      "properties": {"type": {"$ref": "#/$defs/need"}, "quote": {"$ref": "#/$defs/quote"}}}},
+    "vulnerable": {"type": "array", "maxItems": 10, "items": {
+      "type": "object", "additionalProperties": false, "required": ["type", "quote"],
+      "properties": {"type": {"$ref": "#/$defs/vulnerable"}, "quote": {"$ref": "#/$defs/quote"}}}},
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["village_or_locality", "district", "state", "landmarks"],
+      "properties": {
+        "village_or_locality": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": ["original", "latin", "quote"],
+          "properties": {
+            "original": {"type": "string", "maxLength": 100},
+            "latin": {"type": "string", "maxLength": 100},
+            "quote": {"$ref": "#/$defs/quote"}
+          }
+        },
+        "district": {"type": ["string", "null"], "maxLength": 100},
+        "state": {"type": ["string", "null"], "maxLength": 100},
+        "landmarks": {"type": "array", "maxItems": 6, "items": {
+          "type": "object", "additionalProperties": false, "required": ["type", "name", "relation", "quote"],
+          "properties": {
+            "type": {"$ref": "#/$defs/landmark_type"},
+            "name": {"type": ["string", "null"], "maxLength": 100},
+            "relation": {"$ref": "#/$defs/relation"},
+            "quote": {"$ref": "#/$defs/quote"}}}}
+      }
+    },
+    "person_names": {"type": "array", "maxItems": 10, "items": {
+      "type": "object", "additionalProperties": false, "required": ["name", "quote"],
+      "properties": {"name": {"type": "string", "maxLength": 100}, "quote": {"$ref": "#/$defs/quote"}}}},
+    "callback_phone": {"type": ["string", "null"], "maxLength": 40},
+    "reporter_on_site": {"type": ["boolean", "null"]}
+  }
+}

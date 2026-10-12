@@ -5,7 +5,7 @@ WEB := apps/web
 
 COMPOSE := docker compose -f infra/docker-compose.yml --env-file .env
 
-.PHONY: help env up down nuke ps logs smoke psql dev-api dev-web test test-api test-web lint
+.PHONY: help env up down nuke ps logs smoke psql contracts dev-api dev-web test test-api test-web lint
 
 help: ## List the targets
 	@grep -E '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) | awk -F':.*?## ' '{printf "  make %-12s %s\n", $$1, $$2}'
@@ -33,6 +33,9 @@ logs: ## Follow logs (make logs s=worker)
 
 smoke: ## Check both Caddy listeners from outside (rule R18)
 	./scripts/smoke_listeners.sh
+
+contracts: ## Regenerate packages/contracts/openapi.json from the code
+	services/api/.venv/bin/python scripts/export_openapi.py
 
 dev-api: ## Run the API natively on :8000 (needs services/api/.venv)
 	cd $(API) && .venv/bin/uvicorn app.main:app --reload --port 8000

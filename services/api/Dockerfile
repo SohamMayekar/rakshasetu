@@ -19,6 +19,7 @@ RUN python -c "import tomllib; p=tomllib.load(open('pyproject.toml','rb'))['proj
 open('/tmp/req.txt','w').write('\n'.join(p['dependencies'] + p['optional-dependencies']['dev']))" \
     && pip install --no-cache-dir -r /tmp/req.txt
 COPY . .
+COPY --from=contracts . /contracts
 ENV PYTHONPATH=/srv
 
 EXPOSE 8000

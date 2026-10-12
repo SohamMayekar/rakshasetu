@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rakshasetu.local/contracts/report.v1.schema.json",
+  "title": "Canonical Report v1",
+  "description": "Every channel adapter maps its payload to this shape and calls intake.accept() (PRD §11.2). The idempotency namespace is set server-side from the authenticated caller, never from this body.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "idempotency_key", "channel", "content"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "idempotency_key": {"type": "string", "minLength": 1, "maxLength": 200},
+    "channel": {"enum": ["voice", "whatsapp", "web_form", "spreadsheet", "partner"]},
+    "incident_hint": {"type": ["string", "null"], "pattern": "^[A-Z]{2,4}$"},
+    "received_at": {"type": ["string", "null"], "format": "date-time"},
+    "reporter": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "phone": {"type": ["string", "null"], "maxLength": 40},
+        "device_id": {"type": ["string", "null"], "maxLength": 100},
+        "name": {"type": ["string", "null"], "maxLength": 200},
+        "relation": {"enum": ["self", "family", "neighbour", "volunteer", "forwarder", "official", "unknown"]}
+      }
+    },
+    "content": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "text": {"type": ["string", "null"], "maxLength": 20000},
+        "language": {"type": ["string", "null"], "maxLength": 10},
+        "audio_ref": {"type": ["string", "null"]},
+        "attachments": {"type": "array", "items": {"type": "string"}, "maxItems": 10}
+      }
+    },
+    "structured": {
+      "description": "Optional pre-extracted fields in the extraction shape (extraction.schema.json). Partners and the surge generator use it; those reports skip the language model.",
+      "type": ["object", "null"]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "system": {"type": ["string", "null"]},
+        "ref": {"type": ["string", "null"]},
+        "file_sha256": {"type": ["string", "null"]},
+        "row": {"type": ["integer", "null"]},
+        "partner": {"type": ["string", "null"]},
+        "simulated": {"type": "boolean"},
+        "written_at": {"type": ["string", "null"], "format": "date-time"},
+        "synced_at": {"type": ["string", "null"], "format": "date-time"}
+      }
+    }
+  }
+}

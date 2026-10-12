@@ -21,6 +21,8 @@ class Settings:
     secret_key: str = field(default_factory=lambda: os.environ.get("SECRET_KEY", "dev-only-change-me"))
     config_dir: Path = field(default_factory=lambda: Path(os.environ.get("CONFIG_DIR", API_ROOT / "config")))
     data_dir: Path = field(default_factory=lambda: Path(os.environ.get("DATA_DIR", API_ROOT.parent.parent / "data")))
+    contracts_dir: Path = field(default_factory=lambda: Path(os.environ.get(
+        "CONTRACTS_DIR", API_ROOT.parent.parent / "packages" / "contracts")))
     files_dir: Path = field(default_factory=lambda: Path(os.environ.get("FILES_DIR", API_ROOT.parent.parent / "var" / "files")))
 
 

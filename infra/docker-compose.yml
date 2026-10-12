@@ -13,11 +13,13 @@ x-api-env: &api-env
   SECRET_KEY: ${SECRET_KEY}
   DATA_DIR: /data
   FILES_DIR: /files
+  CONTRACTS_DIR: /contracts
 
 x-api-build: &api-build
   context: ../services/api
   additional_contexts:
     certs: ./certs
+    contracts: ../packages/contracts
 
 services:
   db:

@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m05 · contracts package
+**Current milestone:** m06 · config loading
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -12,6 +12,7 @@
 | m02 | docker compose: db (PostGIS), api, worker, ticker, web; `make up/down/ps/logs` | `make up` → all 5 services healthy; /healthz reports db ok; `make test-api` passes in the container |
 | m03 | Caddy :80 local / :8080 public; X-RS-Listener stamping; demo guard (listener + CF-Connecting-IP); body caps | `make smoke`: 9/9 listener checks (incl. spoofed header → 404, 3 MB public body → 413); 4 guard tests in pytest |
 | m04 | Base schema (incidents, districts, teams, users, cases, reports, events); roles rakshasetu_owner / rakshasetu_app; `migrate` one-shot service; test DB | `make nuke && make up` applies 001_base; pytest: app role owns 0 tables, UPDATE/DELETE/TRUNCATE events + CREATE TABLE → InsufficientPrivilege, INSERT+SELECT events works (11 passed) |
+| m05 | packages/contracts: report.v1 + extraction (closed enums, no priority, no summary) JSON schemas, ws-events.md, partner contract card, generated openapi.json; Pydantic mirrors | pytest: 26 agreement cases (schema and Pydantic accept/reject the same docs, incl. a priority field, summary_en, off-enum hazard, empty quote); openapi.json freshness test |
 
 ## NOT DONE (engineering)
 
