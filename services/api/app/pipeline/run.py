@@ -21,6 +21,10 @@ from app.core.eventlog import WORKER, append_event
 from app.core.flags import language_model_enabled
 from app.core.jobs import RetryLater, enqueue, handler
 from app.modules.cases.service import create_case
+from app.modules.dedupe.candidates import candidates, landmark_keys
+from app.modules.dedupe.decide import decide, reason_line
+from app.modules.dedupe.merge import attach_report, record_suggestion
+from app.modules.dedupe.signals import Household
 from app.modules.location.ladder import resolve as resolve_location
 from app.modules.triage.rules import triage
 from app.pipeline import llm_extract
@@ -171,13 +175,38 @@ def process_report(engine: Engine, payload: dict) -> None:
         conn.execute(text("UPDATE reports SET extraction = CAST(:e AS jsonb), extraction_method = :m,"
                           " receipt = CAST(:r AS jsonb) WHERE id = :id"),
                      {"e": extraction.model_dump_json(), "m": method, "r": json.dumps(receipt), "id": report.id})
+        # Stage 2: DEDUPE, under a per-incident lock so two reports about one household arriving in the same
+        # second can't both create a case (rule R5).
+        conn.execute(text("SELECT pg_advisory_xact_lock(hashtext(:k))"), {"k": f"dedupe:{locked.incident_id}"})
+        new = household_of(report, fields)
+        decision = decide(conn, new, candidates(conn, locked.incident_id, new))
+        if decision.kind == "auto_merge":
+            m = decision.target
+            attach_report(conn, target_id=m.candidate.case_id, report_id=report.id, fields=fields, score=m.score.total,
+                          signals=m.score.signals, reasons=m.reasons, reason_line=reason_line(m), actor=WORKER)
+            return
         created = create_case(conn, incident_id=locked.incident_id,
                               district_id=(located.district_id if located and located.district_id else district_hint),
                               report_id=report.id, fields=fields, actor=WORKER, queue_since=report.received_at)
+        for m in decision.suggestions:
+            record_suggestion(conn, incident_id=locked.incident_id, district_id=created["district_id"],
+                              case_id=created["case_id"], match=m, line=reason_line(m), actor=WORKER)
         if out.backfill:
             # When the language model is back it re-reads this report (F-C14). Seen as "waiting" in jobs.
             enqueue(conn, "llm.backfill", {"report_id": report.id, "case_id": created["case_id"]}, "backfill",
                     dedupe_key=f"report:{report.id}:backfill")
+
+
+def household_of(report, fields: dict) -> Household:
+    """The new report as a household for duplicate scoring."""
+    attrs = fields.get("attributes") or {}
+    return Household(
+        case_id=None, phones={report.reporter_phone_hash} if report.reporter_phone_hash else set(),
+        devices={report.device_hash} if report.device_hash else set(), village=fields.get("location_text"),
+        lat=fields.get("lat"), lng=fields.get("lng"), radius_m=fields.get("radius_m"),
+        confidence=fields.get("location_confidence"),
+        landmarks=landmark_keys(attrs.get("location_detail"), fields.get("provenance")),
+        people=fields.get("people_count"), names=list(attrs.get("person_names") or []), at=report.received_at)
 
 
 RULE_FIELDS = ("hazards", "needs", "vulnerable", "landmarks")

@@ -1,0 +1,7 @@
+# dedupe · one household, however many times it's reported
+
+- **What it does:** every new report is compared with open cases **in the same incident** (`app/modules/dedupe/`): candidates share the phone/device, lie within 3 km, or have the same village (ranked in that order, capped at 50). Each pair is scored, then a decision table says: auto-merge, suggest ("strong"/"weak"), refuse, or new case.
+- **Key tables:** `merge_suggestions`, `merges` (with an exact before-snapshot), `merge_blocks`.
+- **The tricky rule:** the score is a weighted sum of the signals that **agree**; missing evidence counts **0**, never "neutral". Weights (team-owned): phone/device .30, place .20, geo .20 (only if both pins are Medium+), landmarks .10 (same mapped feature; a bare word counts half), headcount .10, names .05, time .05. Without a phone/device match the maximum is 0.70, so **auto-merge needs a phone or device match by arithmetic**, plus place or geo agreement and no conflict. At least two non-time signals, including place or geo, or there's no suggestion at all. No chains.
+- **Race safety:** dedupe-and-create runs under `pg_advisory_xact_lock(hashtext('dedupe:<incident>'))`, so two reports about one household in the same second can't both create a case.
+- **How to show it:** paste the son's report: "Likely same household as BR-214: same village (Thawe) · circles overlap · same landmarks (Thawe durga mata mandir, bridge) · same headcount (6) · 4 min apart".
