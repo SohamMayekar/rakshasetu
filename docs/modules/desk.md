@@ -16,3 +16,11 @@
 - **The action:** Heard on radio (officer, overdue) · Fix pin · Review match → BR-xxx · **Assign a team** (officer, any unowned P1, even unchecked: nobody on a roof waits for paperwork) · Check (call-taker) · Open. "Check" runs straight from the row; the others open the drawer at the right section.
 - **Nothing moves under the cursor:** rows already on screen keep their place and update in place; new rows wait behind "▲ 3 new: show"; rows that no longer need anyone fade where they are ("handled") until the person clicks the pill. The map colours the queue's cases and greys the rest.
 - **Empty state:** "Nothing needs you. 124 households have a live owner."
+
+## The drawer (m35)
+
+- **Header:** priority, case id, status, the summary and its *because*; **Check** (call-taker, officer) and **Move pin** (click the map; a person's pin is a 50 m circle, saved with a logged reason).
+- **Facts with receipts:** each value shows ● checked / ○ not yet / amber ○ (quote check failed), its method chip (AI · Rule · Human · Partner; "sheet column" when a spreadsheet column gave it), and **hovering it lights up its quote** in the report below. People can be corrected inline with a reason (`If-Match: version`; a stale edit gets the 409 naming who changed it). Contact is masked.
+- **Timeline & evidence** (`GET /v1/cases/{id}/timeline`): every event of this case and of the cases folded into it, in order, as **plain lines from templates** ("Merged into BR-209: same phone · same village (Mirganj) · circles overlap…", "Checked by Priya Kumari"). Each report appears as a card: channel tag, time, relation, masked phone, its words in the caller's own script, its pipeline receipt, and its evidence inline — the audio player, or the spreadsheet row (file name, row number, the cells, a link to the file). Every evidence file is **re-hashed when the drawer opens**: "sha256 3f2a… ✓ matches the audit log" (the file still hashes to its name, and that hash is the one the chain recorded), or "✗ does not match".
+- **Evidence files** (`GET /v1/evidence/{id}/file`) are served only when the evidence's case is in the caller's scope (in the SQL); a Muzaffarpur officer gets 404 for a Gopalganj file (tested).
+- **Audit:** a link to the case's raw events (the Audit screen arrives in m48).

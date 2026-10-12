@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 from app.core.auth import Scope, require
 from app.core.listener import require_local
 from app.db import get_engine
-from app.modules.cases import repo, service
+from app.modules.cases import repo, service, timeline
 
 router = APIRouter(prefix="/v1/cases", tags=["cases"])
 
@@ -35,6 +35,17 @@ def get_case(ref: str, scope: Scope = Depends(require("queue.view"))) -> dict:
             raise HTTPException(status_code=404, detail="No such case")
         case["reports"] = repo.reports_for_case(c, scope, case["id"])
     return case
+
+
+@router.get("/{ref}/timeline")
+def get_timeline(ref: str, scope: Scope = Depends(require("queue.view"))) -> dict:
+    """Timeline & evidence for the drawer: every event in order, in plain words, and every evidence item
+    with its hash checks."""
+    with get_engine().connect() as c:
+        case = repo.get_case(c, scope, ref)
+        if case is None:
+            raise HTTPException(status_code=404, detail="No such case")
+        return {"events": timeline.timeline(c, scope, case["id"]), "evidence": timeline.evidence(c, case["id"])}
 
 
 # --- desk corrections (local listener only) ---------------------------------------------------------------

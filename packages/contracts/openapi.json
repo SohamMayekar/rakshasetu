@@ -986,6 +986,51 @@
         ]
       }
     },
+    "/v1/cases/{ref}/timeline": {
+      "get": {
+        "description": "Timeline & evidence for the drawer: every event in order, in plain words, and every evidence item\nwith its hash checks.",
+        "operationId": "get_timeline_v1_cases__ref__timeline_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ref",
+            "required": true,
+            "schema": {
+              "title": "Ref",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Timeline V1 Cases  Ref  Timeline Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Timeline",
+        "tags": [
+          "cases"
+        ]
+      }
+    },
     "/v1/demo/language-model": {
       "post": {
         "description": "F-C14: switch the language model off (or back on). Speech-to-text stays on, so say \"language model\".",
@@ -1126,6 +1171,46 @@
         "summary": "Events Since",
         "tags": [
           "realtime"
+        ]
+      }
+    },
+    "/v1/evidence/{evidence_id}/file": {
+      "get": {
+        "operationId": "get_file_v1_evidence__evidence_id__file_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "evidence_id",
+            "required": true,
+            "schema": {
+              "title": "Evidence Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get File",
+        "tags": [
+          "evidence"
         ]
       }
     },

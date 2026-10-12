@@ -7,7 +7,7 @@
 import { use, useCallback, useEffect, useMemo, useState } from "react";
 
 import { CaseMap } from "@/components/desk/CaseMap";
-import { Drawer } from "@/components/desk/Drawer";
+import { Drawer, type Picked } from "@/components/desk/Drawer";
 import { Header } from "@/components/desk/Header";
 import { NeedsYouNow } from "@/components/desk/NeedsYouNow";
 import { api, ApiError, type Case, listCases, type Me } from "@/lib/api";
@@ -35,6 +35,9 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
   const [selected, setSelected] = useState<number | null>(null);
   const [queue, setQueue] = useState<Queue | null>(null);
   const [focus, setFocus] = useState<string | null>(null);
+  const [picking, setPicking] = useState(false);
+  const [picked, setPicked] = useState<Picked>(null);
+  const endPick = () => { setPicking(false); setPicked(null); };
   const loadQueue = useCallback(() => api<Queue>(`/v1/queue?incident=${encodeURIComponent(incident)}`).then(setQueue).catch(() => {}), [incident]);
 
   useEffect(() => {
@@ -79,6 +82,7 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
       return;
     }
     setSelected(row.id);
+    if (row.action.kind === "pin") { setPicking(true); setPicked(null); }
     setFocus({ pin: "Facts", match: "Timeline & evidence", radio: "Assignment", assign: "Assignment", open: null, check: null }[row.action.kind] ?? null);
   }, [loadQueue]);
 
@@ -90,9 +94,12 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
           <NeedsYouNow queue={queue} selected={selected} onSelect={(id) => { setSelected(id); setFocus(null); }} onAction={onAction} />
         </nav>
         <main className="relative hidden min-w-0 flex-1 md:block">
-          <CaseMap cases={open} selected={selected} dim={dim} onSelect={setSelected} />
+          <CaseMap cases={open} selected={selected} dim={dim} onSelect={(id) => { if (!picking) setSelected(id); }}
+                   picking={picking} picked={picked} onPick={setPicked} />
         </main>
-        {current && <Drawer c={current} focus={focus} onClose={() => setSelected(null)} />}
+        {current && <Drawer c={current} me={me} focus={focus} picking={picking} picked={picked}
+                            onPickStart={() => { setPicking(true); setPicked(null); }} onPickEnd={endPick}
+                            onClose={() => { setSelected(null); endPick(); }} />}
       </div>
     </div>
   );

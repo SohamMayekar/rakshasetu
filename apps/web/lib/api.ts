@@ -49,3 +49,16 @@ export async function listCases(params: { incident?: string; ids?: number[] }): 
   if (!r.ok) throw new ApiError(r.status, await r.text());
   return { cases: await r.json(), seq: Number(r.headers.get("X-Event-Seq") ?? 0) };
 }
+
+export type Report = {
+  id: number; channel: string; received_at: string; reporter_phone_masked: string | null; reporter_relation: string | null;
+  is_forward: boolean; language: string | null; text: string | null; transcript: string | null; extraction_method: string | null;
+  receipt: { step: string; by: string; detail: string }[] | null; status: string; source: Record<string, unknown> | null;
+};
+export type CaseDetail = Case & { reports: Report[] };
+export type TimelineEvent = { seq: number; at: string; type: string; line: string; who: string | null; role: string | null; reason: string | null; case_id: number; report_id: number | null; evidence_id: number | null };
+export type Evidence = {
+  id: number; case_id: number; report_id: number | null; type: string; uri: string | null; sha256: string | null; mime: string | null;
+  bytes: number | null; added_by: string | null; meta: Record<string, unknown>; channel: string | null; captured_at: string;
+  file_ok?: boolean | null; chain_ok?: boolean;
+};

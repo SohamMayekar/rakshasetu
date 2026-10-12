@@ -41,9 +41,12 @@ function features(cases: Case[], dim: Set<number>) {
   };
 }
 
-export function CaseMap({ cases, selected, dim = new Set(), onSelect }: {
+export function CaseMap({ cases, selected, dim = new Set(), onSelect, picking = false, picked = null, onPick }: {
   cases: Case[]; selected: number | null; dim?: Set<number>; onSelect: (id: number) => void;
+  picking?: boolean; picked?: { lat: number; lng: number } | null; onPick?: (p: { lat: number; lng: number }) => void;
 }) {
+  const pickRef = useRef({ picking, onPick });
+  pickRef.current = { picking, onPick };
   const box = useRef<HTMLDivElement>(null);
   const map = useRef<MlMap | null>(null);
   const ready = useRef(false);
@@ -72,13 +75,19 @@ export function CaseMap({ cases, selected, dim = new Set(), onSelect }: {
         m.addLayer({ id: "line-low", type: "line", source: "cases", filter: ["get", "low"],
                      paint: { "line-color": ["get", "hue"], "line-dasharray": [2, 2],
                               "line-width": ["case", ["boolean", ["feature-state", "sel"], false], 3, 1.4] } });
+        m.addSource("pick", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+        m.addLayer({ id: "pick", type: "line", source: "pick", paint: { "line-color": "#111111", "line-width": 2 } });
         ready.current = true;
         prevSel.current = null;
         draw();
       });
-      m.on("click", "fill", (e) => { const id = e.features?.[0]?.properties?.id; if (id != null) onSelectRef.current(Number(id)); });
-      m.on("mouseenter", "fill", () => { m.getCanvas().style.cursor = "pointer"; });
-      m.on("mouseleave", "fill", () => { m.getCanvas().style.cursor = ""; });
+      m.on("click", (e) => {   // in "Move pin" mode, a click places the pin; otherwise it selects a circle
+        if (pickRef.current.picking) { pickRef.current.onPick?.({ lat: e.lngLat.lat, lng: e.lngLat.lng }); return; }
+        const hit = m.queryRenderedFeatures(e.point, { layers: ["fill"] })[0];
+        if (hit?.properties?.id != null) onSelectRef.current(Number(hit.properties.id));
+      });
+      m.on("mouseenter", "fill", () => { if (!pickRef.current.picking) m.getCanvas().style.cursor = "pointer"; });
+      m.on("mouseleave", "fill", () => { m.getCanvas().style.cursor = pickRef.current.picking ? "crosshair" : ""; });
       map.current = m;
     });
     return () => { gone = true; clearTimeout(fallback); map.current?.remove(); map.current = null; ready.current = false; };
@@ -110,6 +119,15 @@ export function CaseMap({ cases, selected, dim = new Set(), onSelect }: {
   }
 
   useEffect(draw, [cases, selected, dim]);
+
+  useEffect(() => {   // the pin being placed: a 50 m circle (a person placed it)
+    const m = map.current;
+    if (!m || !ready.current) return;
+    m.getCanvas().style.cursor = picking ? "crosshair" : "";
+    const data = picked ? { type: "FeatureCollection" as const, features: [{ type: "Feature" as const, properties: {},
+      geometry: { type: "Polygon" as const, coordinates: [ring(picked.lat, picked.lng, 50)] } }] } : { type: "FeatureCollection" as const, features: [] };
+    (m.getSource("pick") as GeoJSONSource | undefined)?.setData(data);
+  }, [picking, picked]);
 
   useEffect(() => {   // fly to the selected case, keeping its whole circle in view
     const c = cases.find((x) => x.id === selected);

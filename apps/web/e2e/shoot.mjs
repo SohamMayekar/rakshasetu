@@ -1,7 +1,8 @@
 // Screenshots for review: every page at the projector size (1366×768) and a phone (390×844).
 //
 //   node e2e/shoot.mjs <out-dir> <spec> [<spec> ...]
-//   spec = <path>[@<username>][#<name>]      e.g.  /ui#design-system   /desk/BR@priya#desk
+//   spec = <path>[@<username>][#<name>][!<section>]   e.g.  /ui#design-system   /desk/BR?case=BR-214@priya#drawer!Facts
+//   (!<section> scrolls the element with data-section="<section>" into view first)
 //
 // BASE (default http://127.0.0.1) is the LOCAL listener, as on the projector. Uses the pre-installed Chromium.
 
@@ -22,7 +23,7 @@ mkdirSync(out, { recursive: true });
 const proxy = process.env.HTTPS_PROXY ? { server: process.env.HTTPS_PROXY, bypass: "127.0.0.1,localhost" } : undefined;
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM ?? "/opt/pw-browsers/chromium", proxy });
 for (const spec of specs) {
-  const [, path, user, name] = spec.match(/^([^@#]+)(?:@([^#]+))?(?:#(.+))?$/);
+  const [, path, user, name, section] = spec.match(/^([^@#!]+)(?:@([^#!]+))?(?:#([^!]+))?(?:!(.+))?$/);
   const label = name ?? (path.replace(/\W+/g, "-").replace(/^-|-$/g, "") || "home");
   for (const [size, viewport] of Object.entries(SIZES)) {
     const ctx = await browser.newContext({ viewport, deviceScaleFactor: 1, locale: "en-IN", timezoneId: "Asia/Kolkata" });
@@ -33,6 +34,11 @@ for (const spec of specs) {
     }
     await page.goto(BASE + path, { waitUntil: "networkidle" }).catch(() => page.goto(BASE + path));
     await page.waitForTimeout(Number(process.env.SETTLE_MS ?? 1200));
+    if (section) {
+      await page.locator(`[data-section="${section}"]`).first().scrollIntoViewIfNeeded().catch(() => {});
+      await page.evaluate((s) => document.querySelector(`[data-section="${s}"]`)?.scrollIntoView({ block: "start" }), section);
+      await page.waitForTimeout(400);
+    }
     const file = join(out, `${label}-${size}.png`);
     await page.screenshot({ path: file, fullPage: false });
     console.log(file);
