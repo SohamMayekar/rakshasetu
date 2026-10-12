@@ -81,7 +81,7 @@ export default function StatusPage({ params }: { params: Promise<{ id: string }>
                 </span>
                 <span className={done ? "text-neutral-950" : "text-neutral-400"}>
                   <span className={`block text-xl ${now_ ? "font-semibold" : ""}`}>{LABEL[s].hi}</span>
-                  <span className="block" lang="en">{LABEL[s].en}{now_ ? " · now" : ""}</span>
+                  <span className="block" lang="en">{LABEL[s].en}{now_ ? " · current step" : ""}</span>
                 </span>
               </li>
             );

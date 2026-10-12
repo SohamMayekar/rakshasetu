@@ -29,3 +29,6 @@ The import runs as **one durable job per import** on the `import` lane, not 300 
 
 ### D10 · Sheet rows auto-merge only when the pins are good enough
 Auto-merge needs 0.85 (with a phone match, place or geo, and no conflict). A sheet row whose place is "village only" (a Low circle) gets no geo signal, so phone + village + headcount + time (0.65) is a **strong suggestion**, not a merge. A row with a landmark that resolves to a Medium pin does auto-merge. We keep the bar as it is: a village-level match is exactly where two families share a relay phone. **Consequence for the demo sheet (m31):** the "merged" share of rows depends on how many rows name a mappable landmark, and the generator reports what it produced rather than targeting the PRD's illustrative 109.
+
+### D11 · Plain Tailwind components, not the shadcn/ui generator
+The design system is a handful of hand-written components on Tailwind tokens (`components/ui/`). The desk has no modals, toasts or menus by design (PRD §13.5), which is most of what shadcn/ui and Radix bring, so the generator would add dependencies and generated code we'd then have to own. **Rejected:** shadcn/ui (CLAUDE.md §5 lists it; we keep its spirit — small, owned, accessible components — without the generator). Revisit if a real menu or dialog is ever needed.

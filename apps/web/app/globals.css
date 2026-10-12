@@ -1,15 +1,28 @@
 @import "tailwindcss";
 
-/* Noto Sans (Latin) + Noto Sans Devanagari, self-hosted from npm so the venue network doesn't matter. */
-:root {
+/* RakshaSetu design tokens (PRD §13.5). Calm, ink on paper. Hue means PRIORITY and nothing else; every
+   priority is also written as text and drawn as a shape. "Needs you" is ink inversion; stale is fade. */
+@theme {
   --font-sans: "Noto Sans", "Noto Sans Devanagari", system-ui, sans-serif;
+  --color-ink: #111111;
+  --color-ink-2: #4a4a4a;      /* secondary text */
+  --color-ink-3: #8a8a8a;      /* tertiary text, hints */
+  --color-line: #e5e5e5;       /* hairlines */
+  --color-wash: #f6f6f6;       /* quiet surfaces */
+  --color-paper: #ffffff;
+  --color-p1: #c62828;         /* P1 ▲ */
+  --color-p2: #d97706;         /* P2 ◆ */
+  --color-p3: #52525b;         /* P3 ● */
+  --color-p4: #a1a1aa;         /* P4 ○ */
+  --color-amber: #b45309;      /* only for ○ "the quote check failed" (PRD F-C13) */
 }
 
 html, body {
-  background: #ffffff;
-  color: #111111;
+  background: var(--color-paper);
+  color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
 .tabular { font-variant-numeric: tabular-nums; }
+.stale { opacity: 0.55; }

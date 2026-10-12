@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m32 design system /ui
+**Current milestone:** m33 desk shell (map, queue, drawer, live updates)
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -67,6 +67,7 @@
 
 - **m13 was merged while `make test` was red** (a ruff import-order error; the merge command checked `tail`'s exit code instead of the tests'). Fixed within minutes on `fix-m13-import-order`, merged to main. The merge helper now runs `make test` itself and refuses to merge on failure.
 - **m30's three commits were first made on local `main`** (the milestone branch hadn't been started). They were never pushed from there: they were moved to `m30-import-job` before merging, and the commit helper now refuses to commit on `main`.
+
 
 ## Environment notes for this build
 
