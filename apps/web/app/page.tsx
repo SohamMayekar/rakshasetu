@@ -1,9 +1,12 @@
 "use client";
 
-// The Incidents screen (PRD F-C1): one card per live incident, each with its own promise bar, and a map of India.
-// "A national layer of district desks": one click opens an incident's desk; the SEOC viewer sees totals only.
+// The front door and the Incidents screen (PRD F-C1).
+// Signed out: two big choices only, "I need help" (the reporter page) and "Control room dashboard" (sign in), with
+// the rescue team's app as a small link (m64). Signed in: each person goes to their own screen (the duty officer
+// to their desk, a team to its app); whoever sees several incidents gets this screen, one card per incident with
+// its own promise bar and a map of India: "a national layer of district desks".
 
-import { ArrowRight, CalendarDays, CopyCheck, Inbox, type LucideIcon, Mountain, Timer, Waves, Wind } from "lucide-react";
+import { ArrowRight, CalendarDays, CopyCheck, Inbox, LayoutDashboard, type LucideIcon, Mic, Mountain, Timer, Waves, Wind } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { IncidentsMap } from "@/components/IncidentsMap";
@@ -40,6 +43,42 @@ function Bar({ p }: { p: Promises }) {
   );
 }
 
+const DESK_ROLES = ["call_taker", "duty_officer", "incharge", "admin"];
+
+// Two big choices, nothing else competing: who are you? (Works from 320 px phones to the projector.)
+function FrontDoor() {
+  const choice = "group flex flex-col items-start gap-4 rounded-[28px] border border-line/80 bg-paper p-6 text-left shadow-[var(--shadow-card)] transition-colors hover:bg-wash md:p-8";
+  return (
+    <main className="flex min-h-dvh flex-col items-center justify-center bg-canvas px-4 py-10">
+      <div className="w-full max-w-3xl">
+        <p className="flex items-center justify-center gap-2.5 text-ink"><Mark className="size-9" /><span className="text-2xl font-semibold tracking-tight">RakshaSetu</span></p>
+        <h1 className="mt-4 text-center text-[26px] font-semibold leading-tight tracking-tight md:text-[32px]">Never lost. Never doubled. Never stale.</h1>
+        <p className="mx-auto mt-2 max-w-xl text-center text-ink-2">Rescue requests in a flood: every family becomes one case with one rescue team, until they are safe.</p>
+        <div className="mt-8 grid gap-4 md:grid-cols-2">
+          <a href="/r" className={choice}>
+            <IconWell icon={Mic} size="lg" tone="ink" />
+            <span>
+              <span className="block text-2xl font-semibold tracking-tight">I need help</span>
+              <span className="mt-1 block text-ink-2">The phone app for people in danger and their families. Speak or type. Nothing to remember.</span>
+            </span>
+            <span className="mt-auto inline-flex h-11 items-center gap-1.5 rounded-full bg-ink px-5 font-medium text-paper">Ask for help<ArrowRight className="size-4" aria-hidden /></span>
+          </a>
+          <a href="/login" className={choice}>
+            <IconWell icon={LayoutDashboard} size="lg" />
+            <span>
+              <span className="block text-2xl font-semibold tracking-tight">Control room dashboard</span>
+              <span className="mt-1 block text-ink-2">For the district duty officer: every request on one screen, each family with one owner.</span>
+            </span>
+            <span className="mt-auto inline-flex h-11 items-center gap-1.5 rounded-full border border-ink px-5 font-medium">Sign in<ArrowRight className="size-4" aria-hidden /></span>
+          </a>
+        </div>
+        <p className="mt-6 text-center text-sm text-ink-2">Rescue team? <a href="/responder" className="font-medium text-ink underline underline-offset-4">Open the team app</a></p>
+        <p className="mt-8 text-center text-xs text-ink-3">A demo: every person and phone number in it is made up.</p>
+      </div>
+    </main>
+  );
+}
+
 function greeting(now: Date) {
   const h = Number(now.toLocaleString("en-IN", { hour: "numeric", hour12: false, timeZone: "Asia/Kolkata" }));
   return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
@@ -60,19 +99,13 @@ export default function Incidents() {
     return () => clearInterval(t);
   }, []);
 
-  if (out) {
-    return (
-      <main className="grid min-h-screen place-items-center bg-canvas px-4">
-        <Card className="w-full max-w-md p-8 text-center">
-          <Mark className="mx-auto size-12 text-ink" />
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight">RakshaSetu</h1>
-          <p className="mt-2 text-ink-2">Never lost. Never doubled. Never stale.</p>
-          <a className="mt-6 inline-flex h-10 items-center rounded-full bg-ink px-6 text-sm font-medium text-paper" href="/login">Sign in</a>
-        </Card>
-      </main>
-    );
-  }
-  const desk = me && ["call_taker", "duty_officer", "incharge", "admin"].includes(me.user.role);
+  const home = me && (me.user.role === "team_lead" ? "/responder"
+    : DESK_ROLES.includes(me.user.role) && me.incidents.length === 1 ? `/desk/${me.incidents[0].code}` : null);
+  useEffect(() => { if (home) location.replace(home); }, [home]);
+
+  if (out) return <FrontDoor />;
+  if (home) return null;
+  const desk = me && DESK_ROLES.includes(me.user.role);
   const go = (code: string) => { if (desk) location.href = `/desk/${code}`; };
   const live = (list ?? []).filter((i) => i.status === "active").length;
   return (
