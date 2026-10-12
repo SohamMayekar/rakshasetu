@@ -84,7 +84,7 @@ function ReportCard({ r, evidence, quote }: { r: Report; evidence: Evidence[]; q
     <div className="mt-1.5 rounded-lg bg-wash px-3 py-2">
       <p className="flex flex-wrap items-center gap-x-2 text-xs text-ink-2">
         <ChannelTag channel={r.channel} /><Clock iso={r.received_at} />
-        {r.reporter_relation && r.reporter_relation !== "unknown" && <span>{r.reporter_relation}</span>}
+        {r.reporter_relation && !["unknown", "forwarder"].includes(r.reporter_relation) && <span>{r.reporter_relation}</span>}
         {r.is_forward && <span>a forward</span>}
         {r.reporter_phone_masked && <span className="tabular">{r.reporter_phone_masked}</span>}
       </p>

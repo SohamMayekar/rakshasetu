@@ -10,6 +10,8 @@ Every event a screen receives is a row of the hash-chained `events` table (rule 
 {"seq": 1284, "type": "case.updated", "incident_id": 1, "at": "2026-10-12T16:25:00+05:30", "data": {"case_id": 214}}
 ```
 
+**Control messages** (not events, no `data`): `hello` (subscribed; `seq` is your cursor) · `ping` (every 25 s) · `reset` (the log was reset by a demo reset or a reseed and restarted from a new genesis; your cursor no longer means anything: reload from scratch).
+
 Phone numbers are always masked (`98xxxxxx21`). Events are filtered per subscriber by the same `Scope` the REST API uses: a team lead receives only events about cases its team holds and its own team.
 
 | Area | Types |

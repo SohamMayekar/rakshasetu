@@ -31,6 +31,7 @@ export function useLive(incident: string, since: number | null, onFrame: (events
       ws.onmessage = (m) => {
         const env = JSON.parse(m.data) as Envelope;
         if (env.type === "hello" || env.type === "ping") return;
+        if (env.type === "reset") { location.reload(); return; }   // the log was reset (demo reset): start over
         if (env.seq > cursor) { cursor = env.seq; pending.push(env); }
       };
       ws.onclose = () => {

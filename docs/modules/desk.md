@@ -31,3 +31,11 @@
 - **Kept apart:** pairs the rules refused (different given names) fold into one line, "Kept apart from 3 cases: the names differ", because in a busy village most neighbours look alike on village + landmark alone. Opened, each shows the names that kept it apart ("Rajesh ≠ Ramesh") and **Merge anyway**, which needs a reason.
 - **Undo:** every merge line in the timeline has **Undo merge** (reason required); undone merges say so and can't be undone twice. **Same household as another case…** merges any two visible cases by hand, with a reason.
 - **After a merge** the drawer moves to the kept case.
+
+## The call-taker's form (m37)
+
+- **New report** (top of the left column, `report.submit`): type the call or paste a forwarded message. As they type, `POST /v1/ingest/desk/preview` (rules only, nothing stored) shows what the keywords read as chips — "6 people · on the roof · water inside · medicine · elderly · दुर्गा मंदिर temple · bridge · Thave" — labelled **Rule · keywords, as you type**, and prompts "Ask: how many people · where?" when those are missing.
+- **Save** writes the report through `POST /v1/ingest/desk` (the same `intake.accept()` as every channel). The form's own id is the idempotency key, so a double click can't make two reports. The column then says "Report saved · reading it…" and, when the pipeline's `case.created` arrives, "→ BR-199, a new case" or "→ folded into BR-214 (the same household)", and opens that case.
+- **A forward** is marked as one ("the sender may not be there"); its relation is `forwarder`.
+- **Measured (one run each, keyword path, local stack):** the demo's Hindi report typed → its case open on the desk **2.2 s** after Save; the son's pasted forward → "Likely same household as BR-199 (strong): same village (Thawe) · circles overlap (0 m apart) · same landmarks (Thawe durga mata mandir, bridge) · same headcount (6)" in **1.8 s**.
+- **Demo reset while a desk is open:** the hub notices the log's new genesis and sends `{"type": "reset"}`; the desk reloads. (Found in m37: before this, live updates silently stopped after a reseed until the API restarted.)

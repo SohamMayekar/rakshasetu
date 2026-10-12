@@ -25,3 +25,12 @@ Only numbers we measured go here, each with how and where it was measured. Nothi
 
 - **How:** a throwaway Playwright script: sign in as priya, open `/desk/BR`, wait for "Live", post a desk report, time until the case count changes. It includes the worker's processing (keyword path, no language model), the WebSocket, and the desk's 1-second render frame. A repeatable version joins the golden-path test (m55).
 - **Where:** same stack and VM as above, 12 Oct 2026, milestone 33.
+
+## The call-taker's form (m37)
+
+| What | Measured | Target |
+|---|---|---|
+| Hindi demo report typed into the desk form → its case selected on the desk | **2.2 s** (one run) | ≤ 5 s with the language model off (F-C14) |
+| The son's pasted forward → shown as "Likely same household as BR-199 (strong)" | **1.8 s** (one run) | — |
+
+- **How:** a throwaway Playwright script driving the real form in Chromium (Save → the column shows the case). Keyword path (no keys), local stack, same VM, 12 Oct 2026. The golden-path test (m55) will repeat these on every run.

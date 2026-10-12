@@ -55,6 +55,7 @@ export function CaseMap({ cases, selected, dim = new Set(), onSelect, picking = 
   latest.current = { cases, selected, dim };
 
   const [tilesDown, setTilesDown] = useState(false);
+  const resizeObs = useRef<ResizeObserver | null>(null);
 
   useEffect(() => {
     let gone = false;
@@ -89,8 +90,12 @@ export function CaseMap({ cases, selected, dim = new Set(), onSelect, picking = 
       m.on("mouseenter", "fill", () => { if (!pickRef.current.picking) m.getCanvas().style.cursor = "pointer"; });
       m.on("mouseleave", "fill", () => { m.getCanvas().style.cursor = pickRef.current.picking ? "crosshair" : ""; });
       map.current = m;
+      // The drawer opening or closing changes the map's width: keep the camera centred on what it should show.
+      const ro = new ResizeObserver(() => m.resize());
+      ro.observe(box.current);
+      resizeObs.current = ro;
     });
-    return () => { gone = true; clearTimeout(fallback); map.current?.remove(); map.current = null; ready.current = false; };
+    return () => { gone = true; clearTimeout(fallback); resizeObs.current?.disconnect(); map.current?.remove(); map.current = null; ready.current = false; };
   }, []);
 
   const onSelectRef = useRef(onSelect);
@@ -132,6 +137,7 @@ export function CaseMap({ cases, selected, dim = new Set(), onSelect, picking = 
   useEffect(() => {   // fly to the selected case, keeping its whole circle in view
     const c = cases.find((x) => x.id === selected);
     if (!map.current || !c || c.lat == null) return;
+    map.current.resize();
     const r = (c.radius_m ?? 300) * 3;
     const dLat = r / 111_320, dLng = r / (111_320 * Math.cos((c.lat * Math.PI) / 180));
     map.current.fitBounds([[c.lng! - dLng, c.lat - dLat], [c.lng! + dLng, c.lat + dLat]], { duration: 500, maxZoom: 16 });

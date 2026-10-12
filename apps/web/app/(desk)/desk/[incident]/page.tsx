@@ -10,6 +10,8 @@ import { CaseMap } from "@/components/desk/CaseMap";
 import { Drawer, type Picked } from "@/components/desk/Drawer";
 import { Header } from "@/components/desk/Header";
 import { NeedsYouNow } from "@/components/desk/NeedsYouNow";
+import { NewReport } from "@/components/desk/NewReport";
+import { Button } from "@/components/ui";
 import { api, ApiError, type Case, listCases, type Me, type Suggestion } from "@/lib/api";
 import { type Envelope, useLive } from "@/lib/live";
 import type { Queue, QueueRow } from "@/lib/queue";
@@ -35,6 +37,8 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
   const [selected, setSelected] = useState<number | null>(null);
   const [queue, setQueue] = useState<Queue | null>(null);
   const [focus, setFocus] = useState<string | null>(null);
+  const [composing, setComposing] = useState(false);
+  const [saved, setSaved] = useState<{ reportId: number; line: string; caseId?: number } | null>(null);
   const [picking, setPicking] = useState(false);
   const [picked, setPicked] = useState<Picked>(null);
   const endPick = () => { setPicking(false); setPicked(null); };
@@ -61,6 +65,21 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
     const ids = caseIds(events);
     if (!ids.length) return;
     loadQueue();
+    setSaved((sv) => {   // the report just saved from the form: which case did it become?
+      if (!sv || sv.caseId) return sv;
+      const made = events.find((e) => e.type === "case.created" && e.data?.report_id === sv.reportId);
+      if (made) {
+        api<Case>(`/v1/cases/${made.data.case_id}`).then((c) => {
+          const kept = c.status === "merged" && c.parent_case_id ? c.parent_case_id : c.id;
+          api<Case>(`/v1/cases/${kept}`).then((k) => {
+            setSaved({ reportId: sv.reportId, caseId: k.id,
+                       line: kept === c.id ? `→ ${k.public_id}, a new case` : `→ folded into ${k.public_id} (the same household)` });
+            setSelected(k.id);
+          });
+        }).catch(() => {});
+      }
+      return sv;
+    });
     const { cases: fresh } = await listCases({ ids });
     setCases((prev) => {
       const next = new Map(prev);
@@ -94,14 +113,22 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
     <div className="flex h-screen flex-col">
       <Header me={me} incident={incident} live={live} />
       <div className="flex min-h-0 flex-1">
-        <nav className="w-full shrink-0 border-r border-line md:w-[380px]" aria-label="Needs you now">
-          <NeedsYouNow queue={queue} selected={selected} onSelect={(id) => { setSelected(id); setFocus(null); }} onAction={onAction} />
+        <nav className="flex w-full shrink-0 flex-col border-r border-line md:w-[380px]" aria-label="Needs you now">
+          {me?.permissions.includes("report.submit") && (
+            <div className="flex items-center justify-between gap-2 border-b border-line px-4 py-2">
+              <Button size="sm" variant="primary" className="shrink-0 whitespace-nowrap" onClick={() => { setComposing(true); setSelected(null); }}>New report</Button>
+              {saved && <span className="truncate text-xs text-ink-2">Report saved {saved.line}</span>}
+            </div>
+          )}
+          <NeedsYouNow queue={queue} selected={selected} onSelect={(id) => { setSelected(id); setFocus(null); setComposing(false); }} onAction={onAction} />
         </nav>
         <main className="relative hidden min-w-0 flex-1 md:block">
-          <CaseMap cases={open} selected={selected} dim={dim} onSelect={(id) => { if (!picking) setSelected(id); }}
+          <CaseMap cases={open} selected={selected} dim={dim} onSelect={(id) => { if (!picking) { setSelected(id); setComposing(false); } }}
                    picking={picking} picked={picked} onPick={setPicked} />
         </main>
-        {current && <Drawer c={current} me={me} focus={focus} picking={picking} picked={picked}
+        {composing && <NewReport incident={incident} onClose={() => setComposing(false)}
+                                 onSaved={(id) => { setComposing(false); setSaved({ reportId: id, line: "· reading it…" }); }} />}
+        {!composing && current && <Drawer c={current} me={me} focus={focus} picking={picking} picked={picked}
                             onPickStart={() => { setPicking(true); setPicked(null); }} onPickEnd={endPick}
                             onClose={() => { setSelected(null); endPick(); }}
                             suggestions={suggestions} lookup={(id) => cases.get(id)} onSelect={setSelected} onChanged={loadQueue} />}

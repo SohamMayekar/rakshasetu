@@ -39,6 +39,7 @@ class Hub:
     def __init__(self) -> None:
         self.subscribers: set[Subscriber] = set()
         self.cursor = 0
+        self.genesis: str | None = None           # the log's first hash: a demo reset starts a new one
         self._task: asyncio.Task | None = None
         self._query_lock = asyncio.Lock()
         self._db: psycopg.AsyncConnection | None = None
@@ -52,6 +53,7 @@ class Hub:
         self._db = await psycopg.AsyncConnection.connect(conninfo, autocommit=True, row_factory=namedtuple_row)
         row = await (await self._db.execute("SELECT coalesce(max(seq), 0) AS seq FROM events")).fetchone()
         self.cursor = row.seq
+        self.genesis = await self._genesis()
         self._task = asyncio.create_task(self._run(conninfo))
 
     async def stop(self) -> None:
@@ -89,7 +91,25 @@ class Hub:
                 f"SELECT {EVENT_COLUMNS} FROM events WHERE seq > %s ORDER BY seq LIMIT %s", (seq, limit))
             return [envelope(r) for r in await cur.fetchall()]
 
+    async def _genesis(self) -> str | None:
+        async with self._query_lock:
+            row = await (await self._db.execute("SELECT hash FROM events ORDER BY seq LIMIT 1")).fetchone()
+        return row.hash if row else None
+
+    async def _head(self) -> int:
+        async with self._query_lock:
+            return (await (await self._db.execute("SELECT coalesce(max(seq), 0) AS seq FROM events")).fetchone()).seq
+
     async def pump(self) -> None:
+        genesis = await self._genesis()
+        if genesis != self.genesis:
+            # The log was reset (a demo reset or a reseed writes a new genesis and restarts seq). Every
+            # cursor now points into a log that no longer exists: tell each screen to reload from scratch.
+            self.genesis, self.cursor = genesis, await self._head()
+            for sub in list(self.subscribers):
+                sub.cursor = self.cursor
+                await self._safe_send(sub, {"type": "reset", "seq": self.cursor})
+            return
         events = await self.fetch_since(self.cursor)
         if events:
             self.cursor = events[-1]["seq"]
@@ -99,6 +119,10 @@ class Hub:
 
     # --- subscribers -----------------------------------------------------------------------------
     async def subscribe(self, sub: Subscriber, since: int) -> None:
+        head = await self._head()
+        if since > head:   # a cursor from before a reset: this screen must reload
+            await self._safe_send(sub, {"type": "reset", "seq": head})
+            since = head
         sub.cursor = since
         async with sub.lock:
             self.subscribers.add(sub)

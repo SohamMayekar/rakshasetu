@@ -91,3 +91,23 @@ def test_case_updates_are_coalesced_to_one_per_second(seeded, client, app_db):
         seqs = _append(app_db, 5, action="case.updated", incident_id=br, case_id=case_id)
         got = _recv_until(ws, seqs[-1])
     assert len(got) == 2 and got[0]["seq"] == seqs[0] and got[-1]["seq"] == seqs[-1]
+
+
+def test_a_reset_log_tells_every_open_screen_to_reload(seeded, client, app_db, owner_db):
+    """A demo reset restarts the log with a new genesis: open screens get {"type": "reset"} and reload,
+    instead of waiting forever on a cursor into a log that no longer exists."""
+    from sqlalchemy import text
+    login(client, "priya")
+    head = one(app_db, "SELECT max(seq) FROM events")
+    with client.websocket_connect(f"/v1/ws?since={head}&incident=BR") as ws:
+        assert ws.receive_json()["type"] == "hello"
+        with owner_db.begin() as c:
+            c.execute(text("TRUNCATE events RESTART IDENTITY"))
+        _append(app_db, action="chain.genesis")
+        while True:
+            m = ws.receive_json()
+            if m["type"] != "ping":
+                break
+        assert m["type"] == "reset"
+    with client.websocket_connect(f"/v1/ws?since={head}&incident=BR") as ws:   # an old cursor, after the reset
+        assert ws.receive_json()["type"] == "reset"

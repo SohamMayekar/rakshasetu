@@ -37,7 +37,7 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction }: {
   const showAll = () => setShown(queue.rows);
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex items-baseline justify-between px-4 pt-3 pb-1">
         <h2 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-3">
           Needs you now <span className="tabular">{queue.rows.length}</span>
