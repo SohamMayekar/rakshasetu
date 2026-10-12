@@ -13,7 +13,8 @@ import { NeedsYouNow } from "@/components/desk/NeedsYouNow";
 import { ImportSheet } from "@/components/desk/ImportSheet";
 import { NewReport } from "@/components/desk/NewReport";
 import { Button } from "@/components/ui";
-import { api, ApiError, type Case, listCases, type Me, type Suggestion } from "@/lib/api";
+import { Escalations } from "@/components/desk/Escalations";
+import { api, ApiError, type Case, type Escalation, listCases, type Me, type Suggestion } from "@/lib/api";
 import { type Envelope, useLive } from "@/lib/live";
 import type { Queue, QueueRow } from "@/lib/queue";
 
@@ -45,7 +46,10 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
   const [picked, setPicked] = useState<Picked>(null);
   const endPick = () => { setPicking(false); setPicked(null); };
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [escalations, setEscalations] = useState<Escalation[]>([]);
+  const [refreshKey, setRefreshKey] = useState(0);
   const loadQueue = useCallback(() => {
+    api<Escalation[]>(`/v1/escalations?incident=${encodeURIComponent(incident)}`).then(setEscalations).catch(() => setEscalations([]));
     api<Queue>(`/v1/queue?incident=${encodeURIComponent(incident)}`).then(setQueue).catch(() => {});
     api<Suggestion[]>(`/v1/merge-suggestions?incident=${encodeURIComponent(incident)}`).then(setSuggestions).catch(() => setSuggestions([]));
   }, [incident]);
@@ -65,6 +69,7 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
 
   const onFrame = useCallback(async (events: Envelope[]) => {
     const ids = caseIds(events);
+    if (events.some((e) => /^(escalation|team|assignment)\./.test(e.type))) { loadQueue(); setRefreshKey((k) => k + 1); }
     if (!ids.length) return;
     loadQueue();
     setSaved((sv) => {   // the report just saved from the form: which case did it become?
@@ -101,6 +106,13 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
   const current = selected != null ? cases.get(selected) ?? null : null;
 
   const onAction = useCallback(async (row: QueueRow) => {
+    if (row.action.kind === "assign" && row.action.target) {   // one click: the top suggestion, as the button says
+      try {
+        await api("/v1/assignments", { method: "POST", json: { case: row.public_id, team_id: Number(row.action.target), suggested_rank: 1 } });
+      } catch { setSelected(row.id); setFocus("Assignment"); }
+      loadQueue();
+      return;
+    }
     if (row.action.kind === "check") {      // the one action done straight from the row
       await api(`/v1/cases/${row.id}/check`, { method: "POST", json: {} }).catch(() => setFocus("Facts"));
       loadQueue();
@@ -129,6 +141,9 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
               {saved && <span className="truncate text-xs text-ink-2">Report saved {saved.line}</span>}
             </div>
           )}
+          <Escalations items={escalations} publicIds={(id) => cases.get(id)?.public_id}
+                       onOpenCase={(id) => { setSelected(id); setFocus("Assignment"); setComposing(false); setImporting(null); }}
+                       onChanged={loadQueue} />
           <NeedsYouNow queue={queue} selected={selected} onSelect={(id) => { if (id < 0) { setImporting({ id: -id, filter: "waiting" }); return; } setSelected(id); setFocus(null); setComposing(false); setImporting(null); }} onAction={onAction} />
         </nav>
         <main className="relative hidden min-w-0 flex-1 md:block">
@@ -144,7 +159,8 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
         {!composing && !importing && current && <Drawer c={current} me={me} focus={focus} picking={picking} picked={picked}
                             onPickStart={() => { setPicking(true); setPicked(null); }} onPickEnd={endPick}
                             onClose={() => { setSelected(null); endPick(); }}
-                            suggestions={suggestions} lookup={(id) => cases.get(id)} onSelect={setSelected} onChanged={loadQueue} />}
+                            suggestions={suggestions} lookup={(id) => cases.get(id)} onSelect={setSelected} onChanged={loadQueue}
+                            escalations={escalations} refreshKey={refreshKey} />}
       </div>
     </div>
   );

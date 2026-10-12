@@ -5,11 +5,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { AssignmentPanel } from "@/components/desk/AssignmentPanel";
 import { Facts } from "@/components/desk/Facts";
 import { Matches } from "@/components/desk/Matches";
 import { Timeline } from "@/components/desk/Timeline";
 import { Because, Button, Chip, Priority, Section } from "@/components/ui";
-import { api, type Case, type CaseDetail, type Evidence, type Me, type Suggestion, type TimelineEvent } from "@/lib/api";
+import { api, type Case, type CaseDetail, type Escalation, type Evidence, type Me, type Suggestion, type TimelineEvent } from "@/lib/api";
 
 export type Picked = { lat: number; lng: number } | null;
 
@@ -37,10 +38,11 @@ function ManualMerge({ c, onDone }: { c: Case; onDone: (kept: number) => void })
   );
 }
 
-export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, onClose, suggestions, lookup, onSelect, onChanged }: {
+export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, onClose, suggestions, lookup, onSelect, onChanged, escalations = [], refreshKey = 0 }: {
   c: Case; me: Me | null; focus?: string | null; picking: boolean; picked: Picked;
   onPickStart: () => void; onPickEnd: () => void; onClose: () => void;
   suggestions: Suggestion[]; lookup: (id: number) => Case | undefined; onSelect: (id: number) => void; onChanged: () => void;
+  escalations?: Escalation[]; refreshKey?: number;
 }) {
   const can = (a: string) => !!me?.permissions.includes(a);
   const [detail, setDetail] = useState<CaseDetail | null>(null);
@@ -53,7 +55,7 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
     api<CaseDetail>(`/v1/cases/${c.id}`).then(setDetail).catch(() => {});
     api<{ events: TimelineEvent[]; evidence: Evidence[] }>(`/v1/cases/${c.id}/timeline`).then(setTl).catch(() => {});
   }, [c.id]);
-  useEffect(load, [load, c.version, c.updated_at]);
+  useEffect(load, [load, c.version, c.updated_at, refreshKey]);   // refreshKey: a live event about this case
   useEffect(() => { setError(null); }, [c.id]);
 
   useEffect(() => {   // open at the section the queue's action asked for
@@ -79,13 +81,14 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
             <Priority level={c.priority} />
             <span className="tabular text-xl font-semibold tracking-tight">{c.public_id}</span>
             <Chip tone="quiet">{c.status === "reported" ? "not checked yet" : c.status}</Chip>
+            {c.status !== "reported" && !c.checked_at && <Chip tone="quiet">not checked yet</Chip>}
           </p>
           <Button variant="quiet" size="sm" onClick={onClose}>Close</Button>
         </div>
         <p className="mt-1 text-sm">{c.summary}</p>
         {c.priority_reasons.length > 0 && <Because>{c.priority} · {c.priority_reasons.join(" · ")}</Because>}
         <div className="mt-3 flex flex-wrap gap-2">
-          {c.status === "reported" && can("case.check") && (
+          {!c.checked_at && can("case.check") && (
             <Button size="sm" variant="primary" onClick={() => act(() => api(`/v1/cases/${c.id}/check`, { method: "POST", json: {} }))}>Check</Button>
           )}
           {can("case.move_pin") && !picking && <Button size="sm" onClick={onPickStart}>Move pin</Button>}
@@ -104,7 +107,14 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
         {error && <p className="mt-2 rounded-md bg-wash px-2 py-1 text-xs">{error}</p>}
       </div>
       <div ref={body} className="flex-1 overflow-y-auto px-5">
-        <div data-section="Assignment"><Section title="Assignment"><p className="text-sm text-ink-2">No team yet.</p></Section></div>
+        <div data-section="Assignment">
+          <Section title="Assignment">
+            {detail ? <AssignmentPanel c={c} assignment={detail.assignment}
+                                       escalation={escalations.find((e) => e.kind === "team_overdue" && e.case_ids.includes(c.id))}
+                                       can={can} onChanged={() => { onChanged(); load(); }} />
+                    : <p className="text-sm text-ink-3">Loading…</p>}
+          </Section>
+        </div>
         <div data-section="Facts">
           <Section title="Facts">
             <Facts c={c} canEdit={can("case.edit")} onQuote={setQuote} onChanged={load} />

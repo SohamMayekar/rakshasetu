@@ -26,16 +26,22 @@ def heard_from(conn: Connection, *, team, actor: Actor, by: str, channel: str, n
         " WHERE a.team_id = :t AND a.state IN ('open', 'overdue') FOR UPDATE OF a"), {"t": team.id}).all()
     refreshed = []
     for a in live:
-        if a.phase == "offered":
+        phase = a.phase
+        if phase == "offered" and new_eta:      # they told us their ETA: that is an acknowledgement, by radio
+            phase = "acknowledged"
+        if phase == "offered":
             due = seconds("acknowledge_within", a.priority)
-        elif a.phase == "acknowledged":
+        elif phase == "acknowledged":
             due = (new_eta or a.eta_minutes or 30) * 60 + seconds("eta_grace")
         else:
             due = seconds("long_operation_window" if a.long_operation else "onscene_window")
-        conn.execute(text("UPDATE assignments SET state = 'open', eta_minutes = CASE WHEN phase = 'acknowledged'"
+        conn.execute(text("UPDATE assignments SET state = 'open', phase = :phase, eta_minutes = CASE WHEN :phase = 'acknowledged'"
                           " THEN coalesce(:eta, eta_minutes) ELSE eta_minutes END,"
                           " next_contact_due = now() + make_interval(secs => :due) WHERE id = :a"),
-                     {"eta": new_eta, "due": _scaled(due, a.demo_clock), "a": a.id})
+                     {"phase": phase, "eta": new_eta, "due": _scaled(due, a.demo_clock), "a": a.id})
+        if phase != a.phase:
+            conn.execute(text("UPDATE cases SET status = 'acknowledged', version = version + 1, updated_at = now()"
+                              " WHERE id = :c AND status = 'assigned'"), {"c": a.case_id})
         append_event(conn, actor=actor, action="assignment.contact", entity_type="assignment", entity_id=a.id,
                      incident_id=a.incident_id, district_id=a.district_id, case_id=a.case_id, team_id=team.id,
                      data={"assignment_id": a.id, "team": team.name, "channel": channel, "new_eta": new_eta,

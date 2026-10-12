@@ -55,7 +55,7 @@ export type Report = {
   is_forward: boolean; language: string | null; text: string | null; transcript: string | null; extraction_method: string | null;
   receipt: { step: string; by: string; detail: string }[] | null; status: string; source: Record<string, unknown> | null;
 };
-export type CaseDetail = Case & { reports: Report[] };
+export type CaseDetail = Case & { reports: Report[]; assignment: Assignment | null };
 export type TimelineEvent = { seq: number; at: string; type: string; line: string; who: string | null; role: string | null; reason: string | null; case_id: number; report_id: number | null; evidence_id: number | null; merge_id: number | null; undone: boolean };
 export type Evidence = {
   id: number; case_id: number; report_id: number | null; type: string; uri: string | null; sha256: string | null; mime: string | null;
@@ -66,4 +66,19 @@ export type Evidence = {
 export type Suggestion = {
   id: number; case_id: number; public_id: string; candidate_case_id: number; candidate: string; score: number;
   strength: "strong" | "weak" | "refused"; reasons: string[]; conflicts: string[]; created_at: string;
+};
+
+export type Assignment = {
+  id: number; team_id: number; team: string; has_app: boolean; radio_channel: string | null; phase: "offered" | "acknowledged" | "reached";
+  state: "open" | "overdue"; eta_minutes: number | null; long_operation: boolean; next_contact_due: string; demo_clock: boolean;
+  created_at: string; last_contact_at: string | null; last_seen_at: string | null; assigned_by: string | null;
+};
+export type TeamOption = {
+  team_id: number; name: string; agency: string; capabilities: string[]; has_app: boolean; distance_km: number | null;
+  position_age_min: number | null; active: number; max_active: number; missing: string[]; line: string; rank: number;
+};
+export type Dispatch = { suggestions: TeamOption[]; more: TeamOption[]; greyed: { team_id: number; name: string; why: string }[] };
+export type Escalation = {
+  id: number; kind: "team_overdue" | "capacity_gap"; team_id: number | null; team: string | null; case_ids: number[];
+  level: number; role: string; line: string; status: "open" | "acked" | "resolved"; opened_at: string; acked_by_name: string | null;
 };

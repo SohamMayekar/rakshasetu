@@ -143,3 +143,15 @@ def test_a_sheets_new_cases_wait_as_one_row_and_its_to_check_rows_come_in_one_by
     assert listed[0]["id"] == imp["id"]
     detail = client.get(f"/v1/imports/{imp['id']}/rows").json()
     assert all("owned" in r and "case_id" in r for r in detail)
+
+
+def test_an_owned_p1_that_nobody_checked_still_needs_its_check(seeded, client, app_db):
+    """Officers assign P1s before the check (nobody on a roof waits for paperwork); the check still has to happen."""
+    pid = one(app_db, "SELECT c.public_id FROM cases c JOIN districts d ON d.id = c.district_id WHERE d.name = 'Gopalganj'"
+                      " AND c.checked_at IS NULL AND c.geom IS NOT NULL AND NOT EXISTS (SELECT 1 FROM assignments a"
+                      " WHERE a.case_id = c.id AND a.state IN ('open', 'overdue')) ORDER BY c.id LIMIT 1")
+    _sql(app_db, "UPDATE cases SET priority = 'P1', queue_since = now() WHERE public_id = :p", p=pid)
+    login(client, "rdas")
+    client.post("/v1/assignments", json={"case": pid, "team_id": one(app_db, "SELECT id FROM teams WHERE name = 'Fire & Rescue Boat 5'")})
+    row = next(r for r in _q(client)["rows"] if r["public_id"] == pid)
+    assert row["chip"] == "unchecked P1" and row["action"] == {"kind": "check", "label": "Check"}

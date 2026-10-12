@@ -45,7 +45,7 @@ def classify(c, now: datetime, unowned_after_s: float) -> dict:
     p1_late = c.priority == "P1" and not owned and waited_s > unowned_after_s
     needs_location = "needs_location" in flags or c.lat is None
     duplicate = bool(c.open_match)
-    unchecked = c.status == "reported"
+    unchecked = c.checked_at is None      # the check outlives the status: an owned P1 can still be unchecked
     disputed, reopened = "disputed" in flags, "reopened" in flags
     reasons = []
     if overdue:
@@ -82,7 +82,10 @@ def _assign(k: dict) -> dict:
         return {"kind": "assign", "label": "Assign a team"}
     where = f"{best['distance_km']} km" if best["distance_km"] is not None else "no pin"
     kit = ", ".join(best["capabilities"][:2]) or best["agency"]
-    return {"kind": "assign", "label": f"Assign → {best['name']} · {where} · {kit}", "target": str(best["team_id"])}
+    label = f"Assign → {best['name']} · {where} · {kit}"
+    if len(label) > 46:   # a long team name: keep the name and the distance
+        label = f"Assign → {best['name']} · {where}"
+    return {"kind": "assign", "label": label, "target": str(best["team_id"])}
 
 
 def action_for(c, k: dict, scope: Scope) -> dict:
@@ -110,7 +113,7 @@ def queue(conn: Connection, scope: Scope, incident_code: str) -> dict:
     rows = conn.execute(text(f"""
         SELECT c.id, c.public_id, c.status, c.priority, c.priority_reasons, c.p1_rank, c.summary, c.location_text,
                c.location_confidence, ST_Y(c.geom::geometry) AS lat, ST_X(c.geom::geometry) AS lng, c.flags,
-               c.queue_since, c.people_count, c.hazards, c.needs, c.incident_id, c.district_id,
+               c.queue_since, c.people_count, c.hazards, c.needs, c.incident_id, c.district_id, c.checked_at,
                c.version, a.state AS assignment_state, a.next_contact_due, a.phase, t.name AS team,
                (SELECT k.public_id FROM merge_suggestions s JOIN cases k ON k.id = s.candidate_case_id
                  WHERE s.case_id = c.id AND s.status = 'open' AND s.strength <> 'refused'

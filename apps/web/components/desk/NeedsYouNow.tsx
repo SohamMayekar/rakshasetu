@@ -69,12 +69,17 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction }: {
                   {r.handled ? <span className="text-xs text-ink-3">handled</span> : r.chip && <Chip tone="attention">{r.chip}</Chip>}
                 </span>
                 <span className="mt-0.5 block truncate text-sm">{r.line1}</span>
-                <span className="flex items-center justify-between gap-2">
-                  <span className="truncate text-xs text-ink-2">{r.line2}</span>
-                  {!r.handled && (
-                    <Button size="sm" className="shrink-0" onClick={(e) => { e.stopPropagation(); onAction(r); }}>{r.action.label}</Button>
-                  )}
-                </span>
+                {r.action.label.length > 22 ? (   // a long action ("Assign → SDRF Boat 2 · 2.1 km · boat") gets its own line
+                  <>
+                    <span className="block truncate text-xs text-ink-2">{r.line2}</span>
+                    {!r.handled && <span className="mt-1.5 block"><Button size="sm" className="max-w-full truncate" onClick={(e) => { e.stopPropagation(); onAction(r); }}>{r.action.label}</Button></span>}
+                  </>
+                ) : (
+                  <span className="flex items-center justify-between gap-2">
+                    <span className="truncate text-xs text-ink-2">{r.line2}</span>
+                    {!r.handled && <Button size="sm" className="shrink-0" onClick={(e) => { e.stopPropagation(); onAction(r); }}>{r.action.label}</Button>}
+                  </span>
+                )}
               </div>
             </li>
           ))}

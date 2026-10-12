@@ -39,3 +39,11 @@
 - **A forward** is marked as one ("the sender may not be there"); its relation is `forwarder`.
 - **Measured (one run each, keyword path, local stack):** the demo's Hindi report typed → its case open on the desk **2.2 s** after Save; the son's pasted forward → "Likely same household as BR-199 (strong): same village (Thawe) · circles overlap (0 m apart) · same landmarks (Thawe durga mata mandir, bridge) · same headcount (6)" in **1.8 s**.
 - **Demo reset while a desk is open:** the hub notices the log's new genesis and sends `{"type": "reset"}`; the desk reloads. (Found in m37: before this, live updates silently stopped after a reseed until the API restarted.)
+
+## Ownership on the desk (m43)
+
+- **Assignment section:** with no owner, the **three suggested teams with their reasons** ("2.6 km straight-line · position 6 min old · boat, medical · 0 active") and **Assign** on each (the first is primary); other teams and the greyed ones (with why) fold below. With an owner: "Assigned to **Fire & Rescue Boat 5** · acknowledged · ETA 30 min · by R. Das", the **check-in ring** counting down ("check-in due 0:38", "radio check due" for radio-only teams, "demo clock ×60" when it applies), "Contact overdue 0:06" in ink once late, and **Heard on radio** (channel + optional ETA), **Acknowledged on radio**, **Release** (reason), and **Reassign** when overdue (the suggestions, excluding the silent team; it then owes a stand-down).
+- **Escalations** sit above the queue for officers: "Fire & Rescue Boat 5 overdue · 1 case · no contact since 03:23. Radio them, then Extend or Reassign." with the case ids, **I'm on it**, and **Heard · ETA 15 / 30 / 60** on a chosen channel (giving an ETA also counts as the team's acknowledgement).
+- **One click from the queue:** an officer's "Assign → Fire & Rescue Boat 5 · 2.6 km · boat, medical" assigns that team at once.
+- **The check outlives the status:** an owned P1 that nobody checked stays in the queue as "unchecked P1" until a person checks it.
+- **Measured (one run, live stack, Chromium):** Assign → owner and ring on screen **0.58 s**; a demo-clock P1 nobody acknowledged → its escalation on screen **10.4 s** after Assign (5 s to acknowledge + ≤ 5 s tick + the 1 s frame); **Heard · ETA 30** → escalation gone, the case "handled" in place, ring reset.
