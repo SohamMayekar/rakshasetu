@@ -49,8 +49,10 @@ export function AssignmentPanel({ c, assignment, escalation, can, onChanged }: {
   const [via, setVia] = useState("VHF");
   const [error, setError] = useState<string | null>(null);
 
+  // An open form (radio log, reassign, release, rescue) stays open through live updates to the case; it closes
+  // only when the case or its assignment itself changes. The suggestions are re-read on every change.
+  useEffect(() => { setMode(null); setError(null); }, [c.id, assignment?.id]);
   useEffect(() => {
-    setMode(null); setError(null);
     if (!assignment || assignment.state === "overdue")
       api<Dispatch>(`/v1/cases/${c.id}/dispatch-suggestions`).then(setDispatch).catch(() => setDispatch(null));
   }, [c.id, c.version, assignment?.id, assignment?.state]); // eslint-disable-line react-hooks/exhaustive-deps

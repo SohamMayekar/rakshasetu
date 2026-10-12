@@ -152,6 +152,120 @@ try {
   await shot(O, "05-desk-the-volunteer-sheet");
 
   say("part 1 (0:00 → 1:45) done");
+
+  // ---- 1:45 never stale ----------------------------------------------------------------------------------------
+  await O.locator('[aria-label="Import a sheet"]').getByRole("button", { name: "Close" }).click().catch(() => {});
+  await open(pid);
+  const panel = O.locator('[data-section="Assignment"]');
+  const pane = () => panel.innerText({ timeout: 300 });
+  await until(async () => (await pane()).includes("Suggested"), 10000);
+  say(`dispatch suggests: ${(await panel.locator("li").first().innerText()).replace(/\n/g, " · ")}`);
+  let boat2 = panel.locator("li", { hasText: "SDRF Boat 2" }).first();
+  if (!(await boat2.isVisible())) { await panel.getByText(/^Other teams/).click(); boat2 = panel.locator("li", { hasText: "SDRF Boat 2" }).first(); }
+  await boat2.getByRole("button", { name: "Assign" }).click();
+  check(!!(await until(async () => (await pane()).includes("Assigned to SDRF Boat 2"), 10000)), "the officer assigns SDRF Boat 2 (radio only)");
+  await panel.getByRole("button", { name: "Heard on radio" }).click();
+  await panel.getByRole("button", { name: "15 min" }).click();
+  await panel.getByRole("button", { name: "Log contact" }).click();
+  const acked = await until(async () => { const t = await pane(); return t.includes("ETA 15 min") && !t.includes("not acknowledged") && t; }, 10000);
+  say(`assignment panel: ${String(acked).replace(/\n/g, " · ").slice(0, 300)}`);
+  check(!!acked && acked.includes("ETA 15") && acked.includes("demo clock ×60"), "\"Acknowledged on radio · VHF · ETA 15 min\"; the ring runs on the demo clock ×60");
+  await shot(O, "06-desk-boat-2-acknowledged-on-radio");
+  const quiet = Date.now();
+  const overdue = await until(async () => (await pane()).match(/Contact overdue[^\n]*/)?.[0], 120000);
+  check(!!overdue, `after ${((Date.now() - quiet) / 1000).toFixed(0)} s of silence (a 15 min ETA + grace, ×60): "${overdue}"`);
+  check((await pane()).includes("Assigned to SDRF Boat 2"), "the case is still Boat 2's: nothing is taken away automatically");
+  const esc = await until(async () => (await O.locator('[aria-label="Escalations"]').innerText({ timeout: 300 })).match(/SDRF Boat 2 overdue[^\n]*/)?.[0], 15000);
+  check(!!esc, `one escalation for the officer: "${esc}"`);
+  await shot(O, "07-desk-contact-overdue-the-case-stays");
+  await panel.getByRole("button", { name: "Reassign", exact: true }).click();
+  const boat5 = panel.locator("li", { hasText: "Fire & Rescue Boat 5" }).first();
+  check(await boat5.isVisible(), "Fire & Rescue Boat 5 is among the suggestions to reassign to");
+  await boat5.getByRole("button", { name: "Reassign here" }).click();
+  const moved = await until(async () => (await caption()).match(/moved from SDRF Boat 2 to Fire & Rescue Boat 5[^\n]*/)?.[0], 15000);
+  check(!!moved, `reassigned by the officer: "${moved}"`);
+  await shot(O, "08-desk-reassigned-to-boat-5");
+
+  // ---- 2:30 the rescue -----------------------------------------------------------------------------------------
+  const A = await (await ctxOf(390, 844)).newPage();           // the team lead of Fire & Rescue Boat 5
+  await A.goto(`${PUBLIC}/responder`);
+  await A.locator('input[name="u"]').fill("boat5");
+  await A.locator('input[name="p"]').fill("rakshasetu");
+  await A.getByRole("button", { name: "Sign in" }).click();
+  const phone = () => A.locator("body").innerText({ timeout: 300 });
+  const sent = async (label) => {
+    const ok = !!(await until(async () => new RegExp(`${label}[^\\n]*Sent \\d`).test(await phone()), 30000));
+    if (!ok) { say(`  the phone shows: ${(await phone()).replace(/\n/g, " | ").slice(0, 500)}`); await shot(A, "FAILED-team-phone"); }
+    return ok;
+  };
+  async function trip(n, minus, left, label) {
+    check(!!(await until(async () => /new case/i.test(await phone()) && (await phone()).includes(pid), 30000)),
+          `trip ${n}: the team's phone shows a full-screen New case ${pid}`);
+    if (n === 1) await shot(A, "09-phone-new-case");
+    await A.getByRole("button", { name: "15 min" }).click();
+    check(await sent("Acknowledged · ETA 15"), `trip ${n}: acknowledged with ETA 15 (saved on the phone, 10 s to undo, then sent)`);
+    await A.goto(`${PUBLIC}/responder/case/${await caseId()}`);
+    await A.getByRole("button", { name: /Reached/ }).click();
+    check(await sent("Reached"), `trip ${n}: reached`);
+    await A.getByRole("button", { name: /Record rescue/ }).click();
+    for (let i = 0; i < minus; i++) await A.getByRole("button", { name: "One fewer" }).click();
+    await A.getByRole("button", { name: left ? "Yes · हाँ" : "No · नहीं" }).click();
+    check(await sent(label), `trip ${n}: "${label}"`);
+  }
+  const caseId = async () => (await (await O.request.get(`${DESK}/v1/cases/${pid}`)).json()).id;
+  await trip(1, 2, true, "Took 4 · someone still there");
+  const back = await until(async () => { await showNew(); return (await row(pid).innerText({ timeout: 300 })).match(/2 of 6 still there/)?.[0]; }, 20000);
+  check(!!back, `${pid} is back in the queue: "2 of 6 still there", with its original time`);
+  await shot(O, "10-desk-2-of-6-still-there");
+  await shot(A, "10-phone-rescue-sheet-sent");
+  await open(pid);
+  await until(async () => (await pane()).includes("Suggested"), 10000);
+  const top = await panel.locator("li").first().innerText();
+  check(!top.includes("SDRF Boat 2"), `the silent Boat 2 isn't suggested again (stand-down not acknowledged); top: ${top.split("\n")[0]}`);
+  await panel.locator("li", { hasText: "Fire & Rescue Boat 5" }).first().getByRole("button", { name: "Assign" }).click()
+    .catch(async () => { await panel.getByText(/^Other teams/).click(); await panel.locator("li", { hasText: "Fire & Rescue Boat 5" }).getByRole("button", { name: "Assign" }).click(); });
+  await A.goto(`${PUBLIC}/responder`);
+  await trip(2, 0, false, "Rescued 2 · nobody left");
+  const rescued = await until(async () => (await caption()).match(/^Rescued 6 of 6[^\n]*/)?.[0], 20000);
+  check(!!rescued, `"${rescued}"`);
+
+  // the family: only the phone that reported is asked, and need not answer
+  await J.reload();
+  const asked = await until(async () => (await J.locator("body").innerText({ timeout: 300 })).match(/Team says 6 people were rescued\. Is that right\?/)?.[0], 20000);
+  check(!!asked, `the son's phone: "${asked} · You don't have to answer."`);
+  await shot(J, "11-phone-the-family-is-asked");
+  await J.getByRole("button", { name: "हाँ · Yes" }).click();
+  const thanked = await until(async () => (await J.locator("body").innerText({ timeout: 300 })).includes("Thank you"), 10000);
+  const conf = await until(async () => (await caption()).startsWith("The family confirmed 6 rescued") && (await caption()), 15000);
+  check(thanked && !!conf, `he taps Yes: "${conf}"`);
+  await shot(O, "11-desk-confirmed-by-family");
+
+  // ---- 3:05 the receipts ---------------------------------------------------------------------------------------
+  await O.goto(`${DESK}/desk/BR?case=${pid}`);
+  await drawer().waitFor();
+  const timeline = O.locator('[data-section="Timeline & evidence"]');
+  await until(async () => (await timeline.innerText({ timeout: 300 })).includes("Rescue record"), 10000);
+  const tl = await timeline.innerText();
+  const good = (tl.match(/✓ matches the audit log/g) ?? []).length, bad = (tl.match(/✗/g) ?? []).length;
+  check(good >= 7 && bad === 0, `Timeline & evidence: ${good} items, each "✓ matches the audit log" (the clip, its transcript, the forward, the merge, the radio log, two rescue records with where the team was)`);
+  await timeline.scrollIntoViewIfNeeded();
+  await shot(O, "12-desk-timeline-and-evidence");
+  await O.goto(`${DESK}/audit`);
+  await O.getByRole("button", { name: "Verify chain" }).click();
+  const verified = await until(async () => (await O.locator("main").innerText({ timeout: 300 })).match(/✓ [\d,]+ events verified/)?.[0], 20000);
+  check(!!verified, `Audit → Verify chain: "${verified}"`);
+  await shot(O, "13-desk-chain-verified");
+  const bar = await (await O.request.get(`${DESK}/v1/metrics/promises?incident=BR`)).json();
+  check(bar.lost.adds_up && bar.lost.without_home === 0, `the promise bar adds up: ${bar.lost.reports} reports = ${bar.lost.cases} cases + ${bar.lost.merged} merged + ${bar.lost.to_check} to check + 0 without a home`);
+  const integ = await (await O.request.get(`${DESK}/v1/integrity`)).json();
+  check(integ.problems === 0, `integrity: ${integ.problems} problems (${integ.events_verified} events verified)`);
+  // the team lead opens a case its team doesn't hold
+  const other = (await (await O.request.get(`${DESK}/v1/queue?incident=BR`)).json()).rows.find((x) => x.kind === "case" && x.public_id !== pid);
+  await A.goto(`${PUBLIC}/responder/case/${other.id}`);
+  const denied = await until(async () => (await phone()).match(/Not assigned to your team/)?.[0], 10000);
+  check(!!denied, `the team lead opens ${other.public_id}: 403 "${denied}"`);
+  await shot(A, "14-phone-403-not-your-team");
+  say("part 2 (1:45 → 3:05) done: the golden path ran end to end");
 } catch (e) {
   await shot(O, "FAILED-desk").catch(() => {});
   await shot(J, "FAILED-phone").catch(() => {});

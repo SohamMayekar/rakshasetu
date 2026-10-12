@@ -87,7 +87,8 @@ export default function Responder() {
 
   useEffect(() => { load(); }, [load]);
   useEffect(() => {   // the WebSocket cursor: start from "now"
-    if (state === "in" && since == null) fetch("/v1/cases").then((r) => setSince(Number(r.headers.get("X-Event-Seq") ?? 0))).catch(() => setSince(0));
+    // (its own list: the only one routed on the public address; the header is read before the list, so nothing is missed)
+    if (state === "in" && since == null) fetch("/v1/teams/me/cases").then((r) => setSince(Number(r.headers.get("X-Event-Seq") ?? 0))).catch(() => setSince(0));
   }, [state, since]);
   useLive(team?.incident ?? "BR", state === "in" ? since : null, () => { load(); });
   useEffect(() => {   // "last seen" while open: display only, never extends a check-in

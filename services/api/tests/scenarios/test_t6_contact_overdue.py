@@ -168,5 +168,13 @@ def test_reassign_moves_one_case_and_the_old_team_owes_a_stand_down(seeded, clie
     teams = {t["id"]: t for t in client.get("/v1/teams?incident=BR").json()}
     assert teams[team]["standdowns_owed"] == 1 and teams[team]["status"] == "available"
     assert client.post(f"/v1/escalations/{eid}/reassign", json={"case": pid, "team_id": new_team}).status_code == 409
+    other = one(app_db, "SELECT c.public_id FROM cases c JOIN districts d ON d.id = c.district_id WHERE d.name = 'Gopalganj'"
+                        " AND c.status IN ('reported', 'checked') AND c.geom IS NOT NULL ORDER BY c.id LIMIT 1")
+    d = client.get(f"/v1/cases/{other}/dispatch-suggestions").json()                     # still not heard from: still greyed
+    assert team not in [t["team_id"] for t in d["suggestions"] + d["more"]]
+    assert {"team_id": team, "name": "Fire & Rescue Boat 5", "why": "stand-down not acknowledged: greyed until heard from"} in d["greyed"]
     client.post(f"/v1/teams/{team}/contact", json={"channel": "phone"})                  # its next contact
     assert {t["id"]: t for t in client.get("/v1/teams?incident=BR").json()}[team]["standdowns_owed"] == 0
+    d = client.get(f"/v1/cases/{other}/dispatch-suggestions").json()
+    assert team in [t["team_id"] for t in d["suggestions"] + d["more"]] or any(
+        g["team_id"] == team and "capacity" in g["why"] for g in d["greyed"])           # back in the lists once heard from

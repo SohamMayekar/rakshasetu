@@ -119,7 +119,7 @@ services:
   caddy:
     image: public.ecr.aws/docker/library/caddy:2-alpine
     volumes:
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./caddy:/etc/caddy:ro   # the folder, not the file: an edited Caddyfile is a new inode a file mount never sees
     ports:
       - "127.0.0.1:${LOCAL_PORT:-80}:80"      # local listener: the desk on the projector
       - "127.0.0.1:${PUBLIC_PORT:-8080}:8080" # public listener: point the tunnel here only

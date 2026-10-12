@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m55 golden-path e2e, part 2 (1:45–3:05)
+**Current milestone:** m56 failure drills
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -51,7 +51,8 @@
 |---|---|
 | m51–m60: judge-legibility caption, evidence hardening, the full scenario set (T1–T10), golden-path e2e, failure drills, P1 items, partner annotations, polish, release docs | see the milestone plan in the build prompt |
 | Desk latency on the demo laptop with a GPU during `make surge`: measured only in headless Chromium with software WebGL (19–165 ms, 10 of 12 clicks under the 100 ms target) | one run on the laptop: open /desk/BR during `make surge`, click 10 rows |
-| The responder path on a real mid-range Android phone over mobile data through the tunnel (PRD F-C7 "done when"); only a Chromium phone viewport on the local stack has been measured | needs the humans, a phone and the tunnel |
+| The responder path on a real mid-range Android phone over mobile data through the tunnel (PRD F-C7 "done when"); only a Chromium phone viewport on the public listener (localhost) has been run, in the golden path | needs the humans, a phone and the tunnel |
+| The son speaking through the reporter page's microphone with live speech-to-text (`make e2e` with an STT key feeds the clip into Chromium's fake microphone; not run: no key) | needs an STT key (BLOCKED below) |
 | The demo sheet with a live language model: the 19 `needs_ai` rows have only been read by rules (no keys here), so "AI asked about 19" is designed, not measured | needs LLM keys (BLOCKED below) |
 
 ## BLOCKED (credential or external)
@@ -88,6 +89,8 @@
 - **Bug found and fixed in m44:** the API let an officer assign a team to a case that had already been merged into another (the merged case had no reports, so the phone showed no caller's words). Assigning now requires an open case; a merged one answers "This case was merged into BR-199: assign that one" (tested).
 
 - **Bugs found and fixed in m49 (the surge):** the worker wrote its health file only when the queue was empty, so a 60 s backlog read as a hang and `make up --wait` failed; `make seed` during a backlog deadlocked with reports being filed and failed (it now pauses waiting jobs and retries the wipe); the surge screen's 10 s integrity poll slowed ingest (p95 ~810 ms) and now runs on request; `GET /v1/queue` had no index for its per-row match lookup (3.2 s at 2,800 cases).
+
+- **Bugs found by the golden-path e2e (m54–m55), fixed:** (1) the running Caddy kept a config from before m41 because a single-file bind mount never sees an edited file, so the responder's API was 404 on the public address. That was invisible to every API test, which bypasses Caddy, and the m44 phone measurement went through the local listener. (2) The responder's live-update cursor came from `/v1/cases`, not routed publicly, so it replayed from event 0. (3) The officer's radio/reassign form closed whenever the case changed live. (4) A rescue record waited for a location prompt that, unanswered, never calls back: **the record was never saved**. (5) A team that went silent was suggested again for the same roof right after the reassignment.
 
 - **Until m53 two IDOR tests were skipped placeholders** (evidence, assignment), written before those endpoints existed and never filled in. The scope rules were enforced and tested elsewhere (`test_timeline.py`, `test_assignments.py`), but PRD F-C9's "one IDOR test per resource" wasn't met until m53.
 

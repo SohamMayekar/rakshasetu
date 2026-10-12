@@ -6,7 +6,7 @@ POST /v1/teams/me/heartbeat   "last seen" while the responder app is open.
 The heartbeat is DISPLAY ONLY: it never extends a check-in deadline (PRD F-S1; contact.heartbeat_extends_deadline
 is fixed to false in the config schema). No event is written for it: it isn't a decision or a state change."""
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from pydantic import BaseModel, Field
 from sqlalchemy import text
 
@@ -14,6 +14,7 @@ from app.core.auth import Scope, current_scope, require
 from app.core.eventlog import Actor
 from app.core.listener import require_local
 from app.db import get_engine
+from app.modules.cases.repo import head_seq
 from app.modules.cases.service import NotAllowed
 from app.modules.teams.service import heard_from
 
@@ -74,12 +75,14 @@ def list_teams(incident: str, scope: Scope = Depends(require("queue.view"))) -> 
 
 
 @router.get("/me/cases")
-def my_cases(scope: Scope = Depends(current_scope)) -> dict:
+def my_cases(response: Response, scope: Scope = Depends(current_scope)) -> dict:
     """The responder app's "My cases": the team's live assignments with what the boat needs on one screen,
-    including the straight-line distance from the team's last known position."""
+    including the straight-line distance from the team's last known position. `X-Event-Seq` (read before the
+    list) is where the app's live updates start, so it misses nothing and replays nothing."""
     if scope.role != "team_lead" or not scope.team_id:
         raise HTTPException(403, "For a team lead's app")
     with get_engine().connect() as conn:
+        response.headers["X-Event-Seq"] = str(head_seq(conn))
         team = conn.execute(text("SELECT id, name, has_app, radio_channel, last_contact_at, last_seen_at, incident_id,"
                                  " (SELECT code FROM incidents WHERE id = teams.incident_id) AS incident"
                                  " FROM teams WHERE id = :t"), {"t": scope.team_id}).one()

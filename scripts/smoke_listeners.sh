@@ -18,4 +18,11 @@ check "public: demo route absent"           404 "$P/v1/demo/status"
 check "public: spoofed listener header"     404 "$P/v1/demo/status" -H "X-RS-Listener: local"
 check "public: desk page absent"            404 "$P/"
 check "public: body cap (3 MB)"             413 "$P/v1/ingest/reports" -X POST --data-binary @<(head -c 3000000 /dev/zero)
+# every public path a phone uses is routed (a stale Caddy config answers 404 here; see make up's reload)
+check "public: reporter page"               200 "$P/r"
+check "public: responder app"               200 "$P/responder"
+check "public: responder's cases (signed out)" 401 "$P/v1/teams/me/cases"
+check "public: a case (signed out)"         401 "$P/v1/cases/BR-151"
+check "public: status page api"             200 "$P/v1/public/cases/BR-151/status"
+check "public: desk queue absent"           404 "$P/v1/queue?incident=BR"
 exit $fail

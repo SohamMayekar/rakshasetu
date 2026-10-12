@@ -4343,7 +4343,7 @@
     },
     "/v1/teams/me/cases": {
       "get": {
-        "description": "The responder app's \"My cases\": the team's live assignments with what the boat needs on one screen,\nincluding the straight-line distance from the team's last known position.",
+        "description": "The responder app's \"My cases\": the team's live assignments with what the boat needs on one screen,\nincluding the straight-line distance from the team's last known position. `X-Event-Seq` (read before the\nlist) is where the app's live updates start, so it misses nothing and replays nothing.",
         "operationId": "my_cases_v1_teams_me_cases_get",
         "responses": {
           "200": {

@@ -95,12 +95,21 @@ export default function ResponderCase({ params }: { params: Promise<{ id: string
         )}
         {step === "rescue" && !rescuing && <BigButton onClick={() => setRescuing(true)}>Record rescue · बचाव दर्ज करें</BigButton>}
         {rescuing && (
-          <RescueSheet reported={c.people_count} onRecord={(body, label) => {
-            // the team phone's own location at that moment (not the family's), if the phone will give it quickly
-            const send = (pos?: GeolocationPosition) => tap({ url: `/v1/cases/${c.id}/rescues`, label, caseId: c.id,
-              body: { ...body, ...(pos ? { lat: pos.coords.latitude, lng: pos.coords.longitude } : {}) } });
-            if (navigator.geolocation) navigator.geolocation.getCurrentPosition((p) => send(p), () => send(), { timeout: 3000, maximumAge: 60_000 });
-            else send();
+          <RescueSheet reported={c.people_remaining ?? c.people_count} onRecord={(body, label) => {   // a second trip starts at who's left
+            // the team phone's own location at that moment (not the family's), if the phone will give it quickly.
+            // The record never waits on it: an unanswered location prompt calls neither callback (the timeout only
+            // starts once permission is given), so a hard 3.5 s fallback saves it without a position, once.
+            let saved = false;
+            const send = (pos?: GeolocationPosition) => {
+              if (saved) return;
+              saved = true;
+              tap({ url: `/v1/cases/${c.id}/rescues`, label, caseId: c.id,
+                    body: { ...body, ...(pos ? { lat: pos.coords.latitude, lng: pos.coords.longitude } : {}) } });
+            };
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition((p) => send(p), () => send(), { timeout: 3000, maximumAge: 60_000 });
+              setTimeout(() => send(), 3500);
+            } else send();
             setRescuing(false);
           }} />
         )}

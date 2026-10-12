@@ -2,7 +2,7 @@
 # "position 20 min old" honest. has_app: false = radio-only (the timer *is* the radio schedule).
 teams:
   - {name: "SDRF Boat 2", agency: SDRF, district: Gopalganj, capabilities: [boat, rope], has_app: false, radio_channel: VHF,
-     base: [26.4251, 84.3780], position_age_min: 20, max_active: 2}
+     base: [26.4251, 84.3780], position_age_min: 20, max_active: 2, reserved_for_demo: true}   # the demo's radio boat (PRD §16.1 1:45): free at reset
   - {name: "Fire & Rescue Boat 5", agency: "Fire & Rescue", district: Gopalganj, capabilities: [boat, medical], has_app: true, radio_channel: VHF,
      base: [26.4530, 84.4140], position_age_min: 6, max_active: 2, reserved_for_demo: true}   # the demo phone's team: free at reset
   - {name: "NDRF T-03 (deployed)", agency: NDRF, district: Gopalganj, capabilities: [boat, medical, rope], has_app: true, radio_channel: satellite,

@@ -6,7 +6,8 @@ Rank the teams already deployed in the case's district by
                           an urgent medical need
     2. distance           straight line from the team's last known position, labelled as such, with its age
     3. current load       active assignments, never above the team's max_active
-Overdue and out-of-service teams are greyed out with the reason, never suggested (an overdue team is greyed
+Overdue and out-of-service teams are greyed out with the reason, never suggested; so is a team that still owes a
+stand-down (it went quiet, a case was moved off it, and nobody has heard from it since). (An overdue team is greyed
 until it's heard from).
 """
 
@@ -49,7 +50,9 @@ def teams_for(conn: Connection, incident_id: int, district_id: int | None) -> li
         "SELECT t.id, t.name, t.agency, t.capabilities, t.has_app, t.radio_channel, t.status, t.status_reason,"
         " t.max_active, t.last_geom_at,"
         " ST_Y(coalesce(t.last_geom, t.base_geom)::geometry) AS lat, ST_X(coalesce(t.last_geom, t.base_geom)::geometry) AS lng,"
-        " (SELECT count(*) FROM assignments a WHERE a.team_id = t.id AND a.state IN ('open', 'overdue')) AS active"
+        " (SELECT count(*) FROM assignments a WHERE a.team_id = t.id AND a.state IN ('open', 'overdue')) AS active,"
+        " EXISTS (SELECT 1 FROM assignments a WHERE a.team_id = t.id AND a.state = 'reassigned'"
+        "         AND a.standdown_acked_at IS NULL) AS standdown_owed"
         " FROM teams t WHERE t.incident_id = :i AND (CAST(:d AS bigint) IS NULL OR t.district_id = :d) ORDER BY t.id"),
         {"i": incident_id, "d": district_id}).all()
 
@@ -66,6 +69,9 @@ def rank(case: dict, teams: list, now: datetime | None = None) -> dict:
             why = t.status_reason or {"overdue": "contact overdue: greyed until heard from",
                                       "out_of_service": "out of service"}.get(t.status, t.status)
             greyed.append({"team_id": t.id, "name": t.name, "why": why})
+            continue
+        if getattr(t, "standdown_owed", False):   # it went quiet and a case was moved off it: not heard from since
+            greyed.append({"team_id": t.id, "name": t.name, "why": "stand-down not acknowledged: greyed until heard from"})
             continue
         if t.active >= t.max_active:
             greyed.append({"team_id": t.id, "name": t.name, "why": f"at capacity ({t.active} of {t.max_active})"})

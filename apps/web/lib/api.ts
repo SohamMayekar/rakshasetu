@@ -25,7 +25,7 @@ export type Prov = { value: unknown; method: string; quote?: string; report_id?:
 export type Case = {
   id: number; public_id: string; incident_id: number; incident_code: string; district_id: number | null; district: string | null;
   status: string; priority: "P1" | "P2" | "P3" | "P4"; priority_reasons: string[]; priority_override: unknown;
-  people_count: number | null; people_count_kind: string | null; needs: string[]; vulnerable: string[]; hazards: string[];
+  people_count: number | null; people_count_kind: string | null; people_remaining?: number | null; needs: string[]; vulnerable: string[]; hazards: string[];
   lat: number | null; lng: number | null; radius_m: number | null; location_confidence: "high" | "medium" | "low" | "very_low" | null;
   location_method: string | null; location_source: string | null; location_text: string | null;
   provenance: Record<string, Prov | Prov[]>; summary: string | null; checked_by: number | null; checked_at: string | null;
