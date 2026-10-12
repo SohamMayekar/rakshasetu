@@ -4,9 +4,11 @@
 // assignment takes the whole screen with Acknowledge + ETA chips (one tap). New assignments arrive over the
 // WebSocket with a vibration and a sound. While the app is open it says "last seen" every 10 s — display only.
 
+import { LifeBuoy } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useWakeLock } from "@/lib/wakelock";
+import { Mark } from "@/components/shell/Sidebar";
 
 import { BigButton, TapStatus } from "@/components/responder/Field";
 import { Clock, Priority, Ring } from "@/components/ui";
@@ -18,10 +20,10 @@ import type { MyCase, MyTeam } from "@/lib/responder";
 function Login({ onIn }: { onIn: () => void }) {
   const [error, setError] = useState<string | null>(null);
   return (
-    <main className="mx-auto max-w-md px-5 py-10">
-      <p className="text-sm font-semibold text-ink-2">RakshaSetu · Team</p>
-      <h1 className="mt-1 text-3xl font-semibold tracking-tight">Sign in as your team</h1>
-      <form className="mt-8 space-y-3" onSubmit={async (e) => {
+    <main className="mx-auto min-h-dvh max-w-md bg-canvas px-5 py-8">
+      <p className="flex items-center gap-2 text-sm font-semibold"><Mark className="size-6" />RakshaSetu · Team</p>
+      <h1 className="mt-6 text-3xl font-semibold tracking-tight">Sign in as your team</h1>
+      <form className="mt-6 space-y-3 rounded-[28px] bg-paper p-5 shadow-[var(--shadow-card)]" onSubmit={async (e) => {
         e.preventDefault();
         const f = new FormData(e.currentTarget);
         try { await api("/v1/auth/login", { method: "POST", json: { username: f.get("u"), password: f.get("p") } }); onIn(); }
@@ -124,20 +126,25 @@ export default function Responder() {
   if (state === "out") return <Login onIn={load} />;
   const offered = cases.find((c) => c.phase === "offered");
   return (
-    <main className="mx-auto max-w-md px-5 pb-10 pt-6">
+    <main className="mx-auto min-h-dvh max-w-md bg-canvas px-5 pb-10 pt-6">
       {offered && <NewCase c={offered} />}
-      <p className="text-sm font-semibold text-ink-2">RakshaSetu · {team?.name}</p>
-      <h1 className="mt-1 text-3xl font-semibold tracking-tight">My cases</h1>
+      <p className="flex items-center gap-2 text-sm font-semibold"><Mark className="size-6" />RakshaSetu · {team?.name}</p>
+      <h1 className="mt-5 text-3xl font-semibold tracking-tight">My cases</h1>
       {offlineSince && (
         <p className="mt-3 rounded-xl bg-ink px-4 py-2 text-base text-paper">
           No network · showing My cases as of <Clock iso={offlineSince} />. Taps are saved on the phone and sent when it&apos;s back.
         </p>
       )}
-      {cases.length === 0 && <p className="mt-8 text-lg text-ink-2">No cases assigned to your team right now.</p>}
+      {cases.length === 0 && (
+        <p className="mt-6 flex items-center gap-3 rounded-[24px] bg-paper px-5 py-6 text-lg text-ink-2 shadow-[var(--shadow-card)]">
+          <span className="grid size-11 shrink-0 place-items-center rounded-full bg-wash text-ink"><LifeBuoy className="size-5" strokeWidth={1.8} aria-hidden /></span>
+          No cases assigned to your team right now.
+        </p>
+      )}
       <ul className="mt-6 space-y-3">
         {cases.map((c) => (
           <li key={c.id}>
-            <a href={`/responder/case/${c.id}`} className="block rounded-2xl border border-line p-4 active:bg-wash">
+            <a href={`/responder/case/${c.id}`} className="block rounded-[24px] bg-paper p-4 shadow-[var(--shadow-card)] active:bg-wash">
               <p className="flex items-baseline justify-between gap-2">
                 <span className="flex items-baseline gap-2 text-xl font-semibold"><Priority level={c.priority} /><span className="tabular">{c.public_id}</span></span>
                 <span className="text-sm text-ink-2">{{ offered: "new", acknowledged: "on the way", reached: "on scene" }[c.phase]}</span>

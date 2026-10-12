@@ -3,7 +3,9 @@
 // The design system on one page (local listener only; Caddy doesn't route /ui on the public address).
 // Every desk, responder and reporter screen is built from these pieces.
 
-import { Because, Button, Caption, ChannelTag, Check, Chip, CircleLegend, Empty, Estimate, MethodChip, NewPill, Priority, Receipt, Section } from "@/components/ui";
+import { CopyCheck, Inbox, Timer } from "lucide-react";
+
+import { Because, Button, Caption, Card, ChannelTag, Check, Chip, CircleLegend, Empty, Estimate, IconWell, MethodChip, NewPill, Pill, Priority, PriorityWell, Receipt, Section } from "@/components/ui";
 
 const RECEIPT = [
   { step: "STT", by: "AI", detail: "Saaras 2.1 s" },
@@ -16,11 +18,21 @@ const RECEIPT = [
 export default function DesignSystem() {
   return (
     <main className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="text-2xl font-semibold tracking-tight">Design system</h1>
-      <p className="mt-1 text-sm text-ink-2">Ink on paper. Hue means priority, and only priority; it is always also text and a shape. &ldquo;Needs you&rdquo; is ink inversion; stale is fade.</p>
+      <h1 className="text-[28px] font-semibold tracking-tight">Design system</h1>
+      <p className="mt-1 text-sm text-ink-2">Ink on paper, on a soft canvas. Hue means priority, and only priority; it is always also text and a shape. &ldquo;Needs you&rdquo; is ink inversion; stale is fade.</p>
+      <Card className="mt-6 px-6">
+
+      <Section title="Surfaces">
+        <div className="flex flex-wrap items-center gap-3">
+          <IconWell icon={Inbox} /><IconWell icon={CopyCheck} /><IconWell icon={Timer} tone="ink" label="a broken promise: ink, never colour" />
+          <Pill>Live</Pill>
+        </div>
+        <p className="mt-2 text-xs text-ink-3">White cards (20 px radius, a hairline and a whisper of shadow) on the warm canvas; icons sit in round wells; buttons are pills.</p>
+      </Section>
 
       <Section title="Priority">
         <div className="flex gap-6 text-lg"><Priority level="P1" /><Priority level="P2" /><Priority level="P3" /><Priority level="P4" /></div>
+        <div className="mt-3 flex gap-3"><PriorityWell level="P1" /><PriorityWell level="P2" /><PriorityWell level="P3" /><PriorityWell level="P4" /></div>
         <Because>trapped + water entering · trapped + elderly</Because>
       </Section>
 
@@ -67,6 +79,7 @@ export default function DesignSystem() {
         <p className="tabular text-sm text-ink-2">0123456789 · 14:32 · 2.1 km</p>
       </Section>
 
+      </Card>
       <Caption text="A call-taker pasted a forwarded message. Rules found the same village, landmarks and headcount: it was folded into BR-214." />
     </main>
   );

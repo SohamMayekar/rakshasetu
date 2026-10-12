@@ -7,7 +7,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { Button, Section } from "@/components/ui";
+import { AppShell, Page } from "@/components/shell/AppShell";
+import { Button, Card, PageHeader, Section } from "@/components/ui";
 import { api, ApiError, type Me } from "@/lib/api";
 
 type Scene = { id: string; at: string; title: string; starts_with: string };
@@ -45,26 +46,26 @@ export default function DemoPage() {
 
   if (me && me.user.role !== "admin") {
     return (
-      <main className="mx-auto max-w-2xl px-4 py-8 text-sm">
-        <h1 className="text-2xl font-semibold tracking-tight">Demo controls</h1>
-        <p className="mt-2 text-ink-2">These need the System admin. Open <b>http://127.0.0.1/demo</b> and sign in as System admin there,
+      <AppShell me={me}><Page>
+        <PageHeader title="Demo controls" />
+        <p className="mt-3 text-sm text-ink-2">These need the System admin. Open <b>http://127.0.0.1/demo</b> and sign in as System admin there,
           so the desk on <b>http://localhost</b> stays signed in as {me.user.name}.</p>
-        <p className="mt-3"><a href="/login" className="underline underline-offset-2">Sign in as someone else</a></p>
-      </main>
+        <p className="mt-3 text-sm"><a href="/login" className="underline underline-offset-2">Sign in as someone else</a></p>
+      </Page></AppShell>
     );
   }
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-6 text-sm">
-      <p><a href="/" className="underline underline-offset-2">Incidents</a></p>
-      <h1 className="mt-2 text-2xl font-semibold tracking-tight">Demo controls</h1>
-      <p className="mt-1 text-ink-2">Local only, demo mode only. Every control here is on the audit log.</p>
-      {line && <p className="mt-3 rounded bg-wash px-3 py-2" role="status">{line}</p>}
+    <AppShell me={me}>
+    <Page>
+      <PageHeader title="Demo controls" sub="Local only, demo mode only. Every control here is on the audit log." />
+      {line && <p className="mt-4 rounded-xl bg-paper px-4 py-2.5 text-sm shadow-[var(--shadow-card)]" role="status">{line}</p>}
+      <div className="text-sm">
 
-      <Section title="Reset to a scene">
+      <Box title="Reset to a scene">
         <p className="mb-2 text-ink-2">Wipes the database, seeds it with times relative to now, then plays every scene before the one you pick
           through the real API. Every open screen reloads itself.</p>
-        <ol className="divide-y divide-line border-y border-line">
+        <ol className="divide-y divide-line">
           {scenes.map((s) => (
             <li key={s.id} className="flex items-center justify-between gap-3 py-2">
               <span className="min-w-0"><span className="tabular text-ink-3">{s.at}</span> <b>{s.title}</b>
@@ -76,9 +77,9 @@ export default function DemoPage() {
             </li>
           ))}
         </ol>
-      </Section>
+      </Box>
 
-      <Section title="Language model">
+      <Box title="Language model">
         <div className="flex items-center justify-between gap-3">
           <span>
             {status && !status.keys.llm.length
@@ -95,9 +96,9 @@ export default function DemoPage() {
             return `Language model ${on ? "on" : "off"}: typed reports become cases by the keyword rules alone`;
           })}>{status?.language_model === "on" ? "Switch off" : "Switch on"}</Button>
         </div>
-      </Section>
+      </Box>
 
-      <Section title="Surge">
+      <Box title="Surge">
         <div className="flex items-center justify-between gap-3">
           <span>{status?.surge
             ? <>Running: {status.surge.rate} reports a second, <span className="tabular">{status.surge.seconds_left}</span> s left. <a href="/surge" className="underline underline-offset-2">Watch it</a></>
@@ -107,9 +108,9 @@ export default function DemoPage() {
             return "Surge started: open /surge on the projector";
           })}>Start surge</Button>
         </div>
-      </Section>
+      </Box>
 
-      <Section title="Partner moment">
+      <Box title="Partner moment">
         <div className="flex items-center justify-between gap-3">
           <span>A <b>simulated</b> partner (our own script, signed, through the public address) suggests a priority for BR-199, notes its
             clip, anchors our audit head, and has a replayed request refused. Say it&apos;s simulated. <a href="/partners" className="underline underline-offset-2">Partner log</a></span>
@@ -118,9 +119,9 @@ export default function DemoPage() {
             return r.calls.join(" · ");
           })}>Run it</Button>
         </div>
-      </Section>
+      </Box>
 
-      <Section title="Play a recorded clip">
+      <Box title="Play a recorded clip">
         <p className="mb-2 text-ink-2">The fallback if live voice fails: the clip goes through the same pipeline as the reporter page,
           from the son&apos;s phone. Say it&apos;s a recording.</p>
         <ul className="divide-y divide-line border-y border-line">
@@ -135,9 +136,9 @@ export default function DemoPage() {
           ))}
           {!clips.length && <li className="py-2 text-ink-3">No clips in data/scenarios/BR/clips/</li>}
         </ul>
-      </Section>
+      </Box>
 
-      <Section title="Phones">
+      <Box title="Phones">
         {status && !status.public_url
           ? <p className="text-ink-2">Set <code>PUBLIC_URL</code> in <code>.env</code> to the tunnel&apos;s address for the phone QR codes.</p>
           : (
@@ -147,25 +148,36 @@ export default function DemoPage() {
                   note="After a reset past the rescue: the family's question is asked only of the phone that reported." />
             </div>
           )}
-      </Section>
-    </main>
+      </Box>
+      </div>
+    </Page>
+    </AppShell>
   );
 }
 
+// Each control in its own card.
+function Box({ title, children }: { title: string; children: React.ReactNode }) {
+  return <Card className="mt-4 px-5"><Section title={title}>{children}</Section></Card>;
+}
+
 function Qr({ target, title, note }: { target: string; title: string; note: string }) {
-  const [svg, setSvg] = useState<string | null>(null);
+  const [img, setImg] = useState<string | null>(null);
   const [url, setUrl] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  useEffect(() => {
+  useEffect(() => {   // shown as an image, never as injected markup (R14)
+    let made: string | null = null;
     fetch(`/v1/demo/qr?target=${target}`, { cache: "no-store" }).then(async (r) => {
       if (!r.ok) { setErr(((await r.json().catch(() => ({}))) as { detail?: string }).detail ?? `HTTP ${r.status}`); return; }
-      setUrl(r.headers.get("X-QR-URL")); setSvg(await r.text());
+      setUrl(r.headers.get("X-QR-URL"));
+      made = URL.createObjectURL(new Blob([await r.text()], { type: "image/svg+xml" }));
+      setImg(made);
     }).catch((e) => setErr(String(e)));
+    return () => { if (made) URL.revokeObjectURL(made); };
   }, [target]);
   return (
     <figure>
       <figcaption className="font-medium">{title}</figcaption>
-      {svg ? <div className="mt-2 w-fit bg-white p-1" dangerouslySetInnerHTML={{ __html: svg }} /> : <p className="mt-2 text-ink-3">{err ?? "…"}</p>}
+      {img ? <img src={img} alt={`QR code: ${title}`} className="mt-2 w-44 rounded-xl border border-line bg-white p-2" /> : <p className="mt-2 text-ink-3">{err ?? "…"}</p>}
       {url && <p className="mt-1 break-all text-xs text-ink-2">{url}</p>}
       <p className="mt-1 text-xs text-ink-3">{note}</p>
     </figure>

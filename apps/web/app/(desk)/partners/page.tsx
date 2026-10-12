@@ -4,9 +4,11 @@
 // and the body's hash; a replayed or forged request shows as what it is ("401 · Stale timestamp: replay rejected").
 // And each anchor receipt: a partner anchored our audit head in its own ledger; ✓ if our chain still matches it.
 
+import { Handshake } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { Clock } from "@/components/ui";
+import { AppShell, Page } from "@/components/shell/AppShell";
+import { Card, Clock, IconWell, PageHeader } from "@/components/ui";
 import { api } from "@/lib/api";
 
 type Call = { id: number; at: string; partner: string | null; team: string | null; direction: "in" | "out"; method: string;
@@ -26,48 +28,48 @@ export default function PartnerLog() {
   }, []);
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-6 text-sm">
-      <p><a href="/" className="underline underline-offset-2">Incidents</a> · <a href="/audit" className="underline underline-offset-2">Audit</a></p>
-      <h1 className="mt-2 text-2xl font-semibold tracking-tight">Partner log</h1>
-      <p className="mt-1 text-ink-2">Every call from a partner system, signed or not. Our rules decide what each annotation does: a credibility
-        note marks one evidence item, a priority is a suggestion an officer accepts or ignores, an anchor is checked against our chain.</p>
-      {error && <p className="mt-3 rounded bg-wash px-3 py-2">{error}</p>}
+    <AppShell>
+      <Page wide>
+        <PageHeader title="Partner log"
+                    sub="Every call from a partner system, signed or not. Our rules decide what each annotation does: a credibility note marks one evidence item, a priority is a suggestion an officer accepts or ignores, an anchor is checked against our chain." />
+        {error && <p className="mt-4 rounded-xl bg-paper px-4 py-2 text-sm">{error}</p>}
 
-      {!!data?.anchors.length && (
-        <ul className="mt-4 space-y-1">
-          {data.anchors.map((a) => (
-            <li key={a.annotation_id}>
-              {a.matches ? "✓" : <b>✗</b>} Head <span className="tabular">#{a.seq.toLocaleString("en-IN")}</span> anchored by <b>{a.team}</b>
-              {" "}(<span className="tabular">{a.receipt}</span>) at <Clock iso={a.at} />
-              {!a.matches && <b> · our chain at #{a.seq} no longer matches what they anchored</b>}
-            </li>
-          ))}
-        </ul>
-      )}
+        {!!data?.anchors.length && (
+          <Card className="mt-5 space-y-2 px-5 py-4 text-sm">
+            {data.anchors.map((a) => (
+              <p key={a.annotation_id} className="flex items-center gap-2.5"><IconWell icon={Handshake} size="sm" />
+                <span>{a.matches ? "✓" : <b>✗</b>} Head <span className="tabular">#{a.seq.toLocaleString("en-IN")}</span> anchored by <b>{a.team}</b>
+                  {" "}(<span className="tabular">{a.receipt}</span>) at <Clock iso={a.at} />
+                  {!a.matches && <b> · our chain at #{a.seq} no longer matches what they anchored</b>}</span>
+              </p>
+            ))}
+          </Card>
+        )}
 
-      <div className="mt-4 overflow-x-auto">
-      <table className="w-full">
-        <thead><tr className="border-b border-line text-left text-xs text-ink-3">
-          <th className="py-1.5 pr-3">time</th><th className="pr-3">partner</th><th className="hidden pr-3 sm:table-cell">call</th>
-          <th className="pr-3">status</th><th className="pr-3">signature</th><th className="hidden pr-3 sm:table-cell">ms</th>
-          <th className="hidden sm:table-cell">body sha256</th></tr></thead>
-        <tbody>
-          {(data?.calls ?? []).map((c) => (
-            <tr key={c.id} className="border-b border-line align-top">
-              <td className="tabular whitespace-nowrap py-1.5 pr-3"><Clock iso={c.at} /></td>
-              <td className="pr-3">{c.team ?? c.partner}<span className="block text-xs text-ink-3">{c.direction === "in" ? "to us" : "from us"}
-                <span className="sm:hidden">: {c.method} {c.endpoint}</span></span></td>
-              <td className="hidden pr-3 sm:table-cell">{c.method} {c.endpoint}</td>
-              <td className="pr-3">{c.status >= 400 ? <b>{c.note ?? c.status}</b> : c.status}</td>
-              <td className="pr-3">{c.signature_ok == null ? "–" : c.signature_ok ? "✓" : <b>✗</b>}</td>
-              <td className="tabular hidden pr-3 sm:table-cell">{c.latency_ms ?? "–"}</td>
-              <td className="tabular hidden text-xs text-ink-3 sm:table-cell">{c.body_sha256 ? `${c.body_sha256.slice(0, 12)}…` : "–"}</td>
-            </tr>
-          ))}
-          {data && !data.calls.length && <tr><td colSpan={7} className="py-6 text-center text-ink-3">No partner calls yet.</td></tr>}
-        </tbody>
-      </table>
-      </div>
-    </main>
+        <Card className="mt-5 overflow-x-auto text-sm">
+          <table className="w-full">
+            <thead><tr className="border-b border-line text-left text-xs text-ink-3">
+              <th className="py-3 pl-5 pr-3 font-medium">time</th><th className="pr-3 font-medium">partner</th><th className="hidden pr-3 font-medium sm:table-cell">call</th>
+              <th className="pr-3 font-medium">status</th><th className="pr-3 font-medium">signature</th><th className="hidden pr-3 font-medium sm:table-cell">ms</th>
+              <th className="hidden pr-5 font-medium sm:table-cell">body sha256</th></tr></thead>
+            <tbody>
+              {(data?.calls ?? []).map((c) => (
+                <tr key={c.id} className="border-b border-line align-top last:border-b-0 hover:bg-wash/60">
+                  <td className="tabular whitespace-nowrap py-2.5 pl-5 pr-3"><Clock iso={c.at} /></td>
+                  <td className="py-2.5 pr-3">{c.team ?? c.partner}<span className="block text-xs text-ink-3">{c.direction === "in" ? "to us" : "from us"}
+                    <span className="sm:hidden">: {c.method} {c.endpoint}</span></span></td>
+                  <td className="hidden py-2.5 pr-3 sm:table-cell">{c.method} {c.endpoint}</td>
+                  <td className="py-2.5 pr-3">{c.status >= 400 ? <b>{c.note ?? c.status}</b> : c.status}</td>
+                  <td className="py-2.5 pr-3">{c.signature_ok == null ? "–" : c.signature_ok ? "✓" : <b>✗</b>}</td>
+                  <td className="tabular hidden py-2.5 pr-3 sm:table-cell">{c.latency_ms ?? "–"}</td>
+                  <td className="tabular hidden py-2.5 pr-5 text-xs text-ink-3 sm:table-cell">{c.body_sha256 ? `${c.body_sha256.slice(0, 12)}…` : "–"}</td>
+                </tr>
+              ))}
+              {data && !data.calls.length && <tr><td colSpan={7} className="py-10 text-center text-ink-3">No partner calls yet.</td></tr>}
+            </tbody>
+          </table>
+        </Card>
+      </Page>
+    </AppShell>
   );
 }

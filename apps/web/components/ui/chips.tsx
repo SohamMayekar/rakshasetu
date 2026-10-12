@@ -6,10 +6,10 @@ import type { ReactNode } from "react";
 export function Chip({ tone = "neutral", children, title }: { tone?: "attention" | "neutral" | "quiet"; children: ReactNode; title?: string }) {
   const cls = {
     attention: "bg-ink text-paper",
-    neutral: "border border-line text-ink-2",
+    neutral: "border border-line bg-paper text-ink-2",
     quiet: "bg-wash text-ink-2",
   }[tone];
-  return <span title={title} className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap ${cls}`}>{children}</span>;
+  return <span title={title} className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap ${cls}`}>{children}</span>;
 }
 
 export type Method = "ai" | "rule" | "human" | "partner" | "fixture";
@@ -24,7 +24,7 @@ const METHOD: Record<Method, { label: string; title: string }> = {
 export function MethodChip({ method }: { method: Method }) {
   const m = METHOD[method];
   return (
-    <span title={m.title} className={`inline-flex items-center rounded border border-line px-1 text-[10px] font-semibold uppercase tracking-wide text-ink-2 ${method === "ai" ? "italic" : ""}`}>
+    <span title={m.title} className={`inline-flex items-center rounded-md bg-wash px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide text-ink-2 ${method === "ai" ? "italic" : ""}`}>
       {m.label}
     </span>
   );

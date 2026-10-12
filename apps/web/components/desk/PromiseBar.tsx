@@ -2,10 +2,13 @@
 
 // The promise bar (PRD F-C6): the tagline as three invariants that add up. Every number is its own database
 // query (tested); a number inverts (ink chip) only when its promise is broken, never because it is large.
-// Numbers that have a queue behind them filter "Needs you now" when clicked.
+// Numbers that have a queue behind them filter "Needs you now" when clicked. m60: three quiet cards, each with
+// its promise's icon, in a row; still words and numbers only (no charts, no trend arrows).
 
-import { useEffect, useState } from "react";
+import { CopyCheck, Inbox, Timer } from "lucide-react";
+import { type ReactNode, useEffect, useState } from "react";
 
+import { IconWell } from "@/components/ui";
 import { api } from "@/lib/api";
 
 export type Promises = {
@@ -16,11 +19,23 @@ export type Promises = {
 export type QueueFilter = "p1_unowned" | "overdue" | "duplicates" | null;
 
 function N({ v, broken, onClick, title }: { v: number; broken?: boolean; onClick?: () => void; title?: string }) {
-  const cls = `tabular font-semibold ${broken ? "rounded bg-ink px-1.5 text-paper" : ""} ${onClick ? "cursor-pointer underline-offset-2 hover:underline" : ""}`;
+  const cls = `tabular font-semibold ${broken ? "rounded-md bg-ink px-1.5 text-paper" : "text-ink"} ${onClick ? "cursor-pointer underline-offset-2 hover:underline" : ""}`;
   return onClick ? <button title={title} onClick={onClick} className={cls}>{v}</button> : <span title={title} className={cls}>{v}</span>;
 }
 
 const age = (s: number | null) => (s == null ? "" : s < 60 ? `${s} s` : `${Math.round(s / 60)} min`);
+
+function PromiseCard({ icon, name, kind, broken, children }: { icon: typeof Inbox; name: string; kind: string; broken: boolean; children: ReactNode }) {
+  return (
+    <div className={`flex min-w-0 items-center gap-3 rounded-2xl bg-paper px-3.5 py-2.5 shadow-[var(--shadow-card)] ${broken ? "ring-2 ring-ink" : ""}`}>
+      <IconWell icon={icon} tone={broken ? "ink" : "wash"} />
+      <div className="min-w-0 leading-snug">
+        <p className="text-[13px] font-semibold">{name} <span className="font-normal text-ink-3">· {kind}</span></p>
+        <p className="text-sm leading-snug text-ink-2">{children}</p>
+      </div>
+    </div>
+  );
+}
 
 export function PromiseBar({ incident, onFilter }: { incident: string; onFilter: (f: QueueFilter) => void }) {
   const [p, setP] = useState<Promises | null>(null);
@@ -31,34 +46,23 @@ export function PromiseBar({ incident, onFilter }: { incident: string; onFilter:
     const t = setInterval(load, 2000);
     return () => { alive = false; clearInterval(t); };
   }, [incident]);
-  if (!p) return <div className="h-11 border-b border-line" />;
-  const col = "flex min-w-0 flex-col justify-center px-4";
-  const head = "text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-3";
+  if (!p) return <div className="h-[62px]" />;
   return (
-    <div className="grid grid-cols-1 border-b border-line text-sm md:grid-cols-[1.6fr_1fr_1fr]" aria-label="Promise bar">
-      <div className={`${col} py-1.5`}>
-        <span className={head}>Never lost · provenance</span>
-        <span className="truncate">
-          <N v={p.lost.reports} /> reports = <N v={p.lost.cases} /> cases + <N v={p.lost.merged} /> merged + <N v={p.lost.to_check} /> to check
-          {" "}+ <N v={p.lost.without_home} broken={p.lost.broken} title="Reports still in the pipeline; broken if one waits over 2 min" /> without a home
-          {p.lost.oldest_waiting_s != null && <span className="text-ink-2"> · oldest waiting {age(p.lost.oldest_waiting_s)}</span>}
-        </span>
-      </div>
-      <div className={`${col} border-line py-1.5 md:border-l`}>
-        <span className={head}>Never doubled · uncertainty</span>
-        <span className="truncate">
-          <N v={p.doubled.merged} /> merged · <N v={p.doubled.to_check} broken={p.doubled.broken} onClick={() => onFilter("duplicates")}
-                                                  title="Likely duplicates waiting for a person; broken if one waits over 15 min" /> to check
-          {" "}· <N v={p.doubled.refused} /> refused
-        </span>
-      </div>
-      <div className={`${col} border-line py-1.5 md:border-l`}>
-        <span className={head}>Never stale · responsibility</span>
-        <span className="truncate">
-          <N v={p.stale.p1_unowned} broken={p.stale.p1_unowned > 0} onClick={() => onFilter("p1_unowned")} /> P1 without owner &gt; 5 min
-          {" "}· <N v={p.stale.overdue} broken={p.stale.overdue > 0} onClick={() => onFilter("overdue")} /> contact overdue
-        </span>
-      </div>
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-[1.55fr_1fr_1.25fr]" aria-label="Promise bar">
+      <PromiseCard icon={Inbox} name="Never lost" kind="provenance" broken={p.lost.broken}>
+        <N v={p.lost.reports} /> reports = <N v={p.lost.cases} /> cases + <N v={p.lost.merged} /> merged + <N v={p.lost.to_check} /> to check
+        {" "}+ <N v={p.lost.without_home} broken={p.lost.broken} title="Reports still in the pipeline; broken if one waits over 2 min" /> without a home
+        {p.lost.oldest_waiting_s != null && <span> · oldest waiting {age(p.lost.oldest_waiting_s)}</span>}
+      </PromiseCard>
+      <PromiseCard icon={CopyCheck} name="Never doubled" kind="uncertainty" broken={p.doubled.broken}>
+        <N v={p.doubled.merged} /> merged · <N v={p.doubled.to_check} broken={p.doubled.broken} onClick={() => onFilter("duplicates")}
+                                                title="Likely duplicates waiting for a person; broken if one waits over 15 min" /> to check
+        {" "}· <N v={p.doubled.refused} /> refused
+      </PromiseCard>
+      <PromiseCard icon={Timer} name="Never stale" kind="responsibility" broken={p.stale.broken}>
+        <N v={p.stale.p1_unowned} broken={p.stale.p1_unowned > 0} onClick={() => onFilter("p1_unowned")} /> P1 without owner &gt; 5 min
+        {" "}· <N v={p.stale.overdue} broken={p.stale.overdue > 0} onClick={() => onFilter("overdue")} /> contact overdue
+      </PromiseCard>
     </div>
   );
 }

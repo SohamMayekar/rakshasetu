@@ -72,8 +72,8 @@ export function Facts({ c, canEdit, onQuote, onChanged }: {
       <dd>
         {editing ? (
           <form className="flex flex-wrap items-center gap-2" onSubmit={(e) => { e.preventDefault(); save(new FormData(e.currentTarget)); }}>
-            <input name="people" type="number" min={0} max={5000} defaultValue={c.people_count ?? ""} className="h-8 w-20 rounded-md border border-line px-2 tabular" autoFocus />
-            <input name="reason" required minLength={3} placeholder="Why (logged)" className="h-8 flex-1 rounded-md border border-line px-2" />
+            <input name="people" type="number" min={0} max={5000} defaultValue={c.people_count ?? ""} className="h-8 w-20 rounded-lg border border-line px-2 tabular" autoFocus />
+            <input name="reason" required minLength={3} placeholder="Why (logged)" className="h-8 flex-1 rounded-lg border border-line px-2" />
             <Button size="sm" variant="primary" type="submit">Save</Button>
             <Button size="sm" variant="quiet" type="button" onClick={() => setEditing(false)}>Cancel</Button>
             {error && <span className="w-full text-xs">{error}</span>}
@@ -99,7 +99,7 @@ export function Facts({ c, canEdit, onQuote, onChanged }: {
         {(() => {   // P1 #1: a merged report from outside the circle never moves the pin by itself
           const m = (c.attributes?.proposed_move ?? null) as { from: string; metres_away: number; method?: string } | null;
           return m && (
-            <p className="mt-1 rounded-md border border-line px-2 py-1 text-xs">
+            <p className="mt-1 rounded-lg border border-line px-2 py-1 text-xs">
               <b>Proposed move:</b> {m.from}&apos;s report places them {m.metres_away.toLocaleString("en-IN")} m away
               {m.method ? ` (${m.method})` : ""}. The pin stays until a person moves it (Move pin).
             </p>

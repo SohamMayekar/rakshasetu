@@ -3,7 +3,10 @@
 // The reporter PWA (PRD F-L2): one big button, tap once to talk. No login, no install, nothing to remember.
 // The reply is a fixed sentence (never generated text); the case id is shown only after the server confirms.
 
+import { Keyboard, Phone } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+
+import { Mark } from "@/components/shell/Sidebar";
 import { deviceId, newId } from "@/lib/device";
 import { canRecord, record, type RecorderHandle } from "@/lib/recorder";
 
@@ -95,13 +98,13 @@ export default function ReporterPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pb-10 pt-8">
-      <header className="mb-8">
-        <p className="text-sm font-medium tracking-wide text-neutral-500">RakshaSetu</p>
-        <h1 className="mt-1 text-2xl font-semibold leading-snug">Tell us who needs help, and where</h1>
+    <main className="mx-auto flex min-h-dvh max-w-md flex-col bg-canvas px-5 pb-8 pt-6">
+      <header className="mb-6">
+        <p className="flex items-center gap-2 text-sm font-semibold text-ink"><Mark className="size-6" />RakshaSetu</p>
+        <h1 className="mt-5 text-[28px] font-semibold leading-tight tracking-tight">Tell us who needs help, and where</h1>
       </header>
 
-      <section aria-live="polite" className="flex flex-1 flex-col items-center justify-center text-center">
+      <section aria-live="polite" className="flex flex-1 flex-col items-center justify-center rounded-[28px] bg-paper px-5 py-10 text-center shadow-[var(--shadow-card)]">
         {state.kind === "registered" ? (
           <Registered publicId={state.publicId} reply={state.reply} onAgain={() => setState({ kind: "idle" })} />
         ) : state.kind === "typing" ? (
@@ -115,11 +118,15 @@ export default function ReporterPage() {
       </section>
 
       {state.kind !== "registered" && state.kind !== "typing" && (
-        <footer className="mt-8 flex flex-col items-center gap-3 text-sm text-neutral-600">
-          <button className="underline underline-offset-4" onClick={() => setState({ kind: "typing" })}>
-            Type instead
+        <footer className="mt-4 flex flex-col gap-3 text-sm text-ink-2">
+          <button className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-line bg-paper font-medium text-ink shadow-[var(--shadow-card)]"
+                  onClick={() => setState({ kind: "typing" })}>
+            <Keyboard className="size-4" aria-hidden />Type instead
           </button>
-          <p>If someone is in danger right now, also call <b>112</b> or <b>1077</b>.</p>
+          <p className="flex items-center gap-3 rounded-2xl bg-paper px-4 py-3 shadow-[var(--shadow-card)]">
+            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-wash"><Phone className="size-4" aria-hidden /></span>
+            <span>If someone is in danger right now, also call <b>112</b> or <b>1077</b>.</span>
+          </p>
         </footer>
       )}
     </main>
@@ -135,10 +142,10 @@ function MicButton({ state, onTap }: { state: State; onTap: () => void }) {
       onClick={onTap}
       disabled={disabled}
       aria-label={listening ? "Stop" : "Tap to talk"}
-      className="relative grid size-48 place-items-center rounded-full bg-neutral-950 text-white shadow-sm transition active:scale-95 disabled:bg-neutral-300"
+      className="relative grid size-48 place-items-center rounded-full bg-ink text-paper shadow-[0_8px_30px_rgba(21,21,21,0.25)] ring-8 ring-wash transition active:scale-95 disabled:bg-ink-3 disabled:shadow-none"
     >
       {listening && (
-        <span aria-hidden className="absolute inset-0 rounded-full border-4 border-neutral-950"
+        <span aria-hidden className="absolute inset-0 rounded-full border-4 border-ink"
           style={{ transform: `scale(${1.06 + level * 0.25})`, opacity: 0.35 + level * 0.5, transition: "transform 80ms linear" }} />
       )}
       {listening ? (
@@ -159,7 +166,7 @@ function StatusLine({ state }: { state: State }) {
     case "idle":
       return <p className={big}>Tap once and speak</p>;
     case "listening":
-      return <p className={big}>Listening… <span className="tabular">{Math.floor(state.seconds)}s</span><span className="block text-base font-normal text-neutral-600">Tap to stop, or just pause.</span></p>;
+      return <p className={big}>Listening… <span className="tabular">{Math.floor(state.seconds)}s</span><span className="block text-base font-normal text-ink-2">Tap to stop, or just pause.</span></p>;
     case "sending":
     case "processing":
       return <p className={big}>Sending…</p>;
@@ -171,7 +178,7 @@ function StatusLine({ state }: { state: State }) {
       return (
         <div className="mt-6">
           <p className="text-xl font-medium text-amber-700">Not sent yet<span className="block text-base font-normal">If urgent, call 112 / 1077.</span></p>
-          <button className="mt-4 rounded-full border border-neutral-900 px-6 py-3 font-medium" onClick={state.retry}>Send again</button>
+          <button className="mt-4 rounded-full border border-ink px-6 py-3 font-medium" onClick={state.retry}>Send again</button>
         </div>
       );
     case "no-mic":
@@ -193,26 +200,26 @@ function Registered({ publicId, reply, onAgain }: { publicId: string; reply: Rep
   }
   return (
     <div className="w-full">
-      <p className="text-sm font-medium uppercase tracking-wider text-neutral-500">Registered</p>
+      <p className="text-sm font-medium uppercase tracking-wider text-ink-3">Registered</p>
       <p className="tabular mt-2 text-6xl font-semibold tracking-tight">{publicId}</p>
       <p className="mt-6 text-lg leading-relaxed">{reply.en}</p>
-      <a href={`/s/${publicId}`} className="mt-6 inline-block rounded-full bg-neutral-950 px-6 py-3 font-medium text-white">See status</a>
-      <div className="mt-10 border-t border-neutral-200 pt-6 text-left">
+      <a href={`/s/${publicId}`} className="mt-6 inline-block rounded-full bg-ink px-6 py-3 font-medium text-paper">See status</a>
+      <div className="mt-10 border-t border-line pt-6 text-left">
         {saved === "yes" ? (
-          <p className="text-neutral-700">Thank you. We'll only use it to call you back.</p>
+          <p className="text-ink-2">Thank you. We'll only use it to call you back.</p>
         ) : saved === "skip" ? null : (
           <>
-            <label className="block text-sm text-neutral-700" htmlFor="cb">A number we can call back? <span className="text-neutral-500">(optional)</span></label>
+            <label className="block text-sm text-ink-2" htmlFor="cb">A number we can call back? <span className="text-ink-3">(optional)</span></label>
             <div className="mt-2 flex gap-2">
               <input id="cb" inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
-                className="tabular min-w-0 flex-1 rounded-xl border border-neutral-300 px-4 py-3 text-lg" placeholder="98xxxxxxxx" />
-              <button onClick={save} disabled={phone.length < 10} className="rounded-xl bg-neutral-950 px-4 font-medium text-white disabled:bg-neutral-300">Save</button>
+                className="tabular min-w-0 flex-1 rounded-xl border border-line px-4 py-3 text-lg" placeholder="98xxxxxxxx" />
+              <button onClick={save} disabled={phone.length < 10} className="rounded-xl bg-ink px-4 font-medium text-paper disabled:bg-ink-3">Save</button>
             </div>
-            <button onClick={() => setSaved("skip")} className="mt-3 text-sm text-neutral-500 underline underline-offset-4">Skip</button>
+            <button onClick={() => setSaved("skip")} className="mt-3 text-sm text-ink-3 underline underline-offset-4">Skip</button>
           </>
         )}
       </div>
-      <button onClick={onAgain} className="mt-8 text-sm text-neutral-600 underline underline-offset-4">Report another</button>
+      <button onClick={onAgain} className="mt-8 text-sm text-ink-2 underline underline-offset-4">Report another</button>
     </div>
   );
 }
@@ -222,11 +229,11 @@ function TypeInstead({ onSend }: { incident: string; onSend: (text: string) => v
   return (
     <div className="w-full text-left">
       <label htmlFor="t" className="block text-lg font-medium">Type it</label>
-      <p className="mt-1 text-sm text-neutral-600">Who is stuck, how many people, the village, and anything nearby (a temple, a bridge, a school).</p>
+      <p className="mt-1 text-sm text-ink-2">Who is stuck, how many people, the village, and anything nearby (a temple, a bridge, a school).</p>
       <textarea id="t" value={text} onChange={(e) => setText(e.target.value)} rows={5}
-        className="mt-3 w-full rounded-2xl border border-neutral-300 p-4 text-lg" />
+        className="mt-3 w-full rounded-2xl border border-line p-4 text-lg" />
       <button onClick={() => onSend(text)} disabled={text.trim().length < 2}
-        className="mt-4 w-full rounded-full bg-neutral-950 py-4 text-lg font-medium text-white disabled:bg-neutral-300">Send</button>
+        className="mt-4 w-full rounded-full bg-ink py-4 text-lg font-medium text-paper disabled:bg-ink-3">Send</button>
     </div>
   );
 }

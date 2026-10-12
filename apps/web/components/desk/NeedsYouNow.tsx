@@ -7,7 +7,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import { Button, Chip, Empty, Priority } from "@/components/ui";
+import { Button, Chip, Empty, Priority, PriorityWell } from "@/components/ui";
 import type { Queue, QueueRow } from "@/lib/queue";
 
 type Shown = QueueRow & { handled?: boolean };
@@ -42,9 +42,9 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction }: {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <div className="flex items-baseline justify-between px-4 pt-3 pb-1">
-        <h2 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-3">
-          Needs you now <span className="tabular">{queue.rows.length}</span>
+      <div className="flex items-center justify-between px-4 pt-4 pb-2">
+        <h2 className="flex items-center gap-2 text-[15px] font-semibold tracking-tight">
+          Needs you now <span className="tabular rounded-full bg-wash px-2 py-0.5 text-xs font-semibold text-ink-2">{queue.rows.length}</span>
         </h2>
       </div>
       {(waiting.fresh > 0 || waiting.handled > 0) && (
@@ -60,15 +60,17 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction }: {
       {shown.length === 0 ? (
         <Empty>Nothing needs you. <span className="tabular">{queue.on_it}</span> {queue.on_it === 1 ? "household has" : "households have"} a live owner.</Empty>
       ) : (
-        <ol className="flex-1 divide-y divide-line overflow-y-auto" aria-label="Needs you now">
+        <ol className="scroll-quiet flex-1 space-y-0.5 overflow-y-auto px-2 pb-2" aria-label="Needs you now">
           {shown.slice(0, limit).map((r) => (
             <li key={r.id} className={r.handled ? "stale" : ""}>
               <div role="button" tabIndex={0} onClick={() => onSelect(r.id)} onKeyDown={(e) => e.key === "Enter" && onSelect(r.id)}
                    aria-current={selected === r.id}
-                   className={`block w-full cursor-pointer px-4 py-2.5 text-left hover:bg-wash ${selected === r.id ? "bg-wash" : ""}`}>
+                   className={`flex w-full cursor-pointer gap-3 rounded-2xl px-2.5 py-2.5 text-left transition-colors hover:bg-wash ${selected === r.id ? "bg-wash ring-1 ring-line" : ""}`}>
+                <PriorityWell level={r.priority} />
+                <span className="block min-w-0 flex-1">
                 <span className="flex items-center justify-between gap-2">
-                  <span className="flex min-w-0 items-baseline gap-2"><Priority level={r.priority} />
-                    {r.kind === "group" ? <span className="truncate font-medium">Sheet · {r.public_id}</span> : <span className="tabular font-medium">{r.public_id}</span>}
+                  <span className="flex min-w-0 items-baseline gap-2"><Priority level={r.priority} shape={false} />
+                    {r.kind === "group" ? <span className="truncate font-semibold">Sheet · {r.public_id}</span> : <span className="tabular font-semibold">{r.public_id}</span>}
                   </span>
                   {r.handled ? <span className="text-xs text-ink-3">handled</span> : r.chip && <Chip tone="attention">{r.chip}</Chip>}
                 </span>
@@ -84,6 +86,7 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction }: {
                     {!r.handled && <Button size="sm" className="shrink-0" onClick={(e) => { e.stopPropagation(); onAction(r); }}>{r.action.label}</Button>}
                   </span>
                 )}
+                </span>
               </div>
             </li>
           ))}
@@ -94,7 +97,7 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction }: {
           )}
         </ol>
       )}
-      <details className="border-t border-line px-4 py-2 text-sm text-ink-2">
+      <details className="border-t border-line px-4 py-2.5 text-sm text-ink-2">
         <summary className="cursor-pointer select-none">
           On it <span className="tabular">{queue.on_it}</span> · rescued, closing <span className="tabular">{queue.rescued_closing}</span> · closed <span className="tabular">{queue.closed}</span>
         </summary>

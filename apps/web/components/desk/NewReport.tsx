@@ -62,7 +62,7 @@ export function NewReport({ incident, onSaved, onClose }: {
   };
 
   return (
-    <aside className="fixed inset-0 z-40 flex flex-col bg-paper md:static md:h-full md:w-[460px] md:shrink-0 md:border-l md:border-line" aria-label="New report">
+    <aside className="fixed inset-0 z-40 flex flex-col overflow-hidden bg-paper md:static md:h-full md:w-[440px] md:shrink-0 md:rounded-[20px] md:border md:border-line/80 md:shadow-[var(--shadow-card)]" aria-label="New report">
       <div className="flex items-center justify-between border-b border-line px-5 py-4">
         <h2 className="text-lg font-semibold tracking-tight">New report</h2>
         <Button variant="quiet" size="sm" onClick={onClose}>Close</Button>
@@ -89,12 +89,12 @@ export function NewReport({ incident, onSaved, onClose }: {
         </label>
         <div className="grid grid-cols-2 gap-3 text-sm">
           <label className="block"><span className="text-ink-2">Phone to call back</span>
-            <input name="phone" inputMode="tel" placeholder="98765 43210" className="mt-1 h-9 w-full rounded-md border border-line px-2 tabular" /></label>
+            <input name="phone" inputMode="tel" placeholder="98765 43210" className="mt-1 h-9 w-full rounded-lg border border-line px-2 tabular" /></label>
           <label className="block"><span className="text-ink-2">Name (optional)</span>
-            <input name="name" className="mt-1 h-9 w-full rounded-md border border-line px-2" /></label>
+            <input name="name" className="mt-1 h-9 w-full rounded-lg border border-line px-2" /></label>
           {!forward && (
             <label className="col-span-2 block"><span className="text-ink-2">Who is calling</span>
-              <select name="relation" defaultValue="unknown" className="mt-1 h-9 w-full rounded-md border border-line bg-paper px-2">
+              <select name="relation" defaultValue="unknown" className="mt-1 h-9 w-full rounded-lg border border-line bg-paper px-2">
                 <option value="unknown">Not said</option><option value="self">The person in danger</option><option value="family">Family</option>
                 <option value="neighbour">Neighbour</option><option value="volunteer">Volunteer</option><option value="official">Official</option>
               </select></label>

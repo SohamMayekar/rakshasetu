@@ -4,7 +4,10 @@
 // when it last changed, nothing else: no names, numbers, location, priority or ETA. "Help assigned", never
 // "help on the way": we don't know the boat is moving. When a team goes quiet, only "last update" ages.
 
+import { Clock3, Phone } from "lucide-react";
 import { use, useEffect, useState } from "react";
+
+import { Mark } from "@/components/shell/Sidebar";
 
 import { adoptDevice, deviceId } from "@/lib/device";
 
@@ -63,15 +66,15 @@ export default function StatusPage({ params }: { params: Promise<{ id: string }>
   if (missing) {
     return <Shell><p className="text-xl">No case with the number <b className="tabular">{id}</b>.</p></Shell>;
   }
-  if (!st) return <Shell><p className="text-neutral-500">…</p></Shell>;
+  if (!st) return <Shell><p className="text-ink-3">…</p></Shell>;
 
   const current = st.step === "closed" ? -1 : st.steps.indexOf(st.step);
   return (
     <Shell>
-      <p className="text-sm font-medium uppercase tracking-wider text-neutral-500">Case</p>
+      <p className="text-sm font-medium uppercase tracking-wider text-ink-3">Case</p>
       <p className="tabular text-5xl font-semibold tracking-tight">{st.tracked_as ?? st.public_id}</p>
       {st.tracked_as && (
-        <p className="mt-3 rounded-xl bg-neutral-100 px-4 py-3 text-neutral-800">
+        <p className="mt-3 rounded-xl bg-wash px-4 py-3 text-ink">
           Your report {st.public_id} is now tracked as <b className="tabular">{st.tracked_as}</b>, together with{" "}
           {st.other_reports} other report{st.other_reports === 1 ? "" : "s"} about the same family.
         </p>
@@ -87,14 +90,14 @@ export default function StatusPage({ params }: { params: Promise<{ id: string }>
             return (
               <li key={s} className="relative flex gap-4 pb-7 last:pb-0">
                 {i < st.steps.length - 1 && (
-                  <span aria-hidden className={`absolute left-[11px] top-7 h-[calc(100%-20px)] w-0.5 ${i < current ? "bg-neutral-950" : "bg-neutral-200"}`} />
+                  <span aria-hidden className={`absolute left-[11px] top-7 h-[calc(100%-20px)] w-0.5 ${i < current ? "bg-ink" : "bg-line"}`} />
                 )}
-                <span aria-hidden className={`mt-1 grid size-6 shrink-0 place-items-center rounded-full border-2 ${done ? "border-neutral-950 bg-neutral-950 text-white" : "border-neutral-300 bg-white"}`}>
+                <span aria-hidden className={`mt-1 grid size-6 shrink-0 place-items-center rounded-full border-2 ${done ? "border-ink bg-ink text-paper" : "border-line bg-paper"}`}>
                   {done && <svg viewBox="0 0 16 16" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3.5 8.5l3 3 6-7" /></svg>}
                 </span>
-                <span className={done ? "text-neutral-950" : "text-neutral-400"}>
+                <span className={done ? "text-ink" : "text-ink-3"}>
                   <span className={`block text-xl ${now_ ? "font-semibold" : ""}`}>{LABEL[s]}</span>
-                  {now_ && <span className="block text-neutral-600">current step</span>}
+                  {now_ && <span className="block text-ink-2">current step</span>}
                 </span>
               </li>
             );
@@ -104,10 +107,10 @@ export default function StatusPage({ params }: { params: Promise<{ id: string }>
 
       {st.check && <FamilyCheck id={st.tracked_as ?? st.public_id} check={st.check} />}
 
-      <p className="tabular mt-10 text-neutral-600">
+      <p className="tabular mt-8 flex items-start gap-2 border-t border-line pt-5 text-ink-2"><Clock3 className="mt-0.5 size-4 shrink-0 text-ink-3" aria-hidden /><span>
         Last update {new Date(st.last_update_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })} · {ago(st.last_update_at, now)}
-        {offline && <span className="block text-neutral-950">Can't reach the server right now; showing the last known step.</span>}
-      </p>
+        {offline && <span className="block text-ink">Can&rsquo;t reach the server right now; showing the last known step.</span>}
+      </span></p>
     </Shell>
   );
 }
@@ -126,30 +129,31 @@ function FamilyCheck({ id, check }: { id: string; check: { people_taken: number 
   };
   if (answer) {
     return (
-      <p className="mt-8 rounded-xl bg-neutral-100 px-4 py-3 text-lg">
-        Thank you.{answer === "no" && <span className="block text-base text-neutral-700">An officer will check with the team.</span>}
+      <p className="mt-8 rounded-xl bg-wash px-4 py-3 text-lg">
+        Thank you.{answer === "no" && <span className="block text-base text-ink-2">An officer will check with the team.</span>}
       </p>
     );
   }
   return (
-    <section className="mt-8 rounded-2xl border border-neutral-300 p-5">
+    <section className="mt-8 rounded-2xl border border-line p-5">
       <p className="text-xl leading-snug">The team says {check.people_taken ?? ""} people were rescued. Is that right?</p>
       <div className="mt-4 grid grid-cols-2 gap-3">
-        <button disabled={busy} onClick={() => send("yes")} className="min-h-16 rounded-2xl bg-neutral-950 text-lg font-semibold text-white">Yes</button>
-        <button disabled={busy} onClick={() => send("no")} className="min-h-16 rounded-2xl border-2 border-neutral-950 text-lg font-semibold">No</button>
+        <button disabled={busy} onClick={() => send("yes")} className="min-h-16 rounded-2xl bg-ink text-lg font-semibold text-paper">Yes</button>
+        <button disabled={busy} onClick={() => send("no")} className="min-h-16 rounded-2xl border-2 border-ink text-lg font-semibold">No</button>
       </div>
-      <p className="mt-3 text-sm text-neutral-600">You don&rsquo;t have to answer.</p>
+      <p className="mt-3 text-sm text-ink-2">You don&rsquo;t have to answer.</p>
     </section>
   );
 }
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <main className="mx-auto min-h-dvh max-w-md px-6 pb-10 pt-8">
-      <p className="mb-8 text-sm font-medium tracking-wide text-neutral-500">RakshaSetu</p>
-      {children}
-      <p className="mt-12 border-t border-neutral-200 pt-6 text-sm text-neutral-600">
-        You don't need to do anything here. If someone is in danger right now, call <b>112</b> or <b>1077</b>.
+    <main className="mx-auto min-h-dvh max-w-md bg-canvas px-5 pb-8 pt-6">
+      <p className="mb-5 flex items-center gap-2 text-sm font-semibold text-ink"><Mark className="size-6" />RakshaSetu</p>
+      <div className="rounded-[28px] bg-paper px-6 py-7 shadow-[var(--shadow-card)]">{children}</div>
+      <p className="mt-4 flex items-center gap-3 rounded-2xl bg-paper px-4 py-3 text-sm text-ink-2 shadow-[var(--shadow-card)]">
+        <span className="grid size-9 shrink-0 place-items-center rounded-full bg-wash"><Phone className="size-4 text-ink" aria-hidden /></span>
+        <span>You don&rsquo;t need to do anything here. If someone is in danger right now, call <b>112</b> or <b>1077</b>.</span>
       </p>
     </main>
   );

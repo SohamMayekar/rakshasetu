@@ -13,6 +13,9 @@ import { PromiseBar, type QueueFilter } from "@/components/desk/PromiseBar";
 import { NeedsYouNow } from "@/components/desk/NeedsYouNow";
 import { ImportSheet } from "@/components/desk/ImportSheet";
 import { NewReport } from "@/components/desk/NewReport";
+import { FileSpreadsheet, Plus } from "lucide-react";
+
+import { Sidebar } from "@/components/shell/Sidebar";
 import { Button, Caption } from "@/components/ui";
 import { caption } from "@/lib/caption";
 import { Escalations } from "@/components/desk/Escalations";
@@ -168,18 +171,23 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
     setFocus({ pin: "Facts", match: "Timeline & evidence", radio: "Assignment", assign: "Assignment", open: null, check: null }[row.action.kind] ?? null);
   }, [loadQueue]);
 
+  const card = "rounded-[20px] border border-line/80 bg-paper shadow-[var(--shadow-card)]";
   return (
-    <div className="flex h-screen flex-col">
+    <div className="flex h-screen bg-canvas">
+      <Sidebar me={me} compact />
+      <div className="flex min-w-0 flex-1 flex-col gap-2.5 p-3 md:pl-0">
       <Header me={me} incident={incident} live={live} />
       {me?.permissions.includes("totals.view") && <PromiseBar incident={incident} onFilter={setFilter} />}
-      <div className="flex min-h-0 flex-1">
-        <nav className="flex w-full shrink-0 flex-col border-r border-line md:w-[380px]" aria-label="Needs you now">
+      <div className="flex min-h-0 flex-1 gap-2.5">
+        <nav className={`flex w-full shrink-0 flex-col overflow-hidden md:w-[356px] ${card}`} aria-label="Needs you now">
           {me?.permissions.includes("report.submit") && (
-            <div className="flex items-center justify-between gap-2 border-b border-line px-4 py-2">
+            <div className="flex items-center justify-between gap-2 px-4 pt-4">
               <span className="flex shrink-0 gap-1.5">
-                <Button size="sm" variant="primary" className="whitespace-nowrap" onClick={() => { setComposing(true); setImporting(null); setSelected(null); }}>New report</Button>
+                <Button size="sm" variant="primary" className="whitespace-nowrap" onClick={() => { setComposing(true); setImporting(null); setSelected(null); }}>
+                  <Plus className="size-3.5" strokeWidth={2.4} aria-hidden />New report</Button>
                 {me?.permissions.includes("import.run") && (
-                  <Button size="sm" className="whitespace-nowrap" onClick={() => { setImporting({ id: null }); setComposing(false); setSelected(null); }}>Import sheet</Button>
+                  <Button size="sm" className="whitespace-nowrap" onClick={() => { setImporting({ id: null }); setComposing(false); setSelected(null); }}>
+                    <FileSpreadsheet className="size-3.5" strokeWidth={2} aria-hidden />Import sheet</Button>
                 )}
               </span>
               {saved && <span className="truncate text-xs text-ink-2">Report saved {saved.line}</span>}
@@ -189,14 +197,14 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
                        onOpenCase={(id) => { setSelected(id); setFocus("Assignment"); setComposing(false); setImporting(null); }}
                        onChanged={loadQueue} />
           {filter && (
-            <p className="flex items-center justify-between bg-wash px-4 py-1.5 text-xs">
+            <p className="mx-3 mt-2 flex items-center justify-between rounded-xl bg-wash px-3 py-1.5 text-xs">
               <span>Showing {{ p1_unowned: "P1 without an owner", overdue: "contact overdue", duplicates: "likely duplicates" }[filter]}</span>
               <button className="underline underline-offset-2" onClick={() => setFilter(null)}>Show all</button>
             </p>
           )}
           <NeedsYouNow key={filter ?? "all"} queue={queue && filter ? { ...queue, rows: queue.rows.filter((r) => matches(r, filter)) } : queue} selected={selected} onSelect={(id) => { if (id < 0) { setImporting({ id: -id, filter: "waiting" }); return; } setSelected(id); setFocus(null); setComposing(false); setImporting(null); }} onAction={onAction} />
         </nav>
-        <main className="relative hidden min-w-0 flex-1 md:block">
+        <main className={`relative hidden min-w-0 flex-1 overflow-hidden md:block ${card}`}>
           <CaseMap cases={open} selected={selected} dim={dim} onSelect={(id) => { if (!picking) { setSelected(id); setComposing(false); } }}
                    picking={picking} picked={picked} onPick={setPicked} />
         </main>
@@ -211,6 +219,7 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
                             onClose={() => { setSelected(null); endPick(); }}
                             suggestions={suggestions} lookup={(id) => cases.get(id)} onSelect={setSelected} onChanged={loadQueue}
                             escalations={escalations} refreshKey={refreshKey} />}
+      </div>
       </div>
       <Caption text={cap} />
     </div>

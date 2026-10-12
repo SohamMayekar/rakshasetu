@@ -16,7 +16,7 @@ function Extend({ id, run }: { id: number; run: (fn: () => Promise<unknown>) => 
   const send = (eta: number | null) => run(() => api(`/v1/escalations/${id}/extend`, { method: "POST", json: { channel, new_eta: eta } }));
   return (
     <span className="flex flex-wrap items-center gap-1.5">
-      <select value={channel} onChange={(x) => setChannel(x.target.value)} aria-label="Heard on" className="h-7 rounded-md border border-line bg-paper px-1.5 text-xs">
+      <select value={channel} onChange={(x) => setChannel(x.target.value)} aria-label="Heard on" className="h-7 rounded-lg border border-line bg-paper px-1.5 text-xs">
         {CHANNELS.map((c) => <option key={c}>{c}</option>)}
       </select>
       {[15, 30, 60].map((m) => <Button key={m} size="sm" variant={m === 30 ? "primary" : "secondary"} onClick={() => send(m)}>Heard · ETA {m}</Button>)}
@@ -35,9 +35,9 @@ export function Escalations({ items, publicIds, onOpenCase, onChanged }: {
     try { await fn(); onChanged(); } catch (e) { setError(e instanceof Error ? e.message : String(e)); }
   };
   return (
-    <section aria-label="Escalations" className="space-y-2 border-b border-line bg-wash px-4 py-3">
+    <section aria-label="Escalations" className="mx-3 mt-3 space-y-2 rounded-2xl bg-wash p-2.5">
       {items.map((e) => (
-        <div key={e.id} className="rounded-lg bg-paper p-3 shadow-sm ring-1 ring-line">
+        <div key={e.id} className="rounded-xl bg-paper p-3 shadow-[var(--shadow-card)] ring-1 ring-ink">
           <p className="text-sm font-medium leading-snug">{e.line}</p>
           <p className="mt-0.5 text-xs text-ink-3">
             For the {e.role === "incharge" ? "EOC In-charge (not acknowledged in time)" : "EOC Duty Officer"}
@@ -46,7 +46,7 @@ export function Escalations({ items, publicIds, onOpenCase, onChanged }: {
           {e.case_ids.length > 0 && (
             <p className="mt-1.5 flex flex-wrap gap-1">
               {e.case_ids.slice(0, 8).map((id) => (
-                <button key={id} onClick={() => onOpenCase(id)} className="rounded border border-line px-1.5 text-xs tabular hover:bg-wash">{publicIds(id) ?? `#${id}`}</button>
+                <button key={id} onClick={() => onOpenCase(id)} className="rounded-full border border-line px-2 text-xs tabular hover:bg-wash">{publicIds(id) ?? `#${id}`}</button>
               ))}
               {e.case_ids.length > 8 && <span className="text-xs text-ink-3">+{e.case_ids.length - 8}</span>}
             </p>

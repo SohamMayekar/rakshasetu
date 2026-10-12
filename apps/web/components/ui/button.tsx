@@ -1,4 +1,5 @@
-// Buttons. Desk buttons are compact; field buttons (responder, reporter) are ≥ 64 px tall and full width.
+// Buttons. Desk buttons are compact pills; field buttons (responder, reporter) are ≥ 64 px tall and full width.
+// Neutral only (hue means priority): primary is ink, secondary is paper with a hairline, quiet is text.
 
 import type { ButtonHTMLAttributes } from "react";
 
@@ -6,10 +7,10 @@ type Props = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "
 
 export function Button({ variant = "secondary", size = "md", className = "", ...rest }: Props) {
   const v = {
-    primary: "bg-ink text-paper hover:bg-ink-2 disabled:bg-ink-3",
-    secondary: "border border-line bg-paper text-ink hover:bg-wash disabled:text-ink-3",
-    quiet: "text-ink-2 hover:text-ink underline-offset-2 hover:underline disabled:text-ink-3",
+    primary: "bg-ink text-paper shadow-[0_1px_2px_rgba(21,21,21,0.2)] hover:bg-[#2b2b2b] disabled:bg-ink-3 disabled:shadow-none",
+    secondary: "border border-line bg-paper text-ink shadow-[0_1px_2px_rgba(21,21,21,0.04)] hover:bg-wash disabled:text-ink-3",
+    quiet: "text-ink-2 hover:bg-black/[0.04] hover:text-ink disabled:text-ink-3",
   }[variant];
-  const s = { sm: "h-7 px-2.5 text-xs", md: "h-9 px-3.5 text-sm", field: "min-h-16 w-full px-5 text-lg" }[size];
-  return <button {...rest} className={`inline-flex items-center justify-center gap-1.5 rounded-lg font-medium transition-colors disabled:cursor-not-allowed ${v} ${s} ${className}`} />;
+  const s = { sm: "h-8 rounded-full px-3.5 text-[13px]", md: "h-10 rounded-full px-5 text-sm", field: "min-h-16 w-full rounded-2xl px-5 text-lg" }[size];
+  return <button {...rest} className={`inline-flex items-center justify-center gap-1.5 font-medium transition-colors disabled:cursor-not-allowed ${v} ${s} ${className}`} />;
 }

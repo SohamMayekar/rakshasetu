@@ -77,7 +77,7 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
   const count = (k: string) => rows?.filter((r) => k === "waiting" ? r.outcome === "new" && !r.owned && r.status !== "closed" : r.outcome === k).length ?? 0;
 
   return (
-    <aside className="fixed inset-0 z-40 flex flex-col bg-paper md:static md:h-full md:w-[520px] md:shrink-0 md:border-l md:border-line" aria-label="Import a sheet">
+    <aside className="fixed inset-0 z-40 flex flex-col overflow-hidden bg-paper md:static md:h-full md:w-[500px] md:shrink-0 md:rounded-[20px] md:border md:border-line/80 md:shadow-[var(--shadow-card)]" aria-label="Import a sheet">
       <div className="flex items-center justify-between border-b border-line px-5 py-4">
         <h2 className="text-lg font-semibold tracking-tight">{imp ? imp.file_name : "Import a volunteer sheet"}</h2>
         <Button variant="quiet" size="sm" onClick={onClose}>Close</Button>
@@ -115,7 +115,7 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
                     <td className="py-1.5 pr-2 font-medium">{h}</td>
                     <td className="py-1.5">
                       <select value={mapping[h] === "unknown" ? "ignore" : mapping[h]} onChange={(e) => setMapping({ ...mapping, [h]: e.target.value })}
-                              className="h-8 rounded-md border border-line bg-paper px-2">
+                              className="h-8 rounded-lg border border-line bg-paper px-2">
                         {FIELDS.map((f) => <option key={f} value={f}>{f}</option>)}
                       </select>
                       {imp.proposed[h] === "unknown" && <span className="ml-2 text-xs text-ink-3">not recognised: ignored unless you choose</span>}

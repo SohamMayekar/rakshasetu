@@ -1,24 +1,28 @@
 @import "tailwindcss";
 
-/* RakshaSetu design tokens (PRD §13.5). Calm, ink on paper. Hue means PRIORITY and nothing else; every
-   priority is also written as text and drawn as a shape. "Needs you" is ink inversion; stale is fade. */
+/* RakshaSetu design tokens (PRD §13.5). Calm, ink on paper, on a soft warm canvas (m60). Hue means PRIORITY
+   and nothing else; every priority is also written as text and drawn as a shape. "Needs you" is ink
+   inversion; stale is fade. Surfaces are white cards with a hairline and a whisper of shadow. */
 @theme {
   --font-sans: "Noto Sans", "Noto Sans Devanagari", system-ui, sans-serif;
-  --color-ink: #111111;
-  --color-ink-2: #4a4a4a;      /* secondary text */
-  --color-ink-3: #8a8a8a;      /* tertiary text, hints */
-  --color-line: #e5e5e5;       /* hairlines */
-  --color-wash: #f6f6f6;       /* quiet surfaces */
+  --color-ink: #151515;
+  --color-ink-2: #55534e;      /* secondary text (warm grey) */
+  --color-ink-3: #8c8a85;      /* tertiary text, hints */
+  --color-line: #e8e7e3;       /* hairlines */
+  --color-wash: #f4f3f0;       /* quiet surfaces, hovers, bubbles */
+  --color-canvas: #efeeea;     /* the page behind the cards */
   --color-paper: #ffffff;
   --color-p1: #c62828;         /* P1 ▲ */
   --color-p2: #d97706;         /* P2 ◆ */
   --color-p3: #52525b;         /* P3 ● */
   --color-p4: #a1a1aa;         /* P4 ○ */
   --color-amber: #b45309;      /* only for ○ "the quote check failed" (PRD F-C13) */
+  --shadow-card: 0 1px 2px rgb(21 21 21 / 0.04), 0 2px 12px rgb(21 21 21 / 0.035);
+  --shadow-lift: 0 2px 6px rgb(21 21 21 / 0.06), 0 12px 32px rgb(21 21 21 / 0.08);
 }
 
 html, body {
-  background: var(--color-paper);
+  background: var(--color-canvas);
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -26,3 +30,6 @@ html, body {
 
 .tabular { font-variant-numeric: tabular-nums; }
 .stale { opacity: 0.55; }
+
+/* Thin, quiet scrollbars inside cards (the desk scrolls in panels, not the page). */
+.scroll-quiet { scrollbar-width: thin; scrollbar-color: #d6d4cf transparent; }

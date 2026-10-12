@@ -57,22 +57,22 @@ export default function ResponderCase({ params }: { params: Promise<{ id: string
   const step = !a ? null : a.phase === "offered" ? "acknowledge" : a.phase === "acknowledged" ? "reached" : "rescue";
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col pb-6">
-      <div className="h-44 w-full bg-wash">{c.lat != null && <CaseMap cases={[c]} selected={c.id} onSelect={() => {}} />}</div>
-      <div className="flex-1 px-5 pt-4">
+    <main className="mx-auto flex min-h-screen max-w-md flex-col bg-canvas pb-6">
+      <div className="m-3 mb-0 h-44 overflow-hidden rounded-[24px] bg-wash shadow-[var(--shadow-card)]">{c.lat != null && <CaseMap cases={[c]} selected={c.id} onSelect={() => {}} />}</div>
+      <div className="mx-3 mt-3 flex-1 rounded-[24px] bg-paper px-5 py-4 shadow-[var(--shadow-card)]">
         <p className="flex items-baseline gap-3 text-3xl font-semibold tracking-tight"><Priority level={c.priority} /><span className="tabular">{c.public_id}</span></p>
         {words && (
-          <p className="mt-3 whitespace-pre-line text-xl leading-snug" lang={words.language ?? undefined}>&ldquo;{words.transcript ?? words.text}&rdquo;</p>
+          <p className="mt-3 whitespace-pre-line rounded-2xl rounded-tl-md bg-wash px-4 py-3 text-xl leading-snug" lang={words.language ?? undefined}>&ldquo;{words.transcript ?? words.text}&rdquo;</p>
         )}
         <p className="mt-2 text-lg text-ink-2">{c.summary}</p>
         <p className="mt-1 text-ink-2">{c.location_text ?? "Place not known"}{c.radius_m ? ` · within about ${c.radius_m >= 1000 ? `${c.radius_m / 1000} km` : `${c.radius_m} m`}` : ""}</p>
         {c.location_confidence && c.location_confidence !== "high" && <p className="text-sm text-ink-3">The place is approximate: search the circle.</p>}
         <div className="mt-4 grid grid-cols-2 gap-3">
-          {c.lat != null && <a href={`geo:${c.lat},${c.lng}?q=${c.lat},${c.lng}(${c.public_id})`} className="flex min-h-14 items-center justify-center rounded-xl border-2 border-ink font-semibold">Navigate</a>}
-          <button onClick={call} className="min-h-14 rounded-xl border-2 border-ink font-semibold">Call · on site</button>
+          {c.lat != null && <a href={`geo:${c.lat},${c.lng}?q=${c.lat},${c.lng}(${c.public_id})`} className="flex min-h-14 items-center justify-center rounded-2xl border-2 border-ink font-semibold">Navigate</a>}
+          <button onClick={call} className="min-h-14 rounded-2xl border-2 border-ink font-semibold">Call · on site</button>
         </div>
         {a && (
-          <div className="mt-4 rounded-xl bg-wash px-4 py-3">
+          <div className="mt-4 rounded-2xl bg-wash px-4 py-3">
             <p className="font-medium">You own this</p>
             <Ring due={a.next_contact_due} windowMs={Math.max(new Date(a.next_contact_due).getTime() - new Date(a.created_at).getTime(), 60_000)}
                   overdue={a.state === "overdue"} demo={a.demo_clock} />

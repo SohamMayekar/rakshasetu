@@ -7,7 +7,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import { Button } from "@/components/ui";
+import { AppShell, Page } from "@/components/shell/AppShell";
+import { Button, Card, PageHeader } from "@/components/ui";
 import { api, type Me } from "@/lib/api";
 
 type Surge = {
@@ -57,16 +58,14 @@ export default function SurgePage() {
 
   const i = s?.ingest;
   return (
-    <main className="mx-auto max-w-3xl px-4 py-6">
-      <p className="text-sm"><a href="/" className="underline underline-offset-2">Incidents</a></p>
-      <h1 className="mt-2 text-2xl font-semibold tracking-tight">Surge · the last 60 seconds</h1>
-      <p className="mt-1 text-sm text-ink-2">
-        Synthetic, pre-structured partner reports (<code className="text-xs">make surge</code>): no language model is called, and every
-        person and phone number is made up. They queue behind live calls, partners and sheet imports.
-      </p>
-      {down && <p className="mt-3 rounded bg-ink px-2 py-1 text-sm text-paper">Can&apos;t reach the server. Retrying every second.</p>}
+    <AppShell>
+      <Page>
+      <PageHeader title="Surge · the last 60 seconds"
+                  sub={<>Synthetic, pre-structured partner reports (<code className="text-xs">make surge</code>): no language model is called, and every
+                    person and phone number is made up. They queue behind live calls, partners and sheet imports.</>} />
+      {down && <p className="mt-4 rounded-xl bg-ink px-4 py-2 text-sm text-paper">Can&apos;t reach the server. Retrying every second.</p>}
 
-      <dl className="mt-5 divide-y divide-line border-y border-line text-sm">
+      <Card as="dl" className="mt-6 divide-y divide-line px-5 text-sm">
         <Row k="Arriving">
           <b className="tabular">{i ? i.per_second.toFixed(1) : "–"}</b> reports a second
           <span className="text-ink-3"> · <span className="tabular">{n(i?.requests ?? 0)}</span> in the last minute
@@ -100,7 +99,7 @@ export default function SurgePage() {
               <li key={b.incident} className="tabular">
                 <span className="inline-block w-8 font-medium">{b.incident}</span>
                 {n(b.lost.reports)} reports = {n(b.lost.cases)} cases + {n(b.lost.merged)} merged + {n(b.lost.to_check)} to check + {n(b.lost.without_home)} without a home{" "}
-                {b.lost.adds_up ? <span>✓</span> : <span className="rounded bg-ink px-1.5 text-paper">doesn&apos;t add up</span>}
+                {b.lost.adds_up ? <span>✓</span> : <span className="rounded-md bg-ink px-1.5 text-paper">doesn&apos;t add up</span>}
                 <span className="text-ink-3"> · {n(b.doubled.to_check)} possible duplicates to check · {n(b.doubled.refused)} kept apart</span>
               </li>
             ))}
@@ -110,18 +109,19 @@ export default function SurgePage() {
         <Row k="Integrity">
           {integ ? (integ.problems === 0
             ? <span className="tabular">✓ 0 problems · {n(integ.events_verified)} events verified</span>
-            : <span className="rounded bg-ink px-1.5 text-paper">{integ.problems} problems: see /v1/integrity</span>) : "–"}{" "}
+            : <span className="rounded-md bg-ink px-1.5 text-paper">{integ.problems} problems: see /v1/integrity</span>) : "–"}{" "}
           <Button size="sm" onClick={check} disabled={checking}>{checking ? "Checking…" : "Check again"}</Button>
           <span className="block text-ink-3">every invariant, and the whole hash chain re-walked: run it after the surge</span>
         </Row>
-      </dl>
-    </main>
+      </Card>
+      </Page>
+    </AppShell>
   );
 }
 
 function Row({ k, children }: { k: string; children: React.ReactNode }) {
   return (
-    <div className="grid gap-1 py-2.5 sm:grid-cols-[11rem_1fr] sm:gap-3">
+    <div className="grid gap-1 py-3.5 sm:grid-cols-[11rem_1fr] sm:gap-3">
       <dt className="text-ink-3">{k}</dt>
       <dd>{children}</dd>
     </div>

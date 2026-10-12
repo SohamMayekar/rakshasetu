@@ -55,20 +55,20 @@ export function Matches({ c, suggestions, lookup, canDecide, onDone }: {
     const refused = s.strength === "refused";
     const names = s.conflicts.filter((x) => x.startsWith("name ")).map((x) => x.slice(5));
     return (
-      <div key={s.id} className="rounded-lg border border-line p-3">
+      <div key={s.id} className="rounded-2xl border border-line p-3.5">
         <p className="flex items-center gap-2 text-sm font-medium">
           {refused ? <>Not merged with {s.case_id === c.id ? s.candidate : s.public_id} {names.map((n) => <Chip key={n} tone="attention">{n}</Chip>)}</>
                    : <>Likely same household as {s.case_id === c.id ? s.candidate : s.public_id} <Chip tone="quiet">{s.strength}</Chip></>}
         </p>
         <Because>{s.reasons.join(" · ")}{refused && !s.reasons.some((r) => r.startsWith("same phone")) ? ". Village and headcount alone are weak." : ""}</Because>
-        <div className="mt-2 flex gap-3 rounded-md bg-wash p-2">
+        <div className="mt-2 flex gap-3 rounded-xl bg-wash p-2.5">
           <Side c={c} label="This case" /><span className="self-center text-ink-3">↔</span><Side c={lookup(other)} label="The other case" />
         </div>
         {canDecide && (asking?.id === s.id ? (
           <form className="mt-2 flex flex-wrap gap-2" onSubmit={(e) => { e.preventDefault(); decide(s, asking.kind, String(new FormData(e.currentTarget).get("reason") || "") || null); }}>
             <input name="reason" required={refused && asking.kind === "merge"} minLength={3} autoFocus
                    placeholder={asking.kind === "merge" ? (refused ? "Why merge them anyway? (logged)" : "Reason (optional, logged)") : "Why not? (optional, logged)"}
-                   className="h-8 min-w-0 flex-1 rounded-md border border-line px-2 text-sm" />
+                   className="h-8 min-w-0 flex-1 rounded-lg border border-line px-2 text-sm" />
             <Button size="sm" variant="primary" type="submit">{asking.kind === "merge" ? "Merge" : "Not the same household"}</Button>
             <Button size="sm" variant="quiet" type="button" onClick={() => setAsking(null)}>Cancel</Button>
           </form>
@@ -88,7 +88,7 @@ export function Matches({ c, suggestions, lookup, canDecide, onDone }: {
     <div className="mb-4 space-y-3">
       {open.map(card)}
       {refused.length > 0 && (
-        <details className="rounded-lg border border-line px-3 py-2 text-sm" open={refused.length === 1 && open.length === 0}>
+        <details className="rounded-2xl border border-line px-3.5 py-2.5 text-sm" open={refused.length === 1 && open.length === 0}>
           <summary className="cursor-pointer select-none">
             Kept apart from {refused.length === 1 ? (refused[0].case_id === c.id ? refused[0].candidate : refused[0].public_id) : `${refused.length} cases`}:
             {" "}the names differ

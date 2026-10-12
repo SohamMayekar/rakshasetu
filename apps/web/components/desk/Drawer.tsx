@@ -9,7 +9,9 @@ import { AssignmentPanel } from "@/components/desk/AssignmentPanel";
 import { Facts } from "@/components/desk/Facts";
 import { Matches } from "@/components/desk/Matches";
 import { Timeline } from "@/components/desk/Timeline";
-import { Because, Button, Chip, Priority, Section } from "@/components/ui";
+import { ArrowUpDown, ClipboardCheck, History, MapPin, ShieldCheck, Users, X } from "lucide-react";
+
+import { Because, Button, Chip, Priority, PriorityWell, Section } from "@/components/ui";
 import { api, type Case, type CaseDetail, type Escalation, type Evidence, type Me, type PartnerNote, type Suggestion, type TimelineEvent } from "@/lib/api";
 
 export type Picked = { lat: number; lng: number } | null;
@@ -27,8 +29,8 @@ function Decide({ c, onDone }: { c: Case; onDone: () => void }) {
       try { await api(`/v1/cases/${c.id}/${f.get("kind")}`, { method: "POST", json: { reason: String(f.get("reason")) } }); setOpen(false); onDone(); }
       catch (x) { setError(x instanceof Error ? x.message : String(x)); }
     }}>
-      <select name="kind" className="h-8 rounded-md border border-line bg-paper px-2 text-sm">{kinds.map((k) => <option key={k}>{k}</option>)}</select>
-      <input name="reason" required minLength={3} autoFocus placeholder="Why (logged)" className="h-8 min-w-0 flex-1 rounded-md border border-line px-2 text-sm" />
+      <select name="kind" className="h-8 rounded-lg border border-line bg-paper px-2 text-sm">{kinds.map((k) => <option key={k}>{k}</option>)}</select>
+      <input name="reason" required minLength={3} autoFocus placeholder="Why (logged)" className="h-8 min-w-0 flex-1 rounded-lg border border-line px-2 text-sm" />
       <Button size="sm" variant="primary" type="submit">Confirm</Button>
       <Button size="sm" variant="quiet" type="button" onClick={() => setOpen(false)}>Cancel</Button>
       {error && <span className="w-full text-xs">{error}</span>}
@@ -42,7 +44,7 @@ function PriorityCall({ c, onDone }: { c: Case; onDone: () => void }) {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const o = c.priority_override as Override;
-  if (!open) return <Button size="sm" variant="quiet" onClick={() => setOpen(true)}>Change priority…</Button>;
+  if (!open) return <Button size="sm" variant="quiet" onClick={() => setOpen(true)}><ArrowUpDown className="size-3.5" aria-hidden />Change priority…</Button>;
   return (
     <form className="mt-2 flex w-full flex-wrap gap-2" onSubmit={async (e) => {
       e.preventDefault();
@@ -53,11 +55,11 @@ function PriorityCall({ c, onDone }: { c: Case; onDone: () => void }) {
         setOpen(false); onDone();
       } catch (x) { setError(x instanceof Error ? x.message : String(x)); }
     }}>
-      <select name="level" defaultValue={c.priority} className="h-8 rounded-md border border-line bg-paper px-2 text-sm">
+      <select name="level" defaultValue={c.priority} className="h-8 rounded-lg border border-line bg-paper px-2 text-sm">
         {["P1", "P2", "P3", "P4"].map((l) => <option key={l}>{l}</option>)}
         {o && <option value="rules">back to the rules</option>}
       </select>
-      <input name="reason" required minLength={3} autoFocus placeholder="Why (shown on the case)" className="h-8 min-w-0 flex-1 rounded-md border border-line px-2 text-sm" />
+      <input name="reason" required minLength={3} autoFocus placeholder="Why (shown on the case)" className="h-8 min-w-0 flex-1 rounded-lg border border-line px-2 text-sm" />
       <Button size="sm" variant="primary" type="submit">Confirm</Button>
       <Button size="sm" variant="quiet" type="button" onClick={() => setOpen(false)}>Cancel</Button>
       {error && <span className="w-full text-xs">{error}</span>}
@@ -80,8 +82,8 @@ function ManualMerge({ c, onDone }: { c: Case; onDone: (kept: number) => void })
         setOpen(false); onDone(kept.id);
       } catch (x) { setError(x instanceof Error ? x.message : String(x)); }
     }}>
-      <input name="other" required placeholder="BR-214" className="h-8 w-24 rounded-md border border-line px-2 text-sm tabular" autoFocus />
-      <input name="reason" required minLength={3} placeholder="Why (logged)" className="h-8 min-w-0 flex-1 rounded-md border border-line px-2 text-sm" />
+      <input name="other" required placeholder="BR-214" className="h-8 w-24 rounded-lg border border-line px-2 text-sm tabular" autoFocus />
+      <input name="reason" required minLength={3} placeholder="Why (logged)" className="h-8 min-w-0 flex-1 rounded-lg border border-line px-2 text-sm" />
       <Button size="sm" variant="primary" type="submit">Merge</Button>
       <Button size="sm" variant="quiet" type="button" onClick={() => setOpen(false)}>Cancel</Button>
       {error && <span className="w-full text-xs">{error}</span>}
@@ -127,25 +129,32 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
   });
 
   return (
-    <aside className="fixed inset-0 z-40 flex flex-col bg-paper md:static md:h-full md:w-[460px] md:shrink-0 md:border-l md:border-line" aria-label={`Case ${c.public_id}`}>
-      <div className="border-b border-line px-5 py-4">
+    <aside className="fixed inset-0 z-40 flex flex-col overflow-hidden bg-paper md:static md:h-full md:w-[440px] md:shrink-0 md:rounded-[20px] md:border md:border-line/80 md:shadow-[var(--shadow-card)]" aria-label={`Case ${c.public_id}`}>
+      <div className="m-3 mb-0 rounded-2xl bg-wash px-4 py-4">
         <div className="flex items-start justify-between gap-3">
-          <p className="flex items-baseline gap-2">
-            <Priority level={c.priority} />
-            <span className="tabular text-xl font-semibold tracking-tight">{c.public_id}</span>
-            <Chip tone="quiet">{c.status === "reported" ? "not checked yet" : c.status}</Chip>
-            {c.status !== "reported" && !c.checked_at && <Chip tone="quiet">not checked yet</Chip>}
-            {c.flags.includes("instruction_like_text") && <Chip tone="attention">instruction-like words</Chip>}
-          </p>
-          <Button variant="quiet" size="sm" onClick={onClose}>Close</Button>
+          <div className="flex min-w-0 items-center gap-3">
+            <PriorityWell level={c.priority} size="lg" />
+            <div className="min-w-0">
+              <p className="flex flex-wrap items-baseline gap-2">
+                <Priority level={c.priority} shape={false} />
+                <span className="tabular text-xl font-semibold tracking-tight">{c.public_id}</span>
+              </p>
+              <p className="mt-0.5 flex flex-wrap gap-1.5">
+                <Chip tone="neutral">{c.status === "reported" ? "not checked yet" : c.status}</Chip>
+                {c.status !== "reported" && !c.checked_at && <Chip tone="neutral">not checked yet</Chip>}
+                {c.flags.includes("instruction_like_text") && <Chip tone="attention">instruction-like words</Chip>}
+              </p>
+            </div>
+          </div>
+          <Button variant="quiet" size="sm" onClick={onClose} aria-label="Close" title="Close"><X className="size-4" aria-hidden />Close</Button>
         </div>
-        <p className="mt-1 text-sm">{c.summary}</p>
+        <p className="mt-3 text-[15px] font-medium">{c.summary}</p>
         {(c.priority_override as Override)
           ? <Because>{c.priority} · {(() => { const o = c.priority_override as NonNullable<Override>;
               return `${o.level < o.from ? "raised" : o.level > o.from ? "lowered" : "kept"} by ${o.by}: “${o.reason}” · the rules said ${o.rules_said}`; })()}</Because>
           : c.priority_reasons.length > 0 && <Because>{c.priority} · {c.priority_reasons.join(" · ")}</Because>}
         {notes.filter((n) => n.kind === "priority").map((n) => (   // a partner suggests; an officer decides
-          <div key={n.id} className="mt-2 rounded-lg border border-line px-3 py-2 text-sm">
+          <div key={n.id} className="mt-3 rounded-xl border border-line bg-paper px-3 py-2.5 text-sm">
             <p><b>{n.team}</b> suggests <b>{n.value}</b>{n.confidence != null ? ` · ${n.confidence.toFixed(2)}` : ""}{n.explanation ? ` · ${n.explanation}` : ""}</p>
             {n.decision ? <p className="text-xs text-ink-3">{n.decision} by an officer</p>
               : can("priority.override") && (
@@ -158,28 +167,29 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
         ))}
         <div className="mt-3 flex flex-wrap gap-2">
           {!c.checked_at && can("case.check") && (
-            <Button size="sm" variant="primary" onClick={() => act(() => api(`/v1/cases/${c.id}/check`, { method: "POST", json: {} }))}>Check</Button>
+            <Button size="sm" variant="primary" onClick={() => act(() => api(`/v1/cases/${c.id}/check`, { method: "POST", json: {} }))}>
+              <ClipboardCheck className="size-3.5" aria-hidden />Check</Button>
           )}
-          {can("case.move_pin") && !picking && <Button size="sm" onClick={onPickStart}>Move pin</Button>}
+          {can("case.move_pin") && !picking && <Button size="sm" onClick={onPickStart}><MapPin className="size-3.5" aria-hidden />Move pin</Button>}
           {can("priority.override") && !["merged", "closed", "cancelled"].includes(c.status) && <PriorityCall c={c} onDone={() => { onChanged(); load(); }} />}
           {can("case.decide") && <Decide c={c} onDone={() => { onChanged(); load(); }} />}
         </div>
         {picking && (
-          <form className="mt-3 space-y-2 rounded-lg border border-line p-3 text-sm" onSubmit={(e) => { e.preventDefault(); savePin(new FormData(e.currentTarget)); }}>
+          <form className="mt-3 space-y-2 rounded-xl border border-line bg-paper p-3 text-sm" onSubmit={(e) => { e.preventDefault(); savePin(new FormData(e.currentTarget)); }}>
             <p>{picked ? <>New pin at <span className="tabular">{picked.lat.toFixed(5)}, {picked.lng.toFixed(5)}</span> · a person placed it, so its circle is 50 m.</>
                        : "Click the map where the household is."}</p>
-            {picked && <input name="reason" required minLength={3} placeholder="Why (logged), e.g. caller confirmed on phone" className="h-8 w-full rounded-md border border-line px-2" autoFocus />}
+            {picked && <input name="reason" required minLength={3} placeholder="Why (logged), e.g. caller confirmed on phone" className="h-8 w-full rounded-lg border border-line px-2" autoFocus />}
             <div className="flex gap-2">
               {picked && <Button size="sm" variant="primary" type="submit">Save pin</Button>}
               <Button size="sm" variant="quiet" type="button" onClick={onPickEnd}>Cancel</Button>
             </div>
           </form>
         )}
-        {error && <p className="mt-2 rounded-md bg-wash px-2 py-1 text-xs">{error}</p>}
+        {error && <p className="mt-2 rounded-lg bg-paper px-2 py-1 text-xs">{error}</p>}
       </div>
-      <div ref={body} className="flex-1 overflow-y-auto px-5">
+      <div ref={body} className="scroll-quiet flex-1 overflow-y-auto px-5">
         <div data-section="Assignment">
-          <Section title="Assignment">
+          <Section title="Assignment" icon={Users}>
             {detail ? <AssignmentPanel c={c} assignment={detail.assignment}
                                        escalation={escalations.find((e) => e.kind === "team_overdue" && e.case_ids.includes(c.id))}
                                        can={can} onChanged={() => { onChanged(); load(); }} />
@@ -187,7 +197,7 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
           </Section>
         </div>
         <div data-section="Facts">
-          <Section title="Facts">
+          <Section title="Facts" icon={ClipboardCheck}>
             <Facts c={c} canEdit={can("case.edit")} onQuote={setQuote} onChanged={load} />
             {detail?.reports[0]?.reporter_phone_masked && (
               <p className="mt-2 text-sm"><span className="text-ink-3">Contact</span> <span className="tabular">{detail.reports[0].reporter_phone_masked}</span>
@@ -196,7 +206,7 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
           </Section>
         </div>
         <div data-section="Timeline & evidence">
-          <Section title="Timeline & evidence">
+          <Section title="Timeline & evidence" icon={History}>
             <Matches c={c} suggestions={suggestions} lookup={lookup} canDecide={can("merge.decide")}
                      onDone={(kept) => { onChanged(); load(); if (kept && kept !== c.id) onSelect(kept); }} />
             {tl && detail ? <Timeline events={tl.events} evidence={tl.evidence} reports={detail.reports} quote={quote} notes={notes}
@@ -206,7 +216,7 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
           </Section>
         </div>
         <div data-section="Audit">
-          <Section title="Audit">
+          <Section title="Audit" icon={ShieldCheck}>
             <a className="text-sm underline underline-offset-2" href={`/audit?case=${c.id}`}>This case&rsquo;s raw events in the hash-chained log</a>
           </Section>
         </div>

@@ -2,15 +2,18 @@
 
 "use client";
 
+import type { LucideIcon } from "lucide-react";
 import { type ReactNode, useEffect, useState } from "react";
 
-export function Section({ title, aside, children }: { title: string; aside?: ReactNode; children: ReactNode }) {
+export function Section({ title, icon: Icon, aside, children }: { title: string; icon?: LucideIcon; aside?: ReactNode; children: ReactNode }) {
   return (
-    <section className="border-t border-line py-4 first:border-t-0">
-      <header className="mb-2 flex items-baseline justify-between">
-        <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-ink-3">{title}</h3>
+    <section className="border-t border-line py-5 first:border-t-0">
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <h3 className="flex items-center gap-2 text-[15px] font-semibold tracking-tight">
+          {Icon && <Icon className="size-4 text-ink-3" strokeWidth={1.9} aria-hidden />}{title}
+        </h3>
         {aside}
-      </header>
+      </div>
       {children}
     </section>
   );

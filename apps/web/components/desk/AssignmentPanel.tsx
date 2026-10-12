@@ -26,7 +26,7 @@ function Radio({ a, onDone }: { a: Assignment; onDone: () => void }) {
     catch (e) { setError(e instanceof Error ? e.message : String(e)); }
   };
   return (
-    <div className="mt-2 space-y-2 rounded-lg border border-line p-3">
+    <div className="mt-2 space-y-2 rounded-2xl border border-line p-3.5">
       <p className="text-sm">Heard from <b>{a.team}</b> on</p>
       <div className="flex flex-wrap gap-1.5">
         {CHANNELS.map((c) => <button key={c} onClick={() => setChannel(c)} className={`rounded-full px-2.5 py-1 text-xs ${channel === c ? "bg-ink text-paper" : "border border-line"}`}>{c}</button>)}
@@ -86,9 +86,9 @@ export function AssignmentPanel({ c, assignment, escalation, can, onChanged }: {
           {can("assignment.team_action") && <Button size="sm" variant="quiet" onClick={() => setMode(mode === "release" ? null : "release")}>Release</Button>}
         </div>
         {mode === "rescue" && (
-          <div className="rounded-lg border border-line p-3">
+          <div className="rounded-2xl border border-line p-3.5">
             <p className="mb-2 flex items-center gap-2 text-xs text-ink-2">The team&rsquo;s rescue sheet, recorded on its behalf · via
-              <select value={via} onChange={(e) => setVia(e.target.value)} className="h-7 rounded-md border border-line bg-paper px-1.5">
+              <select value={via} onChange={(e) => setVia(e.target.value)} className="h-7 rounded-lg border border-line bg-paper px-1.5">
                 {["VHF", "HAM", "satellite", "phone"].map((x) => <option key={x}>{x}</option>)}
               </select> · {a.team}
             </p>
@@ -99,7 +99,7 @@ export function AssignmentPanel({ c, assignment, escalation, can, onChanged }: {
         {mode === "reassign" && escalation && dispatch && (
           <ol className="space-y-1.5">
             {dispatch.suggestions.map((t) => (
-              <li key={t.team_id} className="flex items-start justify-between gap-3 rounded-lg border border-line px-3 py-2">
+              <li key={t.team_id} className="flex items-start justify-between gap-3 rounded-2xl border border-line px-3.5 py-2.5">
                 <span className="min-w-0"><span className="font-medium">{t.name}</span><span className="block text-xs text-ink-2">{t.line}</span></span>
                 <Button size="sm" className="shrink-0" onClick={() => run(() => api(`/v1/escalations/${escalation.id}/reassign`, { method: "POST", json: { case: c.public_id, team_id: t.team_id } }))}>Reassign here</Button>
               </li>
@@ -111,7 +111,7 @@ export function AssignmentPanel({ c, assignment, escalation, can, onChanged }: {
         {mode === "release" && (
           <form className="flex flex-wrap gap-2" onSubmit={(e) => { e.preventDefault(); const reason = String(new FormData(e.currentTarget).get("reason"));
             run(() => api(`/v1/assignments/${a.id}/release`, { method: "POST", json: { reason, channel: "phone" } })); }}>
-            <input name="reason" required minLength={3} autoFocus placeholder="Why release? (logged)" className="h-8 min-w-0 flex-1 rounded-md border border-line px-2" />
+            <input name="reason" required minLength={3} autoFocus placeholder="Why release? (logged)" className="h-8 min-w-0 flex-1 rounded-lg border border-line px-2" />
             <Button size="sm" variant="primary" type="submit">Release</Button>
           </form>
         )}
@@ -127,7 +127,7 @@ export function AssignmentPanel({ c, assignment, escalation, can, onChanged }: {
       <p className="text-ink-2">No team yet. Suggested (nearest suitable unit, as a dispatcher would rank them):</p>
       <ol className="space-y-1.5">
         {dispatch.suggestions.map((t) => (
-          <li key={t.team_id} className="flex items-start justify-between gap-3 rounded-lg border border-line px-3 py-2">
+          <li key={t.team_id} className="flex items-start justify-between gap-3 rounded-2xl border border-line px-3.5 py-2.5">
             <span className="min-w-0"><span className="font-medium">{t.name}</span><span className="block text-xs text-ink-2">{t.line}</span></span>
             {can("assignment.create") && <Button size="sm" variant={t.rank === 1 ? "primary" : "secondary"} className="shrink-0" onClick={() => assign(t.team_id, t.rank)}>Assign</Button>}
           </li>

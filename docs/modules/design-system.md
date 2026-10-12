@@ -1,8 +1,10 @@
-# design system · ink on paper, hue = priority
+# design system · ink on paper, on a soft canvas; hue = priority
 
-- **What it is:** `apps/web/components/ui/` — the small set of pieces every screen is built from, shown together at **`/ui`** (local listener only). Tokens live in `app/globals.css` (`@theme`): ink, three greys, one hairline, paper, the four priority hues, and amber.
+- **What it is:** `apps/web/components/ui/` — the small set of pieces every screen is built from, shown together at **`/ui`** (local listener only). Tokens live in `app/globals.css` (`@theme`): ink, three warm greys, one hairline, a quiet wash, the canvas, paper, the four priority hues, amber, and two shadows.
+- **The look (m60, D18):** white cards (20 px radius, a hairline, a whisper of shadow) on a warm light canvas; a sidebar (`components/shell/`: icons + labels, folding to an icon rail on the desk and to one row on a phone); round icon wells ([lucide](https://lucide.dev) icons, ISC licence, free); pill buttons; the greeting and today's date on Incidents, the date and time on the desk. Each priority also sits in a soft well of its own hue (`PriorityWell`), the only colour on screen. A broken promise is an ink ring and an ink icon, never a colour.
 - **The rules it encodes (PRD §13.5):** **hue means priority and nothing else**, and every priority is also text and a shape (`▲ P1 · ◆ P2 · ● P3 · ○ P4`); "needs you" is **ink inversion** (the attention chip); stale is **fade** (`.stale`); uncertainty is shown — `~6` estimates, `○` unchecked, **amber ○** only where the quote check failed (F-C13), dashed circle = Low.
 - **Receipts:** `MethodChip` (AI · Rule · Human · Partner · Fixture; AI in italics), `Check` (● / ○ / amber ○), `ChannelTag` (VOICE · WA · SHEET · DESK · API) and `Receipt`, the grey pipeline line under each report.
 - **Because:** `Because` renders the reason line every decision carries ("because trapped + water entering").
 - **Field buttons** (`size="field"`) are ≥ 64 px tall and full width, for the responder and reporter screens.
 - **Caption:** the judge-legibility line (DEMO_MODE), one plain sentence from a template; it never speaks for the model.
+- **Not used, on purpose:** charts, KPI tiles, trend arrows, coloured status dots, toasts and modals (PRD §13.5, the cut list). The promise bar is three cards of words and numbers that add up.
