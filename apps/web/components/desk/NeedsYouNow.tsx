@@ -74,38 +74,36 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction, tools }: {
       {shown.length === 0 ? (
         <Empty>Nothing needs you. <span className="tabular">{queue.on_it}</span> {queue.on_it === 1 ? "family has" : "families have"} a team on it.</Empty>
       ) : (
-        <ol className="scroll-quiet flex-1 space-y-0.5 overflow-y-auto px-2 pb-2" aria-label="Needs you now">
-          {shown.slice(0, limit).map((r) => (
-            <li key={r.id} className={r.handled ? "stale" : ""}>
-              <div role="button" tabIndex={0} onClick={() => onSelect(r.id)} onKeyDown={(e) => e.key === "Enter" && onSelect(r.id)}
-                   aria-current={selected === r.id}
-                   className={`flex w-full cursor-pointer gap-3 rounded-2xl px-2.5 py-2.5 text-left transition-colors hover:bg-wash ${selected === r.id ? "bg-wash ring-1 ring-line" : ""}`}>
-                <PriorityWell level={r.priority} />
-                <span className="block min-w-0 flex-1" title={r.line1 ?? undefined}>
-                {(() => {
-                  const { place, people, waiting, owner } = parts(r);
-                  const label = plainAction(r.action.label);
-                  const button = !r.handled && (
-                    <Button size="sm" className={label.length > 24 ? "max-w-full truncate" : "shrink-0"} onClick={(e) => { e.stopPropagation(); onAction(r); }}>{label}</Button>);
-                  const head = r.kind === "group" ? `Sheet · ${r.public_id}` : `${place}${people ? ` · ${people}` : ""}`;
-                  const sub = r.kind === "group" ? `${r.line1 ? withWords(r.line1) : ""} · ${waiting}` : `${r.public_id} · ${waiting}${owner ? ` · ${owner}` : ""}`;
-                  return (
-                    <>
-                      <span className="flex items-center justify-between gap-2">
-                        <span className="truncate text-body font-semibold">{head}</span>
-                        {r.handled ? <span className="text-xs text-ink-3">handled</span> : r.chip && <Chip tone="attention">{plainChip(r.chip)}</Chip>}
+        <ol className="scroll-quiet flex-1 divide-y divide-line overflow-y-auto px-2 pb-2" aria-label="Needs you now">
+          {shown.slice(0, limit).map((r) => {
+            // One row anatomy (m79): what and who, then which case and how long, then the one action, always at
+            // the same left edge. Nothing truncates into the button.
+            const { place, people, waiting, owner } = parts(r);
+            const label = plainAction(r.action.label);
+            const head = r.kind === "group" ? `Sheet · ${r.public_id}` : `${place}${people ? ` · ${people}` : ""}`;
+            const sub = r.kind === "group" ? `${r.line1 ? withWords(r.line1) : ""} · ${waiting}` : `${r.public_id} · ${waiting}${owner ? ` · ${owner}` : ""}`;
+            return (
+              <li key={r.id} className={r.handled ? "stale" : ""}>
+                <div role="button" tabIndex={0} onClick={() => onSelect(r.id)} onKeyDown={(e) => e.key === "Enter" && onSelect(r.id)}
+                     aria-current={selected === r.id} title={r.line1 ?? undefined}
+                     className={`my-1 flex w-full cursor-pointer gap-3 rounded-xl px-2.5 py-3 text-left transition-colors hover:bg-wash ${selected === r.id ? "bg-wash" : ""}`}>
+                  <PriorityWell level={r.priority} />
+                  <span className="flex min-w-0 flex-1 flex-col gap-1.5">
+                    <span className="flex items-start justify-between gap-2">
+                      <span className="min-w-0 truncate text-body font-semibold leading-snug">{head}</span>
+                      {r.handled ? <span className="shrink-0 text-small text-ink-3">handled</span> : r.chip && <Chip tone="attention">{plainChip(r.chip)}</Chip>}
+                    </span>
+                    <span className="truncate text-small text-ink-2"><Priority level={r.priority} shape={false} /> · {sub}</span>
+                    {!r.handled && (
+                      <span className="flex">
+                        <Button size="sm" className="max-w-full truncate" onClick={(e) => { e.stopPropagation(); onAction(r); }}>{label}</Button>
                       </span>
-                      <span className={`flex gap-2 ${label.length > 24 ? "flex-col" : "items-center justify-between"}`}>
-                        <span className="truncate text-xs text-ink-2"><Priority level={r.priority} shape={false} /> · {sub}</span>
-                        {button && <span className={label.length > 24 ? "block" : "shrink-0"}>{button}</span>}
-                      </span>
-                    </>
-                  );
-                })()}
-                </span>
-              </div>
-            </li>
-          ))}
+                    )}
+                  </span>
+                </div>
+              </li>
+            );
+          })}
           {shown.length > limit && (
             <li className="p-3 text-center">
               <Button size="sm" onClick={() => setLimit(limit + 200)}>Show more ({shown.length - limit} below, in the same order)</Button>

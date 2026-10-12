@@ -17,12 +17,12 @@ function Tile({ icon, label, value, alert, children }: {
   icon: typeof Siren; label: string; value: number | null; alert?: boolean; children?: ReactNode;
 }) {
   return (
-    <div className={`flex min-w-0 items-center gap-3 rounded-2xl bg-paper px-4 py-2.5 shadow-[var(--shadow-card)] ${alert ? "ring-2 ring-ink" : ""}`}>
+    <div className={`flex min-w-0 items-center gap-3 px-4 py-3 ${alert ? "bg-wash" : ""}`}>
       <IconWell icon={icon} tone={alert ? "ink" : "wash"} />
       <div className="min-w-0 leading-tight">
         <p className="text-small text-ink-2">{label}</p>
         <p className="flex flex-wrap items-baseline gap-x-2">
-          <span className="tabular text-title font-semibold tracking-tight">{value ?? "–"}</span>
+          <span className="tabular text-title font-semibold">{value ?? "–"}</span>
           {children}
         </p>
       </div>
@@ -46,15 +46,16 @@ export function Today({ incident, queue }: { incident: string; queue: Queue | nu
   }, [incident]);
   const unowned = p?.stale.p1_unowned ?? 0, quiet = p?.stale.overdue ?? 0;
   return (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-3" aria-label="Today">
+    // One strip, three parts (m79): the numbers belong together, so they share one surface instead of three cards.
+    <div className="grid grid-cols-1 divide-y divide-line overflow-hidden rounded-card border border-line/80 bg-paper shadow-[var(--shadow-card)] md:grid-cols-3 md:divide-x md:divide-y-0" aria-label="Today">
       <Tile icon={Siren} label="Need help now" value={queue ? waitingFamilies(queue) : null} alert={unowned > 0}>
-        {unowned > 0 ? warn(`${plural(unowned, "urgent family", "urgent families")} without a team`) : <span className="text-sm text-ink-2">families</span>}
+        {unowned > 0 ? warn(`${plural(unowned, "urgent family", "urgent families")} without a team`) : <span className="text-small text-ink-2">families</span>}
       </Tile>
       <Tile icon={LifeBuoy} label="A rescue team is on it" value={queue?.on_it ?? null} alert={quiet > 0}>
-        {quiet > 0 ? warn(`${plural(quiet, "team", "teams")} not heard from`) : <span className="text-sm text-ink-2">families</span>}
+        {quiet > 0 ? warn(`${plural(quiet, "team", "teams")} not heard from`) : <span className="text-small text-ink-2">families</span>}
       </Tile>
       <Tile icon={CircleCheck} label="Rescued or closed" value={queue ? queue.rescued_closing + queue.closed : null}>
-        <span className="text-sm text-ink-2">families</span>
+        <span className="text-small text-ink-2">families</span>
       </Tile>
     </div>
   );
