@@ -1,0 +1,13 @@
+# HP · thin background pack (no gazetteer import). Town coordinates are approximate (general knowledge, not from
+# an OSM import). People and phones are synthetic. Proves the rules aren't hard-coded around floods.
+code: HP
+name: Himachal landslides, Oct 2026
+type: landslide
+states: [Himachal Pradesh]
+language: hi
+status: active
+center: [31.71, 76.93]
+next_case_number: 21
+districts:
+  - {name: Mandi, state: Himachal Pradesh, centroid: [31.7087, 76.9320]}
+  - {name: Kullu, state: Himachal Pradesh, centroid: [31.9579, 77.1095]}

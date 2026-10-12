@@ -1,0 +1,17 @@
+cases:
+  - {key: hp-01, district: Mandi, minutes_ago: 140, channel: web_form, relation: neighbour, phone: "+91 98765 12001",
+     text: "Seraj valley, imarat gir gayi, 10-15 log dabe hain malbe mein",
+     status: checked, fields: {people_count: 15, people_count_kind: estimated, hazards: [structure_collapsed, buried], needs: [rescue],
+     location: {lat: 31.6200, lon: 77.3500, radius_m: 1500, confidence: low, source: rule, method: "Low · 1.5 km · village only: Seraj (approximate)"}, location_text: "Seraj"}}
+  - {key: hp-02, district: Mandi, minutes_ago: 85, channel: web_form, relation: family, phone: "+91 98765 12002",
+     text: "Ghar mitti mein dab gaya, 3 log andar, ek buzurg",
+     status: reported, fields: {people_count: 3, people_count_kind: stated, hazards: [buried], vulnerable: [elderly], needs: [rescue],
+     location: {lat: 31.7400, lon: 76.9800, radius_m: 1500, confidence: low, source: rule, method: "Low · 1.5 km · village only: Kotli (approximate)"}, location_text: "Kotli"}}
+  - {key: hp-03, district: Kullu, minutes_ago: 60, channel: whatsapp, relation: volunteer, phone: "+91 98765 12003",
+     text: "Road cut near Banjar, 20 tourists stuck in a guest house, safe but no food",
+     status: reported, fields: {people_count: 20, people_count_kind: stated, hazards: [cut_off], needs: [food],
+     location: {lat: 31.6400, lon: 77.3500, radius_m: 1500, confidence: low, source: rule, method: "Low · 1.5 km · village only: Banjar (approximate)"}, location_text: "Banjar"}}
+  - {key: hp-04, district: Kullu, minutes_ago: 25, channel: web_form, relation: self, phone: "+91 98765 12004",
+     text: "Landslide hit the school building in Manikaran road, 2 people buried, one injured child",
+     status: reported, fields: {people_count: 2, people_count_kind: stated, hazards: [buried, landslide], vulnerable: [child, injured], needs: [medical_urgent],
+     location: {lat: 32.0270, lon: 77.3470, radius_m: 1500, confidence: low, source: rule, method: "Low · 1.5 km · village only: Manikaran (approximate)"}, location_text: "Manikaran"}}

@@ -1,0 +1,21 @@
+# Teams already deployed in the district (PRD F-C4). Positions are near real places; position_age_min makes
+# "position 20 min old" honest. has_app: false = radio-only (the timer *is* the radio schedule).
+teams:
+  - {name: "SDRF Boat 2", agency: SDRF, district: Gopalganj, capabilities: [boat, rope], has_app: false, radio_channel: VHF,
+     base: [26.4251, 84.3780], position_age_min: 20, max_active: 2}
+  - {name: "Fire & Rescue Boat 5", agency: "Fire & Rescue", district: Gopalganj, capabilities: [boat, medical], has_app: true, radio_channel: VHF,
+     base: [26.4530, 84.4140], position_age_min: 6, max_active: 2}
+  - {name: "NDRF T-03 (deployed)", agency: NDRF, district: Gopalganj, capabilities: [boat, medical, rope], has_app: true, radio_channel: satellite,
+     base: [26.3660, 84.3374], position_age_min: 35, max_active: 3}
+  - {name: "Fishermen boat · Ramesh Sahni (radio only)", agency: Fishermen, district: Gopalganj, capabilities: [boat], has_app: false, radio_channel: phone,
+     base: [26.4043, 84.4957], position_age_min: 50, max_active: 1}
+  - {name: "Aapda Mitra team, Thawe block", agency: "Aapda Mitra", district: Gopalganj, capabilities: [rope, medical], has_app: true, radio_channel: phone,
+     base: [26.4217, 84.4046], position_age_min: 12, max_active: 2}
+  - {name: "SDRF Boat 4", agency: SDRF, district: Gopalganj, capabilities: [boat], has_app: true, radio_channel: VHF,
+     base: [26.4610, 84.4398], position_age_min: 90, max_active: 2, status: out_of_service, status_reason: "Out of service · refuelling"}
+  - {name: "Police QRT Gopalganj", agency: Police, district: Gopalganj, capabilities: [rope], has_app: true, radio_channel: VHF,
+     base: [26.4610, 84.4398], position_age_min: 15, max_active: 2}
+  - {name: "SDRF Boat 1 (Muzaffarpur)", agency: SDRF, district: Muzaffarpur, capabilities: [boat], has_app: true, radio_channel: VHF,
+     base: [26.1745, 85.3181], position_age_min: 25, max_active: 2}
+  - {name: "Fire & Rescue Boat 3 (Muzaffarpur)", agency: "Fire & Rescue", district: Muzaffarpur, capabilities: [boat, medical], has_app: false, radio_channel: VHF,
+     base: [26.2146, 85.2982], position_age_min: 40, max_active: 2}

@@ -1,0 +1,13 @@
+# BR · the live pack. Districts and coordinates are real OpenStreetMap features (ODbL, © OpenStreetMap contributors),
+# taken from the openstreetmap.fr Bihar extract of 12 Oct 2026 (see README.md). People and phones are synthetic.
+code: BR
+name: Bihar floods, Oct 2026
+type: flood
+states: [Bihar]
+language: hi
+status: active
+center: [26.4374, 84.3947]            # Thawe, Gopalganj (the demo village)
+next_case_number: 151
+districts:
+  - {name: Gopalganj,   state: Bihar, centroid: [26.443831, 84.373909]}   # the live desk's district
+  - {name: Muzaffarpur, state: Bihar, centroid: [26.151389, 85.329235]}

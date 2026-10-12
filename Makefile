@@ -5,7 +5,7 @@ WEB := apps/web
 
 COMPOSE := docker compose -f infra/docker-compose.yml --env-file .env
 
-.PHONY: help env up down nuke ps logs smoke psql contracts dev-api dev-web test test-api test-web lint
+.PHONY: help env up down nuke ps logs smoke psql contracts seed dev-api dev-web test test-api test-web lint
 
 help: ## List the targets
 	@grep -E '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) | awk -F':.*?## ' '{printf "  make %-12s %s\n", $$1, $$2}'
@@ -18,6 +18,9 @@ up: env ## Build and start the whole stack (db, api, worker, ticker, web)
 
 down: ## Stop the stack (data volume kept)
 	$(COMPOSE) down
+
+seed: ## Wipe the demo database and load the BR, OD and HP scenario packs (DEMO_MODE only)
+	$(COMPOSE) exec -T api python -m app.seed
 
 nuke: ## Stop the stack AND delete the database volume (fresh start)
 	$(COMPOSE) down -v

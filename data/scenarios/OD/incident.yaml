@@ -1,0 +1,14 @@
+# OD · thin background pack (no gazetteer import). Town coordinates are approximate (general knowledge, not from
+# an OSM import). People and phones are synthetic.
+code: OD
+name: Odisha cyclone, Oct 2026
+type: cyclone
+states: [Odisha]
+language: or
+status: active
+center: [20.25, 86.17]
+next_case_number: 41
+districts:
+  - {name: Jagatsinghpur, state: Odisha, centroid: [20.2541, 86.1706]}
+  - {name: Kendrapara,    state: Odisha, centroid: [20.5022, 86.4228]}
+  - {name: Puri,          state: Odisha, centroid: [19.8135, 85.8312]}

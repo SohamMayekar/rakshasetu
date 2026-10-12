@@ -8,6 +8,8 @@ x-api-env: &api-env
   # The test harness uses its own database, never the demo one.
   TEST_DATABASE_URL: postgresql+psycopg://rakshasetu_app:${APP_DB_PASSWORD}@db:5432/rakshasetu_test
   TEST_OWNER_DATABASE_URL: postgresql+psycopg://rakshasetu_owner:${OWNER_DB_PASSWORD}@db:5432/rakshasetu_test
+  # Used ONLY by the seed loader and the demo reset, and only when DEMO_MODE=true (decision D4).
+  DEMO_OWNER_DATABASE_URL: postgresql+psycopg://rakshasetu_owner:${OWNER_DB_PASSWORD}@db:5432/rakshasetu
   DEMO_MODE: ${DEMO_MODE:-true}
   PUBLIC_URL: ${PUBLIC_URL:-}
   SECRET_KEY: ${SECRET_KEY}

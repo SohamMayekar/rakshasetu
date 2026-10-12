@@ -1,0 +1,4 @@
+teams:
+  - {name: "NDRF T-14 (deployed)", agency: NDRF, district: Mandi, capabilities: [heavy_lift, rope, medical], has_app: true, radio_channel: satellite, base: [31.7100, 76.9300], position_age_min: 20, max_active: 2}
+  - {name: "SDRF Mandi 1", agency: SDRF, district: Mandi, capabilities: [rope, heavy_lift], has_app: false, radio_channel: VHF, base: [31.6900, 76.9500], position_age_min: 60, max_active: 2}
+  - {name: "HP Fire Service Kullu", agency: "Fire & Rescue", district: Kullu, capabilities: [rope], has_app: true, radio_channel: VHF, base: [31.9600, 77.1100], position_age_min: 10, max_active: 2}

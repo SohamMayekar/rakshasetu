@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m07 · seed loader
+**Current milestone:** m08 · test harness
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -14,6 +14,7 @@
 | m04 | Base schema (incidents, districts, teams, users, cases, reports, events); roles rakshasetu_owner / rakshasetu_app; `migrate` one-shot service; test DB | `make nuke && make up` applies 001_base; pytest: app role owns 0 tables, UPDATE/DELETE/TRUNCATE events + CREATE TABLE → InsufficientPrivilege, INSERT+SELECT events works (11 passed) |
 | m05 | packages/contracts: report.v1 + extraction (closed enums, no priority, no summary) JSON schemas, ws-events.md, partner contract card, generated openapi.json; Pydantic mirrors | pytest: 26 agreement cases (schema and Pydantic accept/reject the same docs, incl. a priority field, summary_en, off-enum hazard, empty quote); openapi.json freshness test |
 | m06 | Team-owned config: rakshasetu.config.yaml (PRD §9 values), roles.yaml (§4.2 matrix), flags.yaml, partners.yaml; validated loader; api fails at boot on a bad file | pytest: committed config loads; weights must sum to 1.0; heartbeat_extends_deadline and transitive_merges can't be turned on; P4 catch-all required; unknown keys refused |
+| m07 | Seed loader (owner role, DEMO_MODE only): BR/OD/HP packs, 12 demo users, timestamps relative to the seed moment; deterministic BR case generator; phone protection (E.164, HMAC, Fernet, mask); scrypt passwords | `make seed` → 3 incidents, 57 cases, 15 teams, 12 users; pytest: radio-only + out-of-service BR teams, 40+ BR cases, newest < 1 h old, Low + needs-location cases present, sequential BR-151…, phones never in clear (67 passed) |
 
 ## NOT DONE (engineering)
 
@@ -25,10 +26,15 @@
 
 | What | Variable / service | What it affects | How to verify once supplied |
 |---|---|---|---|
-| Overpass API unreachable from the build sandbox (the egress proxy drops the tunnel to overpass-api.de and mirrors) | `overpass-api.de` | `scripts/import_osm.py --source overpass` can't run here; the BR gazetteer is built instead from the openstreetmap.fr Bihar extract (real OSM data, same ODbL licence) | On a laptop with open internet: `python scripts/import_osm.py --source overpass` and compare counts with the committed extract |
+| Overpass API unreachable from the build sandbox (the egress proxy drops the tunnel to overpass-api.de, its mirrors and Geofabrik) | `overpass-api.de` | `scripts/import_osm.py --source overpass` can't run here; the BR gazetteer is built from the openstreetmap.fr Bihar extract instead (real OSM data, ODbL; decision D6) | On a laptop with open internet: `python scripts/import_osm.py --source overpass` and compare counts with the committed extract |
+| Git tags can't be pushed from this sandbox (the proxy answers 403 to tag refs; branches and main push fine) | GitHub via the session proxy | The `mNN` tags exist locally only | From a normal clone with this session's history: `git push origin --tags` |
 | Speech-to-text keys | `SARVAM_API_KEY`, `GROQ_API_KEY` | Live STT. Without them the STT provider runs in fixture mode | Put the keys in `.env`, then `make provider-check` (arrives with m17) |
 | LLM keys | `GROQ_API_KEY`, `GEMINI_API_KEY` | Live extraction. Without them the keyword path creates every case (chips read **Rule**) | Same |
 | WhatsApp test number | `WHATSAPP_*` | P1 #5 only | — |
+
+## For the humans to confirm
+
+- **Demo village = Thawe, Gopalganj** (decision D5): Muzaffarpur's OSM data has no village with a mapped temple and bridge within 500 m. The pitch line changes from "[village], Muzaffarpur" to "Thawe, Gopalganj". Evidence in `data/scenarios/BR/README.md`.
 
 ## Environment notes for this build
 

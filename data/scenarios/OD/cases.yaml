@@ -1,0 +1,22 @@
+# Thin pack: fields are given explicitly (no gazetteer for OD). minutes_ago is relative to the moment of seeding.
+cases:
+  - {key: od-01, district: Jagatsinghpur, minutes_ago: 95, channel: web_form, relation: neighbour, phone: "+91 98765 11001",
+     text: "Erasama block, roof of the house blown off, 5 people inside the cyclone shelter corridor, one old man injured",
+     status: checked, fields: {people_count: 5, people_count_kind: stated, hazards: [structure_collapsed], vulnerable: [elderly, injured], needs: [medicine],
+     location: {lat: 20.2010, lon: 86.3200, radius_m: 1500, confidence: low, source: rule, method: "Low · 1.5 km · village only: Erasama (approximate)"}, location_text: "Erasama"}}
+  - {key: od-02, district: Kendrapara, minutes_ago: 70, channel: whatsapp, relation: family, phone: "+91 98765 11002",
+     text: "Mahakalapada mein paani ghar ke andar, 8 log, 2 bachche, khana nahi hai",
+     status: reported, fields: {people_count: 8, people_count_kind: stated, hazards: [water_entering], vulnerable: [child], needs: [food],
+     location: {lat: 20.4300, lon: 86.7500, radius_m: 1500, confidence: low, source: rule, method: "Low · 1.5 km · village only: Mahakalapada (approximate)"}, location_text: "Mahakalapada"}}
+  - {key: od-03, district: Puri, minutes_ago: 50, channel: web_form, relation: self, phone: "+91 98765 11003",
+     text: "Tree fell on our house near Satapada jetty, 3 people trapped inside, one pregnant woman",
+     status: reported, fields: {people_count: 3, people_count_kind: stated, hazards: [trapped_inside, structure_collapsed], vulnerable: [pregnant], needs: [rescue],
+     location: {lat: 19.6650, lon: 85.4400, radius_m: 1500, confidence: low, source: rule, method: "Low · 1.5 km · village only: Satapada (approximate)"}, location_text: "Satapada"}}
+  - {key: od-04, district: Jagatsinghpur, minutes_ago: 30, channel: partner, relation: official, phone: null,
+     text: "Paradip area: 12 fishermen families cut off, no drinking water",
+     status: reported, fields: {people_count: 40, people_count_kind: estimated, hazards: [cut_off], needs: [drinking_water],
+     location: {lat: 20.3166, lon: 86.6114, radius_m: 1500, confidence: low, source: rule, method: "Low · 1.5 km · village only: Paradip (approximate)"}, location_text: "Paradip"}}
+  - {key: od-05, district: Kendrapara, minutes_ago: 12, channel: web_form, relation: volunteer, phone: "+91 98765 11005",
+     text: "Rajnagar, 6 log ghar ki chhat par, paani badh raha hai",
+     status: reported, fields: {people_count: 6, people_count_kind: stated, hazards: [trapped_on_roof, water_rising], needs: [rescue],
+     location: {lat: 20.5700, lon: 86.7000, radius_m: 1500, confidence: low, source: rule, method: "Low · 1.5 km · village only: Rajnagar (approximate)"}, location_text: "Rajnagar"}}
