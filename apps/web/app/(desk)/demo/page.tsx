@@ -55,7 +55,7 @@ export default function DemoPage() {
       <AppShell me={me}><Page>
         <PageHeader title="Demo" sub="Run it live: real phones, the real desk." />
         <Shows />
-        <Card className="mt-4 px-5 py-4 text-sm">
+        <Card className="mt-4 px-5 py-4 text-body">
           <ol className="space-y-2">{SCRIPT.map((x, i) => <li key={x.id}><b className="tabular">{i + 1}. {x.title}</b> <span className="text-ink-2">· {x.do}</span></li>)}</ol>
           <p className="mt-3 text-ink-3">The reset buttons and QR codes are for the Demo admin: open <b>http://127.0.0.1/demo</b> and sign in as Demo admin
             there, so this desk on <b>http://localhost</b> stays signed in as {me.user.name}.</p>
@@ -74,13 +74,13 @@ export default function DemoPage() {
     <AppShell me={me}>
     <Page>
       <PageHeader title="Demo" sub="Run it live: real phones, the real desk." />
-      {line && <p className="mt-4 rounded-xl bg-paper px-4 py-2.5 text-sm shadow-[var(--shadow-card)]" role="status">{line}</p>}
+      {line && <p className="mt-4 rounded-xl bg-paper px-4 py-2.5 text-body shadow-[var(--shadow-card)]" role="status">{line}</p>}
 
       <ol className="mt-5 grid grid-cols-3 gap-2 sm:grid-cols-6" aria-label="Scenes">
         {SCRIPT.map((x, i) => (
           <li key={x.id}>
             <button onClick={() => go(i)} aria-current={i === at ? "step" : undefined}
-                    className={`flex h-full w-full flex-col items-start rounded-2xl px-3 py-2.5 text-left text-sm ${i === at ? "bg-ink text-paper" : i < at ? "bg-paper text-ink-3" : "bg-paper text-ink"} shadow-[var(--shadow-card)]`}>
+                    className={`flex h-full w-full flex-col items-start rounded-2xl px-3 py-2.5 text-left text-body ${i === at ? "bg-ink text-paper" : i < at ? "bg-paper text-ink-3" : "bg-paper text-ink"} shadow-[var(--shadow-card)]`}>
               <span className="tabular text-lg font-semibold">{i + 1}</span><span className="leading-tight">{x.title}</span>
             </button>
           </li>
@@ -88,7 +88,7 @@ export default function DemoPage() {
       </ol>
 
       <Card className="mt-4 px-6 py-6">
-        <p className="text-sm text-ink-3">Step {at + 1} of {SCRIPT.length}</p>
+        <p className="text-body text-ink-3">Step {at + 1} of {SCRIPT.length}</p>
         <h2 className="mt-1 text-display font-semibold leading-tight tracking-tight">{scene.title}</h2>
         <p className="mt-2 text-lg leading-snug">{scene.do}</p>
         <div className="mt-5 flex flex-wrap items-center gap-3">
@@ -101,14 +101,14 @@ export default function DemoPage() {
               return `Played the son's clip (${sonClip.synthetic ? "a synthetic voice, a recording" : "a recording"}): report ${r.report_id} is being read. Watch the desk.`;
             })}>No phone? Send the recorded clip</Button>
           )}
-          {scene.id === "receipts" && <a href="/audit" className="text-sm underline underline-offset-4">Open History</a>}
+          {scene.id === "receipts" && <a href="/audit" className="text-body underline underline-offset-4">Open History</a>}
           <Button variant="quiet" disabled={!!busy} onClick={() => reset(scene.id, scene.title)}>
             <RotateCcw className="size-4" aria-hidden />{busy === `Reset to ${scene.title}` ? "Resetting…" : "Start this step again"}</Button>
         </div>
       </Card>
 
       <div className="mt-4 grid gap-4 md:grid-cols-[1fr_1.2fr]">
-        <Card className="px-5 py-4 text-sm">
+        <Card className="px-5 py-4 text-body">
           <p className="font-semibold">Say it once</p>
           <ul className="mt-2 space-y-1.5 text-ink-2">
             <li>People and phone numbers are made up.</li>
@@ -117,7 +117,7 @@ export default function DemoPage() {
             {!status?.keys.stt.length && <li>Without a speech key, voice clips are recordings.</li>}
           </ul>
         </Card>
-        <Card className="px-5 py-4 text-sm">
+        <Card className="px-5 py-4 text-body">
           <p className="font-semibold">Phones</p>
           {status && !status.public_url
             ? <p className="mt-2 text-ink-2">Start the tunnel and put its address in <code>PUBLIC_URL</code> (<code>.env</code>): the QR codes appear here.</p>
@@ -131,8 +131,8 @@ export default function DemoPage() {
       </div>
 
       <details className="mt-4 rounded-card bg-paper px-5 py-3 shadow-[var(--shadow-card)]">
-        <summary className="cursor-pointer select-none py-1 text-sm font-medium">More controls</summary>
-        <div className="text-sm">
+        <summary className="cursor-pointer select-none py-1 text-body font-medium">More controls</summary>
+        <div className="text-body">
           <Shows />
           <Box title="Start any scene again">
             <ol className="divide-y divide-line">
@@ -217,9 +217,9 @@ function Shows() {
   return (
     <div className="mt-5 grid gap-3 sm:grid-cols-2">
       <a href="/surge" className="rounded-2xl bg-paper px-5 py-4 shadow-[var(--shadow-card)] hover:bg-wash">
-        <b>Show it under load</b><span className="block text-sm text-ink-2">50 made-up reports a second: nothing lost, nothing doubled.</span></a>
+        <b>Show it under load</b><span className="block text-body text-ink-2">50 made-up reports a second: nothing lost, nothing doubled.</span></a>
       <a href="/partners" className="rounded-2xl bg-paper px-5 py-4 shadow-[var(--shadow-card)] hover:bg-wash">
-        <b>Show a partner system</b><span className="block text-sm text-ink-2">Another team&rsquo;s app sends signed notes (simulated by us).</span></a>
+        <b>Show a partner system</b><span className="block text-body text-ink-2">Another team&rsquo;s app sends signed notes (simulated by us).</span></a>
     </div>
   );
 }
@@ -247,8 +247,8 @@ function Qr({ target, title, note }: { target: string; title: string; note: stri
     <figure>
       <figcaption className="font-medium">{title}</figcaption>
       {img ? <img src={img} alt={`QR code: ${title}`} className="mt-2 w-44 rounded-xl border border-line bg-white p-2" /> : <p className="mt-2 text-ink-3">{err ?? "…"}</p>}
-      {url && <p className="mt-1 break-all text-xs text-ink-2">{url}</p>}
-      <p className="mt-1 text-xs text-ink-3">{note}</p>
+      {url && <p className="mt-1 break-all text-small text-ink-2">{url}</p>}
+      <p className="mt-1 text-small text-ink-3">{note}</p>
     </figure>
   );
 }

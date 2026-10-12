@@ -41,7 +41,7 @@ export default function Login() {
         <h1 className="mt-6 text-display font-semibold tracking-tight">Sign in</h1>
         {picker ? (
           <>
-            <p className="mt-1 text-sm text-ink-2">Pick who you are. Everyone here is made up for the demo.</p>
+            <p className="mt-1 text-body text-ink-2">Pick who you are. Everyone here is made up for the demo.</p>
             <ul className="mt-5 space-y-2">
               {(users ?? []).map((u) => {
                 const Icon = ICON[u.role] ?? LayoutDashboard;
@@ -52,7 +52,7 @@ export default function Login() {
                       <span className="grid size-11 shrink-0 place-items-center rounded-full bg-wash text-ink" aria-hidden><Icon className="size-5" strokeWidth={1.8} /></span>
                       <span className="min-w-0 flex-1">
                         <span className="block text-heading font-semibold">{u.title}</span>
-                        <span className="block text-sm text-ink-2">{u.line}{u.role !== "team_lead" && u.role !== "admin" ? ` · ${u.name}` : ""}</span>
+                        <span className="block text-body text-ink-2">{u.line}{u.role !== "team_lead" && u.role !== "admin" ? ` · ${u.name}` : ""}</span>
                       </span>
                       <ChevronRight className="size-5 shrink-0 text-ink-3" aria-hidden />
                     </button>
@@ -72,7 +72,7 @@ export default function Login() {
             <Button variant="primary" type="submit">Sign in</Button>
           </form>
         )}
-        {error && <p className="mt-4 text-sm text-ink">{error}</p>}
+        {error && <p className="mt-4 text-body text-ink">{error}</p>}
       </Card>
     </main>
   );

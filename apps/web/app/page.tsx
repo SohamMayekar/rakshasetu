@@ -30,9 +30,9 @@ const KIND_ICON: Record<string, LucideIcon> = { flood: Waves, cyclone: Wind, lan
 function Numbers({ q, p }: { q: Queue | null; p: Promises | null }) {
   const cell = (label: string, value: number | null, warn?: string | false) => (
     <div className="min-w-0 rounded-2xl bg-wash px-3 py-2.5">
-      <p className="text-xs text-ink-2">{label}</p>
+      <p className="text-small text-ink-2">{label}</p>
       <p className="tabular text-xl font-semibold">{value ?? "–"}</p>
-      {warn && <p className="mt-0.5 inline-block rounded-md bg-ink px-1.5 text-xs font-medium text-paper">{warn}</p>}
+      {warn && <p className="mt-0.5 inline-block rounded-md bg-ink px-1.5 text-small font-medium text-paper">{warn}</p>}
     </div>
   );
   const unowned = p?.stale.p1_unowned ?? 0, quiet = p?.stale.overdue ?? 0;
@@ -74,8 +74,8 @@ function FrontDoor() {
             <span className="mt-auto inline-flex h-11 items-center gap-1.5 rounded-full border border-ink px-5 font-medium">Sign in<ArrowRight className="size-4" aria-hidden /></span>
           </a>
         </div>
-        <p className="mt-6 text-center text-sm text-ink-2">Rescue team? <a href="/responder" className="font-medium text-ink underline underline-offset-4">Open the team app</a></p>
-        <p className="mt-8 text-center text-xs text-ink-3">A demo: every person and phone number in it is made up.</p>
+        <p className="mt-6 text-center text-body text-ink-2">Rescue team? <a href="/responder" className="font-medium text-ink underline underline-offset-4">Open the team app</a></p>
+        <p className="mt-8 text-center text-small text-ink-3">A demo: every person and phone number in it is made up.</p>
       </div>
     </main>
   );
@@ -124,12 +124,12 @@ export default function Incidents() {
                         <h2 className="text-lg font-semibold leading-snug tracking-tight">{i.name}</h2>
                         {i.status !== "active" && <Chip tone="neutral">{STATUS[i.status] ?? i.status}</Chip>}
                       </div>
-                      <p className="text-sm text-ink-2">{i.states.join(", ")} · {i.districts.join(" · ")}</p>
+                      <p className="text-body text-ink-2">{i.states.join(", ")} · {i.districts.join(" · ")}</p>
                     </div>
                   </div>
                   <Numbers q={queues[i.code] ?? null} p={i.promises} />
                   {desk && (
-                    <a href={`/desk/${i.code}`} className="mt-4 inline-flex h-9 items-center gap-1.5 rounded-full bg-ink px-4 text-sm font-medium text-paper hover:bg-[#2b2b2b]">
+                    <a href={`/desk/${i.code}`} className="mt-4 inline-flex h-9 items-center gap-1.5 rounded-full bg-ink px-4 text-body font-medium text-paper hover:bg-[#2b2b2b]">
                       Open the control room<ArrowRight className="size-4" aria-hidden />
                     </a>
                   )}

@@ -63,7 +63,7 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction, tools }: {
       </div>
       {(waiting.fresh > 0 || waiting.handled > 0) && (
         <div className="sticky top-0 z-10 py-1.5">
-          <button onClick={showAll} className="mx-auto flex items-center gap-1 rounded-full bg-ink px-3 py-1 text-xs font-medium text-paper shadow-sm">
+          <button onClick={showAll} className="mx-auto flex items-center gap-1 rounded-full bg-ink px-3 py-1 text-small font-medium text-paper shadow-sm">
             <span aria-hidden>▲</span>
             <span className="tabular">
               {[waiting.fresh > 0 && `${waiting.fresh} new`, waiting.handled > 0 && `${waiting.handled} handled`].filter(Boolean).join(" · ")}: show

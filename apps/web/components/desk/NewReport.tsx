@@ -69,7 +69,7 @@ export function NewReport({ incident, onSaved, onClose }: {
       </div>
       <form className="flex-1 space-y-4 overflow-y-auto px-5 py-4" onSubmit={(e) => { e.preventDefault(); save(new FormData(e.currentTarget)); }}>
         <label className="block">
-          <span className="text-sm text-ink-2">What did they say? Type the call, or paste a forwarded message.</span>
+          <span className="text-body text-ink-2">What did they say? Type the call, or paste a forwarded message.</span>
           <textarea value={text} onChange={(e) => setText(e.target.value)} rows={6} required autoFocus
                     placeholder="In Thawe village, behind the Durga temple, near the bridge, 6 people are stuck on the roof…"
                     className="mt-1 w-full rounded-lg border border-line p-3 text-body leading-snug" />
@@ -77,18 +77,18 @@ export function NewReport({ incident, onSaved, onClose }: {
         <div aria-live="polite" className="min-h-14">
           {chips.length > 0 && (
             <p className="flex flex-wrap items-center gap-1.5">
-              <span className="text-xs text-ink-2">Heard so far:</span>
+              <span className="text-small text-ink-2">Heard so far:</span>
               {chips.map((c, i) => <Chip key={i}>{c}</Chip>)}
 
             </p>
           )}
-          {text.trim() && missing.length > 0 && <p className="mt-1.5 text-xs text-ink-2">Ask: {missing.join(" · ")}?</p>}
+          {text.trim() && missing.length > 0 && <p className="mt-1.5 text-small text-ink-2">Ask: {missing.join(" · ")}?</p>}
         </div>
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-2 text-body">
           <input type="checkbox" checked={forward} onChange={(e) => setForward(e.target.checked)} />
           This is a forwarded message (the sender may not be there)
         </label>
-        <div className="grid grid-cols-2 gap-3 text-sm">
+        <div className="grid grid-cols-2 gap-3 text-body">
           <label className="block"><span className="text-ink-2">Phone to call back</span>
             <input name="phone" inputMode="tel" placeholder="98765 43210" className="mt-1 h-9 w-full rounded-lg border border-line px-2 tabular" /></label>
           <label className="block"><span className="text-ink-2">Name (optional)</span>
@@ -104,7 +104,7 @@ export function NewReport({ incident, onSaved, onClose }: {
         <div className="flex items-center gap-3">
           <Button variant="primary" type="submit" disabled={saving || !text.trim()}>{saving ? "Saving…" : "Save report"}</Button>
         </div>
-        {error && <p className="rounded-md bg-wash px-2 py-1 text-xs">{error}</p>}
+        {error && <p className="rounded-md bg-wash px-2 py-1 text-small">{error}</p>}
       </form>
     </aside>
   );

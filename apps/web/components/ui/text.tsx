@@ -21,7 +21,7 @@ export function Section({ title, icon: Icon, aside, children }: { title: string;
 
 // Every decision shows its because (PRD §13.5 #6).
 export function Because({ children }: { children: ReactNode }) {
-  return <p className="text-xs leading-snug text-ink-2"><span className="text-ink-3">because </span>{children}</p>;
+  return <p className="text-small leading-snug text-ink-2"><span className="text-ink-3">because </span>{children}</p>;
 }
 
 export function Estimate({ value, kind }: { value: number | null | undefined; kind?: string | null }) {

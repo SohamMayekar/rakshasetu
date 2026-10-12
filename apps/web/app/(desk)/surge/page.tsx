@@ -63,9 +63,9 @@ export default function SurgePage() {
       <Page>
       <PageHeader title="Under load · the last 60 seconds"
                   sub="Made-up reports arriving fast. Watch that none is lost." />
-      {down && <p className="mt-4 rounded-xl bg-ink px-4 py-2 text-sm text-paper">Can&apos;t reach the server. Retrying every second.</p>}
+      {down && <p className="mt-4 rounded-xl bg-ink px-4 py-2 text-body text-paper">Can&apos;t reach the server. Retrying every second.</p>}
 
-      <Card as="dl" className="mt-6 divide-y divide-line px-5 text-sm">
+      <Card as="dl" className="mt-6 divide-y divide-line px-5 text-body">
         <Row k="Arriving">
           <b className="tabular">{i ? i.per_second.toFixed(1) : "–"}</b> reports a second
           <span className="text-ink-3"> · <span className="tabular">{n(i?.requests ?? 0)}</span> in the last minute

@@ -68,8 +68,8 @@ export function Facts({ c, canEdit, onQuote, onChanged }: {
   };
 
   return (
-    <dl className="grid grid-cols-[92px_1fr] gap-x-2 gap-y-2.5 text-sm">
-      <dt className="text-ink-3">People</dt>
+    <dl className="grid grid-cols-[minmax(5.5rem,auto)_1fr] gap-x-4 gap-y-3 text-body">
+      <dt className="pt-px text-small text-ink-3">People</dt>
       <dd>
         {editing ? (
           <form className="flex flex-wrap items-center gap-2" onSubmit={(e) => { e.preventDefault(); save(new FormData(e.currentTarget)); }}>
@@ -77,7 +77,7 @@ export function Facts({ c, canEdit, onQuote, onChanged }: {
             <input name="reason" required minLength={3} placeholder="Why (logged)" className="h-8 flex-1 rounded-lg border border-line px-2" />
             <Button size="sm" variant="primary" type="submit">Save</Button>
             <Button size="sm" variant="quiet" type="button" onClick={() => setEditing(false)}>Cancel</Button>
-            {error && <span className="w-full text-xs">{error}</span>}
+            {error && <span className="w-full text-small">{error}</span>}
           </form>
         ) : (
           <span className="flex items-center gap-2">
@@ -87,10 +87,10 @@ export function Facts({ c, canEdit, onQuote, onChanged }: {
           </span>
         )}
       </dd>
-      <dt className="text-ink-3">Situation</dt><dd>{items("hazards", c.hazards)}</dd>
-      <dt className="text-ink-3">Needs</dt><dd>{items("needs", c.needs)}</dd>
-      <dt className="text-ink-3">Vulnerable</dt><dd>{items("vulnerable", c.vulnerable)}</dd>
-      <dt className="text-ink-3">Where</dt>
+      <dt className="pt-px text-small text-ink-3">Situation</dt><dd>{items("hazards", c.hazards)}</dd>
+      <dt className="pt-px text-small text-ink-3">Needs</dt><dd>{items("needs", c.needs)}</dd>
+      <dt className="pt-px text-small text-ink-3">Vulnerable</dt><dd>{items("vulnerable", c.vulnerable)}</dd>
+      <dt className="pt-px text-small text-ink-3">Where</dt>
       <dd>
         <span className="flex items-center gap-1.5">
           {c.location_text ?? <span className="text-ink-3">not known yet</span>}
@@ -100,7 +100,7 @@ export function Facts({ c, canEdit, onQuote, onChanged }: {
         {(() => {   // P1 #1: a merged report from outside the circle never moves the pin by itself
           const m = (c.attributes?.proposed_move ?? null) as { from: string; metres_away: number; method?: string } | null;
           return m && (
-            <p className="mt-1 rounded-lg border border-line px-2 py-1 text-xs">
+            <p className="mt-1 rounded-lg border border-line px-2 py-1 text-small">
               <b>Maybe a different place:</b> {m.from}&apos;s report puts them {m.metres_away.toLocaleString("en-IN")} m away
               {m.method ? ` (${plainPlace(m.method)})` : ""}. The place stays until a person moves it.
             </p>

@@ -30,7 +30,7 @@ function Tile({ icon, label, value, alert, children }: {
   );
 }
 
-const warn = (text: string) => <span className="rounded-md bg-ink px-1.5 text-sm font-medium text-paper">{text}</span>;
+const warn = (text: string) => <span className="rounded-md bg-ink px-1.5 text-body font-medium text-paper">{text}</span>;
 
 /** Families waiting for a person: a sheet's group row stands for each family in it. */
 export const waitingFamilies = (q: Queue) => q.rows.reduce((n, r) => n + (r.kind === "group" ? r.members?.length ?? 1 : 1), 0);

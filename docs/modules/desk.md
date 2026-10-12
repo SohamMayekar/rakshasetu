@@ -1,5 +1,7 @@
 # desk · queue, map, drawer, live
 
+- **Case panel layout (m80):** the case number in the title size, the families line in the heading size, where and status in one icon column, then the one action; the four sections have 48 px headers with a short hint; facts use a label column that fits its longest label.
+
 - **Layout (m79):** one grid with 12 px gaps. The three numbers share one strip; each Needs you now row has the same three lines (place and people with one label; priority, case and wait; the action at the same left edge), separated by hairlines; the header's Live and time are plain text.
 
 - **The top row (m73):** three numbers about families: **Need help now** (families waiting for a person), **A rescue team is on it**, **Rescued or closed**. A tile turns ink with one short line only when lives are at risk: an urgent family without a team for 5 minutes, a team not heard from. The promise sums left the desk (`components/desk/Today.tsx`); `/v1/metrics/promises` still feeds the two warnings, the load screen and the golden path's check.

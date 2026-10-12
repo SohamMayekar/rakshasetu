@@ -81,7 +81,7 @@ export default function StatusPage({ params }: { params: Promise<{ id: string }>
   const current = st.step === "closed" ? -1 : st.steps.indexOf(st.step);
   return (
     <Shell>
-      <p className="text-sm text-ink-3">Case <span className="tabular">{st.tracked_as ?? st.public_id}</span></p>
+      <p className="text-body text-ink-3">Case <span className="tabular">{st.tracked_as ?? st.public_id}</span></p>
       <p className="mt-2 text-display font-semibold leading-snug tracking-tight">{SENTENCE[st.step] ?? LABEL[st.step]}</p>
       {st.tracked_as && (
         <p className="mt-3 rounded-xl bg-wash px-4 py-3 text-ink">
@@ -92,7 +92,7 @@ export default function StatusPage({ params }: { params: Promise<{ id: string }>
 
       {st.step !== "closed" && (
         <details className="mt-6">
-          <summary className="cursor-pointer select-none text-sm text-ink-2 underline underline-offset-4">Show all steps</summary>
+          <summary className="cursor-pointer select-none text-body text-ink-2 underline underline-offset-4">Show all steps</summary>
           <ol className="mt-4 space-y-0" aria-label="Progress">
             {st.steps.map((s, i) => {
               const done = i <= current;
@@ -107,7 +107,7 @@ export default function StatusPage({ params }: { params: Promise<{ id: string }>
                   </span>
                   <span className={done ? "text-ink" : "text-ink-3"}>
                     <span className={`block text-lg ${now_ ? "font-semibold" : ""}`}>{LABEL[s]}</span>
-                    {now_ && <span className="block text-sm text-ink-2">now</span>}
+                    {now_ && <span className="block text-body text-ink-2">now</span>}
                   </span>
                 </li>
               );
@@ -152,7 +152,7 @@ function FamilyCheck({ id, check }: { id: string; check: { people_taken: number 
         <button disabled={busy} onClick={() => send("yes")} className="min-h-16 rounded-2xl bg-ink text-lg font-semibold text-paper">Yes</button>
         <button disabled={busy} onClick={() => send("no")} className="min-h-16 rounded-2xl border-2 border-ink text-lg font-semibold">No</button>
       </div>
-      <p className="mt-3 text-sm text-ink-2">You don&rsquo;t have to answer.</p>
+      <p className="mt-3 text-body text-ink-2">You don&rsquo;t have to answer.</p>
     </section>
   );
 }
@@ -160,9 +160,9 @@ function FamilyCheck({ id, check }: { id: string; check: { people_taken: number 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <main className="mx-auto min-h-dvh max-w-md bg-canvas px-5 pb-8 pt-6">
-      <p className="mb-5 flex items-center gap-2 text-sm font-semibold text-ink"><Mark className="size-6" />RakshaSetu</p>
+      <p className="mb-5 flex items-center gap-2 text-body font-semibold text-ink"><Mark className="size-6" />RakshaSetu</p>
       <div className="rounded-card bg-paper px-6 py-7 shadow-[var(--shadow-card)]">{children}</div>
-      <p className="mt-4 flex items-center gap-3 rounded-2xl bg-paper px-4 py-3 text-sm text-ink-2 shadow-[var(--shadow-card)]">
+      <p className="mt-4 flex items-center gap-3 rounded-2xl bg-paper px-4 py-3 text-body text-ink-2 shadow-[var(--shadow-card)]">
         <span className="grid size-9 shrink-0 place-items-center rounded-full bg-wash"><Phone className="size-4 text-ink" aria-hidden /></span>
         <span>You don&rsquo;t need to do anything here. If someone is in danger right now, call <b>112</b> or <b>1077</b>.</span>
       </p>

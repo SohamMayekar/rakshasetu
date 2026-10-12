@@ -28,8 +28,8 @@ export function Ring({ due, windowMs, overdue, label = "check-in due", demo }: {
                           transform="rotate(-90 11 11)" strokeLinecap="round" />}
         {late && <circle cx="11" cy="11" r={r} fill="#111" />}
       </svg>
-      {late ? <span className="rounded-full bg-ink px-2 py-0.5 text-xs font-medium text-paper">Contact overdue {mmss(-left)}</span>
-            : <span className="tabular text-sm">{label} <b>{mmss(left)}</b></span>}
+      {late ? <span className="rounded-full bg-ink px-2 py-0.5 text-small font-medium text-paper">Contact overdue {mmss(-left)}</span>
+            : <span className="tabular text-body">{label} <b>{mmss(left)}</b></span>}
       {demo && <span className="text-micro text-ink-3">demo clock: 60× faster</span>}
     </span>
   );

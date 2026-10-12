@@ -86,13 +86,13 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
         <h2 className="text-lg font-semibold tracking-tight">{imp ? imp.file_name : "Import a volunteer sheet"}</h2>
         <Button variant="quiet" size="sm" onClick={onClose}>Close</Button>
       </div>
-      <div className="flex-1 overflow-y-auto px-5 py-4 text-sm">
+      <div className="flex-1 overflow-y-auto px-5 py-4 text-body">
         {!imp && (
           <>
             <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border border-dashed border-ink-3 px-4 py-10 text-center hover:bg-wash"
                    onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) upload(f); }}>
               <span className="font-medium">{busy ? "Reading…" : "Drop a CSV or XLSX here, or choose a file"}</span>
-              <span className="text-xs text-ink-3">Excel or CSV, up to 5,000 rows.</span>
+              <span className="text-small text-ink-3">Excel or CSV, up to 5,000 rows.</span>
               <input type="file" accept=".csv,.xlsx" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f); }} />
             </label>
             {recent.length > 0 && (
@@ -100,7 +100,7 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
                 {recent.map((r) => (
                   <li key={r.id}><button className="w-full py-2 text-left hover:bg-wash" onClick={() => load(r.id)}>
                     <span className="font-medium">{r.file_name}</span> <span className="text-ink-3">· {r.status}</span>
-                    {r.summary && <span className="block text-xs text-ink-2">{r.summary}</span>}
+                    {r.summary && <span className="block text-small text-ink-2">{r.summary}</span>}
                   </button></li>
                 ))}
               </ul>
@@ -122,7 +122,7 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
                               className="h-8 rounded-lg border border-line bg-paper px-2">
                         {FIELDS.map((f) => <option key={f} value={f}>{f}</option>)}
                       </select>
-                      {imp.proposed[h] === "unknown" && <span className="ml-2 text-xs text-ink-3">not used</span>}
+                      {imp.proposed[h] === "unknown" && <span className="ml-2 text-small text-ink-3">not used</span>}
                     </td>
                   </tr>
                 ))}
@@ -133,7 +133,7 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
               {imp.preview.map((p) => {
                 const r = p.reads_as;
                 return (
-                  <li key={p.row} className="rounded-md bg-wash px-2 py-1.5 text-xs">
+                  <li key={p.row} className="rounded-md bg-wash px-2 py-1.5 text-small">
                     <span className="tabular text-ink-3">row {p.row} · </span>
                     {[r.name, r.headcount != null && `${r.headcount_kind === "estimated" ? "~" : ""}${r.headcount} people`, r.village, r.phone].filter(Boolean).join(" · ")}
                     {p.flags.map((f) => <Chip key={f} tone="attention">{flagWord(f)}</Chip>)}
@@ -161,7 +161,7 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
             <div className="mt-3 flex flex-wrap gap-1.5">
               {OUTCOMES.filter(([k]) => count(k) > 0).map(([k, label]) => (
                 <button key={k} onClick={() => setFilter(k)}
-                        className={`rounded-full px-2.5 py-1 text-xs ${filter === k ? "bg-ink text-paper" : "border border-line text-ink-2 hover:bg-wash"}`}>
+                        className={`rounded-full px-2.5 py-1 text-small ${filter === k ? "bg-ink text-paper" : "border border-line text-ink-2 hover:bg-wash"}`}>
                   <span className="tabular">{count(k)}</span> {label}
                 </button>
               ))}
@@ -170,9 +170,9 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
               {shown.map((r) => (
                 <li key={r.row_number} className="flex items-start justify-between gap-3 py-2">
                   <span className="min-w-0">
-                    <span className="tabular text-xs text-ink-3">row {r.row_number}</span>
-                    <span className="block text-sm">{r.reason}</span>
-                    {r.flags.length > 0 && <span className="text-xs text-ink-2">{r.flags.map(flagWord).join(" · ")}</span>}
+                    <span className="tabular text-small text-ink-3">row {r.row_number}</span>
+                    <span className="block text-body">{r.reason}</span>
+                    {r.flags.length > 0 && <span className="text-small text-ink-2">{r.flags.map(flagWord).join(" · ")}</span>}
                   </span>
                   {r.case_id && <Button size="sm" className="shrink-0" onClick={() => onOpenCase(r.case_id!)}>{r.public_id}</Button>}
                 </li>
@@ -180,7 +180,7 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
             </ol>
           </>
         )}
-        {error && <p className="mt-3 rounded-md bg-wash px-2 py-1 text-xs">{error}</p>}
+        {error && <p className="mt-3 rounded-md bg-wash px-2 py-1 text-small">{error}</p>}
       </div>
     </aside>
   );

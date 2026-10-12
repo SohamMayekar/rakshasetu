@@ -12,7 +12,7 @@ import { AssignmentPanel } from "@/components/desk/AssignmentPanel";
 import { Facts } from "@/components/desk/Facts";
 import { Matches } from "@/components/desk/Matches";
 import { Timeline } from "@/components/desk/Timeline";
-import { ArrowUpDown, ChevronDown, ClipboardCheck, History, type LucideIcon, MapPin, ShieldCheck, Users, X } from "lucide-react";
+import { ArrowUpDown, ChevronDown, ClipboardCheck, History, LifeBuoy, type LucideIcon, MapPin, ShieldCheck, Users, X } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { Because, Button, Chip, Priority, PriorityWell } from "@/components/ui";
@@ -28,13 +28,13 @@ function Fold({ title, icon: Icon, hint, open, onToggle, children }: {
 }) {
   return (
     <section data-section={title} className="border-t border-line first:border-t-0">
-      <button onClick={onToggle} aria-expanded={open} className="flex w-full items-center gap-2 py-3.5 text-left">
-        <Icon className="size-4 shrink-0 text-ink-3" strokeWidth={1.9} aria-hidden />
-        <span className="text-body font-semibold tracking-tight">{title}</span>
-        {hint && !open && <span className="min-w-0 flex-1 truncate text-sm text-ink-3">· {hint}</span>}
+      <button onClick={onToggle} aria-expanded={open} className="flex min-h-12 w-full items-center gap-2.5 py-3 text-left">
+        <Icon className="size-4 shrink-0 text-ink-3" strokeWidth={1.8} aria-hidden />
+        <span className="shrink-0 text-body font-semibold">{title}</span>
+        {hint && !open && <span className="min-w-0 flex-1 truncate text-small text-ink-3">{hint}</span>}
         <ChevronDown className={`ml-auto size-4 shrink-0 text-ink-3 transition-transform ${open ? "rotate-180" : ""}`} aria-hidden />
       </button>
-      {open && <div className="pb-5">{children}</div>}
+      {open && <div className="pb-6 pt-1">{children}</div>}
     </section>
   );
 }
@@ -76,11 +76,11 @@ function Decide({ c, onDone }: { c: Case; onDone: () => void }) {
       try { await api(`/v1/cases/${c.id}/${f.get("kind")}`, { method: "POST", json: { reason: String(f.get("reason")) } }); setOpen(false); onDone(); }
       catch (x) { setError(x instanceof Error ? x.message : String(x)); }
     }}>
-      <select name="kind" className="h-8 rounded-lg border border-line bg-paper px-2 text-sm">{kinds.map((k) => <option key={k} value={k}>{{ close: "close", cancel: "cancel (not a real request)", reopen: "reopen" }[k]}</option>)}</select>
-      <input name="reason" required minLength={3} autoFocus placeholder="Why (logged)" className="h-8 min-w-0 flex-1 rounded-lg border border-line px-2 text-sm" />
+      <select name="kind" className="h-8 rounded-lg border border-line bg-paper px-2 text-body">{kinds.map((k) => <option key={k} value={k}>{{ close: "close", cancel: "cancel (not a real request)", reopen: "reopen" }[k]}</option>)}</select>
+      <input name="reason" required minLength={3} autoFocus placeholder="Why (logged)" className="h-8 min-w-0 flex-1 rounded-lg border border-line px-2 text-body" />
       <Button size="sm" variant="primary" type="submit">Confirm</Button>
       <Button size="sm" variant="quiet" type="button" onClick={() => setOpen(false)}>Cancel</Button>
-      {error && <span className="w-full text-xs">{error}</span>}
+      {error && <span className="w-full text-small">{error}</span>}
     </form>
   );
 }
@@ -102,14 +102,14 @@ function PriorityCall({ c, onDone }: { c: Case; onDone: () => void }) {
         setOpen(false); onDone();
       } catch (x) { setError(x instanceof Error ? x.message : String(x)); }
     }}>
-      <select name="level" defaultValue={c.priority} className="h-8 rounded-lg border border-line bg-paper px-2 text-sm">
+      <select name="level" defaultValue={c.priority} className="h-8 rounded-lg border border-line bg-paper px-2 text-body">
         {["P1", "P2", "P3", "P4"].map((l) => <option key={l} value={l}>{priorityWord(l)} ({l})</option>)}
         {o && <option value="rules">back to the rules</option>}
       </select>
-      <input name="reason" required minLength={3} autoFocus placeholder="Why (shown on the case)" className="h-8 min-w-0 flex-1 rounded-lg border border-line px-2 text-sm" />
+      <input name="reason" required minLength={3} autoFocus placeholder="Why (shown on the case)" className="h-8 min-w-0 flex-1 rounded-lg border border-line px-2 text-body" />
       <Button size="sm" variant="primary" type="submit">Confirm</Button>
       <Button size="sm" variant="quiet" type="button" onClick={() => setOpen(false)}>Cancel</Button>
-      {error && <span className="w-full text-xs">{error}</span>}
+      {error && <span className="w-full text-small">{error}</span>}
     </form>
   );
 }
@@ -129,11 +129,11 @@ function ManualMerge({ c, onDone }: { c: Case; onDone: (kept: number) => void })
         setOpen(false); onDone(kept.id);
       } catch (x) { setError(x instanceof Error ? x.message : String(x)); }
     }}>
-      <input name="other" required placeholder="BR-214" className="h-8 w-24 rounded-lg border border-line px-2 text-sm tabular" autoFocus />
-      <input name="reason" required minLength={3} placeholder="Why (logged)" className="h-8 min-w-0 flex-1 rounded-lg border border-line px-2 text-sm" />
+      <input name="other" required placeholder="BR-214" className="h-8 w-24 rounded-lg border border-line px-2 text-body tabular" autoFocus />
+      <input name="reason" required minLength={3} placeholder="Why (logged)" className="h-8 min-w-0 flex-1 rounded-lg border border-line px-2 text-body" />
       <Button size="sm" variant="primary" type="submit">Merge</Button>
       <Button size="sm" variant="quiet" type="button" onClick={() => setOpen(false)}>Cancel</Button>
-      {error && <span className="w-full text-xs">{error}</span>}
+      {error && <span className="w-full text-small">{error}</span>}
     </form>
   );
 }
@@ -214,32 +214,34 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
   return (
     <aside className="fixed inset-0 z-40 flex flex-col overflow-hidden bg-paper md:static md:h-full md:w-[440px] md:shrink-0 md:rounded-card md:border md:border-line/80 md:shadow-[var(--shadow-card)]" aria-label={`Case ${c.public_id}`}>
       <div ref={body} className="scroll-quiet flex-1 overflow-y-auto">
-      <div className="m-3 mb-0 rounded-2xl bg-wash px-4 py-4">
+      <div className="m-3 mb-0 rounded-xl bg-wash p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
             <PriorityWell level={c.priority} size="lg" />
             <p className="flex min-w-0 flex-wrap items-baseline gap-2">
               <Priority level={c.priority} shape={false} />
-              <span className="tabular text-xl font-semibold tracking-tight">{c.public_id}</span>
+              <span className="tabular text-title font-semibold">{c.public_id}</span>
             </p>
           </div>
           <Button variant="quiet" size="sm" onClick={onClose} aria-label="Close" title="Close"><X className="size-4" aria-hidden />Close</Button>
         </div>
-        <p className="mt-3 text-heading font-semibold leading-snug">{c.summary}</p>
-        <p className="mt-1.5 flex items-start gap-1.5 text-sm">
-          <MapPin className="mt-0.5 size-4 shrink-0 text-ink-3" aria-hidden />
-          <span>{c.location_text ?? "Place not known yet"}{c.radius_m ? <span className="text-ink-2"> · {within(c.radius_m)}</span> : null}
-            {c.location_method && <span className="block text-xs text-ink-3">{plainPlace(c.location_method).replace(/^within [^:]+: /, "")}</span>}</span>
-        </p>
-        <p className="mt-1.5 text-sm">
-          <span className={a?.state === "overdue" ? "rounded-md bg-ink px-1.5 text-paper" : "text-ink-2"}>{statusLine(c, a)}</span>
-          {!c.checked_at && open && <span className="text-ink-3"> · not checked yet</span>}
-        </p>
+        <p className="mt-4 text-heading font-semibold">{c.summary}</p>
+        {/* where and status share one icon column, so their text starts at the same edge (m80) */}
+        <dl className="mt-3 grid grid-cols-[1rem_1fr] gap-x-2.5 gap-y-2 text-body">
+          <dt className="pt-0.5"><MapPin className="size-4 text-ink-3" aria-label="Where" /></dt>
+          <dd className="min-w-0">{c.location_text ?? "Place not known yet"}{c.radius_m ? <span className="text-ink-2"> · {within(c.radius_m)}</span> : null}
+            {c.location_method && <span className="block text-small text-ink-3">{plainPlace(c.location_method).replace(/^within [^:]+: /, "")}</span>}</dd>
+          <dt className="pt-0.5"><LifeBuoy className="size-4 text-ink-3" aria-label="Status" /></dt>
+          <dd className="min-w-0">
+            <span className={a?.state === "overdue" ? "rounded-md bg-ink px-1.5 text-paper" : ""}>{statusLine(c, a)}</span>
+            {!c.checked_at && open && <span className="block text-small text-ink-3">not checked yet</span>}
+          </dd>
+        </dl>
         {c.flags.includes("instruction_like_text") && <p className="mt-2"><Chip tone="attention">words that look like orders: read them</Chip></p>}
         {notes.filter((n) => n.kind === "priority").map((n) => (   // a partner suggests; an officer decides
-          <div key={n.id} className="mt-3 rounded-xl border border-line bg-paper px-3 py-2.5 text-sm">
+          <div key={n.id} className="mt-3 rounded-xl border border-line bg-paper px-3 py-2.5 text-body">
             <p><b>{n.team}</b> suggests <b>{withWords(String(n.value))}</b>{n.confidence != null ? ` · ${n.confidence.toFixed(2)}` : ""}{n.explanation ? ` · ${n.explanation}` : ""}</p>
-            {n.decision ? <p className="text-xs text-ink-3">{n.decision} by an officer</p>
+            {n.decision ? <p className="text-small text-ink-3">{n.decision} by an officer</p>
               : can("priority.override") && (
                 <p className="mt-1.5 flex gap-2">
                   <Button size="sm" variant="primary" onClick={() => act(() => api(`/v1/partner-annotations/${n.id}/accept`, { method: "POST", json: {} }))}>Accept</Button>
@@ -248,7 +250,7 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
               )}
           </div>
         ))}
-        <div className="mt-3 flex flex-wrap items-center gap-2">
+        <div className="mt-4 flex flex-wrap items-center gap-2">
           {next && <Button variant="primary" onClick={next.run}>{next.label}</Button>}
           <Button size="sm" variant="quiet" onClick={() => setMore(!more)} aria-expanded={more}>{more ? "Less" : "More"}</Button>
         </div>
@@ -269,7 +271,7 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
           </div>
         )}
         {picking && (
-          <form className="mt-3 space-y-2 rounded-xl border border-line bg-paper p-3 text-sm" onSubmit={(e) => { e.preventDefault(); savePin(new FormData(e.currentTarget)); }}>
+          <form className="mt-3 space-y-2 rounded-xl border border-line bg-paper p-3 text-body" onSubmit={(e) => { e.preventDefault(); savePin(new FormData(e.currentTarget)); }}>
             <p>{picked ? <>New place at <span className="tabular">{picked.lat.toFixed(5)}, {picked.lng.toFixed(5)}</span> · a person placed it, so its circle is 50 m.</>
                        : "Click the map where the family is."}</p>
             {picked && <input name="reason" required minLength={3} placeholder="Why (logged), e.g. caller confirmed on phone" className="h-8 w-full rounded-lg border border-line px-2" autoFocus />}
@@ -279,7 +281,7 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
             </div>
           </form>
         )}
-        {error && <p className="mt-2 rounded-lg bg-paper px-2 py-1 text-xs">{error}</p>}
+        {error && <p className="mt-2 rounded-lg bg-paper px-2 py-1 text-small">{error}</p>}
       </div>
       <div className="px-5 pt-1">
         <Fold title="Assignment" icon={Users} open={opened.has("Assignment")} onToggle={() => toggle("Assignment")}
@@ -287,27 +289,27 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
           {detail ? <AssignmentPanel c={c} assignment={detail.assignment}
                                      escalation={escalations.find((e) => e.kind === "team_overdue" && e.case_ids.includes(c.id))}
                                      can={can} onChanged={() => { onChanged(); load(); }} />
-                  : <p className="text-sm text-ink-3">Loading…</p>}
+                  : <p className="text-body text-ink-3">Loading…</p>}
         </Fold>
         <Fold title="Facts" icon={ClipboardCheck} open={opened.has("Facts")} onToggle={() => toggle("Facts")}
               hint="with the caller's own words">
           <Facts c={c} canEdit={can("case.edit")} onQuote={setQuote} onChanged={load} />
           {detail?.reports[0]?.reporter_phone_masked && (
-            <p className="mt-2 text-sm"><span className="text-ink-3">Contact</span> <span className="tabular">{detail.reports[0].reporter_phone_masked}</span>
+            <p className="mt-2 text-body"><span className="text-ink-3">Contact</span> <span className="tabular">{detail.reports[0].reporter_phone_masked}</span>
               {detail.reports[0].reporter_relation && detail.reports[0].reporter_relation !== "unknown" && <span className="text-ink-3"> · {detail.reports[0].reporter_relation}</span>}</p>
           )}
         </Fold>
         <Fold title="Timeline & evidence" icon={History} open={opened.has("Timeline & evidence")} onToggle={() => toggle("Timeline & evidence")}
-              hint={tl ? `${tl.events.length} events · ${evidenceCount} evidence ${evidenceCount === 1 ? "item" : "items"}` : undefined}>
+              hint={tl ? `${tl.events.length} events · ${evidenceCount ? `${evidenceCount} evidence ${evidenceCount === 1 ? "item" : "items"}` : "no evidence yet"}` : undefined}>
           <Matches c={c} suggestions={suggestions} lookup={lookup} canDecide={can("merge.decide")}
                    onDone={(kept) => { onChanged(); load(); if (kept && kept !== c.id) onSelect(kept); }} />
           {tl && detail ? <Timeline events={tl.events} evidence={tl.evidence} reports={detail.reports} quote={quote} notes={notes}
                                     canUndo={can("merge.decide")} onChanged={() => { onChanged(); load(); }} />
-                        : <p className="text-sm text-ink-3">Loading…</p>}
+                        : <p className="text-body text-ink-3">Loading…</p>}
           {can("merge.decide") && <ManualMerge c={c} onDone={(kept) => { onChanged(); load(); if (kept !== c.id) onSelect(kept); }} />}
         </Fold>
         <Fold title="Audit" icon={ShieldCheck} open={opened.has("Audit")} onToggle={() => toggle("Audit")} hint="every change to this case">
-          <a className="inline-block text-sm underline underline-offset-2" href={`/audit?case=${c.id}`}>See this case&rsquo;s full history</a>
+          <a className="inline-block text-body underline underline-offset-2" href={`/audit?case=${c.id}`}>See this case&rsquo;s full history</a>
         </Fold>
       </div>
       </div>

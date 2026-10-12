@@ -9,7 +9,7 @@ export function Chip({ tone = "neutral", children, title }: { tone?: "attention"
     neutral: "border border-line bg-paper text-ink-2",
     quiet: "bg-wash text-ink-2",
   }[tone];
-  return <span title={title} className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap ${cls}`}>{children}</span>;
+  return <span title={title} className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-small font-medium whitespace-nowrap ${cls}`}>{children}</span>;
 }
 
 export type Method = "ai" | "rule" | "human" | "partner" | "fixture";
@@ -35,7 +35,7 @@ export function Check({ state, title }: { state: "checked" | "unchecked" | "ambe
   const glyph = state === "checked" ? "●" : "○";
   const cls = state === "amber" ? "text-amber" : state === "checked" ? "text-ink" : "text-ink-3";
   const t = title ?? { checked: "Checked by a person", unchecked: "Not checked yet", amber: "Check this: the quote wasn't found, or the keywords disagree" }[state];
-  return <span aria-label={t} title={t} className={`text-xs leading-none ${cls}`}>{glyph}</span>;
+  return <span aria-label={t} title={t} className={`text-small leading-none ${cls}`}>{glyph}</span>;
 }
 
 const CHANNEL: Record<string, string> = { voice: "Voice", whatsapp: "WhatsApp", spreadsheet: "Sheet", web_form: "Typed at the desk", partner: "Partner system" };

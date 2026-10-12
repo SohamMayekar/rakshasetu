@@ -12,14 +12,14 @@ import { type Method, MethodChip } from "./chips";
 export function NewPill({ count, onShow }: { count: number; onShow: () => void }) {
   if (count <= 0) return null;
   return (
-    <button onClick={onShow} className="mx-auto flex items-center gap-1 rounded-full bg-ink px-3 py-1 text-xs font-medium text-paper shadow-sm">
+    <button onClick={onShow} className="mx-auto flex items-center gap-1 rounded-full bg-ink px-3 py-1 text-small font-medium text-paper shadow-sm">
       <span aria-hidden>▲</span><span className="tabular">{count}</span> new: show
     </button>
   );
 }
 
 export function Empty({ children }: { children: ReactNode }) {
-  return <div className="px-6 py-10 text-center text-sm text-ink-2">{children}</div>;
+  return <div className="px-6 py-10 text-center text-body text-ink-2">{children}</div>;
 }
 
 export type ReceiptStep = { step: string; by: string; detail: string };
@@ -45,7 +45,7 @@ export function Receipt({ steps }: { steps: ReceiptStep[] }) {
 export function CircleLegend() {
   const items: [string, boolean][] = [["within ~150 m", false], ["within ~300 m", false], ["somewhere in ~1.5 km", true]];
   return (
-    <div className="flex gap-4 text-xs text-ink-2">
+    <div className="flex gap-4 text-small text-ink-2">
       {items.map(([label, dashed]) => (
         <span key={label} className="inline-flex items-center gap-1.5">
           <svg width="16" height="16" aria-hidden><circle cx="8" cy="8" r="6.5" fill="rgba(17,17,17,0.06)" stroke="#111" strokeWidth="1.2" strokeDasharray={dashed ? "2.5 2" : undefined} /></svg>
@@ -61,7 +61,7 @@ export function Caption({ text }: { text: string | null }) {
   if (!text) return null;
   return (
     <div role="status" aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-4 z-50 flex justify-center px-4">
-      <p className="max-w-3xl rounded-xl bg-ink/90 px-4 py-2 text-center text-sm text-paper shadow-lg">{text}</p>
+      <p className="max-w-3xl rounded-xl bg-ink/90 px-4 py-2 text-center text-body text-paper shadow-lg">{text}</p>
     </div>
   );
 }

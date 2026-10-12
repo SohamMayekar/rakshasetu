@@ -37,7 +37,7 @@ export function PageHeader({ title, sub, aside }: { title: ReactNode; sub?: Reac
 // A quiet pill for "where/when" facts in a header (today's date, a filter), like a label you can't miss.
 export function Pill({ icon: Icon, children, title }: { icon?: LucideIcon; children: ReactNode; title?: string }) {
   return (
-    <span title={title} className="inline-flex h-9 items-center gap-2 rounded-full bg-paper px-3.5 text-sm text-ink-2 shadow-[var(--shadow-card)]">
+    <span title={title} className="inline-flex h-9 items-center gap-2 rounded-full bg-paper px-3.5 text-body text-ink-2 shadow-[var(--shadow-card)]">
       {Icon && <Icon className="size-4 text-ink-3" strokeWidth={1.8} aria-hidden />}
       {children}
     </span>

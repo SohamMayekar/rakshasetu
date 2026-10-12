@@ -172,7 +172,7 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
       {me?.permissions.includes("totals.view") && <Today incident={incident} queue={queue} />}
       <div className="flex min-h-0 flex-1 gap-3">
         <nav className={`flex w-full shrink-0 flex-col overflow-hidden md:w-[356px] ${card}`} aria-label="Needs you now">
-          {saved && <p className="truncate px-4 pt-3 text-xs text-ink-2">Report saved {saved.line}</p>}
+          {saved && <p className="truncate px-4 pt-3 text-small text-ink-2">Report saved {saved.line}</p>}
           <Escalations items={escalations} publicIds={(id) => cases.get(id)?.public_id}
                        onOpenCase={(id) => { setSelected(id); setFocus("Assignment"); setComposing(false); setImporting(null); }}
                        onChanged={loadQueue} />

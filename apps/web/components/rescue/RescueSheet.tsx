@@ -18,29 +18,29 @@ export function RescueSheet({ reported, onRecord, big = true }: {
 }) {
   const [taken, setTaken] = useState<number>(reported ?? 1);
   const [more, setMore] = useState<null | "reach" | "other">(null);
-  const h = big ? "min-h-16 text-lg" : "min-h-10 text-sm";
+  const h = big ? "min-h-16 text-lg" : "min-h-10 text-body";
   const btn = (primary = false) => `flex w-full items-center justify-center rounded-2xl px-4 font-semibold ${h} ${
     primary ? "bg-ink text-paper" : "border-2 border-ink bg-paper text-ink"}`;
   return (
     <div className="space-y-4">
       <div>
-        <p className={big ? "text-lg font-medium" : "text-sm font-medium"}>How many people did you take?</p>
+        <p className={big ? "text-lg font-medium" : "text-body font-medium"}>How many people did you take?</p>
         <div className="mt-2 flex items-center gap-3">
           <button className={`${btn()} !w-20`} onClick={() => setTaken(Math.max(0, taken - 1))} aria-label="One fewer">−</button>
           <span className={`tabular ${big ? "text-5xl" : "text-3xl"} w-20 text-center font-semibold`} aria-live="polite">{taken}</span>
           <button className={`${btn()} !w-20`} onClick={() => setTaken(taken + 1)} aria-label="One more">+</button>
         </div>
-        {reported != null && <p className="mt-1 text-sm text-ink-2">Reported: {reported}</p>}
+        {reported != null && <p className="mt-1 text-body text-ink-2">Reported: {reported}</p>}
       </div>
       <div>
-        <p className={big ? "text-lg font-medium" : "text-sm font-medium"}>Is anyone still there?</p>
+        <p className={big ? "text-lg font-medium" : "text-body font-medium"}>Is anyone still there?</p>
         <div className="mt-2 grid grid-cols-3 gap-2">
           <button className={btn(true)} onClick={() => onRecord({ people_taken: taken, anyone_left: "no" }, `Rescued ${taken} · nobody left`)}>No</button>
           <button className={btn()} onClick={() => onRecord({ people_taken: taken, anyone_left: "yes" }, `Took ${taken} · someone still there`)}>Yes</button>
           <button className={btn()} onClick={() => onRecord({ people_taken: taken, anyone_left: "dont_know" }, `Took ${taken} · don't know`)}>Don&rsquo;t know</button>
         </div>
       </div>
-      <details className="text-sm">
+      <details className="text-body">
         <summary className="cursor-pointer select-none py-2 underline underline-offset-4">Couldn&rsquo;t do it?</summary>
         <div className="mt-2 space-y-2">
           <button className={btn()} onClick={() => onRecord({ outcome: "nobody_here" }, "Nobody here")}>Nobody here</button>
@@ -55,7 +55,7 @@ export function RescueSheet({ reported, onRecord, big = true }: {
             <form className="space-y-2" onSubmit={(e) => { e.preventDefault(); onRecord({ outcome: "other", reason: String(new FormData(e.currentTarget).get("reason")) }, "Told the officer"); }}>
               <textarea name="reason" required minLength={3} rows={3} placeholder="What should the officer know?" className="w-full rounded-xl border border-line p-3" />
               <button className={btn(true)}>Send to the officer</button>
-              <p className="text-xs text-ink-3">No automatic message goes to the family after this.</p>
+              <p className="text-small text-ink-3">No automatic message goes to the family after this.</p>
             </form>
           )}
         </div>

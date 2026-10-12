@@ -52,7 +52,7 @@ export default function Audit() {
                     sub="Every change, in order. If anyone edits the past, the check finds it."
                     aside={<Button variant="primary" onClick={run} disabled={busy}><ShieldCheck className="size-4" aria-hidden />{busy ? "Checking…" : "Check nothing was changed"}</Button>} />
         {(verify || anchors.length > 0) && (
-          <Card className="mt-5 flex flex-col gap-2 px-5 py-4 text-sm">
+          <Card className="mt-5 flex flex-col gap-2 px-5 py-4 text-body">
             {verify && (verify.ok
               ? <p className="flex items-center gap-2.5"><IconWell icon={ShieldCheck} size="sm" /><span>✓ <b className="tabular">{verify.count.toLocaleString("en-IN")}</b> events verified: nothing was changed</span></p>
               : <p className="flex items-center gap-2.5"><IconWell icon={ShieldAlert} size="sm" tone="ink" /><span className="rounded-md bg-ink px-2 py-0.5 text-paper">Changed at entry #{verify.broken_at}: {verify.problem}</span></p>)}
@@ -66,8 +66,8 @@ export default function Audit() {
         <p className="mt-5 flex justify-end"><Button size="sm" variant="quiet" onClick={() => setDetails(!details)} aria-expanded={details}>
           {details ? "Hide details" : "Show details"}</Button></p>
         <Card className="mt-1 overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead><tr className="border-b border-line text-left text-xs text-ink-3">
+          <table className="w-full text-body">
+            <thead><tr className="border-b border-line text-left text-small text-ink-3">
               {details && <th className="py-3 pl-5 pr-3 font-medium">#</th>}<th className={`py-3 pr-3 font-medium ${details ? "" : "pl-5"}`}>time</th><th className="pr-3 font-medium">who</th>
               <th className="pr-3 font-medium">what happened</th><th className="pr-3 font-medium">why</th>{details && <th className="pr-5 font-medium">fingerprint</th>}</tr></thead>
             <tbody>
@@ -78,7 +78,7 @@ export default function Audit() {
                   <td className="py-2 pr-3">{e.actor.type === "user" ? ROLE[e.actor.role ?? ""] ?? e.actor.role : e.actor.type}</td>
                   <td className="py-2 pr-3"><span className="font-medium">{plainEvent(e.action)}</span> <span className="text-ink-3">{e.entity.type.replace(/_/g, " ")} {e.entity.id}</span></td>
                   <td className="py-2 pr-3 text-ink-2">{e.reason}</td>
-                  {details && <td className="tabular py-2 pr-5 text-xs text-ink-3">{e.hash.slice(0, 12)}…</td>}
+                  {details && <td className="tabular py-2 pr-5 text-small text-ink-3">{e.hash.slice(0, 12)}…</td>}
                 </tr>
               ))}
             </tbody>

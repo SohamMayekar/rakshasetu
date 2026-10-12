@@ -82,7 +82,7 @@ export function Sidebar({ me, compact = false }: { me: Me | null; compact?: bool
           const Icon = i.icon;
           return (
             <a key={i.href} href={i.href} title={compact ? i.label : undefined} aria-current={on(i) ? "page" : undefined}
-               className={`flex items-center gap-3 rounded-xl text-sm transition-colors ${compact ? "size-11 justify-center" : "h-10 px-3"}
+               className={`flex items-center gap-3 rounded-xl text-body transition-colors ${compact ? "size-11 justify-center" : "h-10 px-3"}
                  ${on(i) ? "bg-paper font-medium text-ink shadow-[0_1px_2px_rgba(20,20,20,0.06)]" : "text-ink-2 hover:bg-black/[0.04] hover:text-ink"}`}>
               <Icon className="size-[18px] shrink-0" strokeWidth={1.8} aria-hidden />
               {!compact && <span className="truncate">{i.label}</span>}
@@ -95,21 +95,21 @@ export function Sidebar({ me, compact = false }: { me: Me | null; compact?: bool
       <div className="flex-1" />
 
       {!compact && me?.demo_mode && (
-        <div className="mb-4 rounded-2xl bg-paper p-4 text-xs leading-relaxed text-ink-2 shadow-[0_1px_2px_rgba(20,20,20,0.05)]">
-          <p className="text-sm font-semibold text-ink">Demo data</p>
+        <div className="mb-4 rounded-2xl bg-paper p-4 text-small leading-relaxed text-ink-2 shadow-[0_1px_2px_rgba(20,20,20,0.05)]">
+          <p className="text-body font-semibold text-ink">Demo data</p>
           <p className="mt-1">People and phone numbers are made up. The clock runs 60× faster.</p>
         </div>
       )}
 
       {me && (
         <div className={`flex items-center gap-2.5 ${compact ? "flex-col" : "px-1"}`}>
-          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-ink text-xs font-semibold text-paper" title={`${me.user.name} · ${me.user.role_label}`}>
+          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-ink text-small font-semibold text-paper" title={`${me.user.name} · ${me.user.role_label}`}>
             {initials(me.user.name)}
           </span>
           {!compact && (
             <span className="min-w-0 flex-1 leading-tight">
-              <span className="block truncate text-sm font-medium">{me.user.name}</span>
-              <span className="block truncate text-xs text-ink-3">{me.user.role_label}</span>
+              <span className="block truncate text-body font-medium">{me.user.name}</span>
+              <span className="block truncate text-small text-ink-3">{me.user.role_label}</span>
             </span>
           )}
           <a href="/login" onClick={() => fetch("/v1/auth/logout", { method: "POST" })} title="Sign out"

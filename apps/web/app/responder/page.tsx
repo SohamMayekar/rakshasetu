@@ -23,7 +23,7 @@ function Login({ onIn }: { onIn: () => void }) {
   const [error, setError] = useState<string | null>(null);
   return (
     <main className="mx-auto min-h-dvh max-w-md bg-canvas px-5 py-8">
-      <p className="flex items-center gap-2 text-sm font-semibold"><Mark className="size-6" />RakshaSetu · Team</p>
+      <p className="flex items-center gap-2 text-body font-semibold"><Mark className="size-6" />RakshaSetu · Team</p>
       <h1 className="mt-6 text-3xl font-semibold tracking-tight">Sign in as your team</h1>
       <form className="mt-6 space-y-3 rounded-card bg-paper p-5 shadow-[var(--shadow-card)]" onSubmit={async (e) => {
         e.preventDefault();
@@ -34,7 +34,7 @@ function Login({ onIn }: { onIn: () => void }) {
         <input name="u" placeholder="Username" autoComplete="username" className="h-14 w-full rounded-xl border border-line px-4 text-lg" />
         <input name="p" type="password" placeholder="Password" autoComplete="current-password" className="h-14 w-full rounded-xl border border-line px-4 text-lg" />
         <BigButton>Sign in</BigButton>
-        {error && <p className="text-sm">{error}</p>}
+        {error && <p className="text-body">{error}</p>}
       </form>
     </main>
   );
@@ -57,9 +57,9 @@ function NewCase({ c }: { c: MyCase }) {
       <p className="mt-2 flex items-baseline gap-3 text-4xl font-semibold tracking-tight"><Priority level={c.priority} /><span className="tabular">{c.public_id}</span></p>
       <p className="mt-4 text-2xl leading-snug">{c.summary}</p>
       <p className="mt-2 text-lg text-ink-2">{where(c)}</p>
-      {c.priority_reasons.length > 0 && <p className="mt-1 text-sm text-ink-3">{PRIORITY_WORD[c.priority]} because {c.priority_reasons.join(" · ")}</p>}
+      {c.priority_reasons.length > 0 && <p className="mt-1 text-body text-ink-3">{PRIORITY_WORD[c.priority]} because {c.priority_reasons.join(" · ")}</p>}
       <div className="mt-auto space-y-3">
-        <p className="text-center text-sm text-ink-2">Accept: we&rsquo;ll be there in</p>
+        <p className="text-center text-body text-ink-2">Accept: we&rsquo;ll be there in</p>
         <div className="grid grid-cols-3 gap-3">
           {[15, 30, 60].map((m) => (
             <BigButton key={m} variant={m === 30 ? "primary" : "secondary"}
@@ -130,7 +130,7 @@ export default function Responder() {
   return (
     <main className="mx-auto min-h-dvh max-w-md bg-canvas px-5 pb-10 pt-6">
       {offered && <NewCase c={offered} />}
-      <p className="flex items-center gap-2 text-sm font-semibold"><Mark className="size-6" />RakshaSetu · {team?.name}</p>
+      <p className="flex items-center gap-2 text-body font-semibold"><Mark className="size-6" />RakshaSetu · {team?.name}</p>
       <h1 className="mt-5 text-3xl font-semibold tracking-tight">My cases</h1>
       {offlineSince && (
         <p className="mt-3 rounded-xl bg-ink px-4 py-2 text-base text-paper">
@@ -149,7 +149,7 @@ export default function Responder() {
             <a href={`/responder/case/${c.id}`} className="block active:opacity-70">
               <p className="flex items-baseline justify-between gap-2">
                 <span className="flex items-baseline gap-2 text-xl font-semibold"><Priority level={c.priority} /><span className="tabular">{c.public_id}</span></span>
-                <span className="text-sm text-ink-2">{{ offered: "new", acknowledged: "accepted", reached: "you are there" }[c.phase]}</span>
+                <span className="text-body text-ink-2">{{ offered: "new", acknowledged: "accepted", reached: "you are there" }[c.phase]}</span>
               </p>
               <p className="mt-1 text-lg leading-snug">{c.summary}</p>
               <p className="text-ink-2">{where(c)}</p>
@@ -167,7 +167,7 @@ export default function Responder() {
           </li>
         ))}
       </ul>
-      <p className="mt-8 text-xs text-ink-3">Only a tap here or a radio call counts as a check-in.</p>
+      <p className="mt-8 text-small text-ink-3">Only a tap here or a radio call counts as a check-in.</p>
     </main>
   );
 }

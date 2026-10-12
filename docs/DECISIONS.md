@@ -106,3 +106,6 @@ The team asked for a design pass using public design skills (Anthropic frontend-
 
 ### D36 · On the desk, surfaces mean something: three columns and one strip
 The desk had seven floating white cards (three number tiles, two header pills, the list, the map) all at the same elevation, so elevation meant nothing (the references call this the SaaS-card kit). Now the surfaces are the things you work in (the list, the map, the case panel) and one strip that holds the three numbers together; the header is plain text. Rows have one fixed anatomy so the eye scans one column of places and one column of actions. **Rejected:** removing the number strip's surface entirely (on the projector the numbers need a frame to read as one unit).
+
+### D37 · Every screen uses the six text sizes, including the defaults we used to reach for
+After m78 the custom pixel sizes were gone but Tailwind's own 12 and 14 px sizes were still everywhere, so the panel mixed 12, 13, 14 and 15 px in one column. They now map onto the scale (12 → 13, 14 → 15). The phones keep their larger field sizes (18 px and up), because CLAUDE.md asks for ≥ 64 px responder buttons and phone browsers zoom into inputs under 16 px. **Rejected:** shrinking body text to 13 px for density (the projector is read from across a room).

@@ -32,10 +32,10 @@ export default function PartnerLog() {
       <Page wide>
         <PageHeader title="A partner system"
                     sub="Another team's system can send us notes about a case. This one is our own, simulated. Every call, both ways:" />
-        {error && <p className="mt-4 rounded-xl bg-paper px-4 py-2 text-sm">{error}</p>}
+        {error && <p className="mt-4 rounded-xl bg-paper px-4 py-2 text-body">{error}</p>}
 
         {!!data?.anchors.length && (
-          <Card className="mt-5 space-y-2 px-5 py-4 text-sm">
+          <Card className="mt-5 space-y-2 px-5 py-4 text-body">
             {data.anchors.map((a) => (
               <p key={a.annotation_id} className="flex items-center gap-2.5"><IconWell icon={Handshake} size="sm" />
                 <span>{a.matches ? "✓" : <b>✗</b>} <b>{a.team}</b> keeps a copy of our history up to entry <span className="tabular">#{a.seq.toLocaleString("en-IN")}</span>
@@ -45,9 +45,9 @@ export default function PartnerLog() {
           </Card>
         )}
 
-        <Card className="mt-5 overflow-x-auto text-sm">
+        <Card className="mt-5 overflow-x-auto text-body">
           <table className="w-full">
-            <thead><tr className="border-b border-line text-left text-xs text-ink-3">
+            <thead><tr className="border-b border-line text-left text-small text-ink-3">
               <th className="py-3 pl-5 pr-3 font-medium">time</th><th className="pr-3 font-medium">who</th><th className="hidden pr-3 font-medium sm:table-cell">call</th>
               <th className="pr-3 font-medium">answer</th><th className="pr-3 font-medium">signed</th><th className="hidden pr-3 font-medium sm:table-cell">ms</th>
               <th className="hidden pr-5 font-medium sm:table-cell">fingerprint</th></tr></thead>
@@ -55,14 +55,14 @@ export default function PartnerLog() {
               {(data?.calls ?? []).map((c) => (
                 <tr key={c.id} className="border-b border-line align-top last:border-b-0 hover:bg-wash/60">
                   <td className="tabular whitespace-nowrap py-2.5 pl-5 pr-3"><Clock iso={c.at} /></td>
-                  <td className="py-2.5 pr-3">{c.team ?? c.partner}<span className="block text-xs text-ink-3">{c.direction === "in" ? "to us" : "from us"}
+                  <td className="py-2.5 pr-3">{c.team ?? c.partner}<span className="block text-small text-ink-3">{c.direction === "in" ? "to us" : "from us"}
                     <span className="sm:hidden">: {c.method} {c.endpoint}</span></span></td>
                   <td className="hidden py-2.5 pr-3 sm:table-cell">{c.method} {c.endpoint}</td>
                   <td className="py-2.5 pr-3">{c.status >= 400 ? <b>{c.note ?? c.status}</b> : c.status}</td>
                   <td className="py-2.5 pr-3">{c.direction === "out" ? <span className="whitespace-nowrap text-ink-2">signed by us</span>
                     : c.signature_ok == null ? "–" : c.signature_ok ? "✓" : <b>✗</b>}</td>
                   <td className="tabular hidden py-2.5 pr-3 sm:table-cell">{c.latency_ms ?? "–"}</td>
-                  <td className="tabular hidden py-2.5 pr-5 text-xs text-ink-3 sm:table-cell">{c.body_sha256 ? `${c.body_sha256.slice(0, 12)}…` : "–"}</td>
+                  <td className="tabular hidden py-2.5 pr-5 text-small text-ink-3 sm:table-cell">{c.body_sha256 ? `${c.body_sha256.slice(0, 12)}…` : "–"}</td>
                 </tr>
               ))}
               {data && !data.calls.length && <tr><td colSpan={7} className="py-10 text-center text-ink-3">No partner calls yet.</td></tr>}

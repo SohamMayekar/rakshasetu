@@ -43,7 +43,7 @@ export function TapStatus({ caseId }: { caseId: number }) {
       {list.map((t) => {
         const wait = Math.ceil((t.sendAfter - Date.now()) / 1000);
         return (
-          <li key={t.id} className="flex items-center justify-between gap-3 rounded-xl bg-wash px-3 py-2 text-sm">
+          <li key={t.id} className="flex items-center justify-between gap-3 rounded-xl bg-wash px-3 py-2 text-body">
             <span><b>{t.label}</b> · {t.state === "sent" ? <>Sent {hhmm(t.sentAt!)}</> : t.state === "failed" ? <>not accepted: {t.error}</>
                                                           : wait > 0 ? <>Saved on phone · sending in {wait} s</> : <>Saved on phone · sending…</>}</span>
             {t.state === "saved" && wait > 0 && <button onClick={() => undo(t.id)} className="min-h-11 rounded-lg border border-ink px-4 font-semibold">Undo</button>}

@@ -69,7 +69,7 @@ export default function ResponderCase({ params }: { params: Promise<{ id: string
         )}
         <p className="mt-2 text-lg text-ink-2">{c.summary}</p>
         <p className="mt-1 text-ink-2">{c.location_text ?? "Place not known"}{c.radius_m ? ` · within about ${c.radius_m >= 1000 ? `${c.radius_m / 1000} km` : `${c.radius_m} m`}` : ""}</p>
-        {c.location_confidence && c.location_confidence !== "high" && <p className="text-sm text-ink-3">The place is approximate: search the circle.</p>}
+        {c.location_confidence && c.location_confidence !== "high" && <p className="text-body text-ink-3">The place is approximate: search the circle.</p>}
         {c.lat != null && <a href={`geo:${c.lat},${c.lng}?q=${c.lat},${c.lng}(${c.public_id})`} className="mt-4 flex min-h-14 items-center justify-center rounded-2xl border-2 border-ink font-semibold">Navigate</a>}
         {a && (
           <div className="mt-4 rounded-2xl bg-wash px-4 py-3">
@@ -78,11 +78,11 @@ export default function ResponderCase({ params }: { params: Promise<{ id: string
                   overdue={a.state === "overdue"} demo={a.demo_clock} />
           </div>
         )}
-        {error && <p className="mt-2 text-sm">{error}</p>}
+        {error && <p className="mt-2 text-body">{error}</p>}
       </div>
       <div className="space-y-3 px-5 pt-4">
         <TapStatus caseId={c.id} />
-        {step === "acknowledge" && <p className="text-center text-sm text-ink-2">Accept: we&rsquo;ll be there in</p>}
+        {step === "acknowledge" && <p className="text-center text-body text-ink-2">Accept: we&rsquo;ll be there in</p>}
         {step === "acknowledge" && (
           <div className="grid grid-cols-3 gap-3">
             {[15, 30, 60].map((m) => (
