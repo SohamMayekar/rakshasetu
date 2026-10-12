@@ -512,6 +512,39 @@
         "title": "PinMove",
         "type": "object"
       },
+      "Play": {
+        "properties": {
+          "clip": {
+            "pattern": "^clips/[A-Za-z0-9._-]+$",
+            "title": "Clip",
+            "type": "string"
+          },
+          "device_id": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "minLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Id"
+          },
+          "incident": {
+            "default": "BR",
+            "pattern": "^[A-Z]{2,4}$",
+            "title": "Incident",
+            "type": "string"
+          }
+        },
+        "required": [
+          "clip"
+        ],
+        "title": "Play",
+        "type": "object"
+      },
       "Preview": {
         "properties": {
           "text": {
@@ -653,6 +686,18 @@
         "title": "Rescue",
         "type": "object"
       },
+      "ResetTo": {
+        "properties": {
+          "scene": {
+            "default": "son",
+            "maxLength": 20,
+            "title": "Scene",
+            "type": "string"
+          }
+        },
+        "title": "ResetTo",
+        "type": "object"
+      },
       "Reveal": {
         "properties": {
           "reason": {
@@ -690,6 +735,26 @@
           "reason"
         ],
         "title": "Status",
+        "type": "object"
+      },
+      "Surge": {
+        "properties": {
+          "duration": {
+            "default": 60,
+            "exclusiveMinimum": 0.0,
+            "maximum": 300.0,
+            "title": "Duration",
+            "type": "number"
+          },
+          "rate": {
+            "default": 50,
+            "exclusiveMinimum": 0.0,
+            "maximum": 200.0,
+            "title": "Rate",
+            "type": "number"
+          }
+        },
+        "title": "Surge",
         "type": "object"
       },
       "Switch": {
@@ -2089,6 +2154,32 @@
         ]
       }
     },
+    "/v1/demo/clips": {
+      "get": {
+        "operationId": "clips_v1_demo_clips_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response Clips V1 Demo Clips Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Clips",
+        "tags": [
+          "demo"
+        ]
+      }
+    },
     "/v1/demo/language-model": {
       "post": {
         "description": "F-C14: switch the language model off (or back on). Speech-to-text stays on, so say \"language model\".",
@@ -2133,6 +2224,161 @@
         ]
       }
     },
+    "/v1/demo/play-clip": {
+      "post": {
+        "description": "PRD §16.4: a stored clip through the same live pipeline as a reporter's voice (say so on stage). It comes\nfrom the son's phone in the demo script unless another device is named.",
+        "operationId": "play_clip_v1_demo_play_clip_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Play"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Play Clip V1 Demo Play Clip Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Play Clip",
+        "tags": [
+          "demo"
+        ]
+      }
+    },
+    "/v1/demo/qr": {
+      "get": {
+        "description": "A QR code for a phone: the reporter page, or the son's status page AS the son's phone (after a reset the\nfamily's question is asked only of that device). Only PUBLIC_URL pages: a phone can't reach localhost.",
+        "operationId": "qr_v1_demo_qr_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "target",
+            "required": true,
+            "schema": {
+              "title": "Target",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Qr",
+        "tags": [
+          "demo"
+        ]
+      }
+    },
+    "/v1/demo/reset": {
+      "post": {
+        "description": "Wipes the database. Every open screen reloads itself (the event log starts a new chain).",
+        "operationId": "reset_v1_demo_reset_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetTo"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Reset V1 Demo Reset Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Reset",
+        "tags": [
+          "demo"
+        ]
+      }
+    },
+    "/v1/demo/scenes": {
+      "get": {
+        "operationId": "list_scenes_v1_demo_scenes_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response List Scenes V1 Demo Scenes Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Scenes",
+        "tags": [
+          "demo"
+        ]
+      }
+    },
     "/v1/demo/status": {
       "get": {
         "operationId": "demo_status_v1_demo_status_get",
@@ -2151,6 +2397,50 @@
           }
         },
         "summary": "Demo Status",
+        "tags": [
+          "demo"
+        ]
+      }
+    },
+    "/v1/demo/surge": {
+      "post": {
+        "description": "The same generator as `make surge`, in the background. Synthetic, pre-structured: no language model.",
+        "operationId": "start_surge_v1_demo_surge_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Surge"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Start Surge V1 Demo Surge Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Start Surge",
         "tags": [
           "demo"
         ]

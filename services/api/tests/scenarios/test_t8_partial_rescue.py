@@ -107,3 +107,24 @@ def test_a_record_far_from_the_pin_doesnt_auto_close_and_an_officer_closes_it(se
     assert client.post(f"/v1/cases/{pid}/close", json={"reason": "radio confirmed the right house"}).status_code == 200
     assert one(app_db, "SELECT status FROM cases WHERE public_id = :p", p=pid) == "closed"
     assert client.post(f"/v1/cases/{pid}/reopen", json={"reason": "neighbour says 2 still on the roof"}).json()["status"] in ("reported", "checked")
+
+
+def test_two_trips_count_as_one_rescue_of_everyone(seeded, client, app_db):
+    """4 taken (2 still there), the boat sent again, 2 taken (nobody left): the case, the family's question and
+    the closing line all say 6, not the last trip's 2."""
+    pid = _owned_case(client, app_db, people=6)
+    assert client.post(f"/v1/cases/{pid}/rescues", json={"people_taken": 4, "anyone_left": "yes"}).json()["remaining"] == 2
+    login(client, "rdas")
+    tid = one(app_db, "SELECT id FROM teams WHERE name = 'Fire & Rescue Boat 5'")
+    aid = client.post("/v1/assignments", json={"case": pid, "team_id": tid}).json()["assignment_id"]
+    login(client, "boat5")
+    client.post(f"/v1/assignments/{aid}/acknowledge", json={"eta_minutes": 15})
+    client.post(f"/v1/assignments/{aid}/reached", json={})
+    r = client.post(f"/v1/cases/{pid}/rescues", json={"people_taken": 2, "anyone_left": "no"}).json()
+    assert r["outcome"] == "rescued"
+    data = one(app_db, "SELECT body::jsonb->'data' FROM events WHERE action = 'rescue.recorded' ORDER BY seq DESC LIMIT 1")
+    assert data["total_taken"] == 6 and data["earlier_trips_taken"] == 4
+    with app_db.begin() as c:
+        c.execute(text("UPDATE cases SET rescued_at = now() - interval '3 hours' WHERE public_id = :p"), {"p": pid})
+    tick(app_db)
+    assert one(app_db, "SELECT resolution FROM cases WHERE public_id = :p", p=pid).startswith("Rescued 6 of 6 · Fire & Rescue Boat 5 · ")

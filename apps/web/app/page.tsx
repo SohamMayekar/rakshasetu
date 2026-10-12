@@ -56,6 +56,7 @@ export default function Incidents() {
         <span className="text-sm text-ink-2">{me?.user.name} <span className="text-ink-3">· {me?.user.role_label}</span>
           {me?.permissions.includes("audit.read") && <a href="/audit" className="ml-4 underline underline-offset-2">Audit</a>}
           {me?.permissions.includes("totals.view") && <a href="/surge" className="ml-4 underline underline-offset-2">Surge</a>}
+          {me?.demo_mode && me?.permissions.includes("incident.admin") && <a href="/demo" className="ml-4 underline underline-offset-2">Demo controls</a>}
           <a href="/login" onClick={() => fetch("/v1/auth/logout", { method: "POST" })} className="ml-4 text-ink-3">Sign out</a></span>
       </header>
       <div className="grid flex-1 grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">

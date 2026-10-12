@@ -86,3 +86,14 @@ Only numbers we measured go here, each with how and where it was measured. Nothi
 | Main thread during a surge (8 s CPU profile) | before: busy ~7.5 s of 8 (59 long tasks); after: idle 5.6 s (9 long tasks of 130–210 ms) | — |
 
 - **How:** throwaway Playwright scripts: clicks timed with `performance.now()` from `click()` to the drawer's `aside` changing, and a CDP CPU profile. Headless Chromium at 1366×768 with **software WebGL** (no GPU in this sandbox). Our own JavaScript is ~0.3 s of the 8 s profile; the remaining long tasks are native browser work, which looks like the map canvas being composited in software. **Not yet measured on the demo laptop with a GPU** (NOT DONE).
+
+## Demo resets (m50)
+
+| What | Measured | Target (PRD F-C12) |
+|---|---|---|
+| `make demo-reset` (the start: wipe + seed + 57 cases through the pipeline) | **3.4–3.7 s** (8 runs) | < 10 s |
+| Reset to "Never doubled" / "The volunteer sheet" | **4.5 s** / **4.6 s** | each scene on its own |
+| Reset to "Never stale", "The rescue", "The receipts" (each replays the 300-row sheet) | **20.5–22.7 s** (the import is 15.5–17.5 s of it) | each scene on its own |
+| Same from the /demo page in Chromium (click → the result line) | **21.1–21.6 s** to "The rescue" | — |
+
+- **How:** `make demo-reset SCENE=<id>` printing its own timings, and a throwaway Playwright script clicking "Reset here". Local stack, 12 Oct 2026.

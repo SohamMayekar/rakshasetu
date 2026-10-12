@@ -30,6 +30,7 @@ from app.core.audio import BadAudio, measure, to_wav16k
 from app.core.eventlog import Actor
 from app.db import get_engine
 from app.modules.intake.service import accept
+from app.settings import get_settings
 
 router = APIRouter(prefix="/v1/public", tags=["public"])
 MAX_UPLOAD = 2 * 1024 * 1024
@@ -232,6 +233,8 @@ def case_status(public_id: str, request: Request, device: str | None = None) -> 
         raise HTTPException(404, "No case with that number")
     if device:   # only the device that reported this case may be asked; anyone else sees just the step
         st["check"] = family_question(st["tracked_as"] or public_id, device)
+    if get_settings().demo_mode:   # the demo's QR may hand this page the son's synthetic device (never otherwise)
+        st["demo"] = True
     return st
 
 
@@ -250,7 +253,10 @@ def _linked(c, case_id: int, device_id: str):
 
 
 def _rescue(c, case_id: int):
-    return c.execute(text("SELECT id, people_taken FROM rescues WHERE case_id = :c AND corroborates IS NULL"
+    """The rescue that closed the case, with everyone taken on every trip (4 + 2 → "6 people were rescued")."""
+    return c.execute(text("SELECT id, (SELECT sum(x.people_taken) FROM rescues x WHERE x.case_id = :c AND x.corroborates"
+                          " IS NULL AND x.outcome IN ('partial', 'rescued')) AS people_taken FROM rescues WHERE case_id = :c"
+                          " AND corroborates IS NULL"
                           " AND outcome = 'rescued' ORDER BY id DESC LIMIT 1"), {"c": case_id}).one_or_none()
 
 

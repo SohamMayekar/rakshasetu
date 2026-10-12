@@ -6,7 +6,7 @@
 
 import { use, useEffect, useState } from "react";
 
-import { deviceId } from "@/lib/device";
+import { adoptDevice, deviceId } from "@/lib/device";
 
 type Status = { public_id: string; tracked_as: string | null; other_reports: number | null; step: string; steps: string[]; last_update_at: string;
                 check?: { people_taken: number | null; answered: string | null } | null };
@@ -36,12 +36,22 @@ export default function StatusPage({ params }: { params: Promise<{ id: string }>
 
   useEffect(() => {
     let alive = true;
-    const load = async () => {
+    let handed = new URLSearchParams(location.hash.slice(1)).get("device");   // the demo page's QR only
+    const load = async (): Promise<void> => {
       try {
         const r = await fetch(`/v1/public/cases/${encodeURIComponent(id)}/status?device=${encodeURIComponent(deviceId())}`, { cache: "no-store" });
         if (!alive) return;
         if (r.status === 404) return setMissing(true);
-        if (r.ok) { setSt(await r.json()); setOffline(false); }
+        if (r.ok) {
+          const body = await r.json();
+          if (handed && body.demo) {   // never outside DEMO_MODE: the server must say so before the id is taken
+            adoptDevice(handed);
+            handed = null;
+            history.replaceState(null, "", location.pathname);
+            return load();
+          }
+          setSt(body); setOffline(false);
+        }
       } catch { if (alive) setOffline(true); }
       if (alive) setNow(Date.now());
     };

@@ -19,3 +19,9 @@ export function deviceId(): string {
 export function newId(): string {
   return crypto.randomUUID();
 }
+
+// DEMO_MODE only (the status page checks the server says so first): after a demo reset, the demo page's QR
+// hands a phone the son's synthetic device id, so the family's question can be asked of it.
+export function adoptDevice(id: string): void {
+  try { window.localStorage.setItem("rakshasetu.device", id); } catch { (window as unknown as { __rsDevice?: string }).__rsDevice = id; }
+}

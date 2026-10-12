@@ -5,7 +5,7 @@ WEB := apps/web
 
 COMPOSE := docker compose -f infra/docker-compose.yml --env-file .env
 
-.PHONY: help env up down nuke ps logs smoke psql demo-sheet sheet-eval screens contracts seed surge verify tamper provider-check keys copy-check dev-api dev-web test test-api test-web lint
+.PHONY: help env up down nuke ps logs smoke psql demo-sheet sheet-eval screens contracts seed demo-reset surge verify tamper provider-check keys copy-check dev-api dev-web test test-api test-web lint
 
 help: ## List the targets
 	@grep -E '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) | awk -F':.*?## ' '{printf "  make %-12s %s\n", $$1, $$2}'
@@ -22,6 +22,8 @@ down: ## Stop the stack (data volume kept)
 seed: ## Wipe the demo database and load the BR, OD and HP scenario packs (DEMO_MODE only)
 	$(COMPOSE) exec -T api python -m app.seed
 
+demo-reset: ## Reset the demo to a scene's starting point (make demo-reset SCENE=stale; scenes in data/scenarios/BR/demo.yaml)
+	$(COMPOSE) exec -T api python -m app.modules.demo.scenes --scene $(or $(SCENE),son)
 surge: ## Synthetic partner-report surge through the public listener (make surge RATE=50 DURATION=60); watch /surge
 	$(COMPOSE) exec -T api python -m app.surge --rate $(or $(RATE),50) --duration $(or $(DURATION),60)
 verify: ## Verify the audit hash chain of the demo database

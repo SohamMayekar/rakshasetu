@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m50 demo controls (per-scene reset, surge, LM toggle, play clip, QR)
+**Current milestone:** m51 judge-legibility caption (DEMO_MODE templates)
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -48,7 +48,7 @@
 
 | What | Estimate |
 |---|---|
-| m50–m60: demo controls, judge-legibility caption, evidence hardening, the full scenario set (T1–T10), golden-path e2e, failure drills, P1 items, partner annotations, polish, release docs | see the milestone plan in the build prompt |
+| m51–m60: judge-legibility caption, evidence hardening, the full scenario set (T1–T10), golden-path e2e, failure drills, P1 items, partner annotations, polish, release docs | see the milestone plan in the build prompt |
 | Desk latency on the demo laptop with a GPU during `make surge`: measured only in headless Chromium with software WebGL (19–165 ms, 10 of 12 clicks under the 100 ms target) | one run on the laptop: open /desk/BR during `make surge`, click 10 rows |
 | The responder path on a real mid-range Android phone over mobile data through the tunnel (PRD F-C7 "done when"); only a Chromium phone viewport on the local stack has been measured | needs the humans, a phone and the tunnel |
 | The demo sheet with a live language model: the 19 `needs_ai` rows have only been read by rules (no keys here), so "AI asked about 19" is designed, not measured | needs LLM keys (BLOCKED below) |
@@ -64,6 +64,9 @@
 | WhatsApp test number | `WHATSAPP_*` | P1 #5 only | — |
 
 ## For the humans to confirm
+
+- **Record the demo clips:** the shipped `son-line.synthetic.ogg` is a synthetic espeak-ng voice (labelled everywhere). Record the demo line, and the rehearsed judge inputs, in a real voice into `data/scenarios/BR/clips/` (see its README). With STT keys present no transcript file is needed; never present a fixture transcript as live recognition.
+- **Set `PUBLIC_URL`** in `.env` to the tunnel's address on the day, so the /demo page's QR codes work.
 
 - **Record the reply clip (H-05):** one fixed Hindi sentence, "Aapki report darj ho gayi hai. Aapko kuch yaad rakhne ki zaroorat nahi.", saved as `apps/web/public/audio/hi/registered.mp3`. Until then the reporter page shows the sentence as text only.
 
@@ -82,6 +85,8 @@
 - **Bug found and fixed in m44:** the API let an officer assign a team to a case that had already been merged into another (the merged case had no reports, so the phone showed no caller's words). Assigning now requires an open case; a merged one answers "This case was merged into BR-199: assign that one" (tested).
 
 - **Bugs found and fixed in m49 (the surge):** the worker wrote its health file only when the queue was empty, so a 60 s backlog read as a hang and `make up --wait` failed; `make seed` during a backlog deadlocked with reports being filed and failed (it now pauses waiting jobs and retries the wipe); the surge screen's 10 s integrity poll slowed ingest (p95 ~810 ms) and now runs on request; `GET /v1/queue` had no index for its per-row match lookup (3.2 s at 2,800 cases).
+
+- **Bug found and fixed in m50:** a case rescued in two trips (4, then 2) closed as "Rescued 2 of 6" and the family was asked about 2 people: the closure and the question used the last trip only, and a second partial trip was judged against the original headcount. Found while scripting the demo's two-trip rescue; now one running total (tested).
 
 ## Environment notes for this build
 

@@ -1,0 +1,36 @@
+# The 5-minute demo (PRD §16.1): its scripted inputs and a reset point per scene (F-C12).
+# `make demo-reset SCENE=<id>` (or the /demo page) seeds, then replays every scene BEFORE <id> through the real
+# API as the people who do it on stage, so the desk shows exactly what it would at that moment.
+# All people, phones and devices are synthetic.
+
+operator: rdas                 # EOC Duty Officer on the projector desk (http://localhost)
+team_lead: boat5               # the responder phone: Fire & Rescue Boat 5
+
+son:                           # 0:00 the judge, as Ramesh's son in Mumbai, on the team's reporter phone
+  clip: clips/son-line.synthetic.ogg
+  device_id: demo-son-phone-0001   # the son's phone after a reset; the /demo page has a QR that opens his status page as it
+
+forward:                       # 0:50 a neighbour's WhatsApp forward, pasted by the officer
+  text: "Ramesh Das ka parivaar Thawe gaon mein hai, Durga mandir ke peeche, pul ke paas. 6 log chhat par fase hain, paani bahut hai."
+  phone: "+91 98765 70002"
+das:                           # 1:05 a different family, same village and headcount: refused
+  text: "Rajesh Das, 5 log, Thawe gaon, mandir ke paas, chhat par fase hain"
+  phone: "+91 98765 70003"
+sheet: sheet/volunteer_sheet.csv   # 1:15
+
+radio_team: "SDRF Boat 2"      # 1:45 radio only; "Acknowledged on radio · VHF · ETA 15 min"
+radio: {channel: VHF, eta_minutes: 15}
+reassign_to: "Fire & Rescue Boat 5"
+
+trips:                         # 2:30 the rescue sheet on the responder phone
+  - {eta_minutes: 15, people_taken: 4, anyone_left: "yes"}   # ETA is a chip: 15, 30 or 60
+  - {eta_minutes: 15, people_taken: 2, anyone_left: "no"}
+family_answer: "yes"
+
+scenes:                        # in order; "at" is the time in the 5-minute run
+  - {id: son,      at: "0:00", title: "The son in Mumbai",  starts_with: "the seed only: the judge speaks the line"}
+  - {id: merge,    at: "0:50", title: "Never doubled",       starts_with: "the son's case (the recorded clip played through the pipeline)"}
+  - {id: sheet,    at: "1:15", title: "The volunteer sheet", starts_with: "+ the forward merged and checked, the Das report refused"}
+  - {id: stale,    at: "1:45", title: "Never stale",         starts_with: "+ the 300-row sheet imported"}
+  - {id: rescue,   at: "2:30", title: "The rescue",          starts_with: "+ Boat 2 acknowledged on radio, went silent, and the case reassigned to Boat 5"}
+  - {id: receipts, at: "3:05", title: "The receipts",        starts_with: "+ two trips: 4 taken, then 2, rescued 6 of 6, the family said yes"}

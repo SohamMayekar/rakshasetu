@@ -268,12 +268,12 @@ def pause_jobs(conn: Connection) -> int:
         " WHERE done_at IS NULL AND dead_at IS NULL FOR UPDATE SKIP LOCKED)")).rowcount
 
 
-def _wipe_and_load(owner_url: str, root: Path, packs) -> dict:
+def _wipe_and_load(owner_url: str, root: Path, packs, reason: str) -> dict:
     """The wipe, retried: TRUNCATE takes its table locks one by one, so a report the worker is still
     filing can deadlock with it. Postgres then cancels one side; if that is us, wait and try again."""
     for attempt in range(1, 6):
         try:
-            return _load(owner_url, root, packs)
+            return _load(owner_url, root, packs, reason)
         except OperationalError as e:
             if attempt == 5 or not isinstance(e.orig, (errors.DeadlockDetected, errors.LockNotAvailable)):
                 raise
@@ -281,11 +281,11 @@ def _wipe_and_load(owner_url: str, root: Path, packs) -> dict:
     raise AssertionError("unreachable")
 
 
-def seed(owner_url: str, packs=PACKS, root: Path | None = None) -> dict:
+def seed(owner_url: str, packs=PACKS, root: Path | None = None, reason: str = "demo seed") -> dict:
     root = root or get_settings().data_dir / "scenarios"
     with engine_for(owner_url).begin() as conn:
         pause_jobs(conn)
-    loaded, users, now = _wipe_and_load(owner_url, root, packs)
+    loaded, users, now = _wipe_and_load(owner_url, root, packs, reason)
     cases = seed_cases(owner_url, root, loaded, now)
     with engine_for(owner_url).begin() as conn:
         owned = seed_owners(conn, root, loaded)
@@ -293,14 +293,14 @@ def seed(owner_url: str, packs=PACKS, root: Path | None = None) -> dict:
             "users": users}
 
 
-def _load(owner_url: str, root: Path, packs):
+def _load(owner_url: str, root: Path, packs, reason: str):
     with engine_for(owner_url).begin() as conn:
         conn.execute(text("SET LOCAL lock_timeout = '10s'"))
         wipe(conn)
         conn.execute(text("SET LOCAL lock_timeout = 0"))
         # A reset starts a new chain: the genesis event records why (PRD F-C8).
         append_event(conn, actor=SYSTEM, action="chain.genesis", entity_type="chain",
-                     data={"reason": "demo seed", "packs": list(packs)})
+                     data={"reason": reason, "packs": list(packs)})
         now = conn.execute(text("SELECT now()")).scalar_one()
         loaded = {code: load_pack(conn, root, code, now) for code in packs}
         users = load_users(conn, root, loaded)

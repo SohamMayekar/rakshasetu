@@ -15,12 +15,18 @@ def test_status_has_the_step_and_no_personal_data(seeded, public_client, app_db)
     r = public_client.get("/v1/public/cases/BR-151/status")
     assert r.status_code == 200
     body = r.json()
-    assert set(body) == {"public_id", "tracked_as", "other_reports", "step", "steps", "last_update_at"}
+    assert set(body) - {"demo"} == {"public_id", "tracked_as", "other_reports", "step", "steps", "last_update_at"}
+    assert body.get("demo") is True                       # tests run in DEMO_MODE (the demo QR's device handover)
     assert body["step"] in body["steps"] and body["steps"][1] == "help_assigned"
     raw = r.text
     assert not re.search(r"\+91|98765|xxxxxx", raw)                          # no phone, not even masked
     for word in ("priority", "P1", "lat", "lng", "eta", "escalat", "district", "name", "Gopalganj"):
         assert word not in raw, word
+
+
+def test_outside_demo_mode_the_status_never_offers_a_device_handover(seeded, public_client, monkeypatch):
+    monkeypatch.setenv("DEMO_MODE", "false")
+    assert "demo" not in public_client.get("/v1/public/cases/BR-151/status").json()
 
 
 def test_a_state_change_shows_within_one_poll(seeded, public_client, app_db, owner_db):

@@ -72,7 +72,9 @@ def line(action: str, d: dict, who: str | None) -> str:
             return f"{d.get('team')} released the case{by}"
         case "rescue.recorded":
             via = f" · via {d['channel']}{by}" if d.get("channel") not in (None, "app") else ""
-            return (f"{d.get('team')}: {d.get('people_taken')} of {d.get('people_reported') or '?'} rescued, nobody left"
+            took = (f"{d.get('people_taken')} more rescued, {d['total_taken']} of {d.get('people_reported') or '?'} in all"
+                    if d.get("earlier_trips_taken") else f"{d.get('people_taken')} of {d.get('people_reported') or '?'} rescued")
+            return (f"{d.get('team')}: {took}, nobody left"
                     + (" · recorded away from the pin" if d.get("away_from_pin") else "") + via)
         case "rescue.partial":
             left = f"{d['remaining']} still there" if d.get("remaining") is not None else "someone may still be there"
@@ -99,6 +101,13 @@ def line(action: str, d: dict, who: str | None) -> str:
             return f"Phone number shown to {d.get('by') or who}{'' if not d.get('masked') else ' (' + d['masked'] + ')'}"
         case "report.callback_added":
             return "A callback number was added"
+        case "demo.clip_played":
+            voice = "a synthetic voice" if d.get("synthetic_voice") else "a recording"
+            return f"Played by the demo control from {d.get('clip')} ({voice}), through the same voice pipeline"
+        case "demo.clock_real":
+            return f"Demo reset: {d.get('team')}'s timer runs on the real clock until the presenter acts"
+        case "demo.clock_advanced":
+            return f"Demo reset: {d.get('why', 'a deadline was moved to now')} (moved to now instead of waiting)"
         case _:
             return action.replace(".", " ").replace("_", " ")
 

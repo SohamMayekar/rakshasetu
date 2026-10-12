@@ -71,7 +71,13 @@ def record(conn: Connection, scope, actor: Actor, case_ref: str, *, people_taken
 
     first = conn.execute(text("SELECT id, outcome, people_taken FROM rescues WHERE assignment_id = :a AND corroborates IS NULL"),
                          {"a": a.id}).one_or_none()
-    kind = classify(case.people_count, people_taken, anyone_left, outcome)
+    # Earlier trips on this case (a partial rescue ends its assignment; the boat is sent again): this trip is
+    # judged against who was still there, and the case's total is what the family and the closure line say.
+    before = conn.execute(text("SELECT coalesce(sum(people_taken), 0) FROM rescues WHERE case_id = :c"
+                               " AND corroborates IS NULL AND outcome = 'partial'"), {"c": case.id}).scalar_one()
+    still = case.people_count - before if case.people_count is not None else None
+    kind = classify(still, people_taken, anyone_left, outcome)
+    total = before + people_taken if people_taken is not None else None
     away = False
     if lat is not None and lng is not None and case.clat is not None:
         away = _metres(lat, lng, case.clat, case.clng) > (case.radius_m or 0) + get_config().rescue.get("location_check_extra_m", 1000)
@@ -104,8 +110,8 @@ def record(conn: Connection, scope, actor: Actor, case_ref: str, *, people_taken
             flags.append("recorded_away_from_pin")
     elif kind == "partial":
         status = "checked" if case.checked_at else "reported"
-        remaining = (case.people_count - people_taken) if (case.people_count and people_taken is not None
-                                                           and anyone_left != "dont_know") else None
+        remaining = (still - people_taken) if (still is not None and people_taken is not None
+                                               and anyone_left != "dont_know") else None
         flags.append("partial_rescue")
     elif kind == "nobody_here":
         status = "checked" if case.checked_at else "reported"
@@ -118,6 +124,7 @@ def record(conn: Connection, scope, actor: Actor, case_ref: str, *, people_taken
         flags.append("other_tell_officer")
     priority = "P1" if kind == "nobody_here" else case.priority          # partial / couldn't reach keep their priority
     attrs_patch = {"last_rescue": {"rescue_id": rid, "outcome": kind, "team": a.team, "people_taken": people_taken,
+                                   "total_taken": total,
                                    "anyone_left": anyone_left, "reason": REASONS.get(reason, reason) if reason else None,
                                    "channel": channel, "away_from_pin": away}}
     conn.execute(text(
@@ -129,6 +136,7 @@ def record(conn: Connection, scope, actor: Actor, case_ref: str, *, people_taken
     append_event(conn, actor=actor, action=action, entity_type="rescue", entity_id=rid, incident_id=case.incident_id,
                  district_id=case.district_id, case_id=case.id, team_id=a.team_id,
                  data={"rescue_id": rid, "team": a.team, "outcome": kind, "people_taken": people_taken,
+                       "earlier_trips_taken": before, "total_taken": total,
                        "people_reported": case.people_count, "anyone_left": anyone_left, "remaining": remaining,
                        "reason": REASONS.get(reason, reason) if reason else None, "channel": channel,
                        "away_from_pin": away, "suppress_family_messages": kind == "other",
@@ -149,7 +157,9 @@ def close_reviewed(conn: Connection) -> int:
     real = parse_duration(contact.rescue_review_window).total_seconds()
     demo = parse_duration(contact.demo_rescue_review_window).total_seconds()
     rows = conn.execute(text(
-        "SELECT c.id, c.public_id, c.incident_id, c.district_id, c.people_count, c.flags, c.rescued_at, r.people_taken,"
+        "SELECT c.id, c.public_id, c.incident_id, c.district_id, c.people_count, c.flags, c.rescued_at,"
+        " (SELECT sum(x.people_taken) FROM rescues x WHERE x.case_id = c.id AND x.corroborates IS NULL"
+        "   AND x.outcome IN ('partial', 'rescued')) AS people_taken,"
         " t.name AS team, a.demo_clock FROM cases c JOIN rescues r ON r.case_id = c.id AND r.corroborates IS NULL"
         " AND r.outcome = 'rescued' JOIN assignments a ON a.id = r.assignment_id JOIN teams t ON t.id = r.team_id"
         " WHERE c.status = 'rescued' AND NOT (c.flags && CAST(:blocking AS text[]))"
