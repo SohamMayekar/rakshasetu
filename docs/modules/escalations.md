@@ -7,3 +7,10 @@
 - **Self-resolving:** an escalation resolves when its cause is gone (the team was heard from; P1s got owners or teams freed up).
 - **Heartbeats** (`POST /v1/teams/me/heartbeat`) set "last seen" only: 61 minutes of heartbeats with no deliberate contact still goes overdue (T6, tested).
 - **Measured:** live stack, a demo-clock P2 (10 s to acknowledge): escalation opened **0.21 s** after the deadline (one run; the worst case is one tick, 5 s).
+
+## Radio contact, Extend, Reassign (m42)
+
+- **"Heard from Boat 5" is team-level** (`POST /v1/teams/{id}/contact {channel, new_eta?}`, officers, local): one log refreshes **every** live assignment the team holds (each to its phase's window: acknowledge, ETA + grace, or on-scene), clears overdue, returns the team to dispatch, resolves its escalation ("heard on VHF by R. Das"), and acknowledges any stand-down it owed. Each case's timeline says "Heard from Fire & Rescue Boat 5 on VHF by R. Das · new ETA 15 min". A channel is required (VHF · HAM · satellite · phone).
+- **Extend** on an escalation is the same radio log. **Reassign** moves one case to another team (never an overdue one): the old assignment ends as `reassigned`, and the old team shows **"stand-down not acknowledged"** until its next contact. The escalation resolves when no cases are left in it.
+- **T7:** a second officer extending or reassigning an escalation someone already resolved gets **409 "Already resolved: heard on VHF by R. Das at 14:22:05"**.
+- `GET /v1/teams?incident=` lists the district's teams with status, load, last contact, last seen (display only) and stand-downs owed.

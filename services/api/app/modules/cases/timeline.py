@@ -61,6 +61,11 @@ def line(action: str, d: dict, who: str | None) -> str:
         case "assignment.reached":
             via = f" · via {d['channel']}" if d.get("channel") not in (None, "app") else ""
             return f"{d.get('team')} reached the place" + (" · long operation" if d.get("long_operation") else "") + via
+        case "assignment.contact":
+            eta = f" · new ETA {d['new_eta']} min" if d.get("new_eta") else ""
+            return f"Heard from {d.get('team')} on {d.get('channel')}{by}{eta}"
+        case "assignment.reassigned":
+            return f"Reassigned from {d.get('from_team')} to {d.get('to_team')}{by} (stand-down owed by {d.get('from_team')})"
         case "assignment.overdue":
             return f"Contact overdue: no check-in from {d.get('team')} (the case stays with the team)"
         case "assignment.released":

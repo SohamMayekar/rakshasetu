@@ -119,3 +119,54 @@ def test_no_free_team_means_one_capacity_gap_header_not_one_alarm_per_case(seede
     _sql(app_db, "UPDATE teams SET status = 'available' WHERE name = 'Fire & Rescue Boat 5'")
     tick(app_db)
     assert one(app_db, "SELECT status FROM escalations WHERE kind = 'capacity_gap'") == "resolved"
+
+
+def _overdue(client, db, team="Fire & Rescue Boat 5", n=1):
+    login(client, "rdas")
+    made = [_assign(client, db, pid, team) for pid in _free_cases(db, n)]
+    _sql(db, "UPDATE assignments SET next_contact_due = now() - interval '1 second' WHERE id = ANY(:a)", a=[m[0] for m in made])
+    tick(db)
+    eid = next(e["id"] for e in client.get("/v1/escalations?incident=BR").json() if e["team_id"] == made[0][1])
+    return [m[0] for m in made], made[0][1], eid
+
+
+def test_t6_one_radio_log_restores_every_case_the_team_holds(seeded, client, app_db):
+    aids, team, eid = _overdue(client, app_db, n=2)
+    r = client.post(f"/v1/teams/{team}/contact", json={"channel": "VHF", "new_eta": 15})
+    assert r.status_code == 200 and r.json()["refreshed"] == 2
+    assert all(one(app_db, "SELECT state = 'open' AND next_contact_due > now() FROM assignments WHERE id = :a", a=a) for a in aids)
+    assert one(app_db, "SELECT status FROM teams WHERE id = :t", t=team) == "assigned"
+    assert one(app_db, "SELECT status FROM escalations WHERE id = :e", e=eid) == "resolved"
+    other = _free_cases(app_db, 1)[0]
+    d = client.get(f"/v1/cases/{other}/dispatch-suggestions").json()
+    assert team in [t["team_id"] for t in d["suggestions"] + d["more"] + d["greyed"]]
+    assert not any(g["team_id"] == team and "overdue" in g["why"] for g in d["greyed"])   # no longer greyed as overdue
+    pid = one(app_db, "SELECT c.public_id FROM assignments a JOIN cases c ON c.id = a.case_id WHERE a.id = :a", a=aids[0])
+    lines = [e["line"] for e in client.get(f"/v1/cases/{pid}/timeline").json()["events"]]
+    assert "Heard from Fire & Rescue Boat 5 on VHF by R. Das · new ETA 15 min" in lines
+    assert client.post(f"/v1/teams/{team}/contact", json={"channel": "pigeon"}).status_code == 409
+
+
+def test_t7_extending_a_resolved_escalation_names_who_resolved_it(seeded, client, app_db):
+    _, _, eid = _overdue(client, app_db)
+    assert client.post(f"/v1/escalations/{eid}/extend", json={"channel": "VHF"}).status_code == 200
+    login(client, "asinha")
+    r = client.post(f"/v1/escalations/{eid}/extend", json={"channel": "phone"})
+    assert r.status_code == 409 and r.json()["detail"].startswith("Already resolved: heard on VHF by R. Das at ")
+
+
+def test_reassign_moves_one_case_and_the_old_team_owes_a_stand_down(seeded, client, app_db):
+    aids, team, eid = _overdue(client, app_db)
+    pid = one(app_db, "SELECT c.public_id FROM assignments a JOIN cases c ON c.id = a.case_id WHERE a.id = :a", a=aids[0])
+    d = client.get(f"/v1/cases/{pid}/dispatch-suggestions").json()
+    new_team = d["suggestions"][0]["team_id"]
+    r = client.post(f"/v1/escalations/{eid}/reassign", json={"case": pid, "team_id": new_team})
+    assert r.status_code == 200, r.text
+    assert r.json()["from_team"] == "Fire & Rescue Boat 5" and r.json()["escalation_open"] is False
+    assert one(app_db, "SELECT team_id FROM assignments WHERE case_id = (SELECT id FROM cases WHERE public_id = :p)"
+                       " AND state = 'open'", p=pid) == new_team
+    teams = {t["id"]: t for t in client.get("/v1/teams?incident=BR").json()}
+    assert teams[team]["standdowns_owed"] == 1 and teams[team]["status"] == "available"
+    assert client.post(f"/v1/escalations/{eid}/reassign", json={"case": pid, "team_id": new_team}).status_code == 409
+    client.post(f"/v1/teams/{team}/contact", json={"channel": "phone"})                  # its next contact
+    assert {t["id"]: t for t in client.get("/v1/teams?incident=BR").json()}[team]["standdowns_owed"] == 0

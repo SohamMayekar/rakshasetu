@@ -110,6 +110,48 @@
         "title": "Callback",
         "type": "object"
       },
+      "Contact": {
+        "properties": {
+          "channel": {
+            "title": "Channel",
+            "type": "string"
+          },
+          "kind": {
+            "default": "radio",
+            "pattern": "^radio$",
+            "title": "Kind",
+            "type": "string"
+          },
+          "new_eta": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "New Eta"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "required": [
+          "channel"
+        ],
+        "title": "Contact",
+        "type": "object"
+      },
       "Decision": {
         "properties": {
           "reason": {
@@ -218,6 +260,30 @@
           "reason"
         ],
         "title": "Edit",
+        "type": "object"
+      },
+      "Extend": {
+        "properties": {
+          "channel": {
+            "title": "Channel",
+            "type": "string"
+          },
+          "new_eta": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "New Eta"
+          }
+        },
+        "required": [
+          "channel"
+        ],
+        "title": "Extend",
         "type": "object"
       },
       "HTTPValidationError": {
@@ -343,6 +409,26 @@
           "text"
         ],
         "title": "Preview",
+        "type": "object"
+      },
+      "Reassign": {
+        "properties": {
+          "case": {
+            "maxLength": 20,
+            "minLength": 1,
+            "title": "Case",
+            "type": "string"
+          },
+          "team_id": {
+            "title": "Team Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "case",
+          "team_id"
+        ],
+        "title": "Reassign",
         "type": "object"
       },
       "Switch": {
@@ -1585,6 +1671,114 @@
           }
         },
         "summary": "Ack",
+        "tags": [
+          "escalations"
+        ]
+      }
+    },
+    "/v1/escalations/{eid}/extend": {
+      "post": {
+        "operationId": "extend_v1_escalations__eid__extend_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "eid",
+            "required": true,
+            "schema": {
+              "title": "Eid",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Extend"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Extend V1 Escalations  Eid  Extend Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Extend",
+        "tags": [
+          "escalations"
+        ]
+      }
+    },
+    "/v1/escalations/{eid}/reassign": {
+      "post": {
+        "operationId": "reassign_v1_escalations__eid__reassign_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "eid",
+            "required": true,
+            "schema": {
+              "title": "Eid",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Reassign"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Reassign V1 Escalations  Eid  Reassign Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Reassign",
         "tags": [
           "escalations"
         ]
@@ -2928,6 +3122,53 @@
         ]
       }
     },
+    "/v1/teams": {
+      "get": {
+        "operationId": "list_teams_v1_teams_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "incident",
+            "required": true,
+            "schema": {
+              "title": "Incident",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response List Teams V1 Teams Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Teams",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
     "/v1/teams/me/heartbeat": {
       "post": {
         "operationId": "heartbeat_v1_teams_me_heartbeat_post",
@@ -2946,6 +3187,60 @@
           }
         },
         "summary": "Heartbeat",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/v1/teams/{team_id}/contact": {
+      "post": {
+        "operationId": "contact_v1_teams__team_id__contact_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "team_id",
+            "required": true,
+            "schema": {
+              "title": "Team Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Contact"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Contact V1 Teams  Team Id  Contact Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Contact",
         "tags": [
           "teams"
         ]
