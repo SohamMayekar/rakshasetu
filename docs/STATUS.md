@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m56 failure drills
+**Current milestone:** m57 P1 items (install manifest, wake lock, …)
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)

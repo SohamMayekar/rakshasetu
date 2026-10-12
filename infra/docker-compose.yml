@@ -33,6 +33,7 @@ x-api-build: &api-build
 
 services:
   db:
+    restart: unless-stopped   # a crash on the demo laptop comes back by itself (m56 drill)
     image: postgis/postgis:16-3.4-alpine
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -60,6 +61,7 @@ services:
       db: { condition: service_healthy }
 
   api:
+    restart: unless-stopped   # a crash on the demo laptop comes back by itself (m56 drill)
     image: rakshasetu-api
     environment: *api-env
     volumes:
@@ -74,6 +76,7 @@ services:
       retries: 20
 
   worker:
+    restart: unless-stopped   # a crash on the demo laptop comes back by itself (m56 drill)
     image: rakshasetu-api
     command: ["python", "-m", "app.worker"]
     environment: *api-env
@@ -89,6 +92,7 @@ services:
       retries: 10
 
   ticker:
+    restart: unless-stopped   # a crash on the demo laptop comes back by itself (m56 drill)
     image: rakshasetu-api
     command: ["python", "-m", "app.ticker"]
     environment: *api-env
@@ -101,6 +105,7 @@ services:
       retries: 10
 
   web:
+    restart: unless-stopped   # a crash on the demo laptop comes back by itself (m56 drill)
     build:
       context: ../apps/web
       additional_contexts:
@@ -117,6 +122,7 @@ services:
       retries: 20
 
   caddy:
+    restart: unless-stopped   # a crash on the demo laptop comes back by itself (m56 drill)
     image: public.ecr.aws/docker/library/caddy:2-alpine
     volumes:
       - ./caddy:/etc/caddy:ro   # the folder, not the file: an edited Caddyfile is a new inode a file mount never sees
