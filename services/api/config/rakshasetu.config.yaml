@@ -1,0 +1,86 @@
+# RakshaSetu team-owned configuration (PRD §9). THE file judges will probe.
+# The team decides every number here and every member can explain it.
+# Durations: 30s, 5m, 2h. Distances in metres unless the key says km.
+profile: demo                      # demo | realistic
+
+dedupe:
+  score: weighted_sum_missing_zero   # only agreeing signals add; missing = 0 (no averaging)
+  weights: {phone_or_device: 0.30, place: 0.20, geo: 0.20, landmarks: 0.10, headcount: 0.10, names: 0.05, time: 0.05}
+  name_tokens: true                # a shared surname alone = 0; differing given names = conflict → refused
+  min_signals: 2                   # non-time signals required, incl. place or geo
+  suggest_at: 0.60
+  auto_merge_at: 0.85              # AND phone/device match AND place/geo agree AND no conflict
+  relay_phone_distinct_households: 2   # a phone/device stops counting as identity after this
+  block: {high_conf_distance_km_gt: 2}  # same phone → review instead (the family may have moved)
+  geo_min_confidence: medium
+  reject_creates_block: true
+  transitive_merges: false
+  candidate_cap: 50                # applied after ranking: phone/device → distance → village
+  candidate_radius_km: 3
+  time_decay_hours: 12
+  include_closed_hours: 72         # P1: old forwards can't resurrect rescued families
+
+location:
+  landmark_search_radius_m: 2000
+  pair_max_gap_m: 500              # P1: candidates further apart are never averaged
+  high_requires_unique_pair_within_m: 1000
+  radius_m: {two_landmarks: 150, one_landmark: 300, many_candidates_cap: 1000, village: 1500, district: 15000, human: 50}
+  village_fuzzy_min: 85            # rapidfuzz ratio for a village name match
+
+priority:                          # highest matching level wins; every matching reason at that level is shown
+  - {level: P1, when: "trapped and (water_rising or water_entering or medical_urgent)", reason: "trapped + water/urgent medical"}
+  - {level: P1, when: "(buried or structure_collapsed) and people_count >= 1", reason: "buried / collapse"}
+  - {level: P1, when: "trapped and vulnerable", reason: "trapped + vulnerable person"}
+  - {level: P1, when: "medical_urgent", reason: "urgent medical need"}
+  - {level: P1, when: "people_count >= 10 and trapped", reason: "10+ people trapped"}
+  - {level: P2, when: "trapped or medicine or vulnerable", reason: "trapped, medicine or vulnerable"}
+  - {level: P3, when: "needs_supplies", reason: "supplies"}
+  - {level: P4, when: "true", reason: "no urgent signal yet: check"}
+p1_order: [infant_or_medical_urgent, water_rising, vulnerable, waiting_time]   # partial rescues keep their original time
+
+contact:          # realistic values; the demo profile runs the clock ×60 for live demo cases only
+  acknowledge_within: {P1: 5m, P2: 10m, P3: 30m, P4: 30m}
+  eta_chips: [15m, 30m, 60m]                             # the team's own estimate
+  eta_grace: 10m
+  onscene_window: 30m
+  long_operation_window: 120m                            # collapse, a large site
+  heartbeat_extends_deadline: false                      # display only ("last seen")
+  team_level_contact: true                               # one radio log refreshes all of a team's assignments
+  demo_clock_multiplier: 60                              # shown on every ring in the demo profile
+  rescue_review_window: 2h                               # rescued → closed unless a blocking "No"
+  demo_rescue_review_window: 20s                         # demo profile, live demo cases (real seconds)
+dispatch:
+  p1_before_check: true                                  # nobody on a roof waits for paperwork
+  exclude_team_status: [overdue, out_of_service]
+  top_n: 3
+
+escalation:
+  chain: [duty_officer, incharge]                        # stays in the district; routed to the role, never a person
+  ack_within: 10m                                        # P1: then rises to the in-charge
+  resolve_within: 15m                                    # P1: an acknowledgement that isn't resolved is raised again
+  one_per_team: true
+  capacity_gap_alert: true                               # P1: one group header, not one alarm per case
+  p1_unowned_after: 5m
+  seoc_sees: [totals, capacity_requests]
+
+rescue:
+  location_check_extra_m: 1000                           # P1: radius + 1 km → no auto-close, officer closes
+  other_tell_officer_suppresses_family_messages: true
+  undo_seconds: 10
+
+demo:
+  short_timers_apply_to: live_demo_cases   # seeded cases keep realistic timers: no alarm storm mid-pitch
+  seed_timestamps_relative_to_reset: true
+  heartbeat_seconds: 10
+
+surge: {render_batch_ms: 1000, max_case_updates_per_sec: 1}
+scheduler: {ticker_seconds: 5, job_reclaim_after: 60s}
+lanes: [live_voice, whatsapp_partner, import, surge]
+providers:                         # all free (PRD §12.5); first = primary, second = fallback
+  stt: [sarvam_saaras, groq_whisper_large_v3]
+  llm: [groq_gpt_oss_120b, gemini_flash]
+  stop_at_fraction_of_free_cap: 0.8   # then fall back; the LLM's last resort is the keyword path
+  language_model_enabled: true        # the "language model off" demo control overrides this at runtime
+llm: {timeout_s: 8, retries: 1, batch_rows: 20, parallel_batches: 1, reasoning_effort: low, live_reserve_tokens_per_min: 3000}
+voice_caps: {per_device_per_min: 5, global_per_min: 20, max_clip_seconds: 30, min_clip_seconds: 1.0}
+status_page: {poll_seconds: 3, lookups_per_min_per_ip: 60}

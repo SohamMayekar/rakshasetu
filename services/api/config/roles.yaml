@@ -1,0 +1,34 @@
+# Who may do what (PRD §4.2). Enforced by require(action) AND by the Scope inside every SQL query (rule R8).
+# Escalations and approvals bind to (role, scope), never to a named user (PRD §15).
+roles:
+  reporter:     {label: "Reporter",           login: false}
+  call_taker:   {label: "Call-taker",         login: true,  surface: desk}
+  duty_officer: {label: "EOC Duty Officer",   login: true,  surface: desk}
+  incharge:     {label: "EOC In-charge",      login: true,  surface: desk}
+  team_lead:    {label: "Team lead",          login: true,  surface: responder}
+  seoc_viewer:  {label: "SEOC viewer",        login: true,  surface: incidents}
+  admin:        {label: "System admin",       login: true,  surface: desk}
+  partner:      {label: "Partner system",     login: false}
+
+permissions:
+  report.submit:          [reporter, call_taker, duty_officer, incharge, team_lead, admin, partner]
+  case.status_public:     [reporter, call_taker, duty_officer, incharge, team_lead, seoc_viewer, admin]
+  queue.view:             [call_taker, duty_officer, incharge, team_lead, admin]   # team lead: assigned cases only
+  totals.view:            [call_taker, duty_officer, incharge, seoc_viewer, admin]
+  phone.view_masked:      [call_taker, duty_officer, incharge, team_lead, admin]
+  phone.reveal:           [call_taker, duty_officer, incharge, team_lead]          # P1, reason logged
+  case.check:             [call_taker, duty_officer, incharge]
+  case.edit:              [call_taker, duty_officer, incharge]
+  case.move_pin:          [call_taker, duty_officer, incharge]
+  merge.decide:           [call_taker, duty_officer, incharge]
+  import.run:             [call_taker, duty_officer, incharge, admin]
+  assignment.create:      [duty_officer, incharge]
+  assignment.team_action: [team_lead, duty_officer, incharge]                     # officers: on the team's behalf, channel + reason logged
+  team.radio_contact:     [duty_officer, incharge]
+  rescue.family_confirm:  [reporter]                                              # linked device or phone only
+  case.decide:            [duty_officer, incharge]                                # extend/reassign/close/reopen/cancel, reason required
+  priority.override:      [duty_officer, incharge]                                # P1 #2
+  escalation.ack:         [duty_officer, incharge]
+  incident.admin:         [admin]
+  audit.read:             [duty_officer, incharge, admin]                         # officers: own district
+  partner.annotate:       [partner]

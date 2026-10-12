@@ -1,0 +1,6 @@
+# Boot-time feature flags, exposed via /v1/me. A curveball feature can be switched off here after code lock (PRD §15).
+whatsapp_channel: false        # P1 #5: needs the Meta test number
+partner_annotations: true      # P1 #13
+family_check: true             # F-S3 "Is that right? Yes / No"
+demo_captions: true            # judge-legibility caption line (DEMO_MODE only)
+reveal_contact: false          # P1 #12 break-glass reveal
