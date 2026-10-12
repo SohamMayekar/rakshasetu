@@ -1,5 +1,7 @@
 # responder · the boat's phone
 
+- **m81:** the case screen pins its next step (accept with a time, I've reached them, record the rescue) and its "Sent" line to the bottom of the screen; More and My cases stay in the page. Pages pad themselves clear of the notch and home bar; every link and toggle is at least 44 px tall.
+
 - **m70:** each card in My cases has its one big next action ("I've reached them", "Record the rescue"), and shows its last taps ("Accepted · ETA 15 min · Sent 22:31"). A new case still takes the whole screen: "Accept: we'll be there in 15 / 30 / 60 min". On the case screen, Call is under More with Hand back.
 
 - **What it is:** `/responder` (reachable through the public tunnel; the team lead signs in with username + password). Built for **Android Chrome** (the Vibration API isn't on iOS).

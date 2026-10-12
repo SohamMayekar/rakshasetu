@@ -22,7 +22,7 @@ import { PRIORITY_WORD } from "@/lib/words";
 function Login({ onIn }: { onIn: () => void }) {
   const [error, setError] = useState<string | null>(null);
   return (
-    <main className="mx-auto min-h-dvh max-w-md bg-canvas px-5 py-8">
+    <main className="safe-page mx-auto min-h-dvh max-w-md bg-canvas px-5">
       <p className="flex items-center gap-2 text-body font-semibold"><Mark className="size-6" />RakshaSetu · Team</p>
       <h1 className="mt-6 text-3xl font-semibold tracking-tight">Sign in as your team</h1>
       <form className="mt-6 space-y-3 rounded-card bg-paper p-5 shadow-[var(--shadow-card)]" onSubmit={async (e) => {
@@ -52,7 +52,7 @@ const where = (c: MyCase) => `${c.location_text ?? "place not known"}${c.distanc
 
 function NewCase({ c }: { c: MyCase }) {
   return (
-    <main className="fixed inset-0 z-50 flex flex-col bg-paper px-5 pb-6 pt-8">
+    <main className="safe-page fixed inset-0 z-50 flex flex-col overflow-y-auto bg-paper px-5">
       <p className="text-small font-medium text-ink-2">New case for your team</p>
       <p className="mt-2 flex items-baseline gap-3 text-4xl font-semibold tracking-tight"><Priority level={c.priority} /><span className="tabular">{c.public_id}</span></p>
       <p className="mt-4 text-2xl leading-snug">{c.summary}</p>
@@ -68,7 +68,7 @@ function NewCase({ c }: { c: MyCase }) {
           ))}
         </div>
         <TapStatus caseId={c.id} />
-        <a href={`/responder/case/${c.id}`} className="block py-2 text-center text-base underline underline-offset-4">Open the case first</a>
+        <a href={`/responder/case/${c.id}`} className="flex min-h-11 items-center justify-center text-body underline underline-offset-4">Open the case first</a>
       </div>
     </main>
   );
@@ -128,7 +128,7 @@ export default function Responder() {
   if (state === "out") return <Login onIn={load} />;
   const offered = cases.find((c) => c.phase === "offered");
   return (
-    <main className="mx-auto min-h-dvh max-w-md bg-canvas px-5 pb-10 pt-6">
+    <main className="safe-page mx-auto min-h-dvh max-w-md bg-canvas px-5">
       {offered && <NewCase c={offered} />}
       <p className="flex items-center gap-2 text-body font-semibold"><Mark className="size-6" />RakshaSetu · {team?.name}</p>
       <h1 className="mt-5 text-3xl font-semibold tracking-tight">My cases</h1>

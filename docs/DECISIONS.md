@@ -109,3 +109,6 @@ The desk had seven floating white cards (three number tiles, two header pills, t
 
 ### D37 · Every screen uses the six text sizes, including the defaults we used to reach for
 After m78 the custom pixel sizes were gone but Tailwind's own 12 and 14 px sizes were still everywhere, so the panel mixed 12, 13, 14 and 15 px in one column. They now map onto the scale (12 → 13, 14 → 15). The phones keep their larger field sizes (18 px and up), because CLAUDE.md asks for ≥ 64 px responder buttons and phone browsers zoom into inputs under 16 px. **Rejected:** shrinking body text to 13 px for density (the projector is read from across a room).
+
+### D38 · On the team's phone the next step never scrolls away
+A team member reads the caller's words and the place, then needs one tap, often with wet hands on a moving boat. On a 390 px screen the action sat under the map, the words and the summary, so it could scroll out of view. It now sits in a bar pinned to the bottom (clear of the home bar), with the "Sent" confirmation beside it; rarer actions (call, hand back) stay in the page. **Rejected:** pinning everything (a tall bar hides the caller's words); a floating round button (one target for three different steps hides which step it is).

@@ -99,7 +99,7 @@ export default function ReporterPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col bg-canvas px-5 pb-8 pt-6">
+    <main className="safe-page mx-auto flex min-h-dvh max-w-md flex-col bg-canvas px-5">
       <header className="mb-4">
         <p className="flex items-center gap-2 text-body font-semibold text-ink"><Mark className="size-6" />RakshaSetu</p>
         <h1 className="mt-4 text-display font-semibold leading-tight tracking-tight">Tell us who needs help, and where</h1>
@@ -204,7 +204,7 @@ function Registered({ publicId, reply, onAgain }: { publicId: string; reply: Rep
         {saved === "yes" ? (
           <p className="text-ink-2">Thank you. We&apos;ll only use it to call you back.</p>
         ) : saved === "skip" || !asking ? (
-          <button onClick={() => setAsking(true)} className="text-body text-ink-2 underline underline-offset-4">Want a call back? Add a number (optional)</button>
+          <button onClick={() => setAsking(true)} className="min-h-11 text-body text-ink-2 underline underline-offset-4">Want a call back? Add a number (optional)</button>
         ) : (
           <>
             <label className="block text-body text-ink-2" htmlFor="cb">A number we can call back <span className="text-ink-3">(optional)</span></label>
@@ -213,11 +213,11 @@ function Registered({ publicId, reply, onAgain }: { publicId: string; reply: Rep
                 className="tabular min-w-0 flex-1 rounded-xl border border-line px-4 py-3 text-lg" placeholder="98xxxxxxxx" />
               <button onClick={save} disabled={phone.length < 10} className="rounded-xl bg-ink px-4 font-medium text-paper disabled:bg-ink-3">Save</button>
             </div>
-            <button onClick={() => setSaved("skip")} className="mt-3 text-body text-ink-3 underline underline-offset-4">No thanks</button>
+            <button onClick={() => setSaved("skip")} className="mt-1 min-h-11 text-body text-ink-3 underline underline-offset-4">No thanks</button>
           </>
         )}
       </div>
-      <button onClick={onAgain} className="mt-6 text-body text-ink-2 underline underline-offset-4">Report another family</button>
+      <button onClick={onAgain} className="mt-4 min-h-11 text-body text-ink-2 underline underline-offset-4">Report another family</button>
     </div>
   );
 }

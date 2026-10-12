@@ -66,3 +66,7 @@ p { text-wrap: pretty; }
 
 /* Thin, quiet scrollbars inside cards (the desk scrolls in panels, not the page). */
 .scroll-quiet { scrollbar-width: thin; scrollbar-color: #d6d4cf transparent; }
+
+/* Phone pages (m81): content stays clear of the notch and the home bar; a bar pinned to the bottom pads itself. */
+.safe-page { padding-top: max(1.5rem, env(safe-area-inset-top)); padding-bottom: max(2rem, env(safe-area-inset-bottom)); }
+.safe-bottom { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }

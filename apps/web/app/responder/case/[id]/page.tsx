@@ -37,13 +37,13 @@ export default function ResponderCase({ params }: { params: Promise<{ id: string
 
   if (denied) {
     return (
-      <main className="mx-auto max-w-md px-5 py-10">
+      <main className="safe-page mx-auto max-w-md px-5">
         <p className="text-small font-medium text-ink-2">Not your team&rsquo;s case</p>
         <h1 className="mt-1 text-2xl font-semibold">{denied}</h1>
         <p className="mt-2 text-ink-2">Your team can open only the cases assigned to it. Ask the control room on radio if you think this one should be yours.</p>
         {/* a rescue record that hands the case back (someone still there) ends the team's access: its taps still show */}
         <div className="mt-4"><TapStatus caseId={Number(id)} /></div>
-        <a href="/responder" className="mt-6 block underline underline-offset-4">Back to my cases</a>
+        <a href="/responder" className="mt-4 flex min-h-11 items-center underline underline-offset-4">Back to my cases</a>
       </main>
     );
   }
@@ -60,7 +60,7 @@ export default function ResponderCase({ params }: { params: Promise<{ id: string
   const step = !a ? null : a.phase === "offered" ? "acknowledge" : a.phase === "acknowledged" ? "reached" : "rescue";
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col bg-canvas pb-6">
+    <main className="mx-auto flex min-h-dvh max-w-md flex-col bg-canvas" style={{ paddingTop: "env(safe-area-inset-top)" }}>
       <div className="m-3 mb-0 h-44 overflow-hidden rounded-card bg-wash shadow-[var(--shadow-card)]">{c.lat != null && <CaseMap cases={[c]} selected={c.id} onSelect={() => {}} />}</div>
       <div className="mx-3 mt-3 flex-1 rounded-card bg-paper px-5 py-4 shadow-[var(--shadow-card)]">
         <p className="flex items-baseline gap-3 text-3xl font-semibold tracking-tight"><Priority level={c.priority} /><span className="tabular">{c.public_id}</span></p>
@@ -80,7 +80,24 @@ export default function ResponderCase({ params }: { params: Promise<{ id: string
         )}
         {error && <p className="mt-2 text-body">{error}</p>}
       </div>
-      <div className="space-y-3 px-5 pt-4">
+      <div className="space-y-2 px-5 pt-2">   {/* the rarer things, in the page; the bar below keeps only the next step */}
+          <button onClick={() => setMore(!more)} aria-expanded={more} className="min-h-11 w-full text-body underline underline-offset-4">{more ? "Less" : "More"}</button>
+          {more && a && (
+            <div className="space-y-2">
+              <BigButton variant="secondary" onClick={call}>Call the family (the number is shown to you; it&rsquo;s logged)</BigButton>
+              {!releasing ? <BigButton variant="secondary" onClick={() => setReleasing(true)}>Hand this case back</BigButton> : (
+                <form className="space-y-2" onSubmit={(e) => { e.preventDefault();
+                  tap({ url: `/v1/assignments/${a.id}/release`, body: { reason: String(new FormData(e.currentTarget).get("reason")) }, label: "Handed back", caseId: c.id });
+                  setReleasing(false); }}>
+                  <input name="reason" required minLength={3} placeholder="Why? For example, the engine failed…" className="h-14 w-full rounded-xl border border-line px-4 text-lg" />
+                  <BigButton>Hand back</BigButton>
+                </form>
+              )}
+            </div>
+          )}
+          <a href="/responder" className="flex min-h-11 items-center justify-center text-body underline underline-offset-4">My cases</a>
+      </div>
+      <div className="safe-bottom sticky bottom-0 z-10 mt-3 space-y-3 border-t border-line bg-canvas/95 px-5 pt-4 backdrop-blur">
         <TapStatus caseId={c.id} />
         {step === "acknowledge" && <p className="text-center text-body text-ink-2">Accept: we&rsquo;ll be there in</p>}
         {step === "acknowledge" && (
@@ -116,21 +133,6 @@ export default function ResponderCase({ params }: { params: Promise<{ id: string
             setRescuing(false);
           }} />
         )}
-        <button onClick={() => setMore(!more)} className="min-h-12 w-full text-base underline underline-offset-4">More</button>
-        {more && a && (
-          <div className="space-y-2">
-            <BigButton variant="secondary" onClick={call}>Call the family (the number is shown to you; it&rsquo;s logged)</BigButton>
-            {!releasing ? <BigButton variant="secondary" onClick={() => setReleasing(true)}>Hand this case back</BigButton> : (
-              <form className="space-y-2" onSubmit={(e) => { e.preventDefault();
-                tap({ url: `/v1/assignments/${a.id}/release`, body: { reason: String(new FormData(e.currentTarget).get("reason")) }, label: "Handed back", caseId: c.id });
-                setReleasing(false); }}>
-                <input name="reason" required minLength={3} placeholder="Why? e.g. boat engine failed" className="h-14 w-full rounded-xl border border-line px-4 text-lg" />
-                <BigButton>Hand back</BigButton>
-              </form>
-            )}
-          </div>
-        )}
-        <a href="/responder" className="block py-2 text-center underline underline-offset-4">My cases</a>
       </div>
     </main>
   );

@@ -92,7 +92,7 @@ export default function StatusPage({ params }: { params: Promise<{ id: string }>
 
       {st.step !== "closed" && (
         <details className="mt-6">
-          <summary className="cursor-pointer select-none text-body text-ink-2 underline underline-offset-4">Show all steps</summary>
+          <summary className="flex min-h-11 cursor-pointer select-none items-center text-body text-ink-2 underline underline-offset-4">Show all steps</summary>
           <ol className="mt-4 space-y-0" aria-label="Progress">
             {st.steps.map((s, i) => {
               const done = i <= current;
@@ -159,7 +159,7 @@ function FamilyCheck({ id, check }: { id: string; check: { people_taken: number 
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <main className="mx-auto min-h-dvh max-w-md bg-canvas px-5 pb-8 pt-6">
+    <main className="safe-page mx-auto min-h-dvh max-w-md bg-canvas px-5">
       <p className="mb-5 flex items-center gap-2 text-body font-semibold text-ink"><Mark className="size-6" />RakshaSetu</p>
       <div className="rounded-card bg-paper px-6 py-7 shadow-[var(--shadow-card)]">{children}</div>
       <p className="mt-4 flex items-center gap-3 rounded-2xl bg-paper px-4 py-3 text-body text-ink-2 shadow-[var(--shadow-card)]">
