@@ -1,17 +1,19 @@
 # RakshaSetu
 
-> **Never lost. Never doubled. Never stale.**
+> **Get every family in a flood to safety.**
 
-RakshaSetu ("bridge of protection") is the district control room's rescue-request desk for the first two weeks of a disaster. Pleas arrive as voice clips, typed calls, pasted forwards, volunteer spreadsheets and partner systems. RakshaSetu turns each family into **one household case with one owner**, until the rescuers report back, and refuses to lose, double or forget anyone.
+RakshaSetu ("bridge of protection") is the district control room's rescue-request desk for the first two weeks of a disaster. Calls for help arrive as voice clips, typed calls, forwarded messages, volunteer spreadsheets and other teams' systems. Each family becomes **one case with one rescue team**, followed until the team reports them safe. Nobody is lost, nobody is counted twice, and a team that goes quiet is noticed.
 
 Built at CodeAstra 2.0 for **Web PS 1, National-Scale Incident Command Operating Layer**: a national layer of district desks. The spec is [`docs/PRD.md`](docs/PRD.md) (v1.1). What is done, not done and blocked is in [`docs/STATUS.md`](docs/STATUS.md). The proof (the 9 required components, the tests, the golden path, the drills, the numbers) is in [`docs/VERIFICATION.md`](docs/VERIFICATION.md).
 
 ## The three innovations
 1. **One household across calls, forwards and sheets, with reasons and refusals.** "Same village · same landmarks · circles overlap", merged by a person and undoable; "Rajesh ≠ Ramesh: not merged".
-2. **Landmark words → a pin with an honest circle**, for a reporter who isn't there ("behind the Durga temple, near the bridge" → High · 150 m, from real OpenStreetMap data).
+2. **Landmark words → a place with an honest circle**, for a caller who isn't there ("behind the Durga temple, near the bridge" → within 150 m, from real OpenStreetMap data).
 3. **One owner whose silence is noticed, never auto-reassigned**, closed by the rescuers' headcount ("4 taken, someone still there" → "2 of 6 still there" → "Rescued 6 of 6").
 
 AI does two things only: speech to text, and extracting facts **with their quotes**. Rules and people decide everything else ([`AI_USAGE.md`](AI_USAGE.md)).
+
+**A live demo, not a recording:** a judge scans the QR and asks for help from their own phone (typed, or spoken with a speech key; without one a voice clip still becomes a case to listen to); it lands on the desk in seconds; the officer sends a team; the team's phone accepts, reaches and records the rescue; the family's phone is asked "Is that right?". Everything runs on the real code paths; only the people, phone numbers and the 60× clock are demo values.
 
 ## Run it (one laptop, no paid service)
 
@@ -21,16 +23,16 @@ Needs Docker with Compose v2 and `make`. The browser checks (`make e2e`, `make d
 make env          # copies .env.example to .env: dev-only local values, no keys (change SECRET_KEY before going public)
 make up           # builds and starts db, api, worker, ticker, web, caddy
 make seed         # the three scenario packs (Bihar flood, Odisha cyclone, Himachal landslide), synthetic people
-make test         # copy rules (never-say words + screen jargon) + ruff + the API suite (418 tests) on a separate test database
+make test         # copy rules (never-say words + screen jargon) + ruff + the API suite (419 tests) on a separate test database
 ```
 
 Open **http://localhost**. The front door has two choices: **I need help** (the phone app for people, `/r`) and **Control room dashboard**. Sign in as one of three people:
 
 | Profile | Who | Opens | Shows |
 |---|---|---|---|
-| **Duty officer** | R. Das, Bihar only | the desk (`/desk/BR`), on the projector | the three promises, Needs you now, the map; Desk · History · Demo |
+| **Duty officer** | R. Das, Bihar only | the desk (`/desk/BR`), on the projector | need help now · a team on it · rescued, then Needs you now and the map; Desk · History · Demo |
 | **Rescue team** | Fire & Rescue Boat 5 | the team's phone app (`/responder`) | its own cases, each with one big next action |
-| **Demo admin** | all three incidents | `/demo` (open it at **http://127.0.0.1/demo**, so the desk on localhost stays signed in) | the six scenes, Next scene, the QR codes, the honesty lines |
+| **Demo admin** | all three incidents | `/demo` (open it at **http://127.0.0.1/demo**, so the desk on localhost stays signed in) | the six-step run sheet, Next step, the QR codes, what to say once |
 
 Phones use the **public listener** on :8080, through a Cloudflare quick tunnel on the day. Nine more synthetic users stay seeded for the permission tests; they are not on the sign-in screen (D22).
 
@@ -77,7 +79,7 @@ No Redis, no Kafka, no microservices, no object store, no agent framework. **Cos
 |---|---|
 | [`docs/VERIFICATION.md`](docs/VERIFICATION.md) | The 9 components → demo moment → test; T1–T10; the golden path; drills; numbers; the humans' pre-stage list |
 | [`docs/STATUS.md`](docs/STATUS.md) | Every milestone and its proof; NOT DONE; BLOCKED |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | D1–D29: where the build chose, and why |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | D1–D34: where the build chose, and why |
 | [`docs/SIMPLIFY_PLAN.md`](docs/SIMPLIFY_PLAN.md) | The simplify run (m63–m72): every screen before → after, the plain-word glossary, the three profiles |
 | [`docs/TEACHBACK.md`](docs/TEACHBACK.md) | 20 questions every team member should be able to answer |
 | [`docs/modules/`](docs/modules) | A short explainer per module |

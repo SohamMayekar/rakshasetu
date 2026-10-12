@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m76 (the focus run, m73–m77: about families, teams and rescues) (the simplify run, m63–m72: docs/SIMPLIFY_PLAN.md); last release m62: see docs/VERIFICATION.md
+**Current milestone:** m77 (the focus run is released: docs/VERIFICATION.md §9) (the focus run, m73–m77: about families, teams and rescues) (the simplify run, m63–m72: docs/SIMPLIFY_PLAN.md); last release m62: see docs/VERIFICATION.md
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -48,6 +48,19 @@
 | m59 | English only on every screen (D17), at the team's request: the reporter page, the family's status page, the team app, the rescue sheet and the desk's new-report box lose their Hindi lines; the fixed reply is English. The demo data is English too (48 seed cases, the 300-row sheet with English headers, the surge generator, the forward, the Das report, a new synthetic English clip of the son's line + its transcript fixture), each generator on its old random stream so every household, headcount, phone and expected outcome is unchanged. Rules: English 'behind the Durga temple' (relation first), English number words, quotes end on a whole word. Hindi and Hinglish are still read (dictionary, gazetteer, sheet headers, Devanagari font) | ground_truth.csv byte-identical; seed texts 48/48 against their truth; demo sheet 300/300 rows agree, merges precision 1.000; make test: 408 passed; make e2e: all 37 checks in 157 s in English (hover lights '6 people are stuck on the roof'); stale FAILED-*.png screenshots removed and ignored |
 | m62 | Release: README (run it, architecture, honesty, docs index), AI_USAGE.md (the two AI jobs; no live AI call was made here; how the build used Claude Code), docs/TEACHBACK.md (20 questions), docs/VERIFICATION.md (the stop conditions, the 9 components → demo moment → tests, T1–T10, the golden path with its screenshots, drills, DONE/NOT DONE/BLOCKED, the humans' pre-stage list), TESTS/DRILLS/MEASUREMENTS brought up to the final code | Fresh clone of the release branch in its own Docker project: make up ✓ 1 min 49 s, make seed ✓ 6.1 s, make test ✓ 415 passed, make demo-reset ✓ 5.0 s, make verify ✓ 223 events (one sandbox-only step: the proxy's CA in infra/certs/). Main stack: make e2e 37/37 in 157 s, ✓ 1,874 events verified, integrity 0; make drills 14/14 |
 
+## The focus run (m73–m77) at a glance
+
+| Branch | Merged | make test | make e2e | verify | What changed for a judge |
+|---|---|---|---|---|---|
+| m73-lives-first | ✓ | 419 passed | 37/37, 151 s | ✓ 223 | desk + All incidents count families; All incidents 58 → 39 |
+| m74-real-demo | ✓ | 419 passed | 37/37, 150 s | ✓ 223 | captions are short facts; /demo is a run sheet of real actions |
+| m75-cut-filler | ✓ | 419 passed | 37/37, 152 s | ✓ 223 | no sentence explains the system; load screen 36 → 32 |
+| m76-design-page | ✓ | 419 passed | 37/37, 152 s | ✓ 223 | /ui in plain words, covered by copy-check |
+| m77-focus-release | ✓ | 419 passed | 37/37, 148 s; drills 14/14 | ✓ 223 | docs, golden screenshots |
+
+- **NOT DONE:** the desk is still 62 things in view (it shows six queue rows); History's count rose to 82 because a shorter header fits more entries; voice from a judge's phone needs a speech key (without one it becomes a case to listen to); the QR codes need `PUBLIC_URL` and the tunnel on the day.
+- **BLOCKED:** pushing the `m73`…`m77` tags (the sandbox proxy refuses tag refs).
+
 ## The simplify run (m63–m72) at a glance
 
 | Branch | Merged | make test | make e2e | verify after demo-reset son | Main screen, before → after (1366×768 · phone) |
@@ -83,7 +96,7 @@
 | What | Variable / service | What it affects | How to verify once supplied |
 |---|---|---|---|
 | Overpass API unreachable from the build sandbox (the egress proxy drops the tunnel to overpass-api.de, its mirrors and Geofabrik) | `overpass-api.de` | `scripts/import_osm.py --source overpass` can't run here; the BR gazetteer is built from the openstreetmap.fr Bihar extract instead (real OSM data, ODbL; decision D6) | On a laptop with open internet: `python scripts/import_osm.py --source overpass` and compare counts with the committed extract |
-| Git tags can't be pushed from this sandbox (the proxy refuses tag refs; branches and main push fine) | GitHub via the session proxy | The `mNN` tags (m01…m72) exist locally only | From a normal clone with this session's history: `git push origin --tags` |
+| Git tags can't be pushed from this sandbox (the proxy refuses tag refs; branches and main push fine) | GitHub via the session proxy | The `mNN` tags (m01…m77) exist locally only | From a normal clone with this session's history: `git push origin --tags` |
 | Speech-to-text keys | `SARVAM_API_KEY`, `GROQ_API_KEY` | Live STT. Without them a voice clip with no recorded transcript becomes an "audio only: listen" case | Put the keys in `.env` (no inline comments), `make up`, then `make provider-check` → `OK sarvam_saaras …` |
 | LLM keys | `GROQ_API_KEY`, `GEMINI_API_KEY` | Live extraction. Without them the keyword path creates every case (chips read **Rule**), and a spreadsheet's rows are all read by rules ("AI asked about 0"). The request shapes are tested offline against the providers' docs; a live call has not been made | Same; `OK groq_gpt_oss_120b …`; then `make sheet-eval` should show "AI asked about 19" |
 | WhatsApp test number | `WHATSAPP_*` | P1 #5 only | — |

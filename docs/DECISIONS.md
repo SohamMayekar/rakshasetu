@@ -97,3 +97,6 @@ A real control-room tool doesn't caption itself. Subtitles, footnotes and hints 
 
 ### D33 · The team's reference page follows the same words as the app
 `/ui` was left behind at m66 (old labels, design jargon) and excluded from the jargon check, which meant the page that teaches the team the pieces taught the old words. It now shows only what the app uses, described as a student would say it, and the check no longer skips it. **Rejected:** deleting `/ui` (each team member uses it to explain a component in the teach-back, CLAUDE.md §1.5).
+
+### D34 · The README leads with what it is for
+The first line a judge reads on GitHub was the engineering promise; it is now the purpose, "Get every family in a flood to safety", followed by what a live demo looks like (a judge's own phone, the real desk, the team's phone). The three promises are described in one sentence of plain words in the opening paragraph. **Rejected:** removing the promises from the docs (the tests, the PRD and the teach-back are organised around them).

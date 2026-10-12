@@ -1,16 +1,16 @@
 # Verification: what was checked, how, and what is left for people
 
-*Release milestone m72 (the simplify run, m63–m72, on top of the m62 release), 12 Oct 2026. Every claim below names the command or test that shows it. Numbers are measured (`docs/MEASUREMENTS.md`); nothing is estimated. All people and phone numbers are synthetic. What changed for the judge (three profiles, plain words, fewer things per screen) is in §9 and `docs/SIMPLIFY_PLAN.md`.*
+*Release milestone m77 (the simplify run m63–m72 and the focus run m73–m77, on top of the m62 release), 12 Oct 2026. Every claim below names the command or test that shows it. Numbers are measured (`docs/MEASUREMENTS.md`); nothing is estimated. All people and phone numbers are synthetic. What changed for the judge (three profiles, plain words, fewer things per screen) is in §9 and `docs/SIMPLIFY_PLAN.md`.*
 
 ## 1. The stop conditions
 
 | Condition | Result | How |
 |---|---|---|
-| `make up`, `make seed`, `make test` on the final code (m72) | ✓ **418 passed in 192 s** (415 at m62 + 1 realtime reconnect test + 2 profile tests); the m62 fresh-clone check: **415 passed**, on a clean checkout in its own Docker project with an empty database (one sandbox-only step: its proxy's CA certificate) | §8 |
-| `make demo-reset` works | ✓ to the start in **2.6 s** (m72); every scene resets on its own (D7 drill: "The rescue" in 25.8 s) | `make e2e`, `make drills` |
-| `/v1/audit/verify` ✓ after the golden path | ✓ **"1,870 events verified"** (m72) | `make e2e` ("History → Check nothing was changed") |
+| `make up`, `make seed`, `make test` on the final code (m77) | ✓ **419 passed in 213 s** (415 at m62 + 1 realtime reconnect + 2 sign-in profiles + 1 worker reconnect); the m62 fresh-clone check: **415 passed**, on a clean checkout in its own Docker project with an empty database (one sandbox-only step: its proxy's CA certificate) | §8 |
+| `make demo-reset` works | ✓ to the start in **2.4 s** (m77); every scene resets on its own (D7 drill: "The rescue" in 25.8 s) | `make e2e`, `make drills` |
+| `/v1/audit/verify` ✓ after the golden path | ✓ **"1,870 events verified"** (m77) | `make e2e` ("History → Check nothing was changed") |
 | `/v1/integrity` = 0 after the golden path | ✓ **0 problems** (1,870 events verified) | `make e2e` ("integrity: 0 problems") |
-| main is clean and tagged | milestones m01–m72 merged with `--no-ff`; tags `m01`…`m72` exist locally. **The tags could not be pushed** (the sandbox proxy refuses tag refs: BLOCKED in `docs/STATUS.md`) | `git log --first-parent main`, `git tag` |
+| main is clean and tagged | milestones m01–m77 merged with `--no-ff`; tags `m01`…`m77` exist locally. **The tags could not be pushed** (the sandbox proxy refuses tag refs: BLOCKED in `docs/STATUS.md`) | `git log --first-parent main`, `git tag` |
 
 ## 2. The 9 required components (PRD §7): where the judge sees each, and what proves it
 
@@ -26,7 +26,7 @@
 | 9 | **Real-time updates** | the judge's phone gets the case and later "Is that right?"; the desk updates on the team's taps | `tests/test_realtime.py`, `tests/test_status_page.py`; the golden path (on the desk 2.1 s after the clip; the phone asked after the rescue); drills D2, D3 |
 
 ## 3. The scenario tests T1–T10 and the IDOR tests
-All in `make test`; the last full run (m72) **418 passed in 192 s**. Each row's file and what it asserts: `docs/TESTS.md`.
+All in `make test`; the last full run (m77) **419 passed in 213 s**. Each row's file and what it asserts: `docs/TESTS.md`.
 
 | T1 idempotency | T2 worker killed mid-surge | T3 merge + undo | T4 the Das families | T5 Excel-damaged phones |
 |---|---|---|---|---|
@@ -51,10 +51,10 @@ IDOR: case, WebSocket and polling, evidence, assignment: all passed.
 
 
 ## 5. Failure drills
-`make drills`: **14 of 14 passed** on the final code (m72): worker crash mid-surge, desk cut off for 30 s, API restart, tiles down, language model off, tamper, scene reset (numbers in `docs/DRILLS.md`).
+`make drills`: **14 of 14 passed** on the final code (m77): worker crash mid-surge, desk cut off for 30 s, API restart, tiles down, language model off, tamper, scene reset (numbers in `docs/DRILLS.md`).
 
 ## 6. DONE / NOT DONE / BLOCKED (summary; the full lists are in `docs/STATUS.md`)
-- **DONE:** milestones m01–m72 (m63–m72: the simplify run, §9). All 9 components, T1–T10, the IDOR tests, the golden path, the drills; partner annotations, the partner log and signed webhooks with the contract card. P1 items #1 (a merge tightens the circle, with pin precedence), #2 (the officer's priority call with a reason), #3 (a rescue record says where the team was and how far from the pin), #7 (an installable team app with Wake Lock and an offline list), #11 (phone placeholders before the model, instruction-like words flagged) and #13 (the partner log), plus parts of #12 (the empty-queue line; 409s that name who and when). English-only screens (D17); the redesign (D18).
+- **DONE:** milestones m01–m77 (m63–m72: the simplify run; m73–m77: the focus run; §9). All 9 components, T1–T10, the IDOR tests, the golden path, the drills; partner annotations, the partner log and signed webhooks with the contract card. P1 items #1 (a merge tightens the circle, with pin precedence), #2 (the officer's priority call with a reason), #3 (a rescue record says where the team was and how far from the pin), #7 (an installable team app with Wake Lock and an offline list), #11 (phone placeholders before the model, instruction-like words flagged) and #13 (the partner log), plus parts of #12 (the empty-queue line; 409s that name who and when). English-only screens (D17); the redesign (D18).
 - **NOT DONE:** P1 items #4, #6, #8 (the capacity-gap header exists, bulk approve doesn't), #9, #10 and the rest of #12. The reporter's "not sent yet" state keeps the clip only in memory. Known dependency advisories need major upgrades (maplibre-gl 6, Next 16). The database restart is not drilled.
 - **BLOCKED (needs a credential or the outside world):** live STT and LLM calls (no keys); WhatsApp, P1 #5 (no Meta test number); the Overpass API (unreachable from the sandbox, so the gazetteer came from the openstreetmap.fr extract, D6); pushing git tags (the proxy refuses them).
 
@@ -104,3 +104,15 @@ Three people on the sign-in screen (Duty officer, Rescue team, Demo admin); a fr
 | `/responder` (a new case on screen) | 16 → 18 (each card has its next action) | 16 → 18 |
 | `/responder/case/58` | 14 → 14 | 15 → 14 |
 
+### The focus run (m73–m77)
+
+| Screen | m72 → m77 at 1366×768 | phone |
+|---|---|---|
+| `/desk/BR` | 62 → 62 (the promise sums became three numbers) | 45 → 49 |
+| All incidents | 58 → **39** | 43 → **32** |
+| case panel | 76 → 76 | 59 → 63 |
+| History | 76 → 82 (a one-line header lets more entries into view) | 48 → 50 |
+| Show it under load | 36 → **32** | 30 → **26** |
+| `/demo` | 37 → 36 | 22 → 22 |
+
+Bug found by the m73 gate and fixed: a worker thread died when Postgres was still starting up after a restart and never retried, so new reports would have sat unread (`tests/test_worker_reconnect.py`).
