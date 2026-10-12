@@ -83,6 +83,16 @@ class Hub:
             except Exception:
                 log.exception("listen loop failed; reconnecting in 1 s")
                 await asyncio.sleep(1)
+                await self._reopen(conninfo)
+
+    async def _reopen(self, conninfo: str) -> None:
+        """After Postgres restarts, the query connection is closed too: open a new one, or the hub would fail
+        on every tick and every open screen would stay "paused" until the API restarted."""
+        if self._db is not None and not self._db.closed:
+            return
+        with contextlib.suppress(Exception):
+            async with self._query_lock:
+                self._db = await psycopg.AsyncConnection.connect(conninfo, autocommit=True, row_factory=namedtuple_row)
 
     # --- reading the table -----------------------------------------------------------------------
     async def fetch_since(self, seq: int, limit: int = 1000) -> list[dict]:

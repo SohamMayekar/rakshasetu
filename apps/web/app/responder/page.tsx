@@ -154,6 +154,8 @@ export default function Responder() {
               <div className="mt-2"><Ring due={c.next_contact_due} windowMs={Math.max(new Date(c.next_contact_due).getTime() - new Date(c.created_at).getTime(), 60_000)}
                                          overdue={c.state === "overdue"} demo={c.demo_clock} /></div>
             </a>
+            {/* the last taps stay visible here: the full-screen New case closes as soon as the server has the tap */}
+            <div className="mt-1.5"><TapStatus caseId={c.id} /></div>
           </li>
         ))}
       </ul>

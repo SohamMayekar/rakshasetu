@@ -46,7 +46,7 @@ services:
     ports:
       - "127.0.0.1:${DB_PORT:-5433}:5432"   # localhost only: for tests and psql (the tamper demo)
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d rakshasetu"]
+      test: ["CMD-SHELL", "pg_isready -h 127.0.0.1 -U postgres -d rakshasetu"]   # over TCP: the socket answers during the image's init restart
       interval: 3s
       timeout: 3s
       retries: 30

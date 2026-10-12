@@ -111,3 +111,21 @@ def test_a_reset_log_tells_every_open_screen_to_reload(seeded, client, app_db, o
         assert m["type"] == "reset"
     with client.websocket_connect(f"/v1/ws?since={head}&incident=BR") as ws:   # an old cursor, after the reset
         assert ws.receive_json()["type"] == "reset"
+
+
+def test_live_updates_come_back_after_the_database_connection_drops(seeded, client, app_db):
+    """A database restart closes the hub's connections; the hub reopens them and screens get events again."""
+    from app.modules.realtime.hub import hub
+    login(client, "rdas")
+    head = one(app_db, "SELECT max(seq) FROM events")
+    client.portal.call(hub._db.close)   # what a Postgres restart does to the hub's query connection
+    deadline = time.monotonic() + 5
+    while hub._db.closed and time.monotonic() < deadline:   # the hub's next tick (≤ 1 s + 1 s back-off) reopens it
+        time.sleep(0.1)
+    assert not hub._db.closed
+    with client.websocket_connect(f"/v1/ws?since={head}&incident=BR") as ws:
+        assert ws.receive_json()["type"] == "hello"
+        (seq,) = _append(app_db, incident_id=_br(app_db))
+        got = _recv_until(ws, seq)
+        assert got[-1]["seq"] == seq
+
