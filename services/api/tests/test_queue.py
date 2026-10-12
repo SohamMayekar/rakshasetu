@@ -86,7 +86,7 @@ def test_a_p1_without_an_owner_past_5_minutes_is_a_broken_promise(seeded, client
     _sql(app_db, "UPDATE cases SET priority = 'P1', p1_rank = 4, queue_since = now() - interval '12 minutes' WHERE id = :c", c=cid)
     row = next(r for r in _q(client, "rdas")["rows"] if r["id"] == cid)
     assert row["chip"] == "no owner 12 min" and row["broken"]
-    assert row["action"] == {"kind": "assign", "label": "Assign a team"}
+    assert row["action"]["kind"] == "assign" and row["action"]["label"].startswith("Assign → ")
     _sql(app_db, "UPDATE cases SET queue_since = now() - interval '2 minutes' WHERE id = :c", c=cid)
     row = next(r for r in _q(client, "rdas")["rows"] if r["id"] == cid)
     assert not row["broken"]                                                  # new work, not yet a broken promise

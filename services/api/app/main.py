@@ -13,6 +13,7 @@ from app.modules.auth.router import router as auth_router
 from app.modules.cases.router import router as cases_router
 from app.modules.dedupe.router import router as merges_router
 from app.modules.demo.router import router as demo_router
+from app.modules.dispatch.router import router as dispatch_router
 from app.modules.evidence.router import router as evidence_router
 from app.modules.imports.router import router as imports_router
 from app.modules.intake.router import router as intake_router
@@ -49,6 +50,7 @@ def create_app() -> FastAPI:
 
     app.include_router(auth_router)
     app.include_router(audit_router)
+    app.include_router(dispatch_router)
     app.include_router(cases_router)
     app.include_router(intake_router)
     app.include_router(imports_router)

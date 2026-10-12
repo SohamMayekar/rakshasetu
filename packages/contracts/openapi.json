@@ -932,6 +932,50 @@
         ]
       }
     },
+    "/v1/cases/{ref}/dispatch": {
+      "get": {
+        "operationId": "dispatch_v1_cases__ref__dispatch_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ref",
+            "required": true,
+            "schema": {
+              "title": "Ref",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Dispatch V1 Cases  Ref  Dispatch Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Dispatch",
+        "tags": [
+          "dispatch"
+        ]
+      }
+    },
     "/v1/cases/{ref}/location": {
       "patch": {
         "operationId": "move_pin_v1_cases__ref__location_patch",
