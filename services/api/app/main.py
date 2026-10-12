@@ -1,6 +1,9 @@
 """FastAPI entry point for the `api` process."""
 
 from fastapi import FastAPI
+from sqlalchemy import text
+
+from app.db import get_engine
 
 
 def create_app() -> FastAPI:
@@ -8,7 +11,9 @@ def create_app() -> FastAPI:
 
     @app.get("/healthz")
     def healthz() -> dict:
-        return {"ok": True, "service": "api"}
+        with get_engine().connect() as conn:
+            db_ok = conn.execute(text("SELECT 1")).scalar() == 1
+        return {"ok": db_ok, "service": "api", "db": "ok" if db_ok else "down"}
 
     return app
 

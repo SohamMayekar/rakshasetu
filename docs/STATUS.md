@@ -2,13 +2,14 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m01 · repo skeleton
+**Current milestone:** m03 · Caddy two listeners
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
 
 | Milestone | What | The check that proved it |
 |---|---|---|
+| m02 | docker compose: db (PostGIS), api, worker, ticker, web; `make up/down/ps/logs` | `make up` → all 5 services healthy; /healthz reports db ok; `make test-api` passes in the container |
 
 ## NOT DONE (engineering)
 

@@ -19,3 +19,5 @@ apps/web/next-env.d.ts
 var/
 test-results/
 playwright-report/
+*.egg-info/
+infra/certs/*.crt
