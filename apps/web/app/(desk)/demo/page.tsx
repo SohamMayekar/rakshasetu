@@ -1,8 +1,8 @@
 "use client";
 
-// Demo controls (PRD F-C12): local listener only, DEMO_MODE only, System admin. Reset to a scene's starting
+// Demo controls (PRD F-C12): local listener only, DEMO_MODE only, Demo admin. Reset to a scene's starting
 // point, the language model off/on, a surge, a recorded clip through the live pipeline, and QR codes for phones.
-// Open it at http://127.0.0.1/demo signed in as System admin, and keep the desk on http://localhost: the two
+// Open it at http://127.0.0.1/demo signed in as Demo admin, and keep the desk on http://localhost: the two
 // addresses keep separate sign-ins, so the officer on the projector stays signed in.
 
 import { useCallback, useEffect, useState } from "react";
@@ -48,7 +48,7 @@ export default function DemoPage() {
     return (
       <AppShell me={me}><Page>
         <PageHeader title="Demo controls" />
-        <p className="mt-3 text-sm text-ink-2">These need the System admin. Open <b>http://127.0.0.1/demo</b> and sign in as System admin there,
+        <p className="mt-3 text-sm text-ink-2">These need the Demo admin. Open <b>http://127.0.0.1/demo</b> and sign in as Demo admin there,
           so the desk on <b>http://localhost</b> stays signed in as {me.user.name}.</p>
         <p className="mt-3 text-sm"><a href="/login" className="underline underline-offset-2">Sign in as someone else</a></p>
       </Page></AppShell>

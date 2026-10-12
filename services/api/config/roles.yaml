@@ -3,11 +3,11 @@
 roles:
   reporter:     {label: "Reporter",           login: false}
   call_taker:   {label: "Call-taker",         login: true,  surface: desk}
-  duty_officer: {label: "EOC Duty Officer",   login: true,  surface: desk}
-  incharge:     {label: "EOC In-charge",      login: true,  surface: desk}
-  team_lead:    {label: "Team lead",          login: true,  surface: responder}
-  seoc_viewer:  {label: "SEOC viewer",        login: true,  surface: incidents}
-  admin:        {label: "System admin",       login: true,  surface: desk}
+  duty_officer: {label: "Duty officer",       login: true,  surface: desk}
+  incharge:     {label: "Senior officer",     login: true,  surface: desk}
+  team_lead:    {label: "Rescue team",        login: true,  surface: responder}
+  seoc_viewer:  {label: "State viewer",       login: true,  surface: incidents}
+  admin:        {label: "Demo admin",         login: true,  surface: desk}
   partner:      {label: "Partner system",     login: false}
 
 permissions:

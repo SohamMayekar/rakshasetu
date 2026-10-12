@@ -1509,7 +1509,7 @@
     },
     "/v1/auth/users": {
       "get": {
-        "description": "The demo sign-in picker. Local listener + DEMO_MODE only.",
+        "description": "The demo sign-in picker: the 3 profiles in config (demo.sign_in_picker), in that order. Local listener +\nDEMO_MODE only. Every other seeded user still exists (the permission and IDOR tests use them), off the picker.",
         "operationId": "picker_users_v1_auth_users_get",
         "responses": {
           "200": {

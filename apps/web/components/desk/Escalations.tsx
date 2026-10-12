@@ -40,7 +40,7 @@ export function Escalations({ items, publicIds, onOpenCase, onChanged }: {
         <div key={e.id} className="rounded-xl bg-paper p-3 shadow-[var(--shadow-card)] ring-1 ring-ink">
           <p className="text-sm font-medium leading-snug">{e.line}</p>
           <p className="mt-0.5 text-xs text-ink-3">
-            For the {e.role === "incharge" ? "EOC In-charge (not acknowledged in time)" : "EOC Duty Officer"}
+            For the {e.role === "incharge" ? "senior officer (nobody answered in time)" : "duty officer"}
             {e.status === "acked" && e.acked_by_name ? ` · ${e.acked_by_name} is on it` : ""}
           </p>
           {e.case_ids.length > 0 && (

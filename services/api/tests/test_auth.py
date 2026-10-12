@@ -27,8 +27,28 @@ def test_the_public_listener_needs_a_password(seeded, public_client):
 def test_the_picker_list_is_local_only(seeded, client, public_client):
     assert public_client.get("/v1/auth/users").status_code == 404
     users = client.get("/v1/auth/users").json()
-    assert {"username": "rdas", "name": "R. Das", "role": "duty_officer", "role_label": "EOC Duty Officer",
-            "team": None} in users
+    assert {"username": "rdas", "name": "R. Das", "role": "duty_officer", "role_label": "Duty officer",
+            "team": None, "title": "Duty officer", "line": "Runs the control room desk for Bihar"} in users
+
+
+def test_the_picker_shows_three_profiles_and_the_other_users_still_exist(seeded, client, app_db):
+    """m65 (D22): the sign-in screen lists exactly the duty officer, the rescue team and the demo admin. The other
+    seeded users stay (the permission and IDOR tests sign in as them); they are only off the picker."""
+    users = client.get("/v1/auth/users").json()
+    assert [(u["title"], u["username"], u["role"]) for u in users] == [
+        ("Duty officer", "rdas", "duty_officer"), ("Rescue team", "boat5", "team_lead"), ("Demo admin", "admin", "admin")]
+    assert users[1]["team"] == "Fire & Rescue Boat 5"
+    assert one(app_db, "SELECT count(*) FROM users") == 12
+    login(client, "asinha")   # off the picker, still a real user with their own role
+    assert client.get("/v1/me").json()["user"]["role"] == "incharge"
+
+
+def test_the_duty_officer_sees_only_bihar_and_the_admin_sees_all_three(seeded, client):
+    login(client, "rdas")
+    assert [i["code"] for i in client.get("/v1/me").json()["incidents"]] == ["BR"]
+    client.post("/v1/auth/logout")
+    login(client, "admin")
+    assert sorted(i["code"] for i in client.get("/v1/me").json()["incidents"]) == ["BR", "HP", "OD"]
 
 
 def test_the_picker_is_refused_through_the_tunnel_even_on_local(seeded, client):

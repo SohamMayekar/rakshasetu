@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from pydantic import BaseModel, Field
 from sqlalchemy import text
 
-from app.config import get_bundle
+from app.config import get_bundle, get_config
 from app.core.auth import COOKIE, SESSION_SECONDS, Scope, current_scope, make_token
 from app.core.listener import listener_of
 from app.core.passwords import check_password
@@ -52,15 +52,19 @@ def logout(response: Response) -> dict:
 
 @router.get("/v1/auth/users")
 def picker_users(request: Request) -> list[dict]:
-    """The demo sign-in picker. Local listener + DEMO_MODE only."""
+    """The demo sign-in picker: the 3 profiles in config (demo.sign_in_picker), in that order. Local listener +
+    DEMO_MODE only. Every other seeded user still exists (the permission and IDOR tests use them), off the picker."""
     if not _picker_allowed(request):
         raise HTTPException(status_code=404, detail="Not found")
     roles = get_bundle().roles.roles
+    shown = get_config().demo.get("sign_in_picker", [])
     with get_engine().connect() as c:
-        rows = c.execute(text("SELECT u.username, u.name, u.role, t.name AS team FROM users u"
-                              " LEFT JOIN teams t ON t.id = u.team_id ORDER BY u.id")).all()
-    return [{"username": r.username, "name": r.name, "role": r.role, "role_label": roles[r.role]["label"],
-             "team": r.team} for r in rows]
+        rows = {r.username: r for r in c.execute(text(
+            "SELECT u.username, u.name, u.role, t.name AS team FROM users u LEFT JOIN teams t ON t.id = u.team_id"
+            " WHERE u.username = ANY(:names)"), {"names": [p["username"] for p in shown]}).all()}
+    return [{"username": r.username, "name": r.name, "role": r.role, "role_label": roles[r.role]["label"], "team": r.team,
+             "title": p["title"], "line": p["line"]}
+            for p in shown if (r := rows.get(p["username"]))]
 
 
 @router.get("/v1/me")

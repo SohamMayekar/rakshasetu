@@ -52,7 +52,7 @@ if (liveVoice) {   // the clip as the phone's microphone (WAV is what Chromium's
 const browser = await chromium.launch({ executablePath: exe, proxy, args: mic });
 const ctxOf = (w, h) => browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1, locale: "en-IN", timezoneId: "Asia/Kolkata" });
 
-const O = await (await ctxOf(1366, 768)).newPage();          // the EOC Duty Officer, on the projector
+const O = await (await ctxOf(1366, 768)).newPage();          // the Duty officer, on the projector
 const J = await (await ctxOf(390, 844)).newPage();           // the judge, as Ramesh's son in Mumbai
 const shot = async (page, name) => page.screenshot({ path: join(OUT, `${name}.png`) });
 const caption = () => O.locator("div[role=status] p").innerText({ timeout: 300 }).catch(() => "");
@@ -74,7 +74,7 @@ try {
   await O.request.post(`${DESK}/v1/auth/login`, { data: { username: "rdas" } });
   await O.goto(`${DESK}/desk/BR`);
   await O.locator("ol[aria-label='Needs you now'] li").first().waitFor();
-  say(`desk open as R. Das (EOC Duty Officer); son's voice: ${liveVoice ? "LIVE speech-to-text through the reporter page's microphone"
+  say(`desk open as R. Das (Duty officer); son's voice: ${liveVoice ? "LIVE speech-to-text through the reporter page's microphone"
     : "no speech-to-text key, so the recorded clip goes through the demo control (same voice pipeline, recorded transcript)"}`);
 
   // ---- 0:00 the son in Mumbai ----------------------------------------------------------------------------------
