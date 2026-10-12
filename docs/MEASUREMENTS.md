@@ -41,3 +41,11 @@ Only numbers we measured go here, each with how and where it was measured. Nothi
 |---|---|---|
 | Confirm mapping → the 300-row summary on screen (live worker, Chromium) | **16.2 s** (one run) | ≤ 45 s |
 | "Needs you now" after the import | 40 → 55 rows (14 to check + 1 sheet row); the pill read "▲ 15 new: show" | — |
+
+## Deadline → escalation (m41)
+
+| What | Measured | Target (PRD F-S2) |
+|---|---|---|
+| A passed check-in deadline → its team escalation opened (live ticker, demo clock) | **0.21 s** (one run; by design at most one 5 s tick) | ≤ 6 s |
+
+- **How:** a desk report on the live stack, assigned to Fire & Rescue Boat 5 (demo clock: 10 s to acknowledge), then `escalations.opened_at − assignments.next_contact_due` from the database. 12 Oct 2026, milestone 41.

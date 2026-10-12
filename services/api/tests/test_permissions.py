@@ -75,7 +75,7 @@ ENDPOINTS = [
     ("team.radio_contact", "POST", "/v1/teams/1/contact", {}, "rdas", "priya", "m42"),
     ("rescue.family_confirm", "POST", "/v1/public/cases/BR-151/confirm", {}, None, None, "m46"),
     ("case.decide", "POST", "/v1/cases/BR-151/close", {}, "rdas", "priya", "m45"),
-    ("escalation.ack", "POST", "/v1/escalations/1/ack", {}, "rdas", "priya", "m41"),
+    ("escalation.ack", "POST", lambda db: f"/v1/escalations/{_escalation(db)}/ack", {}, "rdas", "priya", None),
     ("incident.admin", "POST", "/v1/incidents", {}, "admin", "rdas", "m48"),
     ("priority.override", "POST", "/v1/cases/BR-151/priority", {}, "rdas", "priya", "m57"),
     ("phone.reveal", "POST", "/v1/cases/BR-151/reveal-contact", {}, "priya", "seoc", "m57"),
@@ -91,6 +91,14 @@ def _unowned_gopalganj_case(db):
 
 def _team(db, name):
     return rows(db, "SELECT id FROM teams WHERE name = :n", n=name)[0][0]
+
+
+def _escalation(db):
+    from sqlalchemy import text
+    with db.begin() as c:
+        return c.execute(text("INSERT INTO escalations (incident_id, district_id, kind, team_id, line) SELECT t.incident_id,"
+                              " t.district_id, 'team_overdue', t.id, 'test' FROM teams t WHERE t.name = 'SDRF Boat 2'"
+                              " RETURNING id")).scalar()
 
 
 def _boat5_assignment(db):

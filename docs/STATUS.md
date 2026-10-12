@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m41 the ticker: contact overdue → one team escalation (T6)
+**Current milestone:** m42 radio contact (team-level), Extend, Reassign
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -41,6 +41,7 @@
 | m31 | Demo volunteer sheet: 300 synthetic rows + ground truth (repeats, relay phone, 14 Excel-damaged phones, Das pair, seeded duplicates, no-location, old, needs-AI, done); make demo-sheet / make sheet-eval | tests/scenarios/test_demo_sheet.py: 16.6 s, 300/300 outcomes, precision 1.000, recall 0.965 (docs/MEASUREMENTS.md) |
 | m39 | Dispatch suggestions: capability → straight-line distance → load, deterministic, reasons per line incl. position age and radio-only, overdue/out-of-service/full teams greyed with why; officer's queue button names the best team | tests/test_dispatch.py (5: capability rules, ranking + reasons + greyed + deterministic, overdue/full never suggested, queue button, scope) |
 | m40 | Assignments: officer assigns (one live per case, 409 naming who + DB index), acknowledge with ETA chip / reached (long operation) / release with reason, team lead own-team only, officer on behalf with channel, Idempotency-Key replay, DB-clock deadlines, demo clock ×60 for live demo cases only, case + team status, timeline lines; seeded P1s start owned (E22), Boat 5 free; BR pack capacity; dispatch path /dispatch-suggestions | tests/test_assignments.py (7 incl. T7), permission rows assignment.create + assignment.team_action, dispatch tests adapted |
+| m41 | Ticker: overdue by one conditional UPDATE (case stays with the team), team overdue → greyed in dispatch, one escalation per team (role duty_officer, rises to incharge after 10 min), capacity-gap header per district, self-resolving; escalations list + ack (409 naming who); heartbeat display-only endpoint | tests/scenarios/test_t6_contact_overdue.py (5: T6 ×2, T7 ack, rise+resolve, capacity gap); permission row escalation.ack; live lag 0.21 s |
 
 ## NOT DONE (engineering)
 

@@ -1488,6 +1488,108 @@
         ]
       }
     },
+    "/v1/escalations": {
+      "get": {
+        "operationId": "list_escalations_v1_escalations_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "incident",
+            "required": true,
+            "schema": {
+              "title": "Incident",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "open",
+            "required": false,
+            "schema": {
+              "default": true,
+              "title": "Open",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response List Escalations V1 Escalations Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Escalations",
+        "tags": [
+          "escalations"
+        ]
+      }
+    },
+    "/v1/escalations/{eid}/ack": {
+      "post": {
+        "description": "\"I'm on it.\" A second officer acknowledging the same escalation gets a 409 naming who and when (T7).",
+        "operationId": "ack_v1_escalations__eid__ack_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "eid",
+            "required": true,
+            "schema": {
+              "title": "Eid",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Ack V1 Escalations  Eid  Ack Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Ack",
+        "tags": [
+          "escalations"
+        ]
+      }
+    },
     "/v1/events": {
       "get": {
         "description": "Back-fill and polling fallback: the same envelopes the WebSocket sends, scoped in SQL.",
@@ -2823,6 +2925,29 @@
         "summary": "Needs You Now",
         "tags": [
           "queue"
+        ]
+      }
+    },
+    "/v1/teams/me/heartbeat": {
+      "post": {
+        "operationId": "heartbeat_v1_teams_me_heartbeat_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Heartbeat V1 Teams Me Heartbeat Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Heartbeat",
+        "tags": [
+          "teams"
         ]
       }
     }

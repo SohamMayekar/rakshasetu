@@ -42,7 +42,7 @@
 	handle @demo {
 		respond "Not available on the public address" 404
 	}
-	@api path /healthz /v1/public/* /v1/ingest/* /v1/partners/* /v1/auth/* /v1/me /v1/ws /v1/assignments/* /v1/cases/* /v1/evidence/* /v1/audit/head
+	@api path /healthz /v1/public/* /v1/ingest/* /v1/partners/* /v1/auth/* /v1/me /v1/ws /v1/assignments/* /v1/cases/* /v1/evidence/* /v1/audit/head /v1/teams/me/*
 	handle @api {
 		reverse_proxy api:8000 {
 			header_up X-RS-Listener public

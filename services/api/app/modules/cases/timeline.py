@@ -61,6 +61,8 @@ def line(action: str, d: dict, who: str | None) -> str:
         case "assignment.reached":
             via = f" · via {d['channel']}" if d.get("channel") not in (None, "app") else ""
             return f"{d.get('team')} reached the place" + (" · long operation" if d.get("long_operation") else "") + via
+        case "assignment.overdue":
+            return f"Contact overdue: no check-in from {d.get('team')} (the case stays with the team)"
         case "assignment.released":
             return f"{d.get('team')} released the case{by}"
         case "report.callback_added":

@@ -1,18 +1,16 @@
-"""The `ticker` process: every 5 s, finds passed check-in deadlines and raises escalations (PRD F-S2).
+"""The `ticker` process: every 5 s, passed check-in deadlines become escalations (PRD F-S2).
 
-It is its own process so a 300-row import or a slow LLM call can never delay an escalation.
-Milestone 02 only proves the process runs and reaches the database; the deadline logic arrives in m41.
+It is its own process so a 300-row import or a slow language-model call can never delay an escalation.
+The logic is app.modules.escalations.ticker.tick(); timers live in the database, so a restart loses nothing.
 """
-
-from sqlalchemy import text
 
 from app.db import get_engine
 from app.loop import run_forever
+from app.modules.escalations.ticker import tick
 
 
 def step() -> None:
-    with get_engine().connect() as conn:
-        conn.execute(text("SELECT now()"))
+    tick(get_engine())
 
 
 if __name__ == "__main__":
