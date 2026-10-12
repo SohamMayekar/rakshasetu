@@ -5,7 +5,7 @@ WEB := apps/web
 
 COMPOSE := docker compose -f infra/docker-compose.yml --env-file .env
 
-.PHONY: help env up down nuke ps logs smoke psql contracts seed dev-api dev-web test test-api test-web lint
+.PHONY: help env up down nuke ps logs smoke psql contracts seed verify tamper dev-api dev-web test test-api test-web lint
 
 help: ## List the targets
 	@grep -E '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) | awk -F':.*?## ' '{printf "  make %-12s %s\n", $$1, $$2}'
@@ -21,6 +21,12 @@ down: ## Stop the stack (data volume kept)
 
 seed: ## Wipe the demo database and load the BR, OD and HP scenario packs (DEMO_MODE only)
 	$(COMPOSE) exec -T api python -m app.seed
+
+verify: ## Verify the audit hash chain of the demo database
+	$(COMPOSE) exec -T api python -m app.verify_chain
+
+tamper: ## Q&A demo: quietly edit event #SEQ as the superuser (make tamper SEQ=812), then make verify
+	$(COMPOSE) exec -T -e SEQ=$(or $(SEQ),5) db psql -U postgres -d rakshasetu -f - < scripts/tamper.sql
 
 nuke: ## Stop the stack AND delete the database volume (fresh start)
 	$(COMPOSE) down -v
@@ -46,7 +52,7 @@ dev-api: ## Run the API natively on :8000 (needs services/api/.venv)
 dev-web: ## Run the web app natively on :3000
 	cd $(WEB) && npm run dev
 
-test: test-api ## Run every test (the web app is type-checked by its own build in `make up`)
+test: up test-api ## Rebuild if needed, then run every test (the web app is type-checked by its own build)
 
 test-api: ## Lint + API tests, inside the api container, against the rakshasetu_test database
 	$(COMPOSE) exec -T api sh -c "ruff check app tests && pytest"

@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m10 · verify + audit head + tamper
+**Current milestone:** m11 · real-time (LISTEN → WS)
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -17,6 +17,7 @@
 | m07 | Seed loader (owner role, DEMO_MODE only): BR/OD/HP packs, 12 demo users, timestamps relative to the seed moment; deterministic BR case generator; phone protection (E.164, HMAC, Fernet, mask); scrypt passwords | `make seed` → 3 incidents, 57 cases, 15 teams, 12 users; pytest: radio-only + out-of-service BR teams, 40+ BR cases, newest < 1 h old, Low + needs-location cases present, sequential BR-151…, phones never in clear (67 passed) |
 | m08 | Test harness: fixtures (seeded, owner_db, app_db, client, public_client), scenario/slow markers, tests/README.md; ruff in `make test` | `make test` → ruff clean + 67 passed in the container, against rakshasetu_test |
 | m09 | append_event(): advisory lock, canonical TEXT body, sha256(prev‖body), pg_notify on commit; verify_chain(); seed writes chain.genesis + one event per seeded entity | pytest: canonical body + hash formula; rollback leaves no event; 200 concurrent appends → seqs contiguous and chain verifies; NOTIFY only after commit; a slow writer can't be overtaken (seq order = commit order) |
+| m10 | GET /v1/audit/verify, /v1/audit/head (public), /v1/audit (filtered list); `make verify`, `make tamper SEQ=N` (scripts/tamper.sql as superuser) | pytest: verify ok after seed; head public = last event; verify/list 404 on public; body edit, column edit, actor swap → broken at that seq; delete → broken at next; forged row with recomputed hash → broken at next. Live: make tamper SEQ=12 → '✗ broken at #12'; reseed → ✓ 88 events |
 
 ## NOT DONE (engineering)
 

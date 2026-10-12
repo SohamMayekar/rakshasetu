@@ -5,6 +5,7 @@ from sqlalchemy import text
 
 from app.config import get_bundle
 from app.db import get_engine
+from app.modules.audit.router import router as audit_router
 from app.modules.demo.router import router as demo_router
 
 
@@ -18,6 +19,7 @@ def create_app() -> FastAPI:
             db_ok = conn.execute(text("SELECT 1")).scalar() == 1
         return {"ok": db_ok, "service": "api", "db": "ok" if db_ok else "down"}
 
+    app.include_router(audit_router)
     app.include_router(demo_router)
     return app
 
