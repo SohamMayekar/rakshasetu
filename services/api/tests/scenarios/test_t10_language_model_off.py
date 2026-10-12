@@ -48,3 +48,19 @@ def test_desk_preview_gives_live_chips_without_storing_anything(seeded, client, 
 def test_only_the_admin_can_flip_the_switch(seeded, client):
     login(client, "priya")
     assert client.post("/v1/demo/language-model", json={"on": False}).status_code == 403
+
+
+def test_t10_llm_error_a_typed_report_still_becomes_a_case_fast(seeded, client, app_db, monkeypatch):
+    from app.providers import llm
+    from app.providers.base import AllProvidersFailed
+
+    def down(*a, **k):
+        raise AllProvidersFailed([{"provider": "groq_gpt_oss_120b", "outcome": "failed: HTTP 500"}])
+    monkeypatch.setattr(llm, "extract_json", down)
+    register_handlers()
+    login(client, "priya")
+    started = time.monotonic()
+    rid = client.post("/v1/ingest/desk", json={"incident": "BR", "text": LINE, "client_id": str(uuid.uuid4())}).json()["report_id"]
+    drain(app_db)
+    assert one(app_db, "SELECT case_id FROM reports WHERE id = :r", r=rid) is not None
+    assert time.monotonic() - started < 5.0

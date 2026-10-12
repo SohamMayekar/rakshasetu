@@ -26,29 +26,40 @@ def summary(people: int | None, kind: str | None, hazards: list[str], needs: lis
     return " · ".join(parts) or "no details yet: listen or call back"
 
 
-def fields_from_extraction(ex: Extraction, method: str, report_id: int) -> dict:
+def fields_from_extraction(ex: Extraction, method: str, report_id: int, amber: dict | None = None,
+                           extras: dict | None = None) -> dict:
+    """`amber`: {field-key: why} for values whose quote failed the check. `extras`: items the keywords found
+    that the model dropped; they are kept with a Rule chip, amber, so an omission never loses a fact."""
     m = METHOD_OF[method]
+    amber = amber or {}
 
-    def prov(value, quote):
-        return {"value": value, "method": m, "quote": quote, "report_id": report_id, "checked": False}
+    def prov(value, quote, key, method=m, why=None):
+        p = {"value": value, "method": method, "quote": quote, "report_id": report_id, "checked": False}
+        why = why or amber.get(key)
+        if why:
+            p["amber"] = why
+        return p
 
-    hazards = [h.type for h in ex.hazards]
-    needs = [n.type for n in ex.needs]
-    vulnerable = [v.type for v in ex.vulnerable]
     provenance = {
-        "hazards": [prov(h.type, h.quote) for h in ex.hazards],
-        "needs": [prov(n.type, n.quote) for n in ex.needs],
-        "vulnerable": [prov(v.type, v.quote) for v in ex.vulnerable],
-        "landmarks": [prov({"type": lm.type, "name": lm.name, "relation": lm.relation}, lm.quote)
+        "hazards": [prov(h.type, h.quote, f"hazards:{h.type}") for h in ex.hazards],
+        "needs": [prov(n.type, n.quote, f"needs:{n.type}") for n in ex.needs],
+        "vulnerable": [prov(v.type, v.quote, f"vulnerable:{v.type}") for v in ex.vulnerable],
+        "landmarks": [prov({"type": lm.type, "name": lm.name, "relation": lm.relation}, lm.quote, f"landmarks:{lm.type}")
                       for lm in ex.location.landmarks],
     }
+    for name, items in (extras or {}).items():
+        provenance[name] += [prov(i.type, i.quote, "", method="rule",
+                                  why="the language model missed this; the keywords found it") for i in items]
+    hazards = [p["value"] for p in provenance["hazards"]]
+    needs = [p["value"] for p in provenance["needs"]]
+    vulnerable = [p["value"] for p in provenance["vulnerable"]]
     if ex.people_count:
-        provenance["people_count"] = prov(ex.people_count.value, ex.people_count.quote)
+        provenance["people_count"] = prov(ex.people_count.value, ex.people_count.quote, "people_count")
     village = ex.location.village_or_locality
     if village:
-        provenance["place"] = prov(village.latin, village.quote)
+        provenance["place"] = prov(village.latin, village.quote, "place")
     for p in ex.person_names:
-        provenance.setdefault("names", []).append(prov(p.name, p.quote))
+        provenance.setdefault("names", []).append(prov(p.name, p.quote, "names"))
     return {
         "people_count": ex.people_count.value if ex.people_count else None,
         "people_count_kind": ex.people_count.kind if ex.people_count else None,

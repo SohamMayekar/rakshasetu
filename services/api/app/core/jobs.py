@@ -20,6 +20,15 @@ log = logging.getLogger("rakshasetu.jobs")
 HANDLERS: dict[str, Callable[[Engine, dict], None]] = {}
 
 
+class RetryLater(Exception):
+    """A handler raises this when it can't run YET (e.g. the language model is switched off).
+    The job is released for `delay_s` without counting as a failed attempt."""
+
+    def __init__(self, delay_s: float = 30, why: str = ""):
+        super().__init__(why)
+        self.delay_s, self.why = delay_s, why
+
+
 def handler(kind: str):
     """Register an idempotent job handler: @handler("report.process")."""
     def wrap(fn):
@@ -97,6 +106,12 @@ def run_one(engine: Engine, worker_id: str, kinds: list[str] | None = None) -> b
         if fn is None:
             raise RuntimeError(f"no handler registered for {job.kind!r}")
         fn(engine, dict(job.payload))
+    except RetryLater as later:
+        with engine.begin() as conn:
+            conn.execute(text("UPDATE jobs SET locked_by = NULL, locked_at = NULL, attempts = attempts - 1,"
+                              " error = :why, run_at = now() + make_interval(secs => :d) WHERE id = :id AND locked_by = :w"),
+                         {"id": job.id, "w": worker_id, "d": later.delay_s, "why": f"waiting: {later.why}"})
+        return True
     except Exception as e:  # the job is retried (or marked dead); the worker keeps going
         log.exception("job %s (%s) failed", job.id, job.kind)
         with engine.begin() as conn:
