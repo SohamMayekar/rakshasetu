@@ -81,6 +81,16 @@ providers:                         # all free (PRD §12.5); first = primary, sec
   llm: [groq_gpt_oss_120b, gemini_flash]
   stop_at_fraction_of_free_cap: 0.8   # then fall back; the LLM's last resort is the keyword path
   language_model_enabled: true        # the "language model off" demo control overrides this at runtime
+  free_caps:                          # PRD §12.5, checked 12 Oct 2026 — recheck on hack day
+    sarvam_saaras: {calls_per_min: 60, audio_seconds_per_day: 10800}        # ~₹100 credits ≈ 3 h of audio (docs)
+    groq_whisper_large_v3: {calls_per_min: 20, calls_per_day: 2000}
+    groq_gpt_oss_120b: {calls_per_min: 30, calls_per_day: 1000, tokens_per_min: 8000, tokens_per_day: 200000}
+    gemini_flash: {calls_per_min: 10, calls_per_day: 250}                   # UNVERIFIED: recheck the free-tier page
+  models:
+    sarvam_saaras: saaras:v4
+    groq_whisper_large_v3: whisper-large-v3
+    groq_gpt_oss_120b: openai/gpt-oss-120b
+    gemini_flash: gemini-2.5-flash
 llm: {timeout_s: 8, retries: 1, batch_rows: 20, parallel_batches: 1, reasoning_effort: low, live_reserve_tokens_per_min: 3000}
 voice_caps: {per_device_per_min: 5, global_per_min: 20, max_clip_seconds: 30, min_clip_seconds: 1.0}
 status_page: {poll_seconds: 3, lookups_per_min_per_ip: 60}

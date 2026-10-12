@@ -35,7 +35,7 @@ def normalise(raw: str | None) -> str | None:
 
 
 def phone_hash(e164: str) -> str:
-    key = os.environ.get("PHONE_HASH_KEY", "dev-only-phone-hmac-key").encode()
+    key = (os.environ.get("PHONE_HASH_KEY") or "dev-only-phone-hmac-key").encode()
     return hmac.new(key, e164.encode(), hashlib.sha256).hexdigest()
 
 
@@ -46,7 +46,7 @@ def mask(e164: str) -> str:
 
 
 def _fernet() -> Fernet:
-    key = os.environ.get("PHONE_ENC_KEY")
+    key = (os.environ.get("PHONE_ENC_KEY") or "").strip()
     if not key:
         # Development fallback: derive a key from SECRET_KEY. `make keys` prints a real one for .env.
         key = base64.urlsafe_b64encode(hashlib.sha256(get_settings().secret_key.encode()).digest()).decode()

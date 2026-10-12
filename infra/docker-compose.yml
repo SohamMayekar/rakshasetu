@@ -14,6 +14,13 @@ x-api-env: &api-env
   PUBLIC_URL: ${PUBLIC_URL:-}
   SECRET_KEY: ${SECRET_KEY}
   PARTNER_DEMO_SECRET: ${PARTNER_DEMO_SECRET:-}
+  # Free-tier provider keys (empty = that provider is skipped; no keys at all still works).
+  PROVIDER_MODE: ${PROVIDER_MODE:-auto}
+  SARVAM_API_KEY: ${SARVAM_API_KEY:-}
+  GROQ_API_KEY: ${GROQ_API_KEY:-}
+  GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+  PHONE_HASH_KEY: ${PHONE_HASH_KEY:-}
+  PHONE_ENC_KEY: ${PHONE_ENC_KEY:-}
   DATA_DIR: /data
   FILES_DIR: /files
   CONTRACTS_DIR: /contracts

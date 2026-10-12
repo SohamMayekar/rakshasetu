@@ -5,7 +5,7 @@ WEB := apps/web
 
 COMPOSE := docker compose -f infra/docker-compose.yml --env-file .env
 
-.PHONY: help env up down nuke ps logs smoke psql contracts seed verify tamper dev-api dev-web test test-api test-web lint
+.PHONY: help env up down nuke ps logs smoke psql contracts seed verify tamper provider-check keys dev-api dev-web test test-api test-web lint
 
 help: ## List the targets
 	@grep -E '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) | awk -F':.*?## ' '{printf "  make %-12s %s\n", $$1, $$2}'
@@ -27,6 +27,12 @@ verify: ## Verify the audit hash chain of the demo database
 
 tamper: ## Q&A demo: quietly edit event #SEQ as the superuser (make tamper SEQ=812), then make verify
 	$(COMPOSE) exec -T -e SEQ=$(or $(SEQ),5) db psql -U postgres -d rakshasetu -f - < scripts/tamper.sql
+
+provider-check: ## One tiny synthetic call to each provider whose key is in .env (OK / BLOCKED / FAILED)
+	$(COMPOSE) exec -T -e PROVIDER_MODE=live api python -m app.providers.check
+
+keys: ## Print a fresh PHONE_ENC_KEY (Fernet) for .env
+	@services/api/.venv/bin/python -c "from cryptography.fernet import Fernet; print('PHONE_ENC_KEY=' + Fernet.generate_key().decode())"
 
 nuke: ## Stop the stack AND delete the database volume (fresh start)
 	$(COMPOSE) down -v

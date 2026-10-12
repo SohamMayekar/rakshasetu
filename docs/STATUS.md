@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m17 · providers + fixture mode + usage caps
+**Current milestone:** m18 · keyword extractor + rules-made cases (T10)
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -24,6 +24,7 @@
 | m14 | Job queue: jobs table, lanes from config (live_voice > whatsapp_partner > import > surge > backfill), SKIP LOCKED claims, reclaim after 60 s, retries with back-off then dead; threaded worker woken by LISTEN jobs | pytest: rollback leaves no job; dedupe_key makes enqueue idempotent; lane order voice > import > surge; two workers never claim the same job; a dead worker's job is reclaimed only after 60 s and runs exactly once; failures back off then go dead |
 | m15 | intake.accept(): report + job in one transaction, namespaced idempotency (ON CONFLICT … DO NOTHING), report.received event; POST /v1/ingest/reports (signed-in users); report.process pipeline skeleton creating one case per report (P4 catch-all until extraction exists; needs_location; district from the desk user or the incident's first district) | T1 (tests/scenarios): same JSON twice → one report, one job, one event, replay 200 + Idempotent-Replay; other caller's same key → separate report; double processing → one case; 422 on unknown channel or a priority field. Live: report via Caddy → worker → BR-199 in 2 s, chain ✓ |
 | m16 | Channel adapter registry; desk paste/type adapter POST /v1/ingest/desk (local only, client_id idempotency, pasted forward → forwarder); HMAC-signed partner ingestion on /v1/ingest/reports (raw-byte HMAC, ±300 s, required Idempotency-Key = body key, per-partner scopes/incidents/rate cap/kill switch) | pytest: desk paste → case; desk 404 on public; signed partner → case once (replay 200); bad signature, body changed after signing, stale timestamp ('replay rejected'), unknown/disabled partner → 401; missing/mismatched key → 400; out-of-scope incident 403; permission row report.submit enabled. Live: the contract card's curl+openssl recipe through :8080 → 202 then 200 Idempotent-Replay |
+| m17 | Provider layer: STT chain (Sarvam saaras:v4 → Groq whisper-large-v3 → recorded fixture), LLM chain (Groq gpt-oss-120b strict json_schema → Gemini Flash), fixture mode, 80%-of-free-cap guard (provider_usage), extraction_cache + runtime_flags tables, make provider-check | pytest (11): request shapes match the providers' docs (offline, httpx stubbed), fallback on primary failure, no keys → all skipped, fixture mode makes no network call, recorded transcript labelled 'fixture', 80% cap stops the 801st daily call, comment-as-value guard. Live: make provider-check → 4 × BLOCKED (no keys) |
 
 ## NOT DONE (engineering)
 
@@ -37,8 +38,8 @@
 |---|---|---|---|
 | Overpass API unreachable from the build sandbox (the egress proxy drops the tunnel to overpass-api.de, its mirrors and Geofabrik) | `overpass-api.de` | `scripts/import_osm.py --source overpass` can't run here; the BR gazetteer is built from the openstreetmap.fr Bihar extract instead (real OSM data, ODbL; decision D6) | On a laptop with open internet: `python scripts/import_osm.py --source overpass` and compare counts with the committed extract |
 | Git tags can't be pushed from this sandbox (the proxy answers 403 to tag refs; branches and main push fine) | GitHub via the session proxy | The `mNN` tags exist locally only | From a normal clone with this session's history: `git push origin --tags` |
-| Speech-to-text keys | `SARVAM_API_KEY`, `GROQ_API_KEY` | Live STT. Without them the STT provider runs in fixture mode | Put the keys in `.env`, then `make provider-check` (arrives with m17) |
-| LLM keys | `GROQ_API_KEY`, `GEMINI_API_KEY` | Live extraction. Without them the keyword path creates every case (chips read **Rule**) | Same |
+| Speech-to-text keys | `SARVAM_API_KEY`, `GROQ_API_KEY` | Live STT. Without them a voice clip with no recorded transcript becomes an "audio only: listen" case | Put the keys in `.env` (no inline comments), `make up`, then `make provider-check` → `OK sarvam_saaras …` |
+| LLM keys | `GROQ_API_KEY`, `GEMINI_API_KEY` | Live extraction. Without them the keyword path creates every case (chips read **Rule**). The request shapes are tested offline against the providers' docs; a live call has not been made | Same; `OK groq_gpt_oss_120b …` |
 | WhatsApp test number | `WHATSAPP_*` | P1 #5 only | — |
 
 ## For the humans to confirm
