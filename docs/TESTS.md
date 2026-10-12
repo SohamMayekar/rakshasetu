@@ -1,8 +1,8 @@
 # The scenario tests (PRD §13.6 T1–T10) and the IDOR tests (F-C9)
 
 Every row runs in `make test`, against the real API (FastAPI TestClient) and the real SQL on a test database. A test
-that needs time to pass moves the deadline, never a fake clock. Results below are from the m53 run (12 Oct 2026):
-**all passed**.
+that needs time to pass moves the deadline, never a fake clock. Results below were first recorded at m53 and are
+re-run on every milestone merge; the last full run (m61, 12 Oct 2026): **415 passed in 272 s**.
 
 | # | What the PRD asks | Where | Result |
 |---|---|---|---|
@@ -30,17 +30,19 @@ Also in the suite: one permission test per row of PRD §4.2 (`tests/test_permiss
 
 `make e2e` (`apps/web/e2e/golden.mjs`) resets the demo and drives the real screens on the running stack: the
 officer's desk on `http://localhost`, the judge's phone and the team's phone on the public listener (as through
+the tunnel), and the demo controls. **Last run (m62, English data, redesigned screens): 37 checks passed in 157 s**
 
-reset to the start in 3.6 s → the son's clip becomes BR-199 (P1 · 6 people), on the desk 1.9 s later → hovering
-"6" lights up "छत पे 6 लोग फँसे हैं" → the receipt says "recorded transcript (not a live STT call)" → the forward
-is suggested, merged by the officer, the case checked → "BR-201 was not merged with BR-199: Rajesh ≠ Ramesh" →
-the 300-row sheet in ~17 s → SDRF Boat 2 (the top suggestion, radio only) acknowledged on radio with ETA 15 →
-25 s of silence on the ×60 clock → "Contact overdue", the case still Boat 2's, one escalation → reassigned to
-Fire & Rescue Boat 5 by the officer → the team's phone: New case, ETA 15, Reached, "4 taken, someone still there"
-→ "2 of 6 still there" back in the queue; Boat 2 (owes a stand-down) not suggested again → trip 2: "2 taken,
-nobody left" → "Rescued 6 of 6" → the son's phone is asked "Team says 6 people were rescued. Is that right?" →
-Yes → 7 evidence items, each ✓ against the audit log → "✓ 1,873 events verified" → the promise bar adds up
-→ integrity 0 → the team lead opening another case gets 403 "Not assigned to your team".
+reset to the start in 3.8 s → the son's clip becomes BR-199 (P1 · 6 people), on the desk 2.1 s later → hovering
+"6" lights up "6 people are stuck on the roof" → the receipt says "recorded transcript (not a live STT call)" →
+the forward is suggested, merged by the officer, the case checked → "BR-201 was not merged with BR-199: Rajesh ≠
+Ramesh" → the 300-row sheet in 19.8 s → SDRF Boat 2 (the top suggestion, radio only) acknowledged on radio with
+ETA 15 → 25 s of silence on the ×60 clock → "Contact overdue", the case still Boat 2's, one escalation →
+reassigned to Fire & Rescue Boat 5 by the officer → the team's phone: New case, ETA 15, Reached, "4 taken, someone
+still there" → "2 of 6 still there" back in the queue; Boat 2 (owes a stand-down) not suggested again → trip 2:
+"2 taken, nobody left" → "Rescued 6 of 6" → the son's phone is asked "The team says 6 people were rescued. Is that
+right?" → Yes → 7 evidence items, each ✓ against the audit log → "✓ 1,874 events verified" → the promise bar adds
+up (343 reports = 252 cases + 91 merged + 0 to check + 0 without a home) → integrity 0 → the team lead opening
+another case gets 403 "Not assigned to your team".
 
 **Not exercised here:** the son speaking through the reporter page's microphone. With no speech-to-text key in this
 sandbox a recorded voice can only become an "audio only" case, so the script plays the clip through the demo

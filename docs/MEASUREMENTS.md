@@ -104,3 +104,19 @@ Only numbers we measured go here, each with how and where it was measured. Nothi
 |---|---|---|
 | Surge at 50/s, inside the server, with each report's message stored as a hashed file | p50 **33.4 ms**, p95 **73.8 ms**, p99 **126 ms** (one run, 30 s) | p50 22–29 ms, p95 52–89 ms (m49) |
 | Same, from the generator | p50 **38.9 ms**, p95 **83.9 ms**, p99 **142 ms** | p50 24.6–26.2 ms, p95 56.8–83.5 ms |
+
+## The final code (m59–m62): English data, the redesigned screens, partner webhooks
+
+| What | Measured | Target |
+|---|---|---|
+| The golden path, end to end (`make e2e`, 37 checks) | **157 s**, all passed | the 3:05 demo script, with real waits |
+| Demo reset to the start | **3.8 s** | < 10 s |
+| The son's clip finished → BR-199 on the desk | **2.1 s** | ≤ 2 s across screens (F-C10): just over, once; earlier runs 1.9–2.4 s |
+| The 300-row sheet, English, through the desk (confirm → summary) | **19.8 s**; 300/300 rows agree with the ground truth, 0 wrong merges (test: 18.5 s) | ≤ 45 s |
+| "✓ events verified" after the golden path | **1,874** events, integrity **0** | the chain verifies |
+| Webhook delivery, worker → a receiver on the same machine (partner log, 8 deliveries) | **23–40 ms** each, every signature ✓ at the receiver | — |
+| The API suite (`make test`, m61) | **415 passed in 272 s** | all |
+| Failure drills (`make drills`, m62) | **14/14** in 151 s (numbers in `docs/DRILLS.md`) | all |
+
+- **How:** the commands named, on the same Docker Compose stack and VM as above, 12 Oct 2026. The webhook timing is local (no network between worker and receiver), so it measures our side only.
+- **Not measured:** anything on a real phone, over a real tunnel, on the demo laptop, or with a live STT/LLM call (no keys here). See `docs/VERIFICATION.md` § "For the humans".

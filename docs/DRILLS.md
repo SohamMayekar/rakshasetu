@@ -1,8 +1,12 @@
 # Failure drills (PRD §16.4, T2, F-C10)
 
 `make drills` (`apps/web/e2e/drills.mjs`) breaks something on purpose on the **running stack**, then measures how
-the system and the screens recover. Numbers below are from one run on 12 Oct 2026 (local stack, same VM); **all
-14 checks passed**.
+the system and the screens recover. Numbers below are from the first run (m56, 12 Oct 2026, local stack, same VM);
+**all 14 checks passed**. Re-run at m62 on the final code (English data, redesigned screens, webhooks): **all 14
+passed again**: the worker back in 0.4 s and the backlog drained 61 s after the crash, 600/600 surge reports in
+exactly one case, integrity 0 (3,398 events); the desk live again 1.1 s after a 30 s cut; the API back in 4.3 s;
+tiles down → circles only; a typed report → a case in 0.4 s with the language model off; tamper → "broken at #12";
+reset to "The rescue" in 25.8 s; integrity 0 after a final reset.
 
 | Drill | What we did | What happened (measured) |
 |---|---|---|

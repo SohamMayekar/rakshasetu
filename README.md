@@ -2,8 +2,78 @@
 
 > **Never lost. Never doubled. Never stale.**
 
-RakshaSetu ("bridge of protection") is the district control room's rescue-request desk for the first two weeks of a disaster. Reports arrive as voice clips, typed calls, pasted forwards, volunteer spreadsheets and partner systems; RakshaSetu turns each family into **one case with one owner**, and refuses to lose, double or forget anyone.
+RakshaSetu ("bridge of protection") is the district control room's rescue-request desk for the first two weeks of a disaster. Pleas arrive as voice clips, typed calls, pasted forwards, volunteer spreadsheets and partner systems. RakshaSetu turns each family into **one household case with one owner**, until the rescuers report back, and refuses to lose, double or forget anyone.
 
-Built at CodeAstra 2.0 for Web PS 1, *National-Scale Incident Command Operating Layer*. The spec is [`docs/PRD.md`](docs/PRD.md); build status is in [`docs/STATUS.md`](docs/STATUS.md).
+Built at CodeAstra 2.0 for **Web PS 1, National-Scale Incident Command Operating Layer**: a national layer of district desks. The spec is [`docs/PRD.md`](docs/PRD.md) (v1.1). What is done, not done and blocked is in [`docs/STATUS.md`](docs/STATUS.md). The proof (the 9 required components, the tests, the golden path, the drills, the numbers) is in [`docs/VERIFICATION.md`](docs/VERIFICATION.md).
 
-*This README grows with the build; the full version (setup, the 9 required components mapped to demo moments, architecture, prior art) lands with the release milestone.*
+## The three innovations
+1. **One household across calls, forwards and sheets, with reasons and refusals.** "Same village · same landmarks · circles overlap", merged by a person and undoable; "Rajesh ≠ Ramesh: not merged".
+2. **Landmark words → a pin with an honest circle**, for a reporter who isn't there ("behind the Durga temple, near the bridge" → High · 150 m, from real OpenStreetMap data).
+3. **One owner whose silence is noticed, never auto-reassigned**, closed by the rescuers' headcount ("4 taken, someone still there" → "2 of 6 still there" → "Rescued 6 of 6").
+
+AI does two things only: speech to text, and extracting facts **with their quotes**. Rules and people decide everything else ([`AI_USAGE.md`](AI_USAGE.md)).
+
+## Run it (one laptop, no paid service)
+
+Needs Docker with Compose v2 and `make`. The browser checks (`make e2e`, `make drills`, `make screens`) also need Node 22 and `cd apps/web && npm ci && npx playwright install chromium`.
+
+```bash
+make env          # copies .env.example to .env: dev-only local values, no keys (change SECRET_KEY before going public)
+make up           # builds and starts db, api, worker, ticker, web, caddy
+make seed         # the three scenario packs (Bihar flood, Odisha cyclone, Himachal landslide), synthetic people
+make test         # copy rules + ruff + the API suite (415 tests) on a separate test database
+```
+
+Open **http://localhost** (the desk, on the projector) and sign in as *R. Das · EOC Duty Officer*. Phones use the **public listener** on :8080, through a Cloudflare quick tunnel on the day.
+
+| Command | What it does |
+|---|---|
+| `make demo-reset SCENE=son` | Reset to a scene of the 5-minute demo (`son`, `merge`, `sheet`, `stale`, `rescue`, `receipts`); also on the /demo page |
+| `make drills` | Failure drills on the running stack: worker crash mid-surge, desk cut off, API restart, tiles down, language model off, tamper, scene reset |
+| `make surge RATE=50 DURATION=60` | 3,000 synthetic, pre-structured partner reports; watch `/surge` |
+| `make partner-demo CASE=BR-199` | A **simulated** partner's signed annotations; see `/partners` |
+| `make webhook-sink` | A partner's webhook receiver that checks our signature (set `DEMO_PARTNER_WEBHOOK_URL=http://api:9009/hook`) |
+| `make verify` · `make tamper SEQ=12` | Verify the hash chain · edit one past event as a superuser and watch Verify break at it |
+| `make provider-check` | With keys in `.env`: one live call per STT/LLM provider |
+| `make screens OUT=… PAGES="…"` | Screenshots at 1366×768 and phone size |
+
+## Architecture (PRD §12)
+
+```
+ phones ── tunnel ──▶ Caddy :8080 (public: reporter, status, team app, ingest, partners)
+ projector ─────────▶ Caddy :80   (local: everything, incl. the desk and /demo)
+                          │
+            ┌─────────────┴──────────────┐
+            ▼                            ▼
+   Next.js app (apps/web)       FastAPI codebase (services/api), run 3 ways:
+   desk · team app ·              api      HTTP + WebSocket
+   reporter · status page         worker   the pipeline, imports, webhook deliveries (jobs, SKIP LOCKED)
+                                  ticker   every 5 s: deadlines → escalations; events → webhooks
+                          │
+                          ▼
+            Postgres + PostGIS: the only data service. Jobs are rows; timers are rows;
+            the hash-chained `events` table is both the audit trail and the live stream (LISTEN/NOTIFY).
+```
+
+No Redis, no Kafka, no microservices, no object store, no agent framework. **Cost: ₹0.** Everything is open source and self-hosted, apart from free tiers behind provider interfaces with fallbacks: Sarvam / Groq Whisper (speech to text), Groq / Gemini (extraction), OpenFreeMap tiles, and a Cloudflare quick tunnel. With no keys at all, everything still works on the keyword rules and recorded transcripts.
+
+## Honesty
+- All people and phone numbers are **synthetic**; the places are real OpenStreetMap data (ODbL).
+- The demo clock runs **×60** and says so on every ring. The surge uses pre-structured reports (no model is called). The demo partner is our own script, "simulated by RakshaSetu".
+- The son's clip is a **synthetic voice** (espeak-ng) until the team records one. Without keys, its transcript is a recorded fixture, and the receipt says "not a live STT call". **No live AI call has been made in this build environment.**
+- The audit trail is **tamper-evident**, not tamper-proof (a superuser could re-hash, which partner anchoring catches).
+- Screens are English only for now (D17); the rules still read Hindi and Hinglish.
+
+## Documentation
+| | |
+|---|---|
+| [`docs/VERIFICATION.md`](docs/VERIFICATION.md) | The 9 components → demo moment → test; T1–T10; the golden path; drills; numbers; the humans' pre-stage list |
+| [`docs/STATUS.md`](docs/STATUS.md) | Every milestone and its proof; NOT DONE; BLOCKED |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | D1–D19: where the build chose, and why |
+| [`docs/TEACHBACK.md`](docs/TEACHBACK.md) | 20 questions every team member should be able to answer |
+| [`docs/modules/`](docs/modules) | A short explainer per module |
+| [`docs/TESTS.md`](docs/TESTS.md) · [`docs/DRILLS.md`](docs/DRILLS.md) · [`docs/MEASUREMENTS.md`](docs/MEASUREMENTS.md) | Tests, drills, measured numbers (measured only) |
+| [`packages/contracts/`](packages/contracts) | OpenAPI, the report and extraction schemas, the partner contract card |
+| [`AI_USAGE.md`](AI_USAGE.md) | The AI in the product, and the AI that built it |
+
+**Credits:** OpenStreetMap contributors (ODbL), OpenFreeMap, MapLibre GL JS (BSD-3), Noto Sans (OFL), lucide icons (ISC), segno (BSD), FastAPI, PostGIS, Caddy, Next.js.
