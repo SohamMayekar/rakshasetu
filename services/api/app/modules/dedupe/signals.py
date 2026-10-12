@@ -47,6 +47,12 @@ class Score:
     place_ok: bool
 
 
+def _given(full_name: str) -> str | None:
+    """The given name: the first token of a name that has a surname after it ("Ramesh Das" → "Ramesh")."""
+    parts = full_name.split()
+    return parts[0] if len(parts) >= 2 else None
+
+
 def _metres(a: Household, b: Household) -> float:
     dy = (a.lat - b.lat) * 111_320
     dx = (a.lng - b.lng) * 111_320 * math.cos(math.radians((a.lat + b.lat) / 2))
@@ -66,10 +72,14 @@ def score(new: Household, old: Household) -> Score:
     conflicts: list[str] = []
 
     # phone or device: counts only when it matches (and isn't a relay phone, m27)
-    shared = (new.phones & old.phones) - new.relay_phones - old.relay_phones
-    if shared or (new.devices & old.devices):
+    shared_phone = new.phones & old.phones
+    shared_device = new.devices & old.devices
+    relay = (shared_phone | shared_device) & (new.relay_phones | old.relay_phones)
+    if (shared_phone | shared_device) - relay:
         s["phone_or_device"] = 1.0
-        reasons.append("same phone" if shared else "same reporter's phone (app)")
+        reasons.append("same phone" if shared_phone - relay else "same reporter's phone (app)")
+    elif relay:   # the relay-phone rule: a phone that reported several households isn't identity any more
+        reasons.append("same phone, but it has reported several households, so it isn't used as identity")
 
     # place: same village 1, fuzzy ≥ 85 → 0.5
     if new.village and old.village:
@@ -108,6 +118,19 @@ def score(new: Household, old: Household) -> Score:
             reasons.append(f"same headcount ({old.people})" if gap == 0 else f"similar headcount ({new.people} vs {old.people})")
         if gap:
             conflicts.append(f"headcount {new.people} ≠ {old.people}")
+
+    # names: TOKENS, not whole strings. A matching given name scores 1; a shared surname alone scores 0
+    # ("Ramesh Das" vs "Rajesh Das" share only "Das"); differing given names on both sides are a conflict.
+    if get_config().dedupe.name_tokens and new.names and old.names:
+        given_new = {_given(n) for n in new.names if _given(n)}
+        given_old = {_given(n) for n in old.names if _given(n)}
+        if given_new and given_old:
+            hit = next(((a, b) for a in given_new for b in given_old if fuzz.ratio(norm(a), norm(b)) >= 85), None)
+            if hit:
+                s["names"] = 1.0
+                reasons.append(f"same name ({hit[1]})")
+            else:
+                conflicts.append(f"name {' / '.join(sorted(given_new))} ≠ {' / '.join(sorted(given_old))}")
 
     # time: 1 within 30 min, falling to 0 at 12 h
     minutes = _minutes(new, old)

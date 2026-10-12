@@ -20,3 +20,6 @@ Overpass (and its mirrors and Geofabrik) were unreachable from the build sandbox
 
 ### D7 · Seed cases are generated, with their ground truth beside them
 `scripts/gen_seed_cases.py` builds 48 BR reports deterministically from structured choices and writes each choice as `truth`. Until the pipeline exists the loader uses `truth` directly (village-only Low circles, "not triaged yet"); once it exists, seeding runs the texts through the real pipeline and a test compares the pipeline's output with `truth`. **Rejected:** hand-written fields per case (drifts from the text, can't be measured).
+
+### D8 · Relay phone = a phone with two or more separate cases
+PRD F-D1 says a phone that "has reported 2 or more different households (different names or headcounts)" stops counting as identity. We operationalise "different households" as **cases that stayed separate** (each refused, suggested-but-unmerged, or new): it is checkable in one query and covers the pradhan, the coordinator and the shared phone. **Known cost** (tested): a son who first gives 6 then 7 people from the same phone produces a suggestion, after which his phone no longer auto-merges; a person merges in one click. **Rejected:** counting only explicit name conflicts (misses a volunteer reporting 10 nameless families of different sizes).

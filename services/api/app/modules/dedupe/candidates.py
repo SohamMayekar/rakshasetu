@@ -22,8 +22,24 @@ def landmark_keys(detail: dict | None, provenance: dict | None) -> dict[str, str
     return keys
 
 
+def relay_phones(conn: Connection, incident_id: int, hashes: set[str]) -> set[str]:
+    """The relay-phone rule (PRD F-D1): a phone or app device that has already reported 2 or more different
+    households (cases that stayed separate) stops counting as identity: a pradhan's phone, a volunteer
+    coordinator's, a phone passed round the shelter."""
+    if not hashes:
+        return set()
+    limit = get_config().dedupe.relay_phone_distinct_households
+    rows = conn.execute(text(
+        "SELECT h, count(DISTINCT c.id) AS households FROM unnest(CAST(:hs AS text[])) AS h"
+        " JOIN reports r ON r.reporter_phone_hash = h OR r.device_hash = h"
+        " JOIN cases c ON c.id = r.case_id AND c.incident_id = :i AND c.status NOT IN ('merged', 'cancelled')"
+        " GROUP BY h"), {"hs": list(hashes), "i": incident_id}).all()
+    return {r.h for r in rows if r.households >= limit}
+
+
 def candidates(conn: Connection, incident_id: int, new: Household, exclude_case: int | None = None) -> list[Household]:
     cfg = get_config().dedupe
+    new.relay_phones = relay_phones(conn, incident_id, new.phones | new.devices)
     rows = conn.execute(text(f"""
         WITH hits AS (
           SELECT c.id,

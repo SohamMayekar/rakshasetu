@@ -75,13 +75,33 @@ def test_the_sons_report_from_another_phone_is_suggested_with_reasons(desk_clien
     assert line.startswith(f"Likely same household as {one(app_db, 'SELECT public_id FROM cases WHERE id = :c', c=case_of(app_db, a))}: ")
 
 
+def test_same_phone_and_village_but_a_different_count_is_only_suggested(desk_client, app_db):
+    a = desk(desk_client, DEMO, phone="+91 98765 40013")
+    drain(app_db)
+    b = desk(desk_client, SON.replace("6 log", "7 log"), phone="+91 98765 40013")
+    drain(app_db)
+    assert case_of(app_db, a) != case_of(app_db, b)
+    s = rows(app_db, "SELECT strength, conflicts FROM merge_suggestions WHERE case_id = :c", c=case_of(app_db, b))[0]
+    assert s.strength == "strong" and s.conflicts == ["headcount 7 ≠ 6"]    # the difference, in red
+
+
+def test_after_two_separate_households_the_phone_stops_counting_as_identity(desk_client, app_db):
+    """The relay rule's trade-off, written down: once a phone has two separate cases, even a true repeat from it
+    is only suggested, never auto-merged. A person merges it in one click."""
+    desk(desk_client, DEMO, phone="+91 98765 40023")
+    drain(app_db)
+    desk(desk_client, SON.replace("6 log", "7 log"), phone="+91 98765 40023")
+    drain(app_db)
+    c = desk(desk_client, DEMO, phone="+91 98765 40023")
+    drain(app_db)
+    assert one(app_db, "SELECT count(*) FROM merges WHERE source_report_id = :r", r=c) == 0
+    reasons = rows(app_db, "SELECT reasons FROM merge_suggestions WHERE case_id = :c", c=case_of(app_db, c))
+    assert any("isn't used as identity" in " ".join(r.reasons) for r in reasons)
+
+
 def test_the_same_phone_with_the_same_details_auto_merges_into_the_older_case(desk_client, app_db):
     a = desk(desk_client, DEMO, phone="+91 98765 40003")
     drain(app_db)
-    b = desk(desk_client, SON.replace("6 log", "7 log").replace("dawai", "khana nahi hai, dawai"), phone="+91 98765 40003")
-    drain(app_db)
-    # a different headcount is a conflict: same phone + village but 6 vs 7 → suggest, not auto-merge
-    assert case_of(app_db, a) != case_of(app_db, b)
     c = desk(desk_client, DEMO.replace("ek buzurg", "ek buzurg aur do bachche"), phone="+91 98765 40003")
     drain(app_db)
     assert case_of(app_db, c) == case_of(app_db, a)                          # auto-merged
@@ -124,3 +144,22 @@ def test_other_incidents_are_never_candidates(desk_client, app_db):
     od_cases = one(app_db, "SELECT count(*) FROM merge_suggestions s JOIN cases c ON c.id = s.candidate_case_id"
                            " WHERE c.incident_id <> (SELECT id FROM incidents WHERE code = 'BR')")
     assert od_cases == 0
+
+
+def test_a_shared_surname_alone_scores_nothing():
+    s = score(H(names=["Ramesh Das"]), H(names=["Das"]))       # "Das" has no given name to compare
+    assert "names" not in s.signals and not s.conflicts
+
+
+def test_the_relay_phone_rule_keeps_ten_households_on_one_volunteer_phone_apart(desk_client, app_db):
+    """N2/E5: a volunteer coordinator's phone reports 10 different families in one village."""
+    families = ["Ramesh", "Suresh", "Mahesh", "Dinesh", "Naresh", "Mukesh", "Rakesh", "Umesh", "Kamlesh", "Yogesh"]
+    for i, given in enumerate(families):
+        desk(desk_client, f"{given} Paswan ka parivar, {3 + i % 4} log, Thawe gaon, mandir ke paas, fase hain",
+             phone="+91 98765 49999")
+        drain(app_db)
+    ids = {r[0] for r in rows(app_db, "SELECT case_id FROM reports WHERE reporter_phone_hash IS NOT NULL"
+                                      " AND idempotency_key NOT LIKE 'br-%' AND text LIKE '%Paswan ka parivar%'")}
+    assert len(ids) == 10                                                    # ten households, ten cases
+    assert one(app_db, "SELECT count(*) FROM merges WHERE decided_by = 'rule' AND source_report_id IN"
+                       " (SELECT id FROM reports WHERE text LIKE '%Paswan ka parivar%')") == 0
