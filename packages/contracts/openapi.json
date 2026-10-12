@@ -706,6 +706,7 @@
     },
     "/v1/cases": {
       "get": {
+        "description": "Scoped cases. `ids=1,2,3` re-reads just those (the desk's 1-second refresh). The `X-Event-Seq` header is\nthe event cursor to subscribe from (`/v1/ws?since=`), read before the list so nothing falls in between.",
         "operationId": "list_cases_v1_cases_get",
         "parameters": [
           {
@@ -722,6 +723,23 @@
                 }
               ],
               "title": "Incident"
+            }
+          },
+          {
+            "in": "query",
+            "name": "ids",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 4000,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ids"
             }
           }
         ],

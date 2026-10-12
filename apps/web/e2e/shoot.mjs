@@ -18,7 +18,9 @@ const BASE = process.env.BASE ?? "http://127.0.0.1";
 const SIZES = { desk: { width: 1366, height: 768 }, phone: { width: 390, height: 844 } };
 mkdirSync(out, { recursive: true });
 
-const browser = await chromium.launch({ executablePath: process.env.CHROMIUM ?? "/opt/pw-browsers/chromium" });
+// Map tiles come from the internet; where outbound HTTPS needs a proxy (this build sandbox), use it for those only.
+const proxy = process.env.HTTPS_PROXY ? { server: process.env.HTTPS_PROXY, bypass: "127.0.0.1,localhost" } : undefined;
+const browser = await chromium.launch({ executablePath: process.env.CHROMIUM ?? "/opt/pw-browsers/chromium", proxy });
 for (const spec of specs) {
   const [, path, user, name] = spec.match(/^([^@#]+)(?:@([^#]+))?(?:#(.+))?$/);
   const label = name ?? (path.replace(/\W+/g, "-").replace(/^-|-$/g, "") || "home");

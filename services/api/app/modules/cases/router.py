@@ -1,6 +1,6 @@
 """GET /v1/cases and GET /v1/cases/{ref} (PRD §11.1). Scoped reads; edits arrive with their slices."""
 
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, Response
 from pydantic import BaseModel, Field
 
 from app.core.auth import Scope, require
@@ -12,9 +12,17 @@ router = APIRouter(prefix="/v1/cases", tags=["cases"])
 
 
 @router.get("")
-def list_cases(incident: str | None = None, scope: Scope = Depends(require("queue.view"))) -> list[dict]:
+def list_cases(response: Response, incident: str | None = None, ids: str | None = Query(None, max_length=4000),
+               scope: Scope = Depends(require("queue.view"))) -> list[dict]:
+    """Scoped cases. `ids=1,2,3` re-reads just those (the desk's 1-second refresh). The `X-Event-Seq` header is
+    the event cursor to subscribe from (`/v1/ws?since=`), read before the list so nothing falls in between."""
+    try:
+        id_list = [int(x) for x in ids.split(",") if x] if ids is not None else None
+    except ValueError:
+        raise HTTPException(422, "ids must be numbers") from None
     with get_engine().connect() as c:
-        return repo.list_cases(c, scope, incident)
+        response.headers["X-Event-Seq"] = str(repo.head_seq(c))
+        return repo.list_cases(c, scope, incident, ids=id_list)
 
 
 @router.get("/{ref}")

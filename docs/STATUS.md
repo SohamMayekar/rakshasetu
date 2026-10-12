@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m33 desk shell (map, queue, drawer, live updates)
+**Current milestone:** m34 Needs you now (attention rows, one chip, suggested action, no re-sort)
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)

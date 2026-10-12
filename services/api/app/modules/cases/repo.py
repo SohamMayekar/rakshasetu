@@ -23,12 +23,21 @@ def _row(r) -> dict:
     return d
 
 
-def list_cases(conn: Connection, scope: Scope, incident_code: str | None = None, limit: int = 500) -> list[dict]:
+def head_seq(conn: Connection) -> int:
+    """The newest event's seq. Read BEFORE a list, so a client that then subscribes with ?since= misses nothing."""
+    return conn.execute(text("SELECT coalesce(max(seq), 0) FROM events")).scalar()
+
+
+def list_cases(conn: Connection, scope: Scope, incident_code: str | None = None, limit: int = 5000,
+               ids: list[int] | None = None) -> list[dict]:
     where, params = scope.case_where("c")
     clauses = [where]
     if incident_code:
         clauses.append("i.code = :code")
         params["code"] = incident_code
+    if ids is not None:
+        clauses.append("c.id = ANY(:ids)")
+        params["ids"] = ids
     rows = conn.execute(text(f"SELECT {CASE_COLUMNS} {FROM} WHERE {' AND '.join(clauses)}"
                              " ORDER BY c.queue_since LIMIT :limit"), {**params, "limit": limit}).all()
     return [_row(r) for r in rows]

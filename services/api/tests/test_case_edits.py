@@ -92,3 +92,17 @@ def test_correcting_the_facts_re_runs_the_priority_rules(seeded, client, app_db)
     events = client.get("/v1/audit", params={"case_id": case["id"]}).json()
     change = [e for e in events if e["action"] == "case.priority_changed"][-1]
     assert change["data"]["from"] == "P2" and change["data"]["to"] == "P1" and "unconscious" in change["reason"]
+
+
+@needs_db
+def test_the_case_list_gives_the_event_cursor_and_reads_by_ids(seeded, client, app_db):
+    login(client, "priya")
+    r = client.get("/v1/cases?incident=BR")
+    head = one(app_db, "SELECT max(seq) FROM events")
+    assert r.status_code == 200 and int(r.headers["X-Event-Seq"]) == head
+    first, second = r.json()[0]["id"], r.json()[1]["id"]
+    again = client.get(f"/v1/cases?ids={first},{second}").json()
+    assert sorted(c["id"] for c in again) == sorted([first, second])
+    other = one(app_db, "SELECT c.id FROM cases c JOIN districts d ON d.id = c.district_id WHERE d.name = 'Muzaffarpur' LIMIT 1")
+    assert client.get(f"/v1/cases?ids={other}").json() == []                 # still scoped
+    assert client.get("/v1/cases?ids=1,x").status_code == 422
