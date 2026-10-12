@@ -13,11 +13,14 @@ from datetime import timedelta
 from pathlib import Path
 
 import yaml
-from sqlalchemy import Connection, create_engine, text
+from functools import lru_cache
+
+from sqlalchemy import Connection, text
 
 from app.core.eventlog import SYSTEM, append_event
 from app.core.passwords import hash_password
 from app.core.phones import protect
+from app.db import engine_for
 from app.settings import get_settings
 
 PACKS = ("BR", "OD", "HP")
@@ -132,9 +135,14 @@ def _insert_case(conn: Connection, incident_id: int, code: str, districts: dict,
     return case_id
 
 
+@lru_cache(maxsize=1)
+def _demo_password_hash() -> str:
+    return hash_password(DEMO_PASSWORD)   # scrypt is deliberately slow; one hash per process is enough
+
+
 def load_users(conn: Connection, root: Path, packs: dict) -> int:
     users = _yaml(root / "users.yaml").get("users", [])
-    pw = hash_password(DEMO_PASSWORD)
+    pw = _demo_password_hash()
     n = 0
     for u in users:
         if not set(u["incidents"]) & set(packs):
@@ -161,8 +169,7 @@ def load_users(conn: Connection, root: Path, packs: dict) -> int:
 
 def seed(owner_url: str, packs=PACKS, root: Path | None = None) -> dict:
     root = root or get_settings().data_dir / "scenarios"
-    engine = create_engine(owner_url, future=True)
-    with engine.begin() as conn:
+    with engine_for(owner_url).begin() as conn:
         wipe(conn)
         # A reset starts a new chain: the genesis event records why (PRD F-C8).
         append_event(conn, actor=SYSTEM, action="chain.genesis", entity_type="chain",
@@ -170,7 +177,6 @@ def seed(owner_url: str, packs=PACKS, root: Path | None = None) -> dict:
         now = conn.execute(text("SELECT now()")).scalar_one()
         loaded = {code: load_pack(conn, root, code, now) for code in packs}
         users = load_users(conn, root, loaded)
-    engine.dispose()
     return {"incidents": len(loaded), "cases": sum(p["cases"] for p in loaded.values()),
             "teams": sum(len(p["teams"]) for p in loaded.values()), "users": users}
 
