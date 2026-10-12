@@ -65,7 +65,9 @@ ENDPOINTS = [
                                                   " WHERE name = 'Gopalganj') AND status = 'reported' ORDER BY id LIMIT 2")],
                  "reason": "same family, confirmed by phone"},
      "priya", "seoc", None),
-    ("import.run", "POST", "/v1/imports", {}, "priya", "boat5", "m29"),
+    ("import.run", "POST", "/v1/imports",
+     {"files": {"file": ("s.csv", b"Naam,Mob,Gaon\nSita,9876543210,Thawe\n", "text/csv")}, "data": {"incident": "BR"}},
+     "priya", "boat5", None),
     ("assignment.create", "POST", "/v1/assignments", {}, "rdas", "priya", "m40"),
     ("assignment.team_action", "POST", "/v1/assignments/1/acknowledge", {}, "boat5", "priya", "m40"),
     ("team.radio_contact", "POST", "/v1/teams/1/contact", {}, "rdas", "priya", "m42"),
@@ -87,11 +89,13 @@ PARAMS = [pytest.param(*e, id=e[0], marks=pytest.mark.skip(reason=f"endpoint arr
 def test_each_row_through_its_endpoint(seeded, client, app_db, action, method, path, body, allowed, denied, built_in):
     if callable(body):
         body = body(app_db)
+    send = ({"files": body["files"], "data": body["data"]} if isinstance(body, dict) and "files" in body
+            else {"json": body})
     login(client, denied)
-    r = client.request(method, path, json=body)
+    r = client.request(method, path, **send)
     assert r.status_code == 403, f"{denied} should be refused {action}: {r.status_code} {r.text}"
     login(client, allowed)
-    r = client.request(method, path, json=body)
+    r = client.request(method, path, **send)
     assert r.status_code < 400, f"{allowed} should be allowed {action}: {r.status_code} {r.text}"
 
 

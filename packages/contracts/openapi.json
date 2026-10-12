@@ -1,6 +1,26 @@
 {
   "components": {
     "schemas": {
+      "Body_upload_v1_imports_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "title": "File",
+            "type": "string"
+          },
+          "incident": {
+            "maxLength": 10,
+            "title": "Incident",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file",
+          "incident"
+        ],
+        "title": "Body_upload_v1_imports_post",
+        "type": "object"
+      },
       "Body_voice_turn_v1_public_voice_turns_post": {
         "properties": {
           "audio": {
@@ -230,6 +250,23 @@
           "reason"
         ],
         "title": "ManualMerge",
+        "type": "object"
+      },
+      "Mapping": {
+        "properties": {
+          "mapping": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "maxProperties": 40,
+            "title": "Mapping",
+            "type": "object"
+          }
+        },
+        "required": [
+          "mapping"
+        ],
+        "title": "Mapping",
         "type": "object"
       },
       "PinMove": {
@@ -1071,6 +1108,147 @@
         "summary": "Events Since",
         "tags": [
           "realtime"
+        ]
+      }
+    },
+    "/v1/imports": {
+      "post": {
+        "operationId": "upload_v1_imports_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_v1_imports_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Upload V1 Imports Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Upload",
+        "tags": [
+          "imports"
+        ]
+      }
+    },
+    "/v1/imports/{iid}": {
+      "get": {
+        "operationId": "get_import_v1_imports__iid__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "iid",
+            "required": true,
+            "schema": {
+              "title": "Iid",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Import V1 Imports  Iid  Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Import",
+        "tags": [
+          "imports"
+        ]
+      }
+    },
+    "/v1/imports/{iid}/mapping": {
+      "post": {
+        "operationId": "confirm_mapping_v1_imports__iid__mapping_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "iid",
+            "required": true,
+            "schema": {
+              "title": "Iid",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Mapping"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Confirm Mapping V1 Imports  Iid  Mapping Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Confirm Mapping",
+        "tags": [
+          "imports"
         ]
       }
     },

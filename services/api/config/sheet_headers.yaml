@@ -1,0 +1,15 @@
+# Spreadsheet header synonyms (PRD F-D3). TEAM-OWNED: add the headers real volunteer sheets use.
+# Matching is case-insensitive on the header text with spaces/punctuation removed. A person confirms the
+# proposed mapping in one click before anything is imported.
+fields:
+  name:        [name, naam, नाम, "person name", "contact name", "family head", mukhiya, "pariwar ka naam"]
+  phone:       [phone, mob, mobile, "mobile no", "mob no", contact, "contact no", "phone no", number, फोन, मोबाइल]
+  headcount:   ["kitne log", members, persons, people, "no of people", "no. of people", count, "total people", logon, संख्या, "log"]
+  location:    [location, address, landmark, "where", "location details", pata, पता, "address/landmark", "village/landmark", "location/landmark", "landmark/location", "exact location"]
+  village:     [village, gaon, gram, "village name", गाँव, गांव, "mohalla", "tola"]
+  district:    [district, zila, jila, जिला]
+  needs:       [needs, need, "requirement", zaroorat, "help needed", "what is needed"]
+  notes:       [remarks, notes, details, message, "msg", "situation", "description", टिप्पणी]
+  status:      [status, done, "action taken", "rescued?", "update"]
+  time:        [time, date, samay, "date/time", "reported at", "timestamp", समय, "call time"]
+ignore: [sno, "s.no", "s no", serial, "sr no", "#", id, volunteer, "entered by"]
