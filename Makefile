@@ -5,7 +5,7 @@ WEB := apps/web
 
 COMPOSE := docker compose -f infra/docker-compose.yml --env-file .env
 
-.PHONY: help env up down nuke ps logs smoke psql demo-sheet sheet-eval screens count e2e drills contracts seed demo-reset surge partner-demo webhook-sink verify tamper provider-check keys copy-check dev-api dev-web test test-api test-web lint
+.PHONY: help env up down nuke ps logs smoke psql demo-sheet read-eval sheet-eval screens count e2e drills contracts seed demo-reset surge partner-demo webhook-sink verify tamper provider-check keys copy-check dev-api dev-web test test-api test-web lint
 
 help: ## List the targets
 	@grep -E '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) | awk -F':.*?## ' '{printf "  make %-12s %s\n", $$1, $$2}'
@@ -60,6 +60,9 @@ smoke: ## Check both Caddy listeners from outside (rule R18)
 
 demo-sheet: ## Regenerate the 300-row demo volunteer sheet and its ground truth (deterministic)
 	services/api/.venv/bin/python scripts/gen_demo_sheet.py
+
+read-eval: ## Score the word rules on 40 labelled reports (data/eval/reports.yaml): right / wrong / missed per field
+	$(COMPOSE) exec -T api pytest -s -q -p no:cacheprovider tests/scenarios/test_read_eval.py
 
 sheet-eval: ## Import the demo sheet into the TEST database and print time, outcome agreement, merge precision/recall
 	$(COMPOSE) exec -T api pytest -s -q -p no:cacheprovider tests/scenarios/test_demo_sheet.py

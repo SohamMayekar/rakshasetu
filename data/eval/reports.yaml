@@ -1,0 +1,411 @@
+# The reading test set (m86): 40 made-up reports written the way people really send them — English, Hinglish,
+# Hindi in Devanagari, forwards, typos, no punctuation — each with the facts a person reads from it.
+# Labels were written BEFORE running the word rules on them. All people, villages-as-used and phone numbers are
+# synthetic. `make read-eval` scores the word rules field by field against these labels.
+#
+# Fields (omit a field = expect nothing): people (int), hazards / needs / vulnerable (closed lists, as sets),
+# village (Latin spelling, case-insensitive), landmarks (types, as a set), phone (10 digits), on_site (true/false).
+
+reports:
+  - text: "My family is in Thawe village, behind the Durga temple, near the bridge. 6 people are stuck on the roof. Water has come in, there is an elderly man, they need medicine."
+    people: 6
+    hazards: [trapped_on_roof, water_entering]
+    needs: [medicine]
+    vulnerable: [elderly]
+    village: Thawe
+    landmarks: [temple, bridge]
+    on_site: false
+
+  - text: "Hathua gaon mein 5 log chhat par fase hain, paani badh raha hai, ek bachcha bhi hai"
+    people: 5
+    hazards: [trapped_on_roof, water_rising]
+    vulnerable: [child]
+    village: Hathua
+
+  - text: "हम मीरगंज से हैं, छत पर 8 लोग फँसे हैं, पानी बढ़ रहा है, दवाई चाहिए"
+    people: 8
+    hazards: [trapped_on_roof, water_rising]
+    needs: [medicine]
+    village: Mirganj
+    on_site: true
+
+  - text: "pls help 4 people trapped in house at Barauli near school water entering fast call 9876570101"
+    people: 4
+    hazards: [trapped_inside, water_entering]
+    village: Barauli
+    landmarks: [school]
+    phone: "9876570101"
+
+  - text: "Forwarded: Sidhwalia block, Dewapur village, around 20 people on the school roof, no food since yesterday, children and old people"
+    people: 20
+    hazards: [trapped_on_roof]
+    needs: [food]
+    vulnerable: [child, elderly]
+    village: Dewapur
+    landmarks: [school]
+
+  - text: "my parents are in Manjha, both above 70, water is inside the house, they cannot get out. please send boat"
+    hazards: [water_entering, trapped_inside]
+    vulnerable: [elderly]
+    village: Manjha
+    on_site: false
+
+  - text: "Kuchaikote gaon me pani ghus gaya hai 3 log hai ek garbhvati mahila hai"
+    people: 3
+    hazards: [water_entering]
+    vulnerable: [pregnant]
+    village: Kuchaikote
+
+  - text: "Uchkagaon mandir ke paas 10-12 log fase hue hain, rasta kat gaya hai"
+    people: 12
+    hazards: [trapped_inside, cut_off]
+    village: Uchkagaon
+    landmarks: [temple]
+
+  - text: "We are stuck on the roof, 7 of us, my mother is sick and we have no drinking water. Phulwaria, behind the panchayat bhawan."
+    people: 7
+    hazards: [trapped_on_roof]
+    needs: [drinking_water]
+    vulnerable: [sick]
+    village: Phulwaria
+    landmarks: [panchayat_bhawan]
+    on_site: true
+
+  - text: "Nawadah - 2 bachche aur unki dadi ghar mein band hain, paani andar aa gaya"
+    hazards: [trapped_inside, water_entering]
+    vulnerable: [child, elderly]
+    village: Nawadah
+
+  - text: "baby 3 months old, we need milk, 5 people on top of the house in Bijaipur"
+    people: 5
+    hazards: [trapped_on_roof]
+    needs: [baby_supplies]
+    vulnerable: [infant]
+    village: Bijaipur
+
+  - text: "Katiya ke paas nahar ka bandh toot gaya, kareeb 30 log school mein hain, khana aur dawai chahiye"
+    people: 30
+    needs: [food, medicine]
+    village: Katiya
+    landmarks: [canal, school]
+
+  - text: "मेरे भाई का परिवार हथुआ में है, 6 लोग, घर में पानी भर गया है, एक बुजुर्ग बीमार हैं"
+    people: 6
+    hazards: [water_entering]
+    vulnerable: [elderly]
+    village: Hathua
+    on_site: false
+
+  - text: "URGENT!!! old man unconscious, Lakri Nabiganj near the hospital, family of 4 on roof"
+    people: 4
+    hazards: [trapped_on_roof]
+    needs: [medical_urgent]
+    vulnerable: [elderly]
+    village: Lakri Nabiganj
+    landmarks: [hospital]
+
+  - text: "Harpur village mein bahut tez bahav hai, 6 log fase hain chhat pe, ek viklang ladka hai"
+    people: 6
+    hazards: [strong_current, trapped_on_roof]   # on a roof IS trapped: the rules say it once (keywords.py)
+    vulnerable: [disabled]
+    village: Harpur
+
+  - text: "Khanpur: 9 people including a newborn, water rising, house might collapse"
+    people: 9
+    hazards: [water_rising]
+    vulnerable: [infant]
+    village: Khanpur
+
+  - text: "my sister is in Baikunthpur with her two kids, the water is rising and she is alone, her number 9876570102"
+    hazards: [water_rising]
+    vulnerable: [child]
+    village: Baikunthpur
+    phone: "9876570102"
+    on_site: false
+
+  - text: "Dighwa gram ke paas pul toot gaya hai, 15 log udhar fase hain, sampark toot gaya"
+    people: 15
+    hazards: [trapped_inside, cut_off]
+    village: Dighwa
+    landmarks: [bridge]
+
+  - text: "hum log chhat par hain 5 log, Sasamusa se, bachche bhookhe hain khana nahi hai"
+    people: 5
+    hazards: [trapped_on_roof]
+    needs: [food]
+    vulnerable: [child]
+    village: Sasamusa
+    on_site: true
+
+  - text: "Bhore bazaar ke peeche makaan gir gaya, 2 log dabe hain"
+    people: 2
+    hazards: [structure_collapsed, buried]
+    village: Bhore
+    landmarks: [market]
+
+  - text: "Ramesh Das family 6 members Thawe near bridge roof par"
+    people: 6
+    hazards: [trapped_on_roof]
+    village: Thawe
+    landmarks: [bridge]
+
+  - text: "Please help. 3 children and their mother trapped upstairs in Gopalpur, water is up to the first floor"
+    hazards: [trapped_inside, water_entering]
+    vulnerable: [child]
+    village: Gopalpur
+
+  - text: "Pachdewri mein masjid ke saamne 11 log hain, paani chadh raha hai, ek aurat ko prasav pida ho rahi hai"
+    people: 11
+    hazards: [water_rising]
+    needs: [medical_urgent]
+    vulnerable: [pregnant]
+    village: Panchdeuri   # the map's spelling of Pachdewri
+    landmarks: [mosque]
+
+  - text: "mere papa ka number 9876570103 hai, wo Vijaipur me fase hain akele, sugar ke mareez hain dawai khatam"
+    hazards: [trapped_inside]
+    needs: [medicine]
+    vulnerable: [sick]
+    village: Bijaipur     # OpenStreetMap spells Vijaipur 'Bijaipur' (v/b)
+    phone: "9876570103"
+    on_site: false
+
+  - text: "Approx 40 people at Kateya railway station platform, no food no water, many kids"
+    people: 40
+    needs: [food, drinking_water]
+    vulnerable: [child]
+    village: Kateya
+    landmarks: [railway_station]
+
+  - text: "Fulwaria ke tower ke bagal mein 4 log, ek bachi ko chot lagi hai"
+    people: 4
+    vulnerable: [injured, child]
+    village: Phulwaria    # Fulwaria and Phulwaria are one village
+    landmarks: [tower]
+
+  - text: "Water entered our house in Barauli. We are 5 including my grandmother who uses a wheelchair."
+    people: 5
+    hazards: [water_entering]
+    vulnerable: [elderly, disabled]
+    village: Barauli
+    on_site: true
+
+  - text: "Thawe me shiv mandir ke peeche chaar log chhat pe hain"
+    people: 4
+    hazards: [trapped_on_roof]
+    village: Thawe
+    landmarks: [temple]
+
+  - text: "ghar gir gaya Manjha mein, 1 aadmi malbe mein dab gaya, khoon beh raha hai"
+    hazards: [structure_collapsed, buried]
+    needs: [medical_urgent]
+    vulnerable: [injured]
+    village: Manjha
+
+  - text: "हम लोग फँसे हैं, छत पे, थावे दुर्गा मंदिर के पास, 9 लोग, बच्चे भी हैं"
+    people: 9
+    hazards: [trapped_on_roof]
+    vulnerable: [child]
+    village: Thawe
+    landmarks: [temple]
+    on_site: true
+
+  - text: "Calling about Dewapur, my uncle's family, 7 people, road is cut off, they are on the roof of the school"
+    people: 7
+    hazards: [cut_off, trapped_on_roof]
+    village: Dewapur
+    landmarks: [school]
+    on_site: false
+
+  - text: "Sir Mirganj ward 4 mein paani ghar ke andar hai, 6 log, 2 bachche, doodh chahiye"
+    people: 6
+    hazards: [water_entering]
+    needs: [baby_supplies]
+    vulnerable: [child]
+    village: Mirganj
+
+  - text: "8 ppl stuck on roof hathua near water tank"
+    people: 8
+    hazards: [trapped_on_roof]
+    village: Hathua
+    landmarks: [water_tower]
+
+  - text: "Uchkagaon me 3 log fase hai unme ek pregnant lady hai jaldi bheje"
+    people: 3
+    hazards: [trapped_inside]
+    vulnerable: [pregnant]
+    village: Uchkagaon
+
+  - text: "Bijaipur, behind the old church, family of five, water rising, they have no medicines for the old lady"
+    people: 5
+    hazards: [water_rising]
+    needs: [medicine]
+    vulnerable: [elderly]
+    village: Bijaipur
+    landmarks: [church]
+
+  - text: "मांझा गांव में 12 लोग पानी में फंसे हैं, खाना नहीं है"
+    people: 12
+    hazards: [trapped_inside]
+    needs: [food]
+    village: Manjha
+
+  - text: "help help help water everywhere Katiya 5 log"
+    people: 5
+    village: Katiya
+
+  - text: "Gopalganj town, Siwan road side, around 25 people stranded near the canal bridge"
+    people: 25
+    hazards: [cut_off]
+    village: Gopalganj
+    landmarks: [canal, bridge]
+
+  - text: "Phulwaria mein ek buzurg aurat akele hain, chal nahi sakti, paani ghutne tak"
+    hazards: [water_entering]
+    vulnerable: [elderly, disabled]
+    village: Phulwaria
+
+  - text: "Hathua gurdwara ke paas 6 log, ek bachcha 8 mahine ka, chhat par, doodh khatam"
+    people: 6
+    hazards: [trapped_on_roof]
+    needs: [baby_supplies]
+    vulnerable: [infant]
+    village: Hathua
+    landmarks: [gurdwara]
+
+  # moved up from the held-out set (m86): 'Bhai Phulwaria' was read as a two-word village
+  - text: "Bhai Phulwaria mein pani ghus gaya, 7 log hain, ek aurat pregnant hai, 9876570104 pe call karo"
+    people: 7
+    hazards: [water_entering]
+    vulnerable: [pregnant]
+    village: Phulwaria
+    phone: "9876570104"
+
+# Held out (m86): written after the word lists were changed for the set above, and NOT tuned on. Its score is the
+# honest one: how the rules read reports nobody fitted them to. Fix a miss here only by moving the report up
+# into `reports` and writing a fresh held-out one.
+holdout:
+  - text: "Sir please help my grandparents are alone at home in Thawe, water upto knees, they can't walk"
+    hazards: [water_entering]
+    vulnerable: [elderly, disabled]
+    village: Thawe
+    on_site: false
+
+  - text: "Hathua mein school ke chhat par 35 log hain, khana pani kuch nahi"
+    people: 35
+    hazards: [trapped_on_roof]
+    needs: [food, drinking_water]
+    village: Hathua
+    landmarks: [school]
+
+  - text: "मेरी माँ और दो बच्चे बरौली में फंसे हैं, पानी तेजी से बढ़ रहा है"
+    hazards: [trapped_inside, water_rising]
+    vulnerable: [child]
+    village: Barauli
+    on_site: false
+
+  - text: "Manjha near the canal, 6 people, one is a 2 month old baby"
+    people: 6
+    vulnerable: [infant]
+    village: Manjha
+    landmarks: [canal]
+
+  - text: "hamara ghar Kuchaikote me hai, chhat pe 4 log, ek budhi maa bimar hai"
+    people: 4
+    hazards: [trapped_on_roof]
+    vulnerable: [elderly, sick]
+    village: Kuchaikote
+    on_site: true
+
+  - text: "we r trapped on 2nd floor in Mirganj, 3 adults 2 kids, water rising fast pls hurry"
+    hazards: [trapped_inside, water_rising]
+    vulnerable: [child]
+    village: Mirganj
+    on_site: true
+
+  - text: "Dewapur gaon, Hanuman mandir ke saamne, lagbhag 50 log fase hain, rasta band hai"
+    people: 50
+    hazards: [trapped_inside, cut_off]
+    village: Dewapur
+    landmarks: [temple]
+
+  - text: "Uchkagaon: elderly couple on roof, man has heart attack history, needs medicine urgently"
+    hazards: [trapped_on_roof]
+    needs: [medicine]
+    vulnerable: [elderly]
+    village: Uchkagaon
+
+  - text: "Nawadah village, the bridge is washed away, about 15 families stranded"
+    hazards: [cut_off]
+    village: Nawadah
+    landmarks: [bridge]
+
+  - text: "Barauli bazar ke paas tez dhaar mein ek naav palat gayi, 3 log behosh"
+    people: 3
+    hazards: [strong_current]
+    needs: [medical_urgent]
+    village: Barauli
+    landmarks: [market]
+
+  - text: "Katiya, 5 members, no food since 2 days, small children crying"
+    people: 5
+    needs: [food]
+    vulnerable: [child]
+    village: Katiya
+
+  - text: "मीरगंज में मस्जिद के पास 20 लोग छत पर हैं"
+    people: 20
+    hazards: [trapped_on_roof]
+    village: Mirganj
+    landmarks: [mosque]
+
+  - text: "my uncle in Bijaipur is diabetic and out of insulin, 4 of them stuck at home"
+    people: 4
+    hazards: [trapped_inside]
+    needs: [medicine]
+    vulnerable: [sick]
+    village: Bijaipur
+    on_site: false
+
+  - text: "Harpur mein makaan dhah gaya, do log dabe hue hain, jaldi JCB bhejo"
+    people: 2
+    hazards: [structure_collapsed, buried]
+    village: Harpur
+
+  - text: "Khanpur village temple area, 8 people with an old man who is unconscious"
+    people: 8
+    needs: [medical_urgent]
+    vulnerable: [elderly]
+    village: Khanpur
+    landmarks: [temple]
+
+  - text: "Baikunthpur me hum 6 log hain chhat par, paani badh raha hai"
+    people: 6
+    hazards: [trapped_on_roof, water_rising]
+    village: Baikunthpur
+    on_site: true
+
+  - text: "Lakri Nabiganj panchayat bhawan mein 60 log ruke hain, dawai aur doodh chahiye bachchon ke liye"
+    people: 60
+    needs: [medicine, baby_supplies]
+    vulnerable: [child]
+    village: Lakri Nabiganj
+    landmarks: [panchayat_bhawan]
+
+  - text: "Thawe station ke paas 3 log paani mein fase hain, ek ghayal hai"
+    people: 3
+    hazards: [trapped_inside]
+    vulnerable: [injured]
+    village: Thawe
+    landmarks: [railway_station]
+
+  - text: "Gopalganj: 10 people on terrace of a house near the hospital, water entering ground floor"
+    people: 10
+    hazards: [trapped_on_roof, water_entering]
+    village: Gopalganj
+    landmarks: [hospital]
+
+  - text: "Sasamusa ke paas Kuchaikote road par 12 log ek truck ke upar hain, paani bahut tez hai"
+    people: 12
+    hazards: [strong_current]
+    village: Sasamusa

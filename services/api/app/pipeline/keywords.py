@@ -29,6 +29,7 @@ from app.core.phones import normalise
 DICT_DIR = Path(__file__).resolve().parent.parent.parent / "dictionaries"
 DEVANAGARI = re.compile(r"[ऀ-ॿ]")
 LATIN_WORD_EDGE = (r"(?<![A-Za-z])", r"(?![A-Za-z])")
+ADDRESS_WORDS = {"bhai", "bhaiya", "didi", "sir", "madam", "ji", "please", "pls", "help", "urgent"}   # "Bhai Phulwaria mein…"
 NOT_A_VILLAGE = {"hum", "in", "calling", "ghar", "paani", "please", "mere", "my", "we", "the", "road", "school", "help"}
 
 
@@ -60,6 +61,7 @@ def _people(text: str, d: dict) -> PeopleCount | None:
         (rf"(\d{{1,4}})\s*(?:-|–|to|se)\s*(\d{{1,4}})\s*{nouns}", "range"),
         (rf"(?:{est}\s*)?(\d{{1,4}})\s*{nouns}", "digits"),
         (rf"(?:{est}\s*)?(?<![\wऀ-ॿ])({words})\s*{nouns}", "words"),
+        (rf"\b{d['group_cues']}\s+(?:{est}\s*)?(\d{{1,4}}|{words})\b", "group"),   # "family of five", "we are 5"
     ]
     for pattern, kind in candidates:
         m = re.search(pattern, text, re.IGNORECASE)
@@ -68,7 +70,7 @@ def _people(text: str, d: dict) -> PeopleCount | None:
         estimated = bool(re.match(est, m.group(0), re.IGNORECASE))
         if kind == "range":
             value, estimated = max(int(m.group(1)), int(m.group(2))), True
-        elif kind == "digits":
+        elif kind == "digits" or (kind == "group" and m.group(1).isdigit()):
             value = int(m.group(1))
         else:
             value = d["number_words"][next(k for k in d["number_words"] if k.lower() == m.group(1).lower())]
@@ -141,8 +143,10 @@ def to_latin(name: str) -> str:
 def _village(text: str, d: dict) -> Village | None:
     for p in d["village_cues"]:
         m = re.search(p, text.strip())
-        if m and m.group(1).strip().lower() not in NOT_A_VILLAGE:
-            name = m.group(1).strip()
+        name = m.group(1).strip() if m else ""
+        while " " in name and name.split()[0].lower() in ADDRESS_WORDS:
+            name = name.split(" ", 1)[1]
+        if name and name.lower() not in NOT_A_VILLAGE and name.lower() not in ADDRESS_WORDS:
             return Village(original=name, latin=to_latin(name), quote=_quote(text.strip(), m.start(), m.end()))
     return None
 

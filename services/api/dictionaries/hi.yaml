@@ -6,7 +6,7 @@
 language: hi
 
 # --- how many people -----------------------------------------------------------------------------
-people_nouns: '(?:log|logon|logo|jan|sadasya|members?|people|persons?|of them|लोग|लोगों|सदस्य|जन)'
+people_nouns: '(?:log|logon|logo|jan|sadasya|members?|people|ppl|persons?|of them|of us|लोग|लोगों|सदस्य|जन)'
 number_words:
   ek: 1
   do: 2
@@ -55,13 +55,15 @@ number_words:
   twelve: 12
   fifteen: 15
   twenty: 20
+group_cues: '(?:family of|we are)'   # "family of five", "we are 5": a count without a noun after it
 estimate_words: '(?:lagbhag|kareeb|qareeb|about|around|approx(?:imately)?|लगभग|करीब)'
 
 # --- hazards (closed list in contracts/extraction.schema.json) --------------------------------------
 hazards:
   trapped_on_roof:
     - '\b(?:chhat|chhath|chat|chhaat|chhaj)\s*(?:par|pe|pr|ke upar)\b[^,.;]{0,30}'
-    - '\b(?:on|stuck on) (?:the |our )?roof'
+    - '\b(?:on|stuck on) (?:the |our |a )?(?:school |house |terrace )?roof'
+    - '\broof (?:par|pe|pr)\b'
     - '\bon top of (?:the |our |a )?(?:roof|house|home|building|school(?: building)?|ghar)\b'
     - '\b(?:\d+ )?(?:of them )?(?:are )?on the roof'
     - 'छत\s*(?:पर|पे)[^,।]{0,25}'
@@ -71,11 +73,13 @@ hazards:
     - '\b(?:trapped|stuck|can''t get out|cannot get out)\b[^,.;]{0,25}'
     - '(?:फँसे|फंसे|फसे)\s*(?:हैं|है|हुए)?'
   water_entering:
-    - '\bpaani\s*(?:ghus|andar|ghar mein|bhar)\w*(?:\s*(?:gaya|aa gaya|gaya hai|raha hai))?'
-    - '\bwater (?:has )?(?:entered|come in|is inside|inside)\w*(?: the house)?'
+    - '\bpa+ni\s*(?:ghus|andar|ghar mein|ghar ke andar|bhar)\w*(?:\s*(?:gaya|aa gaya|gaya hai|raha hai|hai))?'
+    - '\bpa+ni\s*(?:ghutne|kamar|gale|seene)\s*tak\b'
+    - '\bwater (?:has )?(?:entered|entering|come in|is inside|inside)\w*(?: the house)?'
+    - '\bwater (?:is )?(?:up to|upto) (?:the )?(?:first floor|knees?|waist|chest|neck)\b'
     - 'पानी\s*(?:घुस|अंदर|भर)\S*(?:\s*(?:गया|आ गया|गया है))?'
   water_rising:
-    - '\bpaani\s*(?:tezi se\s*)?(?:badh|chadh|upar aa)\w*\s*(?:raha|rahi)?\s*(?:hai)?'
+    - '\bpa+ni\s*(?:tezi se\s*)?(?:badh|chadh|upar aa)\w*\s*(?:raha|rahi)?\s*(?:hai)?'
     - '\bwater(?: level)? (?:is )?(?:rising|going up)\w*(?: fast)?'
     - '\bthe water is rising(?: fast)?'
     - 'पानी\s*(?:बढ़|चढ़)\S*\s*(?:रहा|रही)?\s*(?:है)?'
@@ -112,6 +116,7 @@ needs:
     - '(?:खाना|भोजन|राशन)\S*[^,।]{0,15}'
   drinking_water:
     - '\b(?:peene ka paani|pine ka pani|drinking water)\b[^,.;]{0,15}'
+    - '\bno (?:clean )?water\b'
     - 'पीने का पानी[^,।]{0,10}'
   baby_supplies:
     - '\b(?:doodh|milk)\b[^,.;]{0,20}'
@@ -125,21 +130,25 @@ vulnerable:
     - '\b(?:small|little|tiny) bab(?:y|ies)\b'
     - '(?:नवजात|शिशु)'
   child:
-    - '\b(?:bachche|bachchey|baccha|bachcha|children|child|kids)\b(?! ke liye)[^,.;]{0,10}'
+    - '\b(?:bachche|bachchey|baccha|bachcha|bachchi|bachi|children|child|kids)\b(?! ke liye)[^,.;]{0,10}'
     - 'बच्चे'
   elderly:
-    - '\b(?:buzurg|bujurg|budhe|boodhe|elderly|old (?:man|woman|mother|father|people)|dadi|dada|nani|nana)\b[^,.;]{0,15}'
+    - '\b(?:buzurg|bujurg|budhe|boodhe|elderly|old (?:man|woman|lady|mother|father|people|couple)|dadi|dada|nani|nana|grand(?:mother|father|ma|pa))\b[^,.;]{0,15}'
+    - '\b(?:above|over) [6-9]\d\b(?: years)?'
     - '(?:बुज़ुर्ग|बुजुर्ग|बूढ़े)\S*'
   pregnant:
     - '\b(?:garbhvati|garbhwati|pregnant)\b[^,.;]{0,10}'
+    - '\b(?:prasav pida|labour pain|in labou?r)\b'
     - 'गर्भवती'
   disabled:
     - '\b(?:viklang|disabled|wheelchair|divyang)\b[^,.;]{0,10}'
+    - '\b(?:chal nahi (?:sakti|sakta|sakte)|cannot walk|can''t walk)\b'
     - '(?:विकलांग|दिव्यांग)'
   sick:
-    - '\b(?:bimar|beemar|sick)\b'
+    - '\b(?:bimar|beemar|sick|diabetic)\b'
+    - '\b(?:sugar|bp|dil) ke (?:mareez|mariz)\b'
   injured:
-    - '\b(?:ghayal|injured|chot lagi)\b'
+    - '\b(?:ghayal|injured|chot lagi|bleeding|khoon beh\w*)\b'
     - 'घायल'
 
 # --- landmarks (the location ladder uses these words; AI or rules only extract them) -----------------
@@ -174,12 +183,16 @@ village_cues:
   - '^([A-Z][a-z]+):'
   - '^Calling about ([A-Z][a-z]+)'
   - '^(\S+)\s+(?:गाँव|गांव)?\s*में'
-  - '\bin ([A-Z][a-z]{3,})(?=[,.;]| near| behind| next| beside| close| on| and|$)'   # "in Thawe, near…": last, so explicit cues win
+  - '\bin ([A-Z][a-z]{3,})(?=[,.;]| near| behind| next| beside| close| on| and| with|$)'   # "in Thawe, near…": late, so explicit cues win
+  - '\b([A-Z][a-z]{3,}) (?:mein|me) (?!hoon|hu\b|rehta|rahta|rehti|rahti|kaam|padh)'   # "wo Vijaipur me fase hain", never "main Mumbai mein hoon"
+  - '^([A-Z][a-z]{3,}) (?:ke|ki) '                                                    # "Fulwaria ke tower ke bagal mein"
+  - '\bat ([A-Z][a-z]{3,})(?= (?:railway|station|bazaar|market|school|near|behind|village)|[,.]|$)'
+  - ', ([A-Z][a-z]{3,}) se,'                                                          # "chhat par hain, Sasamusa se, ..." 
 
 # --- people's names (dedupe compares name tokens) ----------------------------------------------------
 surnames: [Das, Kumar, Kumari, Prasad, Yadav, Singh, Devi, Sharma, Mishra, Paswan, Ram, Sah, Mahto, Sahni, Mandal,
            Thakur, Rai, Jha, Pandey, Tiwari, Gupta, Ansari, Khan, Choudhary, Manjhi]
 
 # --- who is speaking -----------------------------------------------------------------------------------
-on_site_cues: '\b(?:hum (?:log )?(?:yahan |abhi )?(?:fase|chhat)|we are (?:stuck|trapped|on the roof)|i am (?:stuck|trapped))\b|हम (?:लोग )?फँसे'
-remote_cues: '\b(?:mere|meri|my|hamare|rishtedaar|relatives?|parents|maa-baap|family is|calling about)\b'
+on_site_cues: '\b(?:hum (?:log )?(?:yahan |abhi )?(?:fase|chhat)|we are (?:\d+|stuck|trapped|on the roof)|i am (?:stuck|trapped))\b|हम (?:लोग )?फँसे|हम \S+ से हैं'
+remote_cues: '\b(?:mere|meri|my|hamare|rishtedaar|relatives?|parents|maa-baap|family is|calling about)\b|मेरे|मेरी|हमारे'

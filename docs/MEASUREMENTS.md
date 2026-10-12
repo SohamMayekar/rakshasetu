@@ -125,3 +125,11 @@ Only numbers we measured go here, each with how and where it was measured. Nothi
 - `make e2e` on the final code: 37/37 checks in 148 s; BR-199 on the desk 1.5 s after the son's clip; demo reset to the start 2.6 s; the sheet in 15.0 s ("300 rows → 188 new cases · 90 merged · 14 to check · 0 dropped"); ✓ 1,870 events verified; integrity 0.
 - `make drills`: 14/14 in 137 s. `make test`: 418 passed in 192 s.
 - What competes for attention in each screen's first view (`make count`): docs/VERIFICATION.md §9.
+
+## Reading reports (m86, `make read-eval`)
+| Set | Messages | Facts found | Read facts that are right |
+|---|---|---|---|
+| Tuned (lists improved against it) | 41 | 100% (was 78% before m86) | 100% (was 99%) |
+| Held out (written after, never tuned) | 20 | **88%** | **98%** |
+Word rules only (no language-model key here); the place is scored through the gazetteer match, as the pipeline does.
+

@@ -7,3 +7,5 @@
 - **The tricky rule:** every value keeps the caller's exact words as its quote, so the receipt works the same with a **Rule** chip. `medicine` (routine) and `medical_urgent` (behosh, saans nahi) are separate. A roof hazard absorbs "trapped"; "chhota bachcha" is an infant, not also a child.
 - **When it runs:** it creates the case whenever the language model is off, failing or out of quota (F-C14), reads spreadsheet rows first, cross-checks the model (m19) and fills the desk's chips as you type (`POST /v1/ingest/desk/preview`).
 - **How to show it:** demo control "language model off", then type the demo line: the case appears with Rule chips. On the 48 seed texts (English since m59, D17) it matches the ground truth on headcount, hazards, needs and vulnerable people for 48/48; the Hindi demo line and the Hinglish tests still pass.
+
+- **Measured (m86):** `make read-eval` scores the rules field by field on `data/eval/reports.yaml`. Held out (never tuned on): 88% of labelled facts found, 98% of what was read is right. A held-out miss is fixed only by moving that report into the tuned set and writing a fresh held-out one.

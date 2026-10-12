@@ -111,3 +111,36 @@ def test_strong_current_and_a_village_named_explicitly_still_wins():
     assert ex.location.village_or_locality.latin == "Thawe"
     assert "strong_current" in {h.type for h in ex.hazards}
 
+
+
+@pytest.mark.parametrize("text, people", [
+    ("We are stuck on the roof, 7 of us", 7),
+    ("Bijaipur, behind the old church, family of five, water rising", 5),
+    ("Water entered our house in Barauli. We are 5 including my grandmother", 5),
+    ("8 ppl stuck on roof hathua", 8),
+])
+def test_a_headcount_said_without_log_or_people(text, people):
+    """m86: "7 of us", "family of five", "we are 5", "8 ppl"."""
+    ex = extract_keywords(text)
+    assert ex.people_count.value == people and ex.people_count.quote in text
+
+
+@pytest.mark.parametrize("text, village", [
+    ("mere papa Vijaipur me fase hain akele", "Vijaipur"),
+    ("Fulwaria ke tower ke bagal mein 4 log", "Fulwaria"),
+    ("Approx 40 people at Kateya railway station", "Kateya"),
+    ("Bhai Phulwaria mein pani ghus gaya", "Phulwaria"),
+])
+def test_more_ways_to_name_the_village(text, village):
+    assert extract_keywords(text).location.village_or_locality.latin == village
+
+
+def test_where_the_caller_lives_is_never_the_village():
+    """"main Mumbai mein hoon" is the son, not the family: the place cue skips the speaker's own city."""
+    ex = extract_keywords("main Mumbai mein hoon, mere parents Thawe mein fase hain")
+    assert ex.location.village_or_locality.latin == "Thawe" and ex.reporter_on_site is False
+
+
+def test_body_words_for_who_is_at_risk():
+    ex = extract_keywords("my parents are both above 70, papa sugar ke mareez hain, ek bachi ko chot lagi, 1 aadmi ka khoon beh raha")
+    assert {"elderly", "sick", "child", "injured"} <= {v.type for v in ex.vulnerable}
