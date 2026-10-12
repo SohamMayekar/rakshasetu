@@ -1,0 +1,6 @@
+# OS / editor junk
+.DS_Store
+# Machine-local Claude Code settings
+.claude/settings.local.json
+# Secrets (never commit)
+.env
