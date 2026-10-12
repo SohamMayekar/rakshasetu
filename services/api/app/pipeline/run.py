@@ -26,6 +26,7 @@ from app.modules.dedupe.candidates import candidates, landmark_keys
 from app.modules.dedupe.decide import decide, reason_line
 from app.modules.dedupe.merge import merge_cases, record_suggestion
 from app.modules.dedupe.signals import Household
+from app.modules.evidence.service import TEXT, add
 from app.modules.location.ladder import resolve as resolve_location
 from app.modules.triage.rules import triage
 from app.pipeline import llm_extract
@@ -145,8 +146,12 @@ def prepare(engine: Engine, report, *, allow_model: bool = True, rules_why: str 
             audio_only = True          # the clip still becomes a case: "audio only: listen", sorted as urgent
         else:
             with engine.begin() as conn:
-                conn.execute(text("UPDATE reports SET transcript = :t, language = :l WHERE id = :id AND transcript IS NULL"),
-                             {"t": transcript, "l": step.get("language"), "id": report.id})
+                saved = conn.execute(text("UPDATE reports SET transcript = :t, language = :l WHERE id = :id AND transcript IS NULL"),
+                                     {"t": transcript, "l": step.get("language"), "id": report.id}).rowcount
+                if saved:   # the words as speech-to-text gave them, hashed like the clip they came from
+                    add(conn, type="transcript", content=transcript.encode(), mime=TEXT, actor=WORKER,
+                        added_by=f"stt:{step.get('by')}", report_id=report.id,
+                        meta={"by": step.get("by"), "detail": step.get("detail"), "language": step.get("language")})
             report = load_report(engine, report.id)
     if audio_only:
         out = Extracted(Extraction.empty(), "rules", [])

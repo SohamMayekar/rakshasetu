@@ -2,6 +2,8 @@
 by replaying the earlier scenes through the real API (data/scenarios/BR/demo.yaml). Plus the demo controls'
 guards: local listener, DEMO_MODE, System admin."""
 
+import hashlib
+import json
 import time
 
 import pytest
@@ -61,6 +63,16 @@ def test_a_reset_to_the_receipts_replays_the_whole_spine_through_the_api(seeded,
     assert client.get("/v1/audit/verify").json()["ok"] is True
     st = client.get(f"/v1/public/cases/{pid}/status", params={"device": "demo-son-phone-0001"}).json()
     assert st["check"] == {"people_taken": 6, "answered": "yes"} and st["demo"] is True
+    # F-C11 "done when": every item on the demo case opens its source, and its hash matches the file and the chain
+    ev = client.get(f"/v1/cases/{pid}/timeline").json()["evidence"]
+    kinds = sorted(e["type"] for e in ev)
+    assert kinds == ["audio", "merge", "message", "radio", "rescue", "rescue", "transcript"], kinds
+    for e in ev:
+        r = client.get(f"/v1/evidence/{e['id']}/file")
+        assert r.status_code == 200 and hashlib.sha256(r.content).hexdigest() == e["sha256"], e
+        assert e["file_ok"] and e["chain_ok"], e
+    rescues = [json.loads(client.get(f"/v1/evidence/{e['id']}/file").content) for e in ev if e["type"] == "rescue"]
+    assert all(r["team"] == "Fire & Rescue Boat 5" and r["team_position"] and r["metres_from_pin"] is not None for r in rescues)
 
 
 def test_a_reset_to_the_rescue_leaves_boat_5_waiting_on_the_real_clock(seeded, client, app_db, monkeypatch):

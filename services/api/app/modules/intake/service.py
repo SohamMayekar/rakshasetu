@@ -17,6 +17,7 @@ from app.contracts import CanonicalReport
 from app.core.eventlog import Actor, append_event
 from app.core.jobs import enqueue
 from app.core.phones import protect
+from app.modules.evidence.service import TEXT, add
 
 # Which job lane each channel's processing uses (rule R20). A call-taker typing a live call is as
 # urgent as live voice; partner and WhatsApp come next; imports and surge wait their turn.
@@ -68,6 +69,10 @@ def accept(conn: Connection, report: CanonicalReport, *, source_ns: str, actor: 
         r = conn.execute(text("SELECT id, incident_id FROM reports WHERE source_ns = :ns AND idempotency_key = :key"),
                          {"ns": source_ns, "key": report.idempotency_key}).one()
         return Accepted(report_id=r.id, replay=True, incident_id=r.incident_id)
+    if text_body and report.channel != "spreadsheet":   # a sheet row is its own evidence (the row, the file)
+        add(conn, type="message", content=text_body.encode(), mime=TEXT, actor=actor, added_by=source_ns, report_id=new_id,
+            meta={"channel": report.channel, "forwarded": report.reporter.relation == "forwarder",
+                  "source": report.source.system})
     if job:
         enqueue(conn, "report.process", {"report_id": new_id}, lane or CHANNEL_LANE[report.channel],
                 dedupe_key=f"report:{new_id}:process")

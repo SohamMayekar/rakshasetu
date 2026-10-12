@@ -12,6 +12,7 @@ from sqlalchemy import Connection, text
 
 from app.core.eventlog import Actor, append_event
 from app.modules.cases.service import Conflict, NotAllowed, retriage
+from app.modules.evidence.service import JSON, add, record_bytes
 from app.pipeline.fields import summary
 
 OPEN = ("reported", "checked", "assigned", "acknowledged", "reached", "rescued")
@@ -101,9 +102,12 @@ def merge_cases(conn: Connection, *, target_id: int, source_id: int, actor: Acto
         " VALUES (:i, :t, :s, :score, CAST(:sig AS jsonb), :rs, :by, CAST(:snap AS jsonb)) RETURNING id"),
         {"i": target.incident_id, "t": target_id, "s": source_id, "score": score, "sig": json.dumps(signals or {}),
          "rs": reasons or [], "by": decided_by, "snap": json.dumps(snap, default=str)}).scalar_one()
-    conn.execute(text("INSERT INTO evidence (case_id, type, added_by, meta) VALUES (:c, 'merge', :by, CAST(:m AS jsonb))"),
-                 {"c": target_id, "by": decided_by, "m": json.dumps({"merge_id": merge_id, "source": source.public_id,
-                                                                     "score": score, "reasons": reasons or [], "line": line})})
+    # the merge record as evidence: what was decided and why
+    meta = {"merge_id": merge_id, "source": source.public_id, "target": target.public_id, "score": score,
+            "reasons": reasons or [], "line": line}
+    add(conn, type="merge", content=record_bytes({**meta, "signals": signals or {}, "decided_by": decided_by, "reason": reason}),
+        mime=JSON, actor=actor, added_by=decided_by, case_id=target_id, incident_id=target.incident_id,
+        district_id=target.district_id, meta=meta)
     retriage(conn, target_id, actor, why=f"merged with {source.public_id}")
     data = {"merge_id": merge_id, "target": target.public_id, "source": source.public_id, "source_case_id": source_id,
             "score": score, "reasons": reasons or [], "line": line, "kind": "auto" if decided_by == "rule" else "person"}

@@ -19,4 +19,5 @@ def get_file(evidence_id: int, scope: Scope = Depends(require("queue.view"))) ->
     if e is None or not path_for(e.sha256).exists():
         raise HTTPException(404, "No such evidence")
     return FileResponse(path_for(e.sha256), media_type=e.mime or "application/octet-stream",
-                        headers={"X-Content-SHA256": e.sha256, "Cache-Control": "private, max-age=3600"})
+                        headers={"X-Content-SHA256": e.sha256, "Cache-Control": "private, max-age=3600",
+                                 "X-Content-Type-Options": "nosniff"})

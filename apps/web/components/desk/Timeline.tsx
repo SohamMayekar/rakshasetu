@@ -2,8 +2,10 @@
 
 // Timeline & evidence (PRD F-C2, F-C11): everything that happened to this case, in order, in plain words.
 // Each report shows its channel, its words in the caller's own script (with the hovered fact's quote lit up),
-// its pipeline receipt, and its evidence inline: the audio clip, the spreadsheet row with file name, row number
-// and sha256. Every file is re-hashed when the drawer opens: ✓ means it still matches the audit log.
+// its pipeline receipt, and its evidence inline: the clip and its transcript, the message as received, the
+// spreadsheet row (file name, row number); and the case's own records: rescues (with where the team was), radio
+// logs, merges. Each opens its stored file. Every file is re-hashed when the drawer opens: ✓ means it still
+// matches the audit log.
 
 import { useState } from "react";
 
@@ -47,6 +49,10 @@ function Hash({ e }: { e: Evidence }) {
   );
 }
 
+const OUTCOME: Record<string, string> = { rescued: "rescued, nobody left", partial: "someone still there",
+  corroboration: "a second record of the same trip", nobody_here: "nobody here", couldnt_reach: "couldn't reach",
+  other: "other: told the officer" };
+
 function EvidenceItem({ e }: { e: Evidence }) {
   if (e.type === "audio") {
     return (
@@ -75,6 +81,46 @@ function EvidenceItem({ e }: { e: Evidence }) {
       </details>
     );
   }
+  const open = <a className="underline underline-offset-2" href={`/v1/evidence/${e.id}/file`} target="_blank" rel="noreferrer">open</a>;
+  if (e.type === "transcript") {
+    const m = e.meta as { by?: string; detail?: string };
+    return (
+      <p className="mt-1.5 text-xs text-ink-2">
+        Transcript · {m.by === "Fixture" ? "a recorded transcript, not a live speech-to-text call" : m.detail} · {open} <Hash e={e} />
+      </p>
+    );
+  }
+  if (e.type === "message") {
+    const m = e.meta as { forwarded?: boolean };
+    return <p className="mt-1.5 text-xs text-ink-2">The {m.forwarded ? "forward" : "message"} as received · {open} <Hash e={e} /></p>;
+  }
+  if (e.type === "rescue") {
+    const m = e.meta as { team?: string; outcome?: string; people_taken?: number | null; channel?: string;
+                          team_position?: { lat: number; lng: number; from: string } | null; metres_from_pin?: number | null };
+    const pos = m.team_position;
+    return (
+      <div className="mt-1.5 rounded-md border border-line px-2 py-1.5 text-xs">
+        <p>Rescue record · <b>{m.team}</b> · {OUTCOME[m.outcome ?? ""] ?? m.outcome}
+          {m.people_taken != null && <> · {m.people_taken} taken</>} · via {m.channel} · {open}</p>
+        <p className="text-ink-2">{pos
+          ? <>Team at <span className="tabular">{pos.lat.toFixed(5)}, {pos.lng.toFixed(5)}</span> ({pos.from}){m.metres_from_pin != null && <> · <span className="tabular">{m.metres_from_pin.toLocaleString("en-IN")}</span> m from the pin</>}</>
+          : "No position for the team"}</p>
+        <Hash e={e} />
+      </div>
+    );
+  }
+  if (e.type === "radio") {
+    const m = e.meta as { team?: string; channel?: string; new_eta?: number | null; logged_by?: string; note?: string | null };
+    return (
+      <p className="mt-1.5 text-xs text-ink-2">
+        Radio log · {m.team} on {m.channel}{m.new_eta ? ` · ETA ${m.new_eta} min` : ""}{m.note ? ` · “${m.note}”` : ""} · logged by {m.logged_by} · {open} <Hash e={e} />
+      </p>
+    );
+  }
+  if (e.type === "merge") {
+    const m = e.meta as { source?: string; target?: string };
+    return <p className="mt-1.5 text-xs text-ink-2">Merge record · {m.source} into {m.target} · {open} <Hash e={e} /></p>;
+  }
   return null;
 }
 
@@ -96,18 +142,26 @@ function ReportCard({ r, evidence, quote }: { r: Report; evidence: Evidence[]; q
   );
 }
 
-const QUIET = new Set(["evidence.added"]);   // shown inline with their report instead
+// A report's own evidence (clip, transcript, message, sheet row) shows inside its report card; a case's own
+// records (rescue, radio log, merge) show under their "Evidence kept" line.
 
 export function Timeline({ events, evidence, reports, quote, canUndo = false, onChanged }: {
   events: TimelineEvent[]; evidence: Evidence[]; reports: Report[]; quote: string | null; canUndo?: boolean; onChanged?: () => void;
 }) {
   const reportById = new Map(reports.map((r) => [r.id, r]));
+  const evidenceById = new Map(evidence.map((x) => [x.id, x]));
+  const own = (e: TimelineEvent) => e.evidence_id != null ? evidenceById.get(e.evidence_id) : undefined;
   return (
     <ol className="space-y-2.5">
-      {events.filter((e) => !QUIET.has(e.type)).map((e) => {
+      {events.filter((e) => e.type !== "evidence.added" || (own(e) && own(e)!.report_id == null)).map((e) => {
         const r = e.type === "report.received" && e.report_id != null ? reportById.get(e.report_id) : undefined;
+        const item = e.type === "evidence.added" ? own(e) : undefined;
         return (
           <li key={e.seq} className="text-sm">
+            {item ? (   // a case's own record: the item itself is the line
+              <div className="flex gap-2"><span className="w-11 shrink-0 pt-2 text-xs text-ink-3"><Clock iso={e.at} /></span>
+                <div className="min-w-0 flex-1"><EvidenceItem e={item} /></div></div>
+            ) : (
             <p className="flex gap-2">
               <span className="w-11 shrink-0 text-xs text-ink-3"><Clock iso={e.at} /></span>
               <span>
@@ -119,6 +173,7 @@ export function Timeline({ events, evidence, reports, quote, canUndo = false, on
                 )}
               </span>
             </p>
+            )}
             {r && <div className="pl-[52px]"><ReportCard r={r} evidence={evidence.filter((x) => x.report_id === r.id)} quote={quote} /></div>}
           </li>
         );

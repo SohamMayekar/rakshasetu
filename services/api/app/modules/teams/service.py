@@ -11,6 +11,7 @@ from sqlalchemy import Connection, text
 from app.core.eventlog import Actor, append_event
 from app.modules.assignments.service import _scaled, _team_status, seconds
 from app.modules.cases.service import NotAllowed
+from app.modules.evidence.service import JSON, add, record_bytes
 
 CHANNELS = ("VHF", "HAM", "satellite", "phone")
 
@@ -47,6 +48,12 @@ def heard_from(conn: Connection, *, team, actor: Actor, by: str, channel: str, n
                      data={"assignment_id": a.id, "team": team.name, "channel": channel, "new_eta": new_eta,
                            "was_overdue": a.state == "overdue", "by": by, "note": note})
         refreshed.append(a.case_id)
+        # the radio log as evidence, on each case it covers
+        log = {"team": team.name, "channel": channel, "new_eta": new_eta, "note": note, "logged_by": by,
+               "assignment_id": a.id, "was_overdue": a.state == "overdue"}
+        add(conn, type="radio", content=record_bytes({**log, "logged_at": conn.execute(text("SELECT now()")).scalar()}),
+            mime=JSON, actor=actor, added_by=by, case_id=a.case_id, incident_id=a.incident_id, district_id=a.district_id,
+            meta=log)
     standdowns = conn.execute(text(
         "UPDATE assignments SET standdown_acked_at = now() WHERE team_id = :t AND state = 'reassigned'"
         " AND standdown_acked_at IS NULL RETURNING id"), {"t": team.id}).all()

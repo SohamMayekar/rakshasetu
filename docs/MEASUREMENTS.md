@@ -97,3 +97,10 @@ Only numbers we measured go here, each with how and where it was measured. Nothi
 | Same from the /demo page in Chromium (click → the result line) | **21.1–21.6 s** to "The rescue" | — |
 
 - **How:** `make demo-reset SCENE=<id>` printing its own timings, and a throwaway Playwright script clicking "Reset here". Local stack, 12 Oct 2026.
+
+## Evidence files on every text report (m52)
+
+| What | Measured | Before |
+|---|---|---|
+| Surge at 50/s, inside the server, with each report's message stored as a hashed file | p50 **33.4 ms**, p95 **73.8 ms**, p99 **126 ms** (one run, 30 s) | p50 22–29 ms, p95 52–89 ms (m49) |
+| Same, from the generator | p50 **38.9 ms**, p95 **83.9 ms**, p99 **142 ms** | p50 24.6–26.2 ms, p95 56.8–83.5 ms |

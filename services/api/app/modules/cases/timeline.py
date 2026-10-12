@@ -17,6 +17,11 @@ LABEL = {"trapped_on_roof": "on the roof", "trapped_inside": "trapped inside", "
          "baby_supplies": "baby milk", "people_count": "people"}
 
 
+EVIDENCE = {"audio": "the voice clip", "transcript": "the transcript", "message": "the message as received",
+            "sheet_row": "the spreadsheet row", "merge": "the merge record", "rescue": "the rescue record",
+            "radio": "the radio log", "partner_annotation": "a partner's note"}
+
+
 def _fmt(v) -> str:
     if isinstance(v, list):
         return ", ".join(LABEL.get(x, x) for x in v) or "none"
@@ -52,7 +57,8 @@ def line(action: str, d: dict, who: str | None) -> str:
         case "merge.rejected":
             return f"Not the same household (decided{by})"
         case "evidence.added":
-            return f"Evidence kept: {d.get('type', '?').replace('_', ' ')}" + (f" · sha256 {d['sha256'][:12]}…" if d.get("sha256") else "")
+            kind = EVIDENCE.get(d.get("type"), str(d.get("type", "?")).replace("_", " "))
+            return f"Evidence kept: {kind}" + (f" · sha256 {d['sha256'][:12]}…" if d.get("sha256") else "")
         case "assignment.created":
             return f"Assigned to {d.get('team')}{by}"
         case "assignment.acknowledged":

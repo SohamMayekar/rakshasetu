@@ -21,6 +21,7 @@ from app.config import get_config
 from app.core.eventlog import Actor, append_event
 from app.modules.assignments.service import _team_status
 from app.modules.cases.service import Conflict, NotAllowed
+from app.modules.evidence.service import JSON, add, record_bytes
 
 REASONS = {"water_current": "water or current", "road_bridge": "road or bridge", "night": "night", "other": "other"}
 
@@ -39,6 +40,30 @@ def classify(reported: int | None, taken: int | None, anyone_left: str | None, o
     if anyone_left == "dont_know" and reported and taken is not None and taken < reported:
         return "partial"
     return "rescued"
+
+
+def _evidence(conn: Connection, actor: Actor, case, a, rid: int, *, kind: str, people_taken, anyone_left, reason,
+              channel: str, happened_at, lat, lng, recorded_by, corroborates) -> int:
+    """The rescue record as evidence (PRD F-C11: "the rescue record with the team location"): where the team was,
+    from the phone if it sent a position, else the team's last known position, and how far that is from the pin."""
+    if lat is not None and lng is not None:
+        pos = {"lat": lat, "lng": lng, "from": "the phone, with this record"}
+        conn.execute(text("UPDATE teams SET last_geom = ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)::geography,"
+                          " last_geom_at = now() WHERE id = :t"), {"lat": lat, "lng": lng, "t": a.team_id})
+    else:
+        t = conn.execute(text("SELECT ST_Y(last_geom::geometry) AS lat, ST_X(last_geom::geometry) AS lng, last_geom_at"
+                              " FROM teams WHERE id = :t"), {"t": a.team_id}).one()
+        pos = ({"lat": t.lat, "lng": t.lng, "from": "the team's last known position", "at": t.last_geom_at}
+               if t.lat is not None else None)
+    away_m = (round(_metres(pos["lat"], pos["lng"], case.clat, case.clng)) if pos and case.clat is not None else None)
+    rec = {"rescue_id": rid, "case": case.public_id, "team": a.team, "outcome": kind, "people_taken": people_taken,
+           "anyone_left": anyone_left, "reason": REASONS.get(reason, reason) if reason else None, "channel": channel,
+           "recorded_by": recorded_by, "happened_at": happened_at, "corroborates": corroborates,
+           "team_position": pos, "metres_from_pin": away_m, "pin_radius_m": case.radius_m}
+    return add(conn, type="rescue", content=record_bytes(rec), mime=JSON, actor=actor, added_by=recorded_by or "team",
+               case_id=case.id, incident_id=case.incident_id, district_id=case.district_id,
+               meta={"rescue_id": rid, "team": a.team, "outcome": kind, "people_taken": people_taken, "channel": channel,
+                     "team_position": pos, "metres_from_pin": away_m})
 
 
 def record(conn: Connection, scope, actor: Actor, case_ref: str, *, people_taken: int | None, anyone_left: str | None,
@@ -89,6 +114,9 @@ def record(conn: Connection, scope, actor: Actor, case_ref: str, *, people_taken
         {"c": case.id, "a": a.id, "t": a.team_id, "by": scope.user_id, "ch": channel, "o": kind, "n": people_taken,
          "left": anyone_left, "why": reason, "at": happened_at, "lat": lat, "lng": lng, "away": away,
          "corr": first.id if first else None}).scalar_one()
+    _evidence(conn, actor, case, a, rid, kind=kind if first is None else "corroboration", people_taken=people_taken,
+              anyone_left=anyone_left, reason=reason, channel=channel, happened_at=happened_at, lat=lat, lng=lng,
+              recorded_by=scope.name, corroborates=first.id if first else None)
     if first is not None:   # a second record of the same trip: corroboration, never a second rescue
         append_event(conn, actor=actor, action="rescue.corroborated", entity_type="rescue", entity_id=rid,
                      incident_id=case.incident_id, district_id=case.district_id, case_id=case.id, team_id=a.team_id,
