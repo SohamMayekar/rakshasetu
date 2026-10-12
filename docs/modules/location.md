@@ -1,0 +1,7 @@
+# location · landmark words → a pin with an honest circle
+
+- **What it does:** `app/modules/location/ladder.py` turns the extracted words ("Thawe gaon, Durga mandir ke peeche, pul ke paas") into a pin, a radius and a **method sentence** ("High · 150 m · matched Thawe durga mata mandir + bridge (unclassified road), 120 m apart, in Thawe"), using only the committed OSM gazetteer. No live geocoding.
+- **Key tables:** `places`, `landmarks`, `districts.boundary` (all from `data/scenarios/BR/gazetteer`).
+- **The ladder:** village match (any script, fuzzy ≥ 85; or a gazetteer scan of the text) → landmarks of each mentioned type within 2 km → two types: closest pair ≤ 500 m → midpoint, 150 m (High only if the village matched and the pair is unique within 1 km, or a landmark matched by name) → one type: the single feature (300 m, Medium) or a tight cluster (centroid, ≤ 1 km), never an average of candidates > 500 m apart → village only (1.5 km, Low, dashed) → district only (15 km, Very low, needs location) → nothing (no pin, "Needs location"; never dropped).
+- **The tricky rule:** "behind"/"opposite" aren't used for geometry; the circle carries that uncertainty. A long bridge is sampled every 150 m, so "near the bridge" measures to its nearest part. The case goes to the desk of the district **where the place is**, not where it was typed.
+- **How to show it:** the demo line's circle; the seeded Low and needs-location cases; `rakshasetu.config.yaml` → `location.radius_m` ("it's our constant for that method, in this file").

@@ -22,6 +22,7 @@ from app.core.eventlog import WORKER, append_event
 from app.core.flags import language_model_enabled
 from app.core.jobs import RetryLater, enqueue, handler
 from app.modules.cases.service import create_case
+from app.modules.location.ladder import resolve as resolve_location
 from app.pipeline import llm_extract
 from app.pipeline.fields import fields_from_extraction
 from app.pipeline.keywords import extract_keywords
@@ -143,8 +144,21 @@ def process_report(engine: Engine, payload: dict) -> None:
         out = extract(report)
     extraction, method, receipt = out.extraction, out.method, stt_steps + out.receipt
     fields = fields_from_extraction(extraction, method, report.id, out.amber, out.extras)
+    # Stage 1d: resolve location (rules over the committed gazetteer; read-only, no transaction held).
+    district_hint = (report.source or {}).get("district_hint")
+    with engine.connect() as c:
+        located = resolve_location(c, report.incident_id, extraction, report.transcript or report.text or "",
+                                   district_hint) if report.incident_id else None
+    if located:
+        fields.update(located.fields())
+        fields["attributes"]["location_detail"] = fields.pop("location_detail")
+        fields["flags"] = list(located.flags)
+        if located.place:
+            fields["location_text"] = located.place["name"]
+        receipt.append({"step": "place", "by": "Rule", "detail": located.method.split(" · ")[0] + " · "
+                        + located.method.split(" · ")[1] if located.lat is not None else "no location: needs a person"})
     if audio_only:
-        fields["flags"] = ["audio_only"]
+        fields["flags"] = ["audio_only", *fields.get("flags", [])]
         fields["summary"] = "audio only: listen"
     priority, reasons = triage(fields)
     fields.update(priority=priority, priority_reasons=reasons)
@@ -162,7 +176,7 @@ def process_report(engine: Engine, payload: dict) -> None:
                           " receipt = CAST(:r AS jsonb) WHERE id = :id"),
                      {"e": extraction.model_dump_json(), "m": method, "r": json.dumps(receipt), "id": report.id})
         created = create_case(conn, incident_id=locked.incident_id,
-                              district_id=(locked.source or {}).get("district_hint"),
+                              district_id=(located.district_id if located and located.district_id else district_hint),
                               report_id=report.id, fields=fields, actor=WORKER, queue_since=report.received_at)
         if out.backfill:
             # When the language model is back it re-reads this report (F-C14). Seen as "waiting" in jobs.
