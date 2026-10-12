@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m44 responder PWA
+**Current milestone:** m45 rescue sheet and outcomes (T8)
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -49,6 +49,7 @@
 | What | Estimate |
 |---|---|
 | m32–m60: the desk UI, ownership (assignments, deadlines, responder app, rescue sheet), promise bar and metrics, demo controls, surge, the full scenario set, release docs | see the milestone plan in the build prompt |
+| The responder path on a real mid-range Android phone over mobile data through the tunnel (PRD F-C7 "done when"); only a Chromium phone viewport on the local stack has been measured | needs the humans, a phone and the tunnel |
 | The demo sheet with a live language model: the 19 `needs_ai` rows have only been read by rules (no keys here), so "AI asked about 19" is designed, not measured | needs LLM keys (BLOCKED below) |
 
 ## BLOCKED (credential or external)
@@ -74,6 +75,8 @@
 
 
 - **Bug found and fixed in m37:** after `make seed` (which restarts the event log), the realtime hub kept its old cursor, so open desks stopped receiving live updates until the API restarted. Tests didn't catch it because each test starts a fresh app. The hub now detects a new genesis and tells every screen to reload (`tests/test_realtime.py::test_a_reset_log_tells_every_open_screen_to_reload`).
+
+- **Bug found and fixed in m44:** the API let an officer assign a team to a case that had already been merged into another (the merged case had no reports, so the phone showed no caller's words). Assigning now requires an open case; a merged one answers "This case was merged into BR-199: assign that one" (tested).
 
 ## Environment notes for this build
 

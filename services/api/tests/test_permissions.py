@@ -79,7 +79,8 @@ ENDPOINTS = [
     ("escalation.ack", "POST", lambda db: f"/v1/escalations/{_escalation(db)}/ack", {}, "rdas", "priya", None),
     ("incident.admin", "POST", "/v1/incidents", {}, "admin", "rdas", "m48"),
     ("priority.override", "POST", "/v1/cases/BR-151/priority", {}, "rdas", "priya", "m57"),
-    ("phone.reveal", "POST", "/v1/cases/BR-151/reveal-contact", {}, "priya", "seoc", "m57"),
+    ("phone.reveal", "POST", lambda db: f"/v1/cases/{_case_with_phone(db)}/reveal-contact", {"reason": "calling back"},
+     "priya", "seoc", None),
     ("partner.annotate", "POST", "/v1/partners/annotations", {}, None, None, "m58"),
 ]
 
@@ -88,6 +89,11 @@ def _unowned_gopalganj_case(db):
     return rows(db, "SELECT c.public_id FROM cases c JOIN districts d ON d.id = c.district_id WHERE d.name = 'Gopalganj'"
                     " AND c.status IN ('reported', 'checked') AND NOT EXISTS (SELECT 1 FROM assignments a"
                     " WHERE a.case_id = c.id AND a.state IN ('open', 'overdue')) ORDER BY c.id LIMIT 1")[0][0]
+
+
+def _case_with_phone(db):
+    return rows(db, "SELECT c.public_id FROM cases c JOIN reports r ON r.case_id = c.id JOIN districts d ON d.id = c.district_id"
+                    " WHERE d.name = 'Gopalganj' AND r.reporter_phone_enc IS NOT NULL ORDER BY c.id LIMIT 1")[0][0]
 
 
 def _team(db, name):

@@ -48,6 +48,31 @@ def get_timeline(ref: str, scope: Scope = Depends(require("queue.view"))) -> dic
         return {"events": timeline.timeline(c, scope, case["id"]), "evidence": timeline.evidence(c, case["id"])}
 
 
+class Reveal(BaseModel):
+    reason: str | None = Field(default=None, max_length=300)
+
+
+@router.post("/{ref}/reveal-contact")
+def reveal_contact(ref: str, body: Reveal, scope: Scope = Depends(require("phone.reveal"))) -> dict:
+    """The full number, for a call (PRD F-C7, P1 #12). Desk users give a reason; the assigned team's reveal is
+    logged automatically ("on-site call by the assigned team"). The number itself never enters the event log."""
+    reason = (body.reason or "").strip()
+    if scope.role == "team_lead":
+        reason = reason or "on-site call by the assigned team"
+    elif len(reason) < 3:
+        raise HTTPException(409, "Say why you need the full number (it is logged)")
+    with get_engine().begin() as c:
+        case = repo.get_case(c, scope, ref)
+        if case is None:
+            if scope.role == "team_lead" and repo.case_exists(c, ref):
+                raise HTTPException(403, "Not assigned to your team")
+            raise HTTPException(404, "No such case")
+        number = service.reveal_contact(c, scope, case, reason)
+    if number is None:
+        raise HTTPException(404, "No phone number on this case")
+    return number
+
+
 # --- desk corrections (local listener only) ---------------------------------------------------------------
 
 class PinMove(BaseModel):

@@ -131,3 +131,27 @@ def test_seeded_p1s_start_owned_and_the_demo_team_starts_free(seeded, app_db):
                        " WHERE t.name = 'Fire & Rescue Boat 5'") == 0
     assert all(r[0] for r in rows(app_db, "SELECT demo_clock = false FROM assignments"))
     assert isinstance(one(app_db, "SELECT max(created_at) FROM assignments"), datetime)
+
+
+def test_my_cases_lists_the_teams_live_assignments_with_distance(seeded, client, app_db):
+    login(client, "rdas")
+    pid = _case(app_db)
+    client.post("/v1/assignments", json={"case": pid, "team_id": _team(app_db, "Fire & Rescue Boat 5")})
+    assert client.get("/v1/teams/me/cases").status_code == 403                     # an officer has no "my cases"
+    login(client, "boat5")
+    r = client.get("/v1/teams/me/cases").json()
+    assert r["team"]["name"] == "Fire & Rescue Boat 5" and r["team"]["incident"] == "BR"
+    mine = [c for c in r["cases"] if c["public_id"] == pid]
+    assert mine and mine[0]["phase"] == "offered" and mine[0]["distance_km"] is not None
+
+
+def test_a_merged_or_closed_case_cant_be_assigned(seeded, client, app_db):
+    login(client, "rdas")
+    a, b = (r[0] for r in rows(app_db, "SELECT c.public_id FROM cases c JOIN districts d ON d.id = c.district_id"
+                                       " WHERE d.name = 'Gopalganj' AND c.status IN ('reported', 'checked') AND NOT EXISTS"
+                                       " (SELECT 1 FROM assignments x WHERE x.case_id = c.id AND x.state IN ('open', 'overdue'))"
+                                       " ORDER BY c.id LIMIT 2"))
+    kept = client.post("/v1/merges", json={"cases": [a, b], "reason": "same family, confirmed"}).json()["kept"]
+    gone = b if kept == a else a
+    r = client.post("/v1/assignments", json={"case": gone, "team_id": _team(app_db, "Fire & Rescue Boat 5")})
+    assert r.status_code == 409 and r.json()["detail"] == f"This case was merged into {kept}: assign that one"

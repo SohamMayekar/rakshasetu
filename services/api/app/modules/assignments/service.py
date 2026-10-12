@@ -66,6 +66,11 @@ def live_assignment(conn: Connection, case_id: int):
 def create(conn: Connection, *, case, team, actor: Actor, suggested_rank: int | None = None,
            phase: str = "offered", eta_minutes: int | None = None, due_s: float | None = None) -> dict:
     """Insert the assignment (the DB refuses a second live one) and move the case and team on."""
+    if case.status == "merged":
+        kept = conn.execute(text("SELECT public_id FROM cases WHERE id = :p"), {"p": case.parent_case_id}).scalar()
+        raise Conflict(f"This case was merged into {kept}: assign that one")
+    if case.status not in ("reported", "checked", "assigned", "acknowledged", "reached"):
+        raise Conflict(f"This case is {case.status}: it can't be assigned")
     existing = live_assignment(conn, case.id)
     if existing:
         who = conn.execute(text("SELECT coalesce(u.name, 'the system') FROM assignments a LEFT JOIN users u"

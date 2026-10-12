@@ -70,6 +70,8 @@ def line(action: str, d: dict, who: str | None) -> str:
             return f"Contact overdue: no check-in from {d.get('team')} (the case stays with the team)"
         case "assignment.released":
             return f"{d.get('team')} released the case{by}"
+        case "contact.revealed":
+            return f"Phone number shown to {d.get('by') or who}{'' if not d.get('masked') else ' (' + d['masked'] + ')'}"
         case "report.callback_added":
             return "A callback number was added"
         case _:

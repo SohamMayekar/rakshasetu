@@ -431,6 +431,24 @@
         "title": "Reassign",
         "type": "object"
       },
+      "Reveal": {
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "title": "Reveal",
+        "type": "object"
+      },
       "Switch": {
         "properties": {
           "on": {
@@ -1457,6 +1475,61 @@
           }
         },
         "summary": "Move Pin",
+        "tags": [
+          "cases"
+        ]
+      }
+    },
+    "/v1/cases/{ref}/reveal-contact": {
+      "post": {
+        "description": "The full number, for a call (PRD F-C7, P1 #12). Desk users give a reason; the assigned team's reveal is\nlogged automatically (\"on-site call by the assigned team\"). The number itself never enters the event log.",
+        "operationId": "reveal_contact_v1_cases__ref__reveal_contact_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ref",
+            "required": true,
+            "schema": {
+              "title": "Ref",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Reveal"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Reveal Contact V1 Cases  Ref  Reveal Contact Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Reveal Contact",
         "tags": [
           "cases"
         ]
@@ -3164,6 +3237,30 @@
           }
         },
         "summary": "List Teams",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/v1/teams/me/cases": {
+      "get": {
+        "description": "The responder app's \"My cases\": the team's live assignments with what the boat needs on one screen,\nincluding the straight-line distance from the team's last known position.",
+        "operationId": "my_cases_v1_teams_me_cases_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response My Cases V1 Teams Me Cases Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "My Cases",
         "tags": [
           "teams"
         ]

@@ -71,3 +71,34 @@ def list_teams(incident: str, scope: Scope = Depends(require("queue.view"))) -> 
             d[k] = d[k].isoformat() if d[k] else None
         out.append(d)
     return out
+
+
+@router.get("/me/cases")
+def my_cases(scope: Scope = Depends(current_scope)) -> dict:
+    """The responder app's "My cases": the team's live assignments with what the boat needs on one screen,
+    including the straight-line distance from the team's last known position."""
+    if scope.role != "team_lead" or not scope.team_id:
+        raise HTTPException(403, "For a team lead's app")
+    with get_engine().connect() as conn:
+        team = conn.execute(text("SELECT id, name, has_app, radio_channel, last_contact_at, last_seen_at, incident_id,"
+                                 " (SELECT code FROM incidents WHERE id = teams.incident_id) AS incident"
+                                 " FROM teams WHERE id = :t"), {"t": scope.team_id}).one()
+        rows = conn.execute(text(
+            "SELECT c.id, c.public_id, c.priority, c.priority_reasons, c.summary, c.people_count, c.people_count_kind,"
+            " c.needs, c.vulnerable, c.hazards, c.location_text, c.location_method, c.location_confidence, c.radius_m,"
+            " ST_Y(c.geom::geometry) AS lat, ST_X(c.geom::geometry) AS lng, c.status, c.version,"
+            " a.id AS assignment_id, a.phase, a.state, a.eta_minutes, a.next_contact_due, a.demo_clock, a.created_at,"
+            " round((ST_Distance(c.geom, coalesce(t.last_geom, t.base_geom)) / 1000)::numeric, 1) AS distance_km"
+            " FROM assignments a JOIN cases c ON c.id = a.case_id JOIN teams t ON t.id = a.team_id"
+            " WHERE a.team_id = :t AND a.state IN ('open', 'overdue') ORDER BY a.created_at"), {"t": scope.team_id}).all()
+    out = []
+    for r in rows:
+        d = dict(r._mapping)
+        d["next_contact_due"] = d["next_contact_due"].isoformat()
+        d["created_at"] = d["created_at"].isoformat()
+        d["distance_km"] = float(d["distance_km"]) if d["distance_km"] is not None else None
+        out.append(d)
+    t = dict(team._mapping)
+    for k in ("last_contact_at", "last_seen_at"):
+        t[k] = t[k].isoformat() if t[k] else None
+    return {"team": t, "cases": out}

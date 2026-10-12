@@ -49,3 +49,12 @@ Only numbers we measured go here, each with how and where it was measured. Nothi
 | A passed check-in deadline → its team escalation opened (live ticker, demo clock) | **0.21 s** (one run; by design at most one 5 s tick) | ≤ 6 s |
 
 - **How:** a desk report on the live stack, assigned to Fire & Rescue Boat 5 (demo clock: 10 s to acknowledge), then `escalations.opened_at − assignments.next_contact_due` from the database. 12 Oct 2026, milestone 41.
+
+## Responder app (m44)
+
+| What | Measured | Target (PRD F-C4) |
+|---|---|---|
+| Officer's Assign (API) → the full-screen "New case" card on the team lead's phone (Chromium, 390×844) | **1.3 s** (one run) | ≤ 2 s on desk and responder |
+| ETA chip tapped → "Sent" (includes the deliberate 10 s Undo window) | **12.8 s** after the assignment (one run) | — |
+
+- **How:** a throwaway Playwright script with two browser contexts (officer API session + the phone). Local stack, 12 Oct 2026, milestone 44. Not yet measured on a real mid-range Android phone over mobile data (PRD F-C7 "done when"): that needs the humans and the tunnel.

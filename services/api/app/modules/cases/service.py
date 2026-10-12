@@ -212,3 +212,21 @@ def retriage(conn: Connection, case_id: int, actor: Actor, why: str) -> dict:
                  incident_id=c.incident_id, district_id=c.district_id, case_id=case_id, reason=why,
                  data={"from": c.priority, "to": priority, "reasons": reasons})
     return {"priority": priority, "changed": True}
+
+
+def reveal_contact(conn: Connection, scope, case: dict, reason: str) -> dict | None:
+    """Decrypt the best callback number (someone on site first, then family, then anyone) and log WHO saw it and
+    WHY. The event holds the masked number only."""
+    from app.core.phones import decrypt
+    r = conn.execute(text(
+        "SELECT id, reporter_phone_enc, reporter_phone_masked, reporter_relation FROM reports WHERE case_id = :c"
+        " AND reporter_phone_enc IS NOT NULL ORDER BY CASE reporter_relation WHEN 'self' THEN 0 WHEN 'family' THEN 1"
+        " WHEN 'neighbour' THEN 2 ELSE 3 END, received_at DESC LIMIT 1"), {"c": case["id"]}).one_or_none()
+    if r is None:
+        return None
+    append_event(conn, actor=_actor(scope), action="contact.revealed", entity_type="case", entity_id=case["id"],
+                 incident_id=case["incident_id"], district_id=case["district_id"], case_id=case["id"],
+                 team_id=scope.team_id, reason=reason,
+                 data={"report_id": r.id, "masked": r.reporter_phone_masked, "relation": r.reporter_relation,
+                       "by": scope.name})
+    return {"phone": decrypt(r.reporter_phone_enc), "masked": r.reporter_phone_masked, "relation": r.reporter_relation}
