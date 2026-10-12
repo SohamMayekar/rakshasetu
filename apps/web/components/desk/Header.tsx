@@ -12,7 +12,7 @@ export function Header({ me, incident, live }: { me: Me | null; incident: string
   return (
     <header className="flex h-12 items-center justify-between border-b border-line px-4">
       <div className="flex items-baseline gap-3">
-        <span className="font-semibold tracking-tight">RakshaSetu</span>
+        <a href="/" className="font-semibold tracking-tight">RakshaSetu</a>
         <span className="hidden text-sm text-ink-2 sm:inline">{inc ? inc.name : incident}</span>
         <span className="hidden text-xs text-ink-3 lg:inline">{me?.districts.filter((d) => d.incident_id === inc?.id).map((d) => d.name).join(" · ")}</span>
       </div>
@@ -24,6 +24,7 @@ export function Header({ me, incident, live }: { me: Me | null; incident: string
         ) : (
           <span className="text-ink-3">Connecting…</span>
         )}
+        {me?.permissions.includes("audit.read") && <a href="/audit" className="hidden text-ink-2 hover:text-ink sm:inline">Audit</a>}
         {me && <span className="hidden text-ink-2 sm:inline">{me.user.name} <span className="text-ink-3">· {me.user.role_label}</span></span>}
         <a href="/login" onClick={() => fetch("/v1/auth/logout", { method: "POST" })} className="text-ink-3 hover:text-ink">Sign out</a>
       </div>

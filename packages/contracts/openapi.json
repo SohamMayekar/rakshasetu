@@ -244,6 +244,43 @@
         "title": "DeskReport",
         "type": "object"
       },
+      "District": {
+        "properties": {
+          "centroid": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Centroid",
+            "type": "array"
+          },
+          "name": {
+            "maxLength": 100,
+            "minLength": 2,
+            "title": "Name",
+            "type": "string"
+          },
+          "state": {
+            "maxLength": 100,
+            "minLength": 2,
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "state",
+          "centroid"
+        ],
+        "title": "District",
+        "type": "object"
+      },
       "Edit": {
         "properties": {
           "changes": {
@@ -369,6 +406,81 @@
           "mapping"
         ],
         "title": "Mapping",
+        "type": "object"
+      },
+      "NewIncident": {
+        "properties": {
+          "center": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Center",
+            "type": "array"
+          },
+          "code": {
+            "pattern": "^[A-Z]{2,4}$",
+            "title": "Code",
+            "type": "string"
+          },
+          "districts": {
+            "items": {
+              "$ref": "#/components/schemas/District"
+            },
+            "maxItems": 50,
+            "minItems": 1,
+            "title": "Districts",
+            "type": "array"
+          },
+          "language": {
+            "default": "hi",
+            "maxLength": 10,
+            "title": "Language",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 3,
+            "title": "Name",
+            "type": "string"
+          },
+          "states": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10,
+            "minItems": 1,
+            "title": "States",
+            "type": "array"
+          },
+          "status": {
+            "default": "active",
+            "pattern": "^(draft|active)$",
+            "title": "Status",
+            "type": "string"
+          },
+          "type": {
+            "maxLength": 50,
+            "minLength": 3,
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "type",
+          "states",
+          "center",
+          "districts"
+        ],
+        "title": "NewIncident",
         "type": "object"
       },
       "PinMove": {
@@ -557,6 +669,27 @@
           }
         },
         "title": "Reveal",
+        "type": "object"
+      },
+      "Status": {
+        "properties": {
+          "reason": {
+            "maxLength": 300,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          },
+          "status": {
+            "pattern": "^(draft|active|standing_down|closed)$",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "reason"
+        ],
+        "title": "Status",
         "type": "object"
       },
       "Switch": {
@@ -2606,6 +2739,127 @@
         "summary": "Import Rows",
         "tags": [
           "imports"
+        ]
+      }
+    },
+    "/v1/incidents": {
+      "get": {
+        "operationId": "list_incidents_v1_incidents_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response List Incidents V1 Incidents Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "List Incidents",
+        "tags": [
+          "incidents"
+        ]
+      },
+      "post": {
+        "operationId": "create_incident_v1_incidents_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewIncident"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Create Incident V1 Incidents Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Incident",
+        "tags": [
+          "incidents"
+        ]
+      }
+    },
+    "/v1/incidents/{iid}": {
+      "patch": {
+        "operationId": "set_status_v1_incidents__iid__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "iid",
+            "required": true,
+            "schema": {
+              "title": "Iid",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Status"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Set Status V1 Incidents  Iid  Patch",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Set Status",
+        "tags": [
+          "incidents"
         ]
       }
     },

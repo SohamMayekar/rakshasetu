@@ -18,6 +18,7 @@ from app.modules.dispatch.router import router as dispatch_router
 from app.modules.escalations.router import router as escalations_router
 from app.modules.evidence.router import router as evidence_router
 from app.modules.imports.router import router as imports_router
+from app.modules.incidents.router import router as incidents_router
 from app.modules.intake.router import router as intake_router
 from app.modules.metrics.router import router as metrics_router
 from app.modules.public.router import router as public_router
@@ -59,6 +60,7 @@ def create_app() -> FastAPI:
     app.include_router(dispatch_router)
     app.include_router(rescues_router)
     app.include_router(cases_router)
+    app.include_router(incidents_router)
     app.include_router(intake_router)
     app.include_router(imports_router)
     app.include_router(merges_router)
