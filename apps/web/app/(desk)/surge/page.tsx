@@ -21,7 +21,7 @@ type Promises = { incident: string; lost: { reports: number; cases: number; merg
 type Integrity = { problems: number; events_verified: number };
 
 const LANES: [string, string][] = [["live_voice", "Live calls"], ["whatsapp_partner", "WhatsApp and partners"],
-  ["import", "Sheet imports"], ["surge", "Surge (synthetic)"], ["backfill", "Re-reading rule-made cases"]];
+  ["import", "Sheet imports"], ["surge", "The rush (made up)"], ["backfill", "Re-reading rule-made cases"]];
 const n = (v: number) => v.toLocaleString("en-IN");
 const ms = (v: number | null) => (v == null ? "–" : `${Math.round(v)} ms`);
 
@@ -60,9 +60,9 @@ export default function SurgePage() {
   return (
     <AppShell>
       <Page>
-      <PageHeader title="Surge · the last 60 seconds"
-                  sub={<>Synthetic, pre-structured partner reports (<code className="text-xs">make surge</code>): no language model is called, and every
-                    person and phone number is made up. They queue behind live calls, partners and sheet imports.</>} />
+      <PageHeader title="Under load · the last 60 seconds"
+                  sub={<>A rush of made-up reports that arrive already sorted into fields (<code className="text-xs">make surge</code>), so no AI is called,
+                    and every person and phone number is made up. They wait behind live calls, partners and sheet imports.</>} />
       {down && <p className="mt-4 rounded-xl bg-ink px-4 py-2 text-sm text-paper">Can&apos;t reach the server. Retrying every second.</p>}
 
       <Card as="dl" className="mt-6 divide-y divide-line px-5 text-sm">
@@ -98,20 +98,20 @@ export default function SurgePage() {
             {bars.map((b) => (
               <li key={b.incident} className="tabular">
                 <span className="inline-block w-8 font-medium">{b.incident}</span>
-                {n(b.lost.reports)} reports = {n(b.lost.cases)} cases + {n(b.lost.merged)} merged + {n(b.lost.to_check)} to check + {n(b.lost.without_home)} without a home{" "}
+                {n(b.lost.reports)} reports = {n(b.lost.cases)} cases + {n(b.lost.merged)} merged + {n(b.lost.to_check)} to check + {n(b.lost.without_home)} not yet read{" "}
                 {b.lost.adds_up ? <span>✓</span> : <span className="rounded-md bg-ink px-1.5 text-paper">doesn&apos;t add up</span>}
-                <span className="text-ink-3"> · {n(b.doubled.to_check)} possible duplicates to check · {n(b.doubled.refused)} kept apart</span>
+                <span className="text-ink-3"> · {n(b.doubled.to_check)} maybe repeats to check · {n(b.doubled.refused)} kept apart</span>
               </li>
             ))}
           </ul>
-          <span className="block text-ink-3">“without a home” here is the backlog: stored with a receipt, not yet read. It returns to 0 as the backlog clears.</span>
+          <span className="block text-ink-3">“not yet read” is the backlog: stored with a receipt, waiting its turn. It returns to 0 as the backlog clears.</span>
         </Row>
         <Row k="Integrity">
           {integ ? (integ.problems === 0
             ? <span className="tabular">✓ 0 problems · {n(integ.events_verified)} events verified</span>
             : <span className="rounded-md bg-ink px-1.5 text-paper">{integ.problems} problems: see /v1/integrity</span>) : "–"}{" "}
           <Button size="sm" onClick={check} disabled={checking}>{checking ? "Checking…" : "Check again"}</Button>
-          <span className="block text-ink-3">every invariant, and the whole hash chain re-walked: run it after the surge</span>
+          <span className="block text-ink-3">every rule that must always hold, and every history entry re-checked: run it after the rush</span>
         </Row>
       </Card>
       </Page>

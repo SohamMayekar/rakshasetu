@@ -65,7 +65,7 @@ def transcribe(engine: Engine, report) -> tuple[str | None, dict]:
     except AllProvidersFailed as e:
         return None, {"step": "stt", "by": "AI", "detail": "speech-to-text failed: " + "; ".join(
             f"{a['provider']} {a['outcome']}" for a in e.attempts)}
-    by, label = ("Fixture", "recorded transcript (not a live STT call)") if res.provider == "fixture" \
+    by, label = ("Fixture", "recorded transcript (not live speech to text)") if res.provider == "fixture" \
         else ("AI", f"{res.provider} {res.model} · {res.latency_ms / 1000:.1f} s")
     if not res.value.text.strip():
         return None, {"step": "stt", "by": by, "detail": f"{label}: empty transcript"}

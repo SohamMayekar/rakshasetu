@@ -26,7 +26,7 @@ import type { Queue, QueueRow } from "@/lib/queue";
 const CLOSED = new Set(["merged", "cancelled"]);
 
 function matches(r: QueueRow, f: QueueFilter): boolean {
-  if (f === "p1_unowned") return r.priority === "P1" && !!r.chip && (r.chip.startsWith("no owner") || r.chip.includes("P1 without an owner"));
+  if (f === "p1_unowned") return r.priority === "P1" && !!r.chip && (r.chip.startsWith("no owner") || r.chip.includes("P1 without an owner"));   // copy-ok: the API's chip codes
   if (f === "overdue") return !!r.chip?.startsWith("contact overdue");
   if (f === "duplicates") return r.action.kind === "match";
   return true;
@@ -126,7 +126,7 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
           const kept = c.status === "merged" && c.parent_case_id ? c.parent_case_id : c.id;
           api<Case>(`/v1/cases/${kept}`).then((k) => {
             setSaved({ reportId: sv.reportId, caseId: k.id,
-                       line: kept === c.id ? `→ ${k.public_id}, a new case` : `→ folded into ${k.public_id} (the same household)` });
+                       line: kept === c.id ? `→ ${k.public_id}, a new case` : `→ added to ${k.public_id} (the same family)` });
             setSelected(k.id);
           });
         }).catch(() => {});
@@ -198,7 +198,7 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
                        onChanged={loadQueue} />
           {filter && (
             <p className="mx-3 mt-2 flex items-center justify-between rounded-xl bg-wash px-3 py-1.5 text-xs">
-              <span>Showing {{ p1_unowned: "P1 without an owner", overdue: "contact overdue", duplicates: "likely duplicates" }[filter]}</span>
+              <span>Showing {{ p1_unowned: "urgent families without a team", overdue: "contact overdue", duplicates: "maybe repeats" }[filter]}</span>
               <button className="underline underline-offset-2" onClick={() => setFilter(null)}>Show all</button>
             </p>
           )}

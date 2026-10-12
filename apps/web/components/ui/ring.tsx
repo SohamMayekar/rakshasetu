@@ -2,7 +2,7 @@
 
 // The check-in ring: how much of the current window is left before this team must be heard from.
 // Calm until it's late; then "Contact overdue" in ink inversion (the attention treatment). The demo profile's
-// ×60 clock is always said out loud on the ring.
+// fast clock is always said out loud on the ring.
 
 import { useEffect, useState } from "react";
 
@@ -30,7 +30,7 @@ export function Ring({ due, windowMs, overdue, label = "check-in due", demo }: {
       </svg>
       {late ? <span className="rounded-full bg-ink px-2 py-0.5 text-xs font-medium text-paper">Contact overdue {mmss(-left)}</span>
             : <span className="tabular text-sm">{label} <b>{mmss(left)}</b></span>}
-      {demo && <span className="text-[10px] text-ink-3">demo clock ×60</span>}
+      {demo && <span className="text-[10px] text-ink-3">demo clock: 60× faster</span>}
     </span>
   );
 }

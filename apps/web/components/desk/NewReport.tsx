@@ -78,7 +78,7 @@ export function NewReport({ incident, onSaved, onClose }: {
           {chips.length > 0 && (
             <p className="flex flex-wrap items-center gap-1.5">
               {chips.map((c, i) => <Chip key={i}>{c}</Chip>)}
-              <span className="ml-1 inline-flex items-center gap-1 text-[11px] text-ink-3"><MethodChip method="rule" /> keywords, as you type</span>
+              <span className="ml-1 inline-flex items-center gap-1 text-[11px] text-ink-3"><MethodChip method="rule" /> read by fixed rules as you type</span>
             </p>
           )}
           {text.trim() && missing.length > 0 && <p className="mt-1.5 text-xs text-ink-2">Ask: {missing.join(" · ")}?</p>}
@@ -102,7 +102,7 @@ export function NewReport({ incident, onSaved, onClose }: {
         </div>
         <div className="flex items-center gap-3">
           <Button variant="primary" type="submit" disabled={saving || !text.trim()}>{saving ? "Saving…" : "Save report"}</Button>
-          <span className="text-xs text-ink-3">The case appears in a moment, through the same pipeline as every channel.</span>
+          <span className="text-xs text-ink-3">The case appears in a moment, the same way as a phone report.</span>
         </div>
         {error && <p className="rounded-md bg-wash px-2 py-1 text-xs">{error}</p>}
       </form>

@@ -159,7 +159,7 @@ export default function Responder() {
           </li>
         ))}
       </ul>
-      <p className="mt-8 text-xs text-ink-3">While this screen is open your team shows as &ldquo;last seen&rdquo;. That never counts as a check-in: tap an action or radio the EOC.</p>
+      <p className="mt-8 text-xs text-ink-3">While this screen is open your team shows as &ldquo;last seen&rdquo;. That never counts as a check-in: tap an action or radio the control room.</p>
     </main>
   );
 }

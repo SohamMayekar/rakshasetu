@@ -16,6 +16,7 @@ import { useState } from "react";
 
 import { Button, ChannelTag, Clock, Receipt } from "@/components/ui";
 import { api, type Evidence, type PartnerNote, type Report, type TimelineEvent } from "@/lib/api";
+import { withWords } from "@/lib/words";
 
 function Undo({ mergeId, onDone }: { mergeId: number; onDone: () => void }) {
   const [open, setOpen] = useState(false);
@@ -48,8 +49,8 @@ function Hash({ e }: { e: Evidence }) {
   if (!e.sha256) return null;
   const ok = e.file_ok !== false && e.chain_ok;
   return (
-    <span className="tabular text-[11px] text-ink-3" title={`sha256 ${e.sha256}`}>
-      sha256 {e.sha256.slice(0, 12)}… {ok ? "✓ matches the audit log" : <b className="text-ink">✗ does not match the audit log</b>}
+    <span className="tabular text-[11px] text-ink-3" title={`Fingerprint ${e.sha256}: the file is checked against the copy in the history`}>
+      {ok ? "✓ unchanged since it was saved" : <b className="text-ink">✗ changed since it was saved</b>}
     </span>
   );
 }
@@ -91,7 +92,7 @@ function EvidenceItem({ e }: { e: Evidence }) {
     const m = e.meta as { by?: string; detail?: string };
     return (
       <p className="mt-1.5 text-xs text-ink-2">
-        Transcript · {m.by === "Fixture" ? "a recorded transcript, not a live speech-to-text call" : m.detail} · {open} <Hash e={e} />
+        Transcript · {m.by === "Fixture" ? "a recording's transcript, not live speech to text" : m.detail} · {open} <Hash e={e} />
       </p>
     );
   }
@@ -108,7 +109,7 @@ function EvidenceItem({ e }: { e: Evidence }) {
         <p>Rescue record · <b>{m.team}</b> · {OUTCOME[m.outcome ?? ""] ?? m.outcome}
           {m.people_taken != null && <> · {m.people_taken} taken</>} · via {m.channel} · {open}</p>
         <p className="text-ink-2">{pos
-          ? <>Team at <span className="tabular">{pos.lat.toFixed(5)}, {pos.lng.toFixed(5)}</span> ({pos.from}){m.metres_from_pin != null && <> · <span className="tabular">{m.metres_from_pin.toLocaleString("en-IN")}</span> m from the pin</>}</>
+          ? <>Team at <span className="tabular">{pos.lat.toFixed(5)}, {pos.lng.toFixed(5)}</span> ({pos.from}){m.metres_from_pin != null && <> · <span className="tabular">{m.metres_from_pin.toLocaleString("en-IN")}</span> m from the family&rsquo;s place</>}</>
           : "No position for the team"}</p>
         <Hash e={e} />
       </div>
@@ -124,7 +125,7 @@ function EvidenceItem({ e }: { e: Evidence }) {
   }
   if (e.type === "partner_annotation") {
     const m = e.meta as { team?: string; kind?: string; value?: string; confidence?: number | null };
-    return <p className="mt-1.5 text-xs text-ink-2">Partner note · {m.team}: {m.kind} {m.value}{m.confidence != null ? ` · ${Number(m.confidence).toFixed(2)}` : ""} · {open} <Hash e={e} /></p>;
+    return <p className="mt-1.5 text-xs text-ink-2">Partner note · {m.team}: {m.kind} {withWords(String(m.value ?? ""))}{m.confidence != null ? ` · ${Number(m.confidence).toFixed(2)}` : ""} · {open} <Hash e={e} /></p>;
   }
   if (e.type === "merge") {
     const m = e.meta as { source?: string; target?: string };
@@ -159,7 +160,7 @@ function ReportCard({ r, evidence, quote, notes }: { r: Report; evidence: Eviden
         {r.reporter_phone_masked && <span className="tabular">{r.reporter_phone_masked}</span>}
       </p>
       {words ? <p className="mt-1.5 whitespace-pre-line text-[15px] leading-relaxed" lang={r.language ?? undefined}><Highlight text={words} quote={quote} /></p>
-             : <p className="mt-1 text-sm text-ink-3">audio only: listen</p>}
+             : <p className="mt-1 text-sm text-ink-3">voice only: listen to it</p>}
       {r.receipt && <div className="mt-1"><Receipt steps={r.receipt} /></div>}
       {evidence.map((e) => <div key={e.id}><EvidenceItem e={e} /><Notes e={e} notes={notes} /></div>)}
     </div>
@@ -227,7 +228,7 @@ export function Timeline({ events, evidence, reports, quote, canUndo = false, on
               ) : (
                 <p className="flex items-start justify-between gap-2 pt-1">
                   <span className="min-w-0">
-                    {e.line}
+                    {withWords(e.line)}
                     {e.reason && <span className="text-ink-2"> · &ldquo;{e.reason}&rdquo;</span>}
                     {e.type === "case.merged" && e.undone && <span className="text-ink-3"> · undone</span>}
                     {e.type === "case.merged" && !e.undone && canUndo && e.merge_id != null && (

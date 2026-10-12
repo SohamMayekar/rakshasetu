@@ -35,7 +35,7 @@ export function Escalations({ items, publicIds, onOpenCase, onChanged }: {
     try { await fn(); onChanged(); } catch (e) { setError(e instanceof Error ? e.message : String(e)); }
   };
   return (
-    <section aria-label="Escalations" className="mx-3 mt-3 space-y-2 rounded-2xl bg-wash p-2.5">
+    <section aria-label="Alerts" className="mx-3 mt-3 space-y-2 rounded-2xl bg-wash p-2.5">
       {items.map((e) => (
         <div key={e.id} className="rounded-xl bg-paper p-3 shadow-[var(--shadow-card)] ring-1 ring-ink">
           <p className="text-sm font-medium leading-snug">{e.line}</p>

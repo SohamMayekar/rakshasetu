@@ -5,6 +5,8 @@
 
 import type { ReactNode } from "react";
 
+import { STEP_WORD } from "@/lib/words";
+
 import { type Method, MethodChip } from "./chips";
 
 export function NewPill({ count, onShow }: { count: number; onShow: () => void }) {
@@ -30,7 +32,7 @@ export function Receipt({ steps }: { steps: ReceiptStep[] }) {
       {steps.map((s, i) => (
         <span key={i} className="inline-flex items-center gap-1">
           {i > 0 && <span aria-hidden>→</span>}
-          <span>{s.step}</span>
+          <span>{STEP_WORD[s.step] ?? s.step}</span>
           <MethodChip method={(s.by.toLowerCase() as Method)} />
           <span className="text-ink-2">{s.detail}</span>
         </span>
@@ -41,7 +43,7 @@ export function Receipt({ steps }: { steps: ReceiptStep[] }) {
 
 // Circles always, never a bare pin; dashed = Low (PRD F-L4, §13.5).
 export function CircleLegend() {
-  const items: [string, boolean][] = [["High · ~150 m", false], ["Medium · ~300 m", false], ["Low · ~1.5 km", true]];
+  const items: [string, boolean][] = [["within ~150 m", false], ["within ~300 m", false], ["somewhere in ~1.5 km", true]];
   return (
     <div className="flex gap-4 text-xs text-ink-2">
       {items.map(([label, dashed]) => (

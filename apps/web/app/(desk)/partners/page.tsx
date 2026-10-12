@@ -30,17 +30,16 @@ export default function PartnerLog() {
   return (
     <AppShell>
       <Page wide>
-        <PageHeader title="Partner log"
-                    sub="Every call between us and a partner system, signed or not, both ways. Our rules decide what each annotation does: a credibility note marks one evidence item, a priority is a suggestion an officer accepts or ignores, an anchor is checked against our chain. What we send out is facts, never people." />
+        <PageHeader title="A partner system"
+                    sub="Another team's app can send us notes about a case, signed so we know it's them; our rules decide what a note may do (a priority is only a suggestion an officer accepts or ignores). We send them facts, never names or phone numbers. The demo partner is simulated by us. Every call, both ways:" />
         {error && <p className="mt-4 rounded-xl bg-paper px-4 py-2 text-sm">{error}</p>}
 
         {!!data?.anchors.length && (
           <Card className="mt-5 space-y-2 px-5 py-4 text-sm">
             {data.anchors.map((a) => (
               <p key={a.annotation_id} className="flex items-center gap-2.5"><IconWell icon={Handshake} size="sm" />
-                <span>{a.matches ? "✓" : <b>✗</b>} Head <span className="tabular">#{a.seq.toLocaleString("en-IN")}</span> anchored by <b>{a.team}</b>
-                  {" "}(<span className="tabular">{a.receipt}</span>) at <Clock iso={a.at} />
-                  {!a.matches && <b> · our chain at #{a.seq} no longer matches what they anchored</b>}</span>
+                <span>{a.matches ? "✓" : <b>✗</b>} <b>{a.team}</b> keeps a copy of our history up to entry <span className="tabular">#{a.seq.toLocaleString("en-IN")}</span>
+                  {" "}(<span className="tabular">{a.receipt}</span>, <Clock iso={a.at} />){a.matches ? ": ours still matches it" : <b>: ours no longer matches their copy</b>}</span>
               </p>
             ))}
           </Card>
@@ -49,9 +48,9 @@ export default function PartnerLog() {
         <Card className="mt-5 overflow-x-auto text-sm">
           <table className="w-full">
             <thead><tr className="border-b border-line text-left text-xs text-ink-3">
-              <th className="py-3 pl-5 pr-3 font-medium">time</th><th className="pr-3 font-medium">partner</th><th className="hidden pr-3 font-medium sm:table-cell">call</th>
-              <th className="pr-3 font-medium">status</th><th className="pr-3 font-medium">signature</th><th className="hidden pr-3 font-medium sm:table-cell">ms</th>
-              <th className="hidden pr-5 font-medium sm:table-cell">body sha256</th></tr></thead>
+              <th className="py-3 pl-5 pr-3 font-medium">time</th><th className="pr-3 font-medium">who</th><th className="hidden pr-3 font-medium sm:table-cell">call</th>
+              <th className="pr-3 font-medium">answer</th><th className="pr-3 font-medium">signed</th><th className="hidden pr-3 font-medium sm:table-cell">ms</th>
+              <th className="hidden pr-5 font-medium sm:table-cell">fingerprint</th></tr></thead>
             <tbody>
               {(data?.calls ?? []).map((c) => (
                 <tr key={c.id} className="border-b border-line align-top last:border-b-0 hover:bg-wash/60">

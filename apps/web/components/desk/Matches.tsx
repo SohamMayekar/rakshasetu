@@ -11,12 +11,12 @@ import { Because, Button, Chip } from "@/components/ui";
 import { api, type Case, type Suggestion } from "@/lib/api";
 
 function Side({ c, label }: { c: Case | undefined; label: string }) {
-  if (!c) return <div className="text-xs text-ink-3">{label}: not in your scope</div>;
+  if (!c) return <div className="text-xs text-ink-3">{label}: not on your desk</div>;
   return (
     <div className="min-w-0 flex-1 text-xs">
       <p className="tabular font-medium">{c.public_id}</p>
       <p className="truncate">{c.summary}</p>
-      <p className="truncate text-ink-2">{c.location_text ?? "no location"} · {c.location_confidence ?? "no pin"}</p>
+      <p className="truncate text-ink-2">{c.location_text ?? "place not known"}{c.radius_m ? ` · within ${c.radius_m >= 1000 ? `${c.radius_m / 1000} km` : `${c.radius_m} m`}` : ""}</p>
       {Array.isArray(c.attributes?.person_names) && (c.attributes.person_names as string[]).length > 0 &&
         <p className="truncate text-ink-2">{(c.attributes.person_names as string[]).join(", ")}</p>}
     </div>
@@ -57,8 +57,8 @@ export function Matches({ c, suggestions, lookup, canDecide, onDone }: {
     return (
       <div key={s.id} className="rounded-2xl border border-line p-3.5">
         <p className="flex items-center gap-2 text-sm font-medium">
-          {refused ? <>Not merged with {s.case_id === c.id ? s.candidate : s.public_id} {names.map((n) => <Chip key={n} tone="attention">{n}</Chip>)}</>
-                   : <>Likely same household as {s.case_id === c.id ? s.candidate : s.public_id} <Chip tone="quiet">{s.strength}</Chip></>}
+          {refused ? <>Kept apart from {s.case_id === c.id ? s.candidate : s.public_id} {names.map((n) => <Chip key={n} tone="attention">{n}</Chip>)}</>
+                   : <>Maybe the same family as {s.case_id === c.id ? s.candidate : s.public_id} <Chip tone="quiet">{s.strength === "strong" ? "very likely" : "possible"}</Chip></>}
         </p>
         <Because>{s.reasons.join(" · ")}{refused && !s.reasons.some((r) => r.startsWith("same phone")) ? ". Village and headcount alone are weak." : ""}</Because>
         <div className="mt-2 flex gap-3 rounded-xl bg-wash p-2.5">
@@ -69,7 +69,7 @@ export function Matches({ c, suggestions, lookup, canDecide, onDone }: {
             <input name="reason" required={refused && asking.kind === "merge"} minLength={3} autoFocus
                    placeholder={asking.kind === "merge" ? (refused ? "Why merge them anyway? (logged)" : "Reason (optional, logged)") : "Why not? (optional, logged)"}
                    className="h-8 min-w-0 flex-1 rounded-lg border border-line px-2 text-sm" />
-            <Button size="sm" variant="primary" type="submit">{asking.kind === "merge" ? "Merge" : "Not the same household"}</Button>
+            <Button size="sm" variant="primary" type="submit">{asking.kind === "merge" ? "Merge" : "Not the same family"}</Button>
             <Button size="sm" variant="quiet" type="button" onClick={() => setAsking(null)}>Cancel</Button>
           </form>
         ) : (
@@ -77,7 +77,7 @@ export function Matches({ c, suggestions, lookup, canDecide, onDone }: {
             <Button size="sm" variant={refused ? "secondary" : "primary"} onClick={() => setAsking({ id: s.id, kind: "merge" })}>
               {refused ? "Merge anyway" : "Merge"}
             </Button>
-            {!refused && <Button size="sm" onClick={() => setAsking({ id: s.id, kind: "reject" })}>Not the same household</Button>}
+            {!refused && <Button size="sm" onClick={() => setAsking({ id: s.id, kind: "reject" })}>Not the same family</Button>}
           </div>
         ))}
       </div>

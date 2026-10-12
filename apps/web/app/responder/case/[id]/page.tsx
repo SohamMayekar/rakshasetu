@@ -37,9 +37,11 @@ export default function ResponderCase({ params }: { params: Promise<{ id: string
   if (denied) {
     return (
       <main className="mx-auto max-w-md px-5 py-10">
-        <p className="text-sm font-semibold uppercase tracking-widest text-ink-3">403</p>
+        <p className="text-sm font-semibold uppercase tracking-widest text-ink-3">Not your team&rsquo;s case</p>
         <h1 className="mt-1 text-2xl font-semibold">{denied}</h1>
-        <p className="mt-2 text-ink-2">Your team can open only the cases assigned to it. Ask the EOC on radio if you think this one should be yours.</p>
+        <p className="mt-2 text-ink-2">Your team can open only the cases assigned to it. Ask the control room on radio if you think this one should be yours.</p>
+        {/* a rescue record that hands the case back (someone still there) ends the team's access: its taps still show */}
+        <div className="mt-4"><TapStatus caseId={Number(id)} /></div>
         <a href="/responder" className="mt-6 block underline underline-offset-4">Back to my cases</a>
       </main>
     );

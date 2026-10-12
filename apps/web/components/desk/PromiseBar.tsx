@@ -25,12 +25,12 @@ function N({ v, broken, onClick, title }: { v: number; broken?: boolean; onClick
 
 const age = (s: number | null) => (s == null ? "" : s < 60 ? `${s} s` : `${Math.round(s / 60)} min`);
 
-function PromiseCard({ icon, name, kind, broken, children }: { icon: typeof Inbox; name: string; kind: string; broken: boolean; children: ReactNode }) {
+function PromiseCard({ icon, name, broken, children }: { icon: typeof Inbox; name: string; broken: boolean; children: ReactNode }) {
   return (
     <div className={`flex min-w-0 items-center gap-3 rounded-2xl bg-paper px-3.5 py-2.5 shadow-[var(--shadow-card)] ${broken ? "ring-2 ring-ink" : ""}`}>
       <IconWell icon={icon} tone={broken ? "ink" : "wash"} />
       <div className="min-w-0 leading-snug">
-        <p className="text-[13px] font-semibold">{name} <span className="font-normal text-ink-3">· {kind}</span></p>
+        <p className="text-[13px] font-semibold">{name}</p>
         <p className="text-sm leading-snug text-ink-2">{children}</p>
       </div>
     </div>
@@ -49,18 +49,18 @@ export function PromiseBar({ incident, onFilter }: { incident: string; onFilter:
   if (!p) return <div className="h-[62px]" />;
   return (
     <div className="grid grid-cols-1 gap-3 md:grid-cols-[1.55fr_1fr_1.25fr]" aria-label="Promise bar">
-      <PromiseCard icon={Inbox} name="Never lost" kind="provenance" broken={p.lost.broken}>
+      <PromiseCard icon={Inbox} name="Never lost" broken={p.lost.broken}>
         <N v={p.lost.reports} /> reports = <N v={p.lost.cases} /> cases + <N v={p.lost.merged} /> merged + <N v={p.lost.to_check} /> to check
-        {" "}+ <N v={p.lost.without_home} broken={p.lost.broken} title="Reports still in the pipeline; broken if one waits over 2 min" /> without a home
+        {" "}+ <N v={p.lost.without_home} broken={p.lost.broken} title="Reports still being read; broken if one waits over 2 min" /> not yet read
         {p.lost.oldest_waiting_s != null && <span> · oldest waiting {age(p.lost.oldest_waiting_s)}</span>}
       </PromiseCard>
-      <PromiseCard icon={CopyCheck} name="Never doubled" kind="uncertainty" broken={p.doubled.broken}>
+      <PromiseCard icon={CopyCheck} name="Never doubled" broken={p.doubled.broken}>
         <N v={p.doubled.merged} /> merged · <N v={p.doubled.to_check} broken={p.doubled.broken} onClick={() => onFilter("duplicates")}
-                                                title="Likely duplicates waiting for a person; broken if one waits over 15 min" /> to check
-        {" "}· <N v={p.doubled.refused} /> refused
+                                                title="Maybe repeats waiting for a person; broken if one waits over 15 min" /> to check
+        {" "}· <N v={p.doubled.refused} /> kept apart
       </PromiseCard>
-      <PromiseCard icon={Timer} name="Never stale" kind="responsibility" broken={p.stale.broken}>
-        <N v={p.stale.p1_unowned} broken={p.stale.p1_unowned > 0} onClick={() => onFilter("p1_unowned")} /> P1 without owner &gt; 5 min
+      <PromiseCard icon={Timer} name="Never stale" broken={p.stale.broken}>
+        <N v={p.stale.p1_unowned} broken={p.stale.p1_unowned > 0} onClick={() => onFilter("p1_unowned")} /> urgent without a team &gt; 5 min
         {" "}· <N v={p.stale.overdue} broken={p.stale.overdue > 0} onClick={() => onFilter("overdue")} /> contact overdue
       </PromiseCard>
     </div>

@@ -10,7 +10,7 @@ import { RescueSheet } from "@/components/rescue/RescueSheet";
 import { api, type Assignment, type Case, type Dispatch, type Escalation } from "@/lib/api";
 
 const CHANNELS = ["VHF", "HAM", "satellite", "phone"];
-const PHASE: Record<string, string> = { offered: "assigned, not acknowledged yet", acknowledged: "acknowledged", reached: "on scene" };
+const PHASE: Record<string, string> = { offered: "sent, not accepted yet", acknowledged: "accepted", reached: "reached the family" };
 
 function windowMs(a: Assignment) {
   const from = Math.max(new Date(a.created_at).getTime(), a.last_contact_at ? new Date(a.last_contact_at).getTime() : 0);
@@ -31,7 +31,7 @@ function Radio({ a, onDone }: { a: Assignment; onDone: () => void }) {
       <div className="flex flex-wrap gap-1.5">
         {CHANNELS.map((c) => <button key={c} onClick={() => setChannel(c)} className={`rounded-full px-2.5 py-1 text-xs ${channel === c ? "bg-ink text-paper" : "border border-line"}`}>{c}</button>)}
       </div>
-      <div className="flex flex-wrap items-center gap-1.5 text-xs text-ink-2">New ETA (optional):
+      <div className="flex flex-wrap items-center gap-1.5 text-xs text-ink-2">They will be there in (optional):
         {[15, 30, 60].map((m) => <button key={m} onClick={() => setEta(eta === m ? null : m)} className={`rounded-full px-2.5 py-1 ${eta === m ? "bg-ink text-paper" : "border border-line"}`}>{m} min</button>)}
       </div>
       <p className="text-xs text-ink-3">One log refreshes every case this team holds.</p>
@@ -71,19 +71,19 @@ export function AssignmentPanel({ c, assignment, escalation, can, onChanged }: {
         <Ring due={a.next_contact_due} windowMs={windowMs(a)} overdue={a.state === "overdue"} demo={a.demo_clock}
               label={a.has_app ? "check-in due" : "radio check due"} />
         {a.state === "overdue" && <Because>no contact since {a.last_contact_at ? new Date(a.last_contact_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false }) : "it was assigned"}. The case stays with the team until you act.</Because>}
-        {a.last_seen_at && <p className="text-xs text-ink-3">App last seen {new Date(a.last_seen_at).toLocaleTimeString("en-IN", { hour12: false })} (display only: it never extends the check-in)</p>}
+        {a.last_seen_at && <p className="text-xs text-ink-3">App last open {new Date(a.last_seen_at).toLocaleTimeString("en-IN", { hour12: false })} (only a real tap or radio call counts as a check-in)</p>}
         <div className="flex flex-wrap gap-2 pt-1">
           {can("team.radio_contact") && <Button size="sm" variant={a.state === "overdue" ? "primary" : "secondary"} onClick={() => setMode(mode === "radio" ? null : "radio")}>Heard on radio</Button>}
           {can("assignment.team_action") && a.phase === "offered" && (
             <Button size="sm" onClick={() => run(() => api(`/v1/assignments/${a.id}/acknowledge`, { method: "POST", json: { eta_minutes: 30, channel: a.radio_channel && CHANNELS.includes(a.radio_channel) ? a.radio_channel : "phone" } }))}>
-              Acknowledged on radio · ETA 30
+              Accepted on radio · ETA 30
             </Button>
           )}
           {a.state === "overdue" && escalation && can("assignment.create") && (
-            <Button size="sm" onClick={() => setMode(mode === "reassign" ? null : "reassign")}>Reassign</Button>
+            <Button size="sm" onClick={() => setMode(mode === "reassign" ? null : "reassign")}>Send another team</Button>
           )}
-          {can("assignment.team_action") && <Button size="sm" onClick={() => setMode(mode === "rescue" ? null : "rescue")}>Log radio report</Button>}
-          {can("assignment.team_action") && <Button size="sm" variant="quiet" onClick={() => setMode(mode === "release" ? null : "release")}>Release</Button>}
+          {can("assignment.team_action") && <Button size="sm" onClick={() => setMode(mode === "rescue" ? null : "rescue")}>Record a rescue (told on radio)</Button>}
+          {can("assignment.team_action") && <Button size="sm" variant="quiet" onClick={() => setMode(mode === "release" ? null : "release")}>Hand back</Button>}
         </div>
         {mode === "rescue" && (
           <div className="rounded-2xl border border-line p-3.5">
@@ -101,18 +101,18 @@ export function AssignmentPanel({ c, assignment, escalation, can, onChanged }: {
             {dispatch.suggestions.map((t) => (
               <li key={t.team_id} className="flex items-start justify-between gap-3 rounded-2xl border border-line px-3.5 py-2.5">
                 <span className="min-w-0"><span className="font-medium">{t.name}</span><span className="block text-xs text-ink-2">{t.line}</span></span>
-                <Button size="sm" className="shrink-0" onClick={() => run(() => api(`/v1/escalations/${escalation.id}/reassign`, { method: "POST", json: { case: c.public_id, team_id: t.team_id } }))}>Reassign here</Button>
+                <Button size="sm" className="shrink-0" onClick={() => run(() => api(`/v1/escalations/${escalation.id}/reassign`, { method: "POST", json: { case: c.public_id, team_id: t.team_id } }))}>Send this team</Button>
               </li>
             ))}
-            <li className="text-xs text-ink-3">{a.team} will show &ldquo;stand-down not acknowledged&rdquo; until it is next heard from.</li>
+            <li className="text-xs text-ink-3">{a.team} stays greyed out until it is next heard from, so it is told to stand down.</li>
           </ol>
         )}
         {mode === "radio" && <Radio a={a} onDone={() => { setMode(null); onChanged(); }} />}
         {mode === "release" && (
           <form className="flex flex-wrap gap-2" onSubmit={(e) => { e.preventDefault(); const reason = String(new FormData(e.currentTarget).get("reason"));
             run(() => api(`/v1/assignments/${a.id}/release`, { method: "POST", json: { reason, channel: "phone" } })); }}>
-            <input name="reason" required minLength={3} autoFocus placeholder="Why release? (logged)" className="h-8 min-w-0 flex-1 rounded-lg border border-line px-2" />
-            <Button size="sm" variant="primary" type="submit">Release</Button>
+            <input name="reason" required minLength={3} autoFocus placeholder="Why hand it back? (logged)" className="h-8 min-w-0 flex-1 rounded-lg border border-line px-2" />
+            <Button size="sm" variant="primary" type="submit">Hand back</Button>
           </form>
         )}
         {error && <p className="rounded-md bg-wash px-2 py-1 text-xs">{error}</p>}
@@ -124,22 +124,22 @@ export function AssignmentPanel({ c, assignment, escalation, can, onChanged }: {
   const assign = (teamId: number, rank?: number) => run(() => api("/v1/assignments", { method: "POST", json: { case: c.public_id, team_id: teamId, suggested_rank: rank } }));
   return (
     <div className="space-y-2 text-sm">
-      <p className="text-ink-2">No team yet. Suggested (nearest suitable unit, as a dispatcher would rank them):</p>
+      <p className="text-ink-2">No team yet. Nearest suitable teams:</p>
       <ol className="space-y-1.5">
         {dispatch.suggestions.map((t) => (
           <li key={t.team_id} className="flex items-start justify-between gap-3 rounded-2xl border border-line px-3.5 py-2.5">
             <span className="min-w-0"><span className="font-medium">{t.name}</span><span className="block text-xs text-ink-2">{t.line}</span></span>
-            {can("assignment.create") && <Button size="sm" variant={t.rank === 1 ? "primary" : "secondary"} className="shrink-0" onClick={() => assign(t.team_id, t.rank)}>Assign</Button>}
+            {can("assignment.create") && <Button size="sm" variant={t.rank === 1 ? "primary" : "secondary"} className="shrink-0" onClick={() => assign(t.team_id, t.rank)}>Send</Button>}
           </li>
         ))}
       </ol>
       {(dispatch.more.length > 0 || dispatch.greyed.length > 0) && (
         <details className="text-xs text-ink-2">
-          <summary className="cursor-pointer select-none">Other teams ({dispatch.more.length} available · {dispatch.greyed.length} not)</summary>
+          <summary className="cursor-pointer select-none">Other teams ({dispatch.more.length} free · {dispatch.greyed.length} not)</summary>
           <ul className="mt-1 space-y-1">
             {dispatch.more.map((t) => (
               <li key={t.team_id} className="flex items-center justify-between gap-2"><span>{t.name} · {t.line}</span>
-                {can("assignment.create") && <Button size="sm" variant="quiet" onClick={() => assign(t.team_id)}>Assign</Button>}</li>
+                {can("assignment.create") && <Button size="sm" variant="quiet" onClick={() => assign(t.team_id)}>Send</Button>}</li>
             ))}
             {dispatch.greyed.map((g) => <li key={g.team_id} className="stale">{g.name} · <Chip tone="quiet">{g.why}</Chip></li>)}
           </ul>

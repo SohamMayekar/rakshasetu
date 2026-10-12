@@ -47,8 +47,8 @@ def test_t6_overdue_is_one_team_escalation_the_case_stays_and_the_team_is_greyed
     esc = client.get("/v1/escalations?incident=BR").json()
     mine = [e for e in esc if e["team_id"] == team]
     assert len(mine) == 1 and len(mine[0]["case_ids"]) == 2 and mine[0]["role"] == "duty_officer"
-    assert mine[0]["line"].startswith("Fire & Rescue Boat 5 overdue · 2 cases · no contact")
-    assert mine[0]["line"].endswith("Radio them, then Extend or Reassign.")
+    assert mine[0]["line"].startswith("Fire & Rescue Boat 5 overdue · not heard from") and " · 2 cases." in mine[0]["line"]
+    assert mine[0]["line"].endswith("Radio them; if they don't answer, send another team.")
     other = _free_cases(app_db, 1)[0]
     d = client.get(f"/v1/cases/{other}/dispatch-suggestions").json()
     assert team not in [t["team_id"] for t in d["suggestions"] + d["more"]]               # greyed out of every list
@@ -114,8 +114,8 @@ def test_no_free_team_means_one_capacity_gap_header_not_one_alarm_per_case(seede
     assert out["capacity_gaps"] == 1
     login(client, "rdas")
     gap = [e for e in client.get("/v1/escalations?incident=BR").json() if e["kind"] == "capacity_gap"]
-    assert len(gap) == 1 and gap[0]["line"].startswith("P1 without owner · ") and "0 teams free" in gap[0]["line"]
-    assert "ask SEOC" in gap[0]["line"]
+    assert len(gap) == 1 and gap[0]["line"].startswith("Urgent families without a team · ") and "0 teams free" in gap[0]["line"]
+    assert "ask the state control room" in gap[0]["line"]
     _sql(app_db, "UPDATE teams SET status = 'available' WHERE name = 'Fire & Rescue Boat 5'")
     tick(app_db)
     assert one(app_db, "SELECT status FROM escalations WHERE kind = 'capacity_gap'") == "resolved"

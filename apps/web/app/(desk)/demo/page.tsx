@@ -122,7 +122,7 @@ export default function DemoPage() {
       </Box>
 
       <Box title="Play a recorded clip">
-        <p className="mb-2 text-ink-2">The fallback if live voice fails: the clip goes through the same pipeline as the reporter page,
+        <p className="mb-2 text-ink-2">The fallback if live voice fails: the clip goes in the same way as from the reporter page,
           from the son&apos;s phone. Say it&apos;s a recording.</p>
         <ul className="divide-y divide-line border-y border-line">
           {clips.map((c) => (
@@ -130,7 +130,7 @@ export default function DemoPage() {
               <span>{c.clip} {c.synthetic && <span className="text-ink-3">· synthetic voice, not a person</span>}</span>
               <Button size="sm" disabled={!!busy} onClick={() => run("Play clip", async () => {
                 const r = await api<{ report_id: number }>("/v1/demo/play-clip", { method: "POST", json: { clip: c.clip } });
-                return `Played ${c.clip}: report ${r.report_id} is in the pipeline (watch the desk)`;
+                return `Played ${c.clip}: report ${r.report_id} is being read (watch the desk)`;
               })}>Play</Button>
             </li>
           ))}

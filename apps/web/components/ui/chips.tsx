@@ -14,11 +14,11 @@ export function Chip({ tone = "neutral", children, title }: { tone?: "attention"
 
 export type Method = "ai" | "rule" | "human" | "partner" | "fixture";
 const METHOD: Record<Method, { label: string; title: string }> = {
-  ai: { label: "AI", title: "Extracted by the language model (or speech-to-text), with a quote" },
-  rule: { label: "Rule", title: "From the keyword dictionaries, the gazetteer, the scoring or the priority rules" },
-  human: { label: "Human", title: "Typed, checked or moved by a person" },
-  partner: { label: "Partner", title: "Sent by a partner system" },
-  fixture: { label: "Fixture", title: "A recorded result, not a live call" },
+  ai: { label: "AI", title: "Read out of the words by AI (or speech to text), with the exact quote" },
+  rule: { label: "Rule", title: "From fixed rules: word lists, the map of village names, the scoring or the priority rules" },
+  human: { label: "Person", title: "Typed, checked or moved by a person" },
+  partner: { label: "Partner", title: "Sent by another team's system" },
+  fixture: { label: "Recording", title: "A recorded result, not a live call" },
 };
 
 export function MethodChip({ method }: { method: Method }) {
@@ -38,8 +38,8 @@ export function Check({ state, title }: { state: "checked" | "unchecked" | "ambe
   return <span aria-label={t} title={t} className={`text-xs leading-none ${cls}`}>{glyph}</span>;
 }
 
-const CHANNEL: Record<string, string> = { voice: "VOICE", whatsapp: "WA", spreadsheet: "SHEET", web_form: "DESK", partner: "API" };
+const CHANNEL: Record<string, string> = { voice: "Voice", whatsapp: "WhatsApp", spreadsheet: "Sheet", web_form: "Typed at the desk", partner: "Partner system" };
 
 export function ChannelTag({ channel }: { channel: string }) {
-  return <span className="text-[10px] font-semibold tracking-widest text-ink-3">{CHANNEL[channel] ?? channel.toUpperCase()}</span>;
+  return <span className="text-[11px] font-semibold text-ink-3">{CHANNEL[channel] ?? channel}</span>;
 }

@@ -37,7 +37,7 @@ def test_a_pasted_message_is_kept_exactly_as_received(seeded, client, app_db):
     (msg,) = _items(client, pid, "message")
     assert _opens(client, msg).decode() == words and msg["report_id"] == rid and msg["meta"]["forwarded"] is True
     lines = [e["line"] for e in client.get(f"/v1/cases/{pid}/timeline").json()["events"]]
-    assert any(x.startswith("Evidence kept: the message as received · sha256 ") for x in lines)
+    assert any(x.startswith("Evidence kept: the message as received · fingerprint ") for x in lines)
 
 
 def _assigned(client, app_db, team="Fire & Rescue Boat 5"):

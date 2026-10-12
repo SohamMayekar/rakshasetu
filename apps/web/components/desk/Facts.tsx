@@ -8,6 +8,7 @@ import { useState } from "react";
 
 import { Because, Button, Check, Estimate, MethodChip, type Method } from "@/components/ui";
 import { api, type Case, type Prov } from "@/lib/api";
+import { plainPlace } from "@/lib/words";
 
 const WORD: Record<string, string> = {
   trapped_on_roof: "on the roof", trapped_inside: "trapped inside", water_entering: "water inside", water_rising: "water rising",
@@ -29,7 +30,7 @@ function Receipt({ p, children, onQuote }: { p: Prov; children: React.ReactNode;
       <Check state={state} title={p.amber} />
       <span>{children}</span>
       <MethodChip method={method(p)} />
-      {p.source === "sheet column" && <span className="text-[10px] text-ink-3">sheet column</span>}
+      {p.source === "sheet column" && <span className="text-[10px] text-ink-3">from the sheet</span>}
     </span>
   );
 }
@@ -95,13 +96,13 @@ export function Facts({ c, canEdit, onQuote, onChanged }: {
           {c.location_text ?? <span className="text-ink-3">not known yet</span>}
           {c.location_source && <MethodChip method={c.location_source === "human" ? "human" : "rule"} />}
         </span>
-        {c.location_method && <Because>{c.location_method}</Because>}
+        {c.location_method && <Because>{plainPlace(c.location_method)}</Because>}
         {(() => {   // P1 #1: a merged report from outside the circle never moves the pin by itself
           const m = (c.attributes?.proposed_move ?? null) as { from: string; metres_away: number; method?: string } | null;
           return m && (
             <p className="mt-1 rounded-lg border border-line px-2 py-1 text-xs">
-              <b>Proposed move:</b> {m.from}&apos;s report places them {m.metres_away.toLocaleString("en-IN")} m away
-              {m.method ? ` (${m.method})` : ""}. The pin stays until a person moves it (Move pin).
+              <b>Maybe a different place:</b> {m.from}&apos;s report puts them {m.metres_away.toLocaleString("en-IN")} m away
+              {m.method ? ` (${plainPlace(m.method)})` : ""}. The place stays until a person moves it.
             </p>
           );
         })()}

@@ -6,7 +6,7 @@ nothing; every change is one conditional UPDATE, so two tickers (or a ticker and
    working, and an automatic reassign sends two boats to one roof. The team turns overdue, so dispatch greys
    it out until it's heard from.
 2. One escalation per TEAM, listing its cases, routed to the EOC Duty Officer role:
-   "SDRF Boat 2 overdue · 2 cases · no contact since 14:20. Radio them, then Extend or Reassign."
+   "SDRF Boat 2 overdue · not heard from since 14:20 · 2 cases. Radio them; if they don't answer, send another team."
 3. When P1s wait without an owner and no team has room: ONE capacity-gap header for the district, not one
    alarm per case: "P1 without owner · 41 · 0 boats free · ask SEOC for ≈ 6 boats". RakshaSetu never
    requisitions anyone; a person asks the SEOC.
@@ -55,8 +55,8 @@ def mark_overdue(conn: Connection) -> int:
 
 
 def _team_line(team: str, n: int, since) -> str:
-    when = f"no contact since {hhmm(since)}" if since else "no contact yet"
-    return f"{team} overdue · {n} {'case' if n == 1 else 'cases'} · {when}. Radio them, then Extend or Reassign."
+    when = f"not heard from since {hhmm(since)}" if since else "not heard from yet"
+    return f"{team} overdue · {when} · {n} {'case' if n == 1 else 'cases'}. Radio them; if they don't answer, send another team."
 
 
 def escalate_teams(conn: Connection) -> int:
@@ -111,8 +111,8 @@ def capacity_gaps(conn: Connection) -> int:
         if r.free > 0:
             continue
         gapped.append(r.district_id)
-        line = (f"P1 without owner · {r.waiting} · 0 teams free · ask SEOC for ≈ {math.ceil(r.waiting / 2)} boats"
-                f" (assuming 2 cases a boat)")
+        line = (f"Urgent families without a team · {r.waiting} · 0 teams free · ask the state control room for"
+                f" ≈ {math.ceil(r.waiting / 2)} boats (assuming 2 cases a boat)")
         cur = conn.execute(text("SELECT id FROM escalations WHERE kind = 'capacity_gap' AND district_id = :d"
                                 " AND status <> 'resolved'"), {"d": r.district_id}).scalar()
         if cur is None:

@@ -31,7 +31,7 @@ def test_a_reset_to_never_doubled_starts_with_the_sons_case_from_the_recorded_cl
     assert one(app_db, "SELECT body::jsonb->'data'->>'synthetic_voice' FROM events WHERE action = 'demo.clip_played'") == "true"
     login(client, "rdas")
     lines = [e["line"] for e in client.get(f"/v1/cases/{pid}/timeline").json()["events"]]
-    assert any("son-line.synthetic.ogg (a synthetic voice), through the same voice pipeline" in x for x in lines)
+    assert any("son-line.synthetic.ogg (a synthetic voice), through the same voice path a phone uses" in x for x in lines)
 
 
 @pytest.mark.slow

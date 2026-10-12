@@ -58,7 +58,7 @@ def test_a_clip_becomes_a_case_with_its_audio_as_evidence(voice, public_client, 
     case_id = one(app_db, "SELECT case_id FROM reports WHERE id = :r", r=rid)
     assert one(app_db, "SELECT people_count FROM cases WHERE id = :c", c=case_id) == 6
     receipt = one(app_db, "SELECT receipt FROM reports WHERE id = :r", r=rid)
-    assert receipt[0]["by"] == "Fixture" and "not a live STT call" in receipt[0]["detail"]
+    assert receipt[0]["by"] == "Fixture" and "not live speech to text" in receipt[0]["detail"]
     ev_sha, mime = one(app_db, "SELECT array[sha256, mime] FROM evidence WHERE case_id = :c AND type = 'audio'", c=case_id)
     assert ev_sha == hashlib.sha256(clip).hexdigest()
     assert mime == "audio/wav"                       # its real type, read from its bytes: players and partners can open it

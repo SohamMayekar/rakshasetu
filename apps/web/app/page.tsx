@@ -36,9 +36,9 @@ function Bar({ p }: { p: Promises }) {
   const n = (v: number, broken = false) => <b className={`tabular ${broken ? "rounded-md bg-ink px-1.5 text-paper" : ""}`}>{v}</b>;
   return (
     <div className="mt-4 space-y-2 rounded-2xl bg-wash px-4 py-3 text-sm">
-      <Line icon={Inbox} name="Never lost">{n(p.lost.reports)} reports = {n(p.lost.cases)} cases + {n(p.lost.merged)} merged + {n(p.lost.to_check)} to check + {n(p.lost.without_home, p.lost.broken)} without a home</Line>
-      <Line icon={CopyCheck} name="Never doubled">{n(p.doubled.merged)} merged · {n(p.doubled.to_check, p.doubled.broken)} to check · {n(p.doubled.refused)} refused</Line>
-      <Line icon={Timer} name="Never stale">{n(p.stale.p1_unowned, p.stale.p1_unowned > 0)} P1 without owner &gt; 5 min · {n(p.stale.overdue, p.stale.overdue > 0)} contact overdue</Line>
+      <Line icon={Inbox} name="Never lost">{n(p.lost.reports)} reports = {n(p.lost.cases)} cases + {n(p.lost.merged)} merged + {n(p.lost.to_check)} to check + {n(p.lost.without_home, p.lost.broken)} not yet read</Line>
+      <Line icon={CopyCheck} name="Never doubled">{n(p.doubled.merged)} merged · {n(p.doubled.to_check, p.doubled.broken)} to check · {n(p.doubled.refused)} kept apart</Line>
+      <Line icon={Timer} name="Never stale">{n(p.stale.p1_unowned, p.stale.p1_unowned > 0)} urgent without a team &gt; 5 min · {n(p.stale.overdue, p.stale.overdue > 0)} contact overdue</Line>
     </div>
   );
 }
@@ -113,7 +113,7 @@ export default function Incidents() {
       <Page wide>
         <PageHeader
           title={me && now ? `${greeting(now)}, ${me.user.name}` : "Incidents"}
-          sub={list ? `${live} live incident${live === 1 ? "" : "s"}, each a district desk with its own three promises.` : " "}
+          sub={list ? `${live} live disaster${live === 1 ? "" : "s"}, each with its own district control room and its own three promises.` : " "}
           aside={now && <Pill icon={CalendarDays}><span className="tabular">{now.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}</span></Pill>} />
         <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
           <section className="space-y-4" aria-label="Incidents">
@@ -140,7 +140,7 @@ export default function Incidents() {
                 </Card>
               );
             })}
-            {me?.user.role === "seoc_viewer" && <p className="px-1 text-xs text-ink-3">The SEOC sees totals and capacity requests; the district desks act.</p>}
+            {me?.user.role === "seoc_viewer" && <p className="px-1 text-xs text-ink-3">The state control room sees totals and requests for more boats; the district desks act.</p>}
           </section>
           <Card className="min-h-80 overflow-hidden lg:sticky lg:top-6 lg:h-[calc(100vh-9rem)]">
             {list && <IncidentsMap pins={list.filter((i) => i.lat != null).map((i) => ({ code: i.code, name: i.name, lat: i.lat, lng: i.lng,

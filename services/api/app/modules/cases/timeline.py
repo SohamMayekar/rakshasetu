@@ -58,7 +58,7 @@ def line(action: str, d: dict, who: str | None) -> str:
             return f"Not the same household (decided{by})"
         case "evidence.added":
             kind = EVIDENCE.get(d.get("type"), str(d.get("type", "?")).replace("_", " "))
-            return f"Evidence kept: {kind}" + (f" · sha256 {d['sha256'][:12]}…" if d.get("sha256") else "")
+            return f"Evidence kept: {kind}" + (f" · fingerprint {d['sha256'][:12]}…" if d.get("sha256") else "")
         case "assignment.created":
             return f"Assigned to {d.get('team')}{by}"
         case "assignment.acknowledged":
@@ -86,7 +86,7 @@ def line(action: str, d: dict, who: str | None) -> str:
             left = f"{d['remaining']} still there" if d.get("remaining") is not None else "someone may still be there"
             return f"{d.get('team')}: took {d.get('people_taken')}, {left} · back to the queue with its original time"
         case "rescue.nobody_here":
-            return f"{d.get('team')}: nobody here · back to the queue as P1 (search the circle, ask for a new place)"
+            return f"{d.get('team')}: nobody here · back to the list as Urgent (search the circle, ask for a new place)"
         case "rescue.couldnt_reach":
             return f"{d.get('team')}: couldn't reach ({d.get('reason')}) · the next team will see why"
         case "rescue.other":
@@ -98,7 +98,7 @@ def line(action: str, d: dict, who: str | None) -> str:
         case "case.cancelled":
             return f"Cancelled{by}"
         case "case.reopened":
-            return f"Reopened{by}" if who else f"Reopened as P1: {d.get('by', 'the family')} says No"
+            return f"Reopened{by}" if who else f"Reopened as Urgent: {d.get('by', 'the family')} says No"
         case "rescue.confirmed":
             return f"The family confirmed: {d.get('people_taken')} rescued" + (" (on site)" if d.get("on_site") else "")
         case "rescue.disputed":
@@ -121,7 +121,7 @@ def line(action: str, d: dict, who: str | None) -> str:
             return f"Back to the rules: {d.get('to')}{by}"
         case "demo.clip_played":
             voice = "a synthetic voice" if d.get("synthetic_voice") else "a recording"
-            return f"Played by the demo control from {d.get('clip')} ({voice}), through the same voice pipeline"
+            return f"Played by the demo control from {d.get('clip')} ({voice}), through the same voice path a phone uses"
         case "demo.clock_real":
             return f"Demo reset: {d.get('team')}'s timer runs on the real clock until the presenter acts"
         case "demo.clock_advanced":

@@ -9,6 +9,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Button, Chip, Empty, Priority, PriorityWell } from "@/components/ui";
 import type { Queue, QueueRow } from "@/lib/queue";
+import { plainAction, plainChip, withWords } from "@/lib/words";
 
 type Shown = QueueRow & { handled?: boolean };
 const PAGE = 80;
@@ -58,7 +59,7 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction }: {
         </div>
       )}
       {shown.length === 0 ? (
-        <Empty>Nothing needs you. <span className="tabular">{queue.on_it}</span> {queue.on_it === 1 ? "household has" : "households have"} a live owner.</Empty>
+        <Empty>Nothing needs you. <span className="tabular">{queue.on_it}</span> {queue.on_it === 1 ? "family has" : "families have"} a team on it.</Empty>
       ) : (
         <ol className="scroll-quiet flex-1 space-y-0.5 overflow-y-auto px-2 pb-2" aria-label="Needs you now">
           {shown.slice(0, limit).map((r) => (
@@ -72,18 +73,18 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction }: {
                   <span className="flex min-w-0 items-baseline gap-2"><Priority level={r.priority} shape={false} />
                     {r.kind === "group" ? <span className="truncate font-semibold">Sheet · {r.public_id}</span> : <span className="tabular font-semibold">{r.public_id}</span>}
                   </span>
-                  {r.handled ? <span className="text-xs text-ink-3">handled</span> : r.chip && <Chip tone="attention">{r.chip}</Chip>}
+                  {r.handled ? <span className="text-xs text-ink-3">handled</span> : r.chip && <Chip tone="attention">{plainChip(r.chip)}</Chip>}
                 </span>
-                <span className="mt-0.5 block truncate text-sm">{r.line1}</span>
-                {r.action.label.length > 22 ? (   // a long action ("Assign → SDRF Boat 2 · 2.1 km · boat") gets its own line
+                <span className="mt-0.5 block truncate text-sm">{r.line1 && withWords(r.line1)}</span>
+                {plainAction(r.action.label).length > 22 ? (   // a long action ("Assign → SDRF Boat 2 · 2.1 km · boat") gets its own line
                   <>
-                    <span className="block truncate text-xs text-ink-2">{r.line2}</span>
-                    {!r.handled && <span className="mt-1.5 block"><Button size="sm" className="max-w-full truncate" onClick={(e) => { e.stopPropagation(); onAction(r); }}>{r.action.label}</Button></span>}
+                    <span className="block truncate text-xs text-ink-2">{withWords(r.line2)}</span>
+                    {!r.handled && <span className="mt-1.5 block"><Button size="sm" className="max-w-full truncate" onClick={(e) => { e.stopPropagation(); onAction(r); }}>{plainAction(r.action.label)}</Button></span>}
                   </>
                 ) : (
                   <span className="flex items-center justify-between gap-2">
-                    <span className="truncate text-xs text-ink-2">{r.line2}</span>
-                    {!r.handled && <Button size="sm" className="shrink-0" onClick={(e) => { e.stopPropagation(); onAction(r); }}>{r.action.label}</Button>}
+                    <span className="truncate text-xs text-ink-2">{withWords(r.line2)}</span>
+                    {!r.handled && <Button size="sm" className="shrink-0" onClick={(e) => { e.stopPropagation(); onAction(r); }}>{plainAction(r.action.label)}</Button>}
                   </span>
                 )}
                 </span>
@@ -99,9 +100,9 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction }: {
       )}
       <details className="border-t border-line px-4 py-2.5 text-sm text-ink-2">
         <summary className="cursor-pointer select-none">
-          On it <span className="tabular">{queue.on_it}</span> · rescued, closing <span className="tabular">{queue.rescued_closing}</span> · closed <span className="tabular">{queue.closed}</span>
+          A team is on it: <span className="tabular">{queue.on_it}</span> · rescued, closing <span className="tabular">{queue.rescued_closing}</span> · closed <span className="tabular">{queue.closed}</span>
         </summary>
-        <p className="mt-1 text-xs text-ink-3">Cases with a live owner whose check-in isn&rsquo;t due leave this list. They come back the moment a promise breaks.</p>
+        <p className="mt-1 text-xs text-ink-3">A family whose team has checked in on time leaves this list. It comes back the moment a promise breaks.</p>
       </details>
     </div>
   );
