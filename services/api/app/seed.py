@@ -76,11 +76,7 @@ def load_pack(conn: Connection, root: Path, code: str, now) -> dict:
                      data={"name": t["name"], "has_app": t.get("has_app", True), "status": t.get("status", "available")})
 
     gazetteer = load_gazetteer(conn, root / code / "gazetteer", incident_id, districts)
-
-    cases = sorted(_yaml(root / code / "cases.yaml").get("cases", []), key=lambda c: -c["minutes_ago"])
-    for c in cases:
-        _insert_case(conn, incident_id, inc["code"], districts, c, now)
-    return {"incident_id": incident_id, "districts": districts, "teams": teams, "cases": len(cases), **gazetteer}
+    return {"incident_id": incident_id, "districts": districts, "teams": teams, **gazetteer}
 
 
 def load_gazetteer(conn: Connection, folder: Path, incident_id: int, districts: dict) -> dict:
@@ -119,57 +115,79 @@ def load_gazetteer(conn: Connection, folder: Path, incident_id: int, districts: 
     return {"places": len(places), "landmarks": len(lms)}
 
 
-def _case_fields(c: dict) -> dict:
-    """The pack gives fields explicitly (`fields`, thin packs) or as the generator's `truth` (BR).
-    Until the pipeline exists, a BR case is placed where its text says: the village, as a Low circle."""
-    if "fields" in c:
-        f = dict(c["fields"])
-        loc = f.pop("location", None) or {}
-        return {**f, **{f"loc_{k}": v for k, v in loc.items()}}
-    t = c["truth"]
-    f = {"people_count": t["people_count"], "people_count_kind": "stated", "hazards": t["hazards"],
-         "needs": t["needs"], "vulnerable": t["vulnerable"], "location_text": t["village"]}
-    if t.get("village_point"):
-        lat, lon = t["village_point"]
-        f.update(loc_lat=lat, loc_lon=lon, loc_radius_m=1500, loc_confidence="low", loc_source="rule",
-                 loc_method=f"Low · 1.5 km · village only: {t['village']}")
-    return f
-
-
-def _insert_case(conn: Connection, incident_id: int, code: str, districts: dict, c: dict, now) -> int:
-    f = _case_fields(c)
-    number = conn.execute(text("UPDATE incidents SET next_case_number = next_case_number + 1 WHERE id = :i"
-                               " RETURNING next_case_number - 1"), dict(i=incident_id)).scalar_one()
+def _insert_report(conn: Connection, incident_id: int, districts: dict, c: dict, now) -> int:
+    """A seeded report, as if it arrived `minutes_ago` minutes before the seed moment."""
     at = now - timedelta(minutes=c["minutes_ago"])
-    has_loc = f.get("loc_lat") is not None
-    flags = [] if has_loc else ["needs_location"]
-    case_id = conn.execute(text(
-        "INSERT INTO cases (public_id, incident_id, district_id, status, priority, priority_reasons,"
-        " people_count, people_count_kind, needs, vulnerable, hazards, geom, radius_m, location_confidence,"
-        " location_method, location_source, location_text, flags, queue_since, last_confirmed_at, created_at, updated_at)"
-        " VALUES (:pid, :i, :d, :status, 'P4', ARRAY['not triaged yet (seed)'], :people, :kind, :needs, :vuln, :haz,"
-        "         CAST(:geom AS geography), :radius, :conf, :method, :src, :ltext, :flags, :at, :at, :at, :at)"
-        " RETURNING id"),
-        dict(pid=f"{code}-{number}", i=incident_id, d=districts[c["district"]], status=c.get("status", "reported"),
-             people=f.get("people_count"), kind=f.get("people_count_kind"), needs=f.get("needs", []),
-             vuln=f.get("vulnerable", []), haz=f.get("hazards", []),
-             geom=_point([f["loc_lat"], f["loc_lon"]]) if has_loc else None, radius=f.get("loc_radius_m"),
-             conf=f.get("loc_confidence"), method=f.get("loc_method"), src=f.get("loc_source"),
-             ltext=f.get("location_text"), flags=flags, at=at)).scalar_one()
     phone = protect(c.get("phone"))
     report_id = conn.execute(text(
         "INSERT INTO reports (incident_id, channel, source_ns, idempotency_key, received_at, reporter_phone_enc,"
-        " reporter_phone_hash, reporter_phone_masked, reporter_relation, is_forward, language, text, status, case_id, source)"
-        " VALUES (:i, :channel, 'seed', :key, :at, :enc, :hash, :masked, :rel, :fwd, NULL, :text, 'processed', :case,"
+        " reporter_phone_hash, reporter_phone_masked, reporter_relation, is_forward, text, status, source)"
+        " VALUES (:i, :channel, 'seed', :key, :at, :enc, :hash, :masked, :rel, :fwd, :text, 'pending',"
         "         CAST(:source AS jsonb)) RETURNING id"),
         dict(i=incident_id, channel=c["channel"], key=c["key"], at=at, enc=phone["enc"], hash=phone["hash"],
              masked=phone["masked"], rel=c.get("relation", "unknown"), fwd=c.get("relation") == "forwarder",
-             text=c["text"], case=case_id, source='{"system": "seed"}')).scalar_one()
-    append_event(conn, actor=SYSTEM, action="case.seeded", entity_type="case", entity_id=case_id,
-                 incident_id=incident_id, district_id=districts[c["district"]], case_id=case_id,
-                 data={"public_id": f"{code}-{number}", "status": c.get("status", "reported"), "report_id": report_id,
-                       "channel": c["channel"], "minutes_ago": c["minutes_ago"]})
-    return case_id
+             text=c["text"], source=_json_dumps({"system": "seed", "district_hint": districts[c["district"]]}))).scalar_one()
+    append_event(conn, actor=SYSTEM, action="report.received", entity_type="report", entity_id=report_id,
+                 incident_id=incident_id, district_id=districts[c["district"]],
+                 data={"report_id": report_id, "channel": c["channel"], "source_ns": "seed", "phone": phone["masked"],
+                       "seeded": True, "minutes_ago": c["minutes_ago"]})
+    return report_id
+
+
+def _explicit_case(conn: Connection, incident_id: int, districts: dict, report_id: int, c: dict, now) -> None:
+    """Thin packs (no gazetteer): the location is given; the facts go through the real priority rules."""
+    from app.core.eventlog import Actor
+    from app.modules.cases.service import create_case
+    from app.modules.triage.rules import triage
+    from app.pipeline.fields import summary
+    f = dict(c["fields"])
+    loc = f.pop("location", None) or {}
+    priority, reasons, rank = triage(f)
+    fields = {**f, "priority": priority, "priority_reasons": reasons, "p1_rank": rank,
+              "lat": loc.get("lat"), "lng": loc.get("lon"), "radius_m": loc.get("radius_m"),
+              "location_confidence": loc.get("confidence"), "location_method": loc.get("method"),
+              "location_source": loc.get("source"),
+              "summary": summary(f.get("people_count"), f.get("people_count_kind"), f.get("hazards", []),
+                                 f.get("needs", []), f.get("vulnerable", []))}
+    create_case(conn, incident_id=incident_id, district_id=districts[c["district"]], report_id=report_id, fields=fields,
+                actor=Actor("system", "seed"), queue_since=now - timedelta(minutes=c["minutes_ago"]))
+
+
+def _mark_checked(conn: Connection, report_id: int, checker_id: int | None) -> None:
+    case = conn.execute(text("SELECT c.id, c.incident_id, c.district_id FROM cases c JOIN reports r ON r.case_id = c.id"
+                             " WHERE r.id = :r"), {"r": report_id}).one()
+    conn.execute(text("UPDATE cases SET status = 'checked', checked_by = :u, checked_at = now() WHERE id = :c"),
+                 {"u": checker_id, "c": case.id})
+    append_event(conn, actor=SYSTEM, action="case.checked", entity_type="case", entity_id=case.id,
+                 incident_id=case.incident_id, district_id=case.district_id, case_id=case.id,
+                 data={"status": "checked", "seeded": True})
+
+
+def seed_cases(owner_url: str, root: Path, loaded: dict, now) -> int:
+    """Every seeded report goes through the REAL pipeline (keywords + gazetteer ladder + priority rules), one
+    report per transaction, oldest first; thin packs use their given location. Never calls a language model."""
+    from app.pipeline.run import process_report
+    engine = engine_for(owner_url)
+    n = 0
+    for code, pack in loaded.items():
+        cases = sorted(_yaml(root / code / "cases.yaml").get("cases", []), key=lambda c: -c["minutes_ago"])
+        for c in cases:
+            with engine.begin() as conn:
+                report_id = _insert_report(conn, pack["incident_id"], pack["districts"], c, now)
+                if "fields" in c:
+                    _explicit_case(conn, pack["incident_id"], pack["districts"], report_id, c, now)
+            if "fields" not in c:
+                process_report(engine, {"report_id": report_id, "seed": True})
+            if c.get("status") == "checked":
+                with engine.begin() as conn:
+                    _mark_checked(conn, report_id, pack.get("checker_id"))
+            n += 1
+    return n
+
+
+def _json_dumps(obj) -> str:
+    import json
+    return json.dumps(obj, ensure_ascii=False)
 
 
 @lru_cache(maxsize=1)
@@ -214,8 +232,13 @@ def seed(owner_url: str, packs=PACKS, root: Path | None = None) -> dict:
         now = conn.execute(text("SELECT now()")).scalar_one()
         loaded = {code: load_pack(conn, root, code, now) for code in packs}
         users = load_users(conn, root, loaded)
-    return {"incidents": len(loaded), "cases": sum(p["cases"] for p in loaded.values()),
-            "teams": sum(len(p["teams"]) for p in loaded.values()), "users": users}
+        for pack in loaded.values():   # the seeded "checked" cases were checked by that desk's call-taker
+            pack["checker_id"] = conn.execute(text(
+                "SELECT id FROM users WHERE role = 'call_taker' AND :i = ANY(incident_ids) ORDER BY id LIMIT 1"),
+                {"i": pack["incident_id"]}).scalar()
+    cases = seed_cases(owner_url, root, loaded, now)
+    return {"incidents": len(loaded), "cases": cases, "teams": sum(len(p["teams"]) for p in loaded.values()),
+            "users": users}
 
 
 def main() -> None:

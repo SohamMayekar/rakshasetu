@@ -50,10 +50,55 @@ def app_db():
     eng.dispose()
 
 
+_SNAPSHOT: dict | None = None
+SNAP = "seed_snapshot"
+
+
+def _tables(conn) -> list[str]:
+    """Public tables in foreign-key order (parents first), so a restore never violates a constraint."""
+    names = [r[0] for r in conn.execute(text(
+        "SELECT tablename FROM pg_tables WHERE schemaname = 'public'"
+        " AND tablename NOT IN ('schema_migrations', 'spatial_ref_sys')"))]
+    deps = {n: set() for n in names}
+    for child, parent in conn.execute(text(
+            "SELECT c.conrelid::regclass::text, c.confrelid::regclass::text FROM pg_constraint c"
+            " WHERE c.contype = 'f' AND c.connamespace = 'public'::regnamespace")):
+        if child in deps and parent in deps and child != parent:
+            deps[child].add(parent)
+    ordered: list[str] = []
+    while deps:
+        ready = sorted(n for n, d in deps.items() if not d - set(ordered))
+        ordered += ready
+        for n in ready:
+            del deps[n]
+    return ordered
+
+
 @pytest.fixture
 def seeded(owner_db):
+    """A fresh copy of the seeded test database. The real seed (through the real pipeline) runs once per
+    session; each test then gets an identical restore of that snapshot (much faster than reseeding)."""
+    global _SNAPSHOT
     from app.seed import seed
-    return seed(TEST_OWNER_DB)
+    with owner_db.begin() as c:
+        tables = _tables(c)
+    if _SNAPSHOT is None:
+        _SNAPSHOT = seed(TEST_OWNER_DB)
+        with owner_db.begin() as c:
+            c.execute(text(f"DROP SCHEMA IF EXISTS {SNAP} CASCADE; CREATE SCHEMA {SNAP}"))
+            for t in tables:
+                c.execute(text(f"CREATE TABLE {SNAP}.{t} AS SELECT * FROM public.{t}"))
+        return _SNAPSHOT
+    with owner_db.begin() as c:
+        c.execute(text(f"TRUNCATE {', '.join(tables)} RESTART IDENTITY CASCADE"))
+        for t in tables:
+            c.execute(text(f"INSERT INTO public.{t} SELECT * FROM {SNAP}.{t}"))
+            for col, seq in c.execute(text(
+                    "SELECT a.attname, pg_get_serial_sequence(:t, a.attname) FROM pg_attribute a"
+                    " WHERE a.attrelid = CAST(:t AS regclass) AND a.attnum > 0 AND NOT a.attisdropped"
+                    " AND pg_get_serial_sequence(:t, a.attname) IS NOT NULL"), {"t": f"public.{t}"}):
+                c.execute(text(f"SELECT setval('{seq}', coalesce((SELECT max({col}) FROM public.{t}), 0) + 1, false)"))
+    return _SNAPSHOT
 
 
 def rows(engine, sql, **params):

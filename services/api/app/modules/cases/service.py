@@ -34,12 +34,12 @@ def create_case(conn: Connection, *, incident_id: int, district_id: int | None, 
     case_id = conn.execute(text(
         "INSERT INTO cases (public_id, incident_id, district_id, status, priority, priority_reasons, people_count,"
         " people_count_kind, needs, vulnerable, hazards, geom, radius_m, location_confidence, location_method,"
-        " location_source, location_text, provenance, summary, flags, queue_since, last_confirmed_at, attributes)"
+        " location_source, location_text, provenance, summary, flags, queue_since, last_confirmed_at, attributes, p1_rank)"
         " VALUES (:pid, :inc, :dist, 'reported', :priority, :reasons, :people, :kind, :needs, :vuln, :haz,"
         "         CASE WHEN CAST(:lat AS float8) IS NULL THEN NULL"
         "              ELSE ST_SetSRID(ST_MakePoint(CAST(:lng AS float8), CAST(:lat AS float8)), 4326)::geography END,"
         "         :radius, :conf, :method, :src, :ltext, CAST(:prov AS jsonb), :summary, :flags,"
-        "         coalesce(CAST(:queue_since AS timestamptz), now()), now(), CAST(:attrs AS jsonb))"
+        "         coalesce(CAST(:queue_since AS timestamptz), now()), now(), CAST(:attrs AS jsonb), :p1_rank)"
         " RETURNING id"),
         dict(pid=public_id, inc=incident_id, dist=district_id, priority=fields.get("priority", "P4"),
              reasons=fields.get("priority_reasons", []), people=fields.get("people_count"),
@@ -49,7 +49,7 @@ def create_case(conn: Connection, *, incident_id: int, district_id: int | None, 
              method=fields.get("location_method"), src=fields.get("location_source"),
              ltext=fields.get("location_text"), prov=json.dumps(fields.get("provenance", {}), ensure_ascii=False),
              summary=fields.get("summary"), flags=flags, queue_since=queue_since,
-             attrs=json.dumps(fields.get("attributes", {}), ensure_ascii=False))).scalar_one()
+             attrs=json.dumps(fields.get("attributes", {}), ensure_ascii=False), p1_rank=fields.get("p1_rank"))).scalar_one()
     conn.execute(text("UPDATE reports SET case_id = :c, status = 'processed' WHERE id = :r"), {"c": case_id, "r": report_id})
     link_report_evidence(conn, report_id=report_id, case_id=case_id, incident_id=incident_id, district_id=district_id,
                          actor=actor)
@@ -190,4 +190,25 @@ def edit_case(conn: Connection, scope, ref: str, changes: dict, reason: str, if_
     append_event(conn, actor=_actor(scope), action="case.updated", entity_type="case", entity_id=case.id,
                  incident_id=case.incident_id, district_id=case.district_id, case_id=case.id, reason=reason,
                  data={"changed": {k: {"from": before[k], "to": v} for k, v in changes.items()}})
+    retriage(conn, case.id, _actor(scope), why=f"facts corrected: {reason}")
     return {"case_id": case.id, "version": case.version + 1}
+
+
+def retriage(conn: Connection, case_id: int, actor: Actor, why: str) -> dict:
+    """Re-run the priority rules after the facts changed. An officer's override (P1 #2) is left alone."""
+    from app.modules.triage.rules import triage
+    c = conn.execute(text("SELECT id, incident_id, district_id, priority, priority_reasons, priority_override, hazards,"
+                          " needs, vulnerable, people_count FROM cases WHERE id = :id"), {"id": case_id}).one()
+    if c.priority_override:
+        return {"priority": c.priority, "changed": False}
+    priority, reasons, rank = triage({"hazards": c.hazards, "needs": c.needs, "vulnerable": c.vulnerable,
+                                      "people_count": c.people_count})
+    if priority == c.priority and reasons == list(c.priority_reasons):
+        conn.execute(text("UPDATE cases SET p1_rank = :r WHERE id = :id"), {"r": rank, "id": case_id})
+        return {"priority": priority, "changed": False}
+    conn.execute(text("UPDATE cases SET priority = :p, priority_reasons = :rs, p1_rank = :r, updated_at = now()"
+                      " WHERE id = :id"), {"p": priority, "rs": reasons, "r": rank, "id": case_id})
+    append_event(conn, actor=actor, action="case.priority_changed", entity_type="case", entity_id=case_id,
+                 incident_id=c.incident_id, district_id=c.district_id, case_id=case_id, reason=why,
+                 data={"from": c.priority, "to": priority, "reasons": reasons})
+    return {"priority": priority, "changed": True}

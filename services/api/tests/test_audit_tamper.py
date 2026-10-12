@@ -32,12 +32,12 @@ def test_verify_and_the_event_list_are_not_on_the_public_listener(seeded, public
 
 
 @pytest.mark.parametrize("label,sql", [
-    ("edit the body", "UPDATE events SET body = replace(body, '\"case.seeded\"', '\"case.erased\"') WHERE seq = :s"),
+    ("edit the body", "UPDATE events SET body = replace(body, '\"case.created\"', '\"case.erased\"') WHERE seq = :s"),
     ("edit a column only", "UPDATE events SET reason = 'edited quietly' WHERE seq = :s"),
     ("swap the actor", "UPDATE events SET actor_id = 'someone-else' WHERE seq = :s"),
 ])
-def test_an_edit_breaks_the_chain_at_exactly_that_row(seeded, client, owner_db, label, sql):
-    target = 20
+def test_an_edit_breaks_the_chain_at_exactly_that_row(seeded, client, owner_db, app_db, label, sql):
+    target = one(app_db, "SELECT min(seq) FROM events WHERE action = 'case.created'")
     with owner_db.begin() as c:   # the table owner stands in for a database superuser
         c.execute(text(sql), {"s": target})
     v = verify(client)
@@ -51,16 +51,17 @@ def test_deleting_a_row_breaks_the_chain_at_the_next_one(seeded, client, owner_d
     assert not v["ok"] and v["broken_at"] == 31
 
 
-def test_a_forged_row_with_a_recomputed_hash_still_breaks_the_link(seeded, client, owner_db):
+def test_a_forged_row_with_a_recomputed_hash_still_breaks_the_link(seeded, client, owner_db, app_db):
     """Re-hashing one row isn't enough: the next row's prev_hash no longer links."""
     from app.core.eventlog import chain_hash
+    target = one(app_db, "SELECT max(seq) FROM events WHERE action = 'case.created'") - 3
     with owner_db.begin() as c:
-        r = c.execute(text("SELECT body, prev_hash FROM events WHERE seq = 25")).one()
-        body = r.body.replace('"case.seeded"', '"case.erased"')
-        c.execute(text("UPDATE events SET body = :b, action = 'case.erased', hash = :h WHERE seq = 25"),
-                  {"b": body, "h": chain_hash(r.prev_hash, body)})
+        r = c.execute(text("SELECT body, prev_hash FROM events WHERE seq = :s"), {"s": target}).one()
+        body = r.body.replace('"seq":', '"seq": ', 0) + " "      # any change to the stored text
+        c.execute(text("UPDATE events SET body = :b, hash = :h WHERE seq = :s"),
+                  {"b": body, "h": chain_hash(r.prev_hash, body), "s": target})
     v = verify(client)
-    assert not v["ok"] and v["broken_at"] == 26
+    assert not v["ok"] and v["broken_at"] == target + 1
 
 
 def test_event_list_filters_by_case(seeded, client, app_db):
@@ -68,4 +69,4 @@ def test_event_list_filters_by_case(seeded, client, app_db):
     login(client, "rdas")
     events = client.get("/v1/audit", params={"case_id": case_id}).json()
     assert events and all(e["case_id"] == case_id for e in events)
-    assert events[0]["action"] == "case.seeded"
+    assert events[0]["action"] == "case.created"

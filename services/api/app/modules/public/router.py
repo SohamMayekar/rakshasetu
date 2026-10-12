@@ -187,7 +187,7 @@ def add_callback(public_id: str, body: Callback) -> dict:
 STEPS = ["registered", "help_assigned", "team_reached", "rescued"]
 STEP_OF = {"reported": "registered", "checked": "registered", "assigned": "help_assigned",
            "acknowledged": "help_assigned", "reached": "team_reached", "rescued": "rescued", "closed": "rescued"}
-STEP_EVENTS = ("case.created", "assignment.created", "assignment.reached", "rescue.recorded",
+STEP_EVENTS = ("assignment.created", "assignment.reached", "rescue.recorded",
                "rescue.partial", "case.closed", "case.reopened", "case.cancelled")
 _lookups: dict[str, list[float]] = {}
 
@@ -206,13 +206,14 @@ def _rate_limit(request) -> None:
 
 def public_status(public_id: str) -> dict | None:
     with get_engine().connect() as c:
-        case = c.execute(text("SELECT id, public_id, status, parent_case_id, created_at FROM cases WHERE public_id = :p"),
+        case = c.execute(text("SELECT id, public_id, status, parent_case_id, queue_since AS created_at FROM cases"
+                              " WHERE public_id = :p"),
                          {"p": public_id}).one_or_none()
         if case is None:
             return None
         merged_into = None
         if case.status == "merged" and case.parent_case_id:   # P1 #12: the merged-ID redirect
-            parent = c.execute(text("SELECT id, public_id, status, created_at FROM cases WHERE id = :i"),
+            parent = c.execute(text("SELECT id, public_id, status, queue_since AS created_at FROM cases WHERE id = :i"),
                                {"i": case.parent_case_id}).one()
             merged_into, case = parent.public_id, parent
         others = c.execute(text("SELECT count(*) FROM reports WHERE case_id = :c"), {"c": case.id}).scalar() - 1

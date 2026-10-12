@@ -65,3 +65,25 @@ def test_demo_users_have_roles_and_scopes(seeded):
     _, eng = seeded
     rows = dict(q(eng, "SELECT username, role FROM users"))
     assert rows["rdas"] == "duty_officer" and rows["boat5"] == "team_lead" and rows["seoc"] == "seoc_viewer"
+
+
+def test_seeded_reports_went_through_the_real_pipeline_and_match_their_truth(seeded):
+    """Every seeded BR text is processed by keywords + the gazetteer ladder + the priority rules;
+    the result is compared with what the generator says each text contains."""
+    import yaml
+
+    from app.settings import get_settings
+    _, eng = seeded
+    truth = {c["key"]: c["truth"] for c in yaml.safe_load(
+        (get_settings().data_dir / "scenarios" / "BR" / "cases.yaml").read_text())["cases"]}
+    rows = q(eng, "SELECT r.idempotency_key AS key, c.people_count, c.hazards, c.needs, c.vulnerable, c.location_text,"
+                  " c.priority, c.priority_reasons FROM reports r JOIN cases c ON c.id = r.case_id"
+                  " JOIN incidents i ON i.id = c.incident_id WHERE i.code = 'BR' AND r.source_ns = 'seed'")
+    assert len(rows) == len(truth)
+    facts_ok = sum(r.people_count == truth[r.key]["people_count"] and sorted(r.hazards) == truth[r.key]["hazards"]
+                   and sorted(r.needs) == truth[r.key]["needs"] and sorted(r.vulnerable) == truth[r.key]["vulnerable"]
+                   for r in rows)
+    place_ok = sum(r.location_text == truth[r.key]["village"] for r in rows)
+    assert facts_ok / len(rows) >= 0.95, facts_ok
+    assert place_ok / len(rows) >= 0.85, place_ok
+    assert all(r.priority_reasons and "not triaged" not in r.priority_reasons[0] for r in rows)

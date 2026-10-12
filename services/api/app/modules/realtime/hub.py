@@ -58,9 +58,10 @@ class Hub:
         if self._task:
             self._task.cancel()
             with contextlib.suppress(asyncio.CancelledError, Exception):
-                await self._task
+                await asyncio.wait_for(self._task, timeout=3)
         if self._db:
-            await self._db.close()
+            with contextlib.suppress(Exception):
+                await asyncio.wait_for(self._db.close(), timeout=3)
 
     async def _run(self, conninfo: str) -> None:
         """LISTEN forever; reconnect if Postgres goes away. A 1 s tick also flushes coalesced updates
@@ -69,11 +70,10 @@ class Hub:
             try:
                 async with await psycopg.AsyncConnection.connect(conninfo, autocommit=True) as listen:
                     await listen.execute("LISTEN ev")
-                    gen = listen.notifies()
                     while True:
-                        try:
-                            await asyncio.wait_for(anext(gen), timeout=COALESCE_SECONDS)
-                        except TimeoutError:
+                        # psycopg's own timeout: returns after one notification or a quiet second, without
+                        # cancelling the generator (cancelling it can leave the connection stuck)
+                        async for _ in listen.notifies(timeout=COALESCE_SECONDS, stop_after=1):
                             pass
                         await self.pump()
             except asyncio.CancelledError:

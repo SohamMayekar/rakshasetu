@@ -88,6 +88,13 @@ class PriorityRule(Strict):
     when: str
     reason: str
 
+    @field_validator("when")
+    @classmethod
+    def _readable(cls, v):
+        from app.core.expr import parse
+        parse(v)   # a typo or an unknown fact fails at boot, with the rule quoted
+        return v
+
 
 class Contact(Strict):
     acknowledge_within: dict[str, str]

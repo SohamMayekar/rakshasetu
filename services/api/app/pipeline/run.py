@@ -16,13 +16,13 @@ from dataclasses import dataclass, field
 from pydantic import ValidationError
 from sqlalchemy import Engine, text
 
-from app.config import get_config
 from app.contracts import Extraction
 from app.core.eventlog import WORKER, append_event
 from app.core.flags import language_model_enabled
 from app.core.jobs import RetryLater, enqueue, handler
 from app.modules.cases.service import create_case
 from app.modules.location.ladder import resolve as resolve_location
+from app.modules.triage.rules import triage
 from app.pipeline import llm_extract
 from app.pipeline.fields import fields_from_extraction
 from app.pipeline.keywords import extract_keywords
@@ -66,7 +66,7 @@ def transcribe(engine: Engine, report) -> tuple[str | None, dict]:
     return res.value.text.strip(), {"step": "stt", "by": by, "detail": label, "language": res.value.language}
 
 
-def extract(report) -> Extracted:
+def extract(report, allow_model: bool = True) -> Extracted:
     """Stage 1b (network; never inside a transaction).
     Pre-structured partner/surge fields → used as given (validated). Language model on → the model's
     extraction (cache first), quote-checked and cross-checked by rules. Model off, down, out of quota or
@@ -79,6 +79,9 @@ def extract(report) -> Extracted:
         except ValidationError:
             pass   # read the text instead
     keywords = extract_keywords(text_in)
+    if not allow_model:     # seeding: never spend free quota on synthetic seed reports
+        return Extracted(keywords, "rules", [{"step": "extract", "by": "Rule",
+                                              "detail": f"seeded report, keywords: {_count(keywords)} fields"}])
     if not language_model_enabled():
         return Extracted(keywords, "rules", [{"step": "extract", "by": "Rule",
                                               "detail": f"language model off: {_count(keywords)} fields"}], backfill=True)
@@ -114,13 +117,6 @@ def _count(ex: Extraction) -> int:
             + bool(ex.location.village_or_locality) + len(ex.location.landmarks))
 
 
-def triage(fields: dict) -> tuple[str, list[str]]:
-    """Stage 3. The rule engine arrives in m25; until then every case gets the config's catch-all rule
-    (P4, "no urgent signal yet: check"), so a person reads it."""
-    catch_all = get_config().priority[-1]
-    return catch_all.level, [catch_all.reason]
-
-
 @handler("report.process")
 def process_report(engine: Engine, payload: dict) -> None:
     report = load_report(engine, payload["report_id"])
@@ -141,7 +137,7 @@ def process_report(engine: Engine, payload: dict) -> None:
     if audio_only:
         out = Extracted(Extraction.empty(), "rules", [])
     else:
-        out = extract(report)
+        out = extract(report, allow_model=not payload.get("seed"))
     extraction, method, receipt = out.extraction, out.method, stt_steps + out.receipt
     fields = fields_from_extraction(extraction, method, report.id, out.amber, out.extras)
     # Stage 1d: resolve location (rules over the committed gazetteer; read-only, no transaction held).
@@ -160,9 +156,9 @@ def process_report(engine: Engine, payload: dict) -> None:
     if audio_only:
         fields["flags"] = ["audio_only", *fields.get("flags", [])]
         fields["summary"] = "audio only: listen"
-    priority, reasons = triage(fields)
-    fields.update(priority=priority, priority_reasons=reasons)
-    receipt.append({"step": "priority", "by": "Rule", "detail": f"{priority} · {reasons[0]}"})
+    priority, reasons, rank = triage(fields)                  # Stage 3: rules, never the model
+    fields.update(priority=priority, priority_reasons=reasons, p1_rank=rank)
+    receipt.append({"step": "priority", "by": "Rule", "detail": f"{priority} · {' · '.join(reasons)}"})
     with engine.begin() as conn:
         locked = conn.execute(text("SELECT case_id, incident_id, source FROM reports WHERE id = :id FOR UPDATE"),
                               {"id": report.id}).one()
@@ -225,6 +221,8 @@ def backfill(engine: Engine, payload: dict) -> None:
             " people_count = :pc, summary = :s, version = version + 1, updated_at = now() WHERE id = :c"),
             {"p": json.dumps(prov, ensure_ascii=False), "h": hazards, "n": needs, "v": vulnerable, "pc": people,
              "s": summary(people, None, hazards, needs, vulnerable), "c": case.id})
+        from app.modules.cases.service import retriage
+        retriage(conn, case.id, WORKER, why="language model back-filled the facts")
         conn.execute(text("UPDATE reports SET extraction = CAST(:e AS jsonb), extraction_method = 'ai',"
                           " receipt = receipt || CAST(:r AS jsonb) WHERE id = :id"),
                      {"e": ex.model_dump_json(), "id": report.id,

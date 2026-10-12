@@ -76,3 +76,19 @@ def test_corrections_are_desk_only(seeded, client, public_client):
     assert client.post("/v1/cases/BR-151/check").status_code == 403
     login(public_client, "priya", "rakshasetu")
     assert public_client.post("/v1/cases/BR-151/check").status_code == 404
+
+
+def test_correcting_the_facts_re_runs_the_priority_rules(seeded, client, app_db):
+    login(client, "priya")
+    pid = one(app_db, "SELECT public_id FROM cases WHERE priority = 'P2' AND district_id = "
+                      "(SELECT id FROM districts WHERE name = 'Gopalganj') ORDER BY id LIMIT 1")
+    v = client.get(f"/v1/cases/{pid}").json()["version"]
+    r = client.patch(f"/v1/cases/{pid}", json={"changes": {"needs": ["medical_urgent"]}, "reason": "caller: grandmother unconscious"},
+                     headers={"If-Match": str(v)})
+    assert r.status_code == 200
+    case = client.get(f"/v1/cases/{pid}").json()
+    assert case["priority"] == "P1" and "urgent medical need" in case["priority_reasons"]
+    login(client, "rdas")
+    events = client.get("/v1/audit", params={"case_id": case["id"]}).json()
+    change = [e for e in events if e["action"] == "case.priority_changed"][-1]
+    assert change["data"]["from"] == "P2" and change["data"]["to"] == "P1" and "unconscious" in change["reason"]

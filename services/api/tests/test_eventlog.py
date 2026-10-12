@@ -16,7 +16,7 @@ pytestmark = needs_db
 def test_seed_starts_a_new_chain_with_a_genesis_event(seeded, app_db):
     first = rows(app_db, "SELECT seq, action, prev_hash FROM events ORDER BY seq LIMIT 1")[0]
     assert (first.seq, first.action, first.prev_hash) == (1, "chain.genesis", GENESIS_PREV)
-    assert one(app_db, "SELECT count(*) FROM events WHERE action = 'case.seeded'") == seeded["cases"]
+    assert one(app_db, "SELECT count(*) FROM events WHERE action = 'case.created'") == seeded["cases"]
 
 
 def test_body_is_canonical_text_and_hash_covers_exactly_it(seeded, app_db):

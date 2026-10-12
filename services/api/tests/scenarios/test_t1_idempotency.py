@@ -48,7 +48,7 @@ def test_t1_one_report_becomes_exactly_one_case_even_if_processed_twice(seeded, 
     process_report(app_db, {"report_id": rid})        # a duplicate delivery of the same job
     assert one(app_db, "SELECT count(*) FROM cases c JOIN reports r ON r.case_id = c.id WHERE r.id = :r", r=rid) == 1
     case = client.get(f"/v1/cases/{one(app_db, 'SELECT case_id FROM reports WHERE id = :r', r=rid)}").json()
-    assert case["district"] == "Gopalganj" and case["priority"] == "P4"
+    assert case["district"] == "Gopalganj" and case["priority"] == "P2"   # trapped, but no water/vulnerable stated
 
 
 def test_the_report_text_is_kept_verbatim(seeded, client, app_db):

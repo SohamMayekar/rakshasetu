@@ -39,7 +39,7 @@ def test_polling_backfill_returns_envelopes_filtered_by_incident(seeded, client,
     assert {e["incident_id"] for e in events} <= {None, br}
     gopalganj = one(app_db, "SELECT id FROM districts WHERE name = 'Gopalganj'")
     assert {e["district_id"] for e in events} <= {None, gopalganj}   # never Muzaffarpur's events
-    assert any(e["type"] == "case.seeded" for e in events)
+    assert any(e["type"] == "case.created" for e in events)
     assert [e["seq"] for e in events] == sorted(e["seq"] for e in events)
 
 
