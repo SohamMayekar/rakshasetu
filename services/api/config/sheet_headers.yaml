@@ -6,7 +6,7 @@ fields:
   phone:       [phone, mob, mobile, "mobile no", "mob no", contact, "contact no", "phone no", number, फोन, मोबाइल]
   headcount:   ["kitne log", members, persons, people, "no of people", "no. of people", count, "total people", logon, संख्या, "log"]
   location:    [location, address, landmark, "where", "location details", pata, पता, "address/landmark", "village/landmark", "location/landmark", "landmark/location", "exact location"]
-  village:     [village, gaon, gram, "village name", गाँव, गांव, "mohalla", "tola"]
+  village:     [village, gaon, gram, "village name", गाँव, गांव, "mohalla", "tola", area, "area name", locality, vibhag, विभाग]
   district:    [district, zila, jila, जिला]
   needs:       [needs, need, "requirement", zaroorat, "help needed", "what is needed"]
   notes:       [remarks, notes, details, message, "msg", "situation", "description", टिप्पणी]

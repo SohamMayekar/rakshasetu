@@ -22,7 +22,7 @@ const ICON: Record<string, LucideIcon> = { team_lead: LifeBuoy, admin: LayoutGri
 async function enter(username: string, password?: string) {
   await api("/v1/auth/login", { method: "POST", json: password ? { username, password } : { username } });
   const me = await api<{ user: { role: string }; incidents: { code: string }[] }>("/v1/me");
-  location.href = (HOME[me.user.role] ?? (() => "/"))(me.incidents[0]?.code ?? "BR");
+  location.href = me.incidents[0] ? (HOME[me.user.role] ?? (() => "/"))(me.incidents[0].code) : "/";
 }
 
 export default function Login() {

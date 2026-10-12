@@ -28,8 +28,13 @@ import httpx
 
 PARTNER = "surge-generator"
 
-# Real places from the committed BR gazetteer, with a landmark that resolves to a Medium pin there (m31), and
-# district-level places for the thin packs (they have no gazetteer: those cases are honest "district only").
+# Real places from the committed gazetteers, with a landmark that resolves to a Medium pin there (BR m31, MH m88),
+# and district-level places for the thin packs (they have no gazetteer: those cases are honest "district only").
+MH = [("Kurla East", "near the church", "church"), ("Ghatkopar West", "near the church", "church"),
+      ("Govandi East", "near the church", "church"), ("Malad West", "near the church", "church"),
+      ("Wadala", "near the masjid", "mosque"), ("Mahul", "near the station", "railway_station"),
+      ("Cheeta Camp", "near the station", "railway_station"), ("Andheri East", "near the masjid", "mosque"),
+      ("Kalina", None, None), ("Saki Naka", None, None), ("Jarimari", None, None), ("Chembur", None, None)]
 BR = [("Kalu Chhapra", "near the school", "school"), ("Bhore", "near the hospital", "hospital"),
       ("Katiya", "behind the hospital", "hospital"), ("Barauli", "near the station", "railway_station"),
       ("Mirganj", "near the station", "railway_station"), ("Kuchaikote", "near the station", "railway_station"),
@@ -46,21 +51,23 @@ GIVEN = ["Ramesh", "Suresh", "Mahesh", "Dinesh", "Rajesh", "Mukesh", "Umesh", "G
          "Sunita", "Anita", "Savita", "Kavita", "Rekha", "Meena", "Geeta", "Seema", "Pooja", "Neha",
          "Ram", "Shyam", "Mohan", "Sohan", "Gopal", "Kishan", "Hari", "Shiv", "Raju", "Bablu",
          "Lalita", "Shanti", "Kamla", "Sarita", "Usha", "Asha", "Radha", "Sita", "Gita", "Manju"]
-FAMILY = ["Yadav", "Kumar", "Prasad", "Singh", "Mahto", "Paswan", "Ram", "Sah", "Devi", "Manjhi", "Rai", "Thakur"]
+FAMILY = {"BR": ["Yadav", "Kumar", "Prasad", "Singh", "Mahto", "Paswan", "Ram", "Sah", "Devi", "Manjhi", "Rai", "Thakur"],
+          "MH": ["Patil", "Shinde", "Jadhav", "Pawar", "Sawant", "Kamble", "Gaikwad", "Chavan", "Shaikh", "Khan", "Yadav", "Gupta"]}
+PLACES = {"MH": MH, "BR": BR}
 
 
 def household(rng: random.Random, n: int) -> dict:
-    incident = rng.choices(["BR", "OD", "HP"], weights=[8, 1, 1])[0]
+    incident = rng.choices(["MH", "BR", "OD", "HP"], weights=[8, 1, 1, 1])[0]
     people = rng.choice([2, 3, 4, 5, 6, 7, 8])
     sit, sit_q = rng.choice(SITUATIONS)
     need, need_q = rng.choice(NEEDS)
     vul, vul_q = rng.choice(VULN)
-    name = f"{rng.choice(GIVEN)} {rng.choice(FAMILY)}" if rng.random() < 0.85 else None
+    name = f"{rng.choice(GIVEN)} {rng.choice(FAMILY.get(incident, FAMILY['BR']))}" if rng.random() < 0.85 else None
     name_q = f"{name}'s family" if name else None
     count_q = f"{people} people"
-    if incident == "BR":
-        village, lm_q, lm_type = rng.choice(BR)
-        lead = f"in {village} village" + (f", {lm_q}" if lm_q else "")
+    if incident in PLACES:
+        village, lm_q, lm_type = rng.choice(PLACES[incident])
+        lead = f"in {village}{' village' if incident == 'BR' else ''}" + (f", {lm_q}" if lm_q else "")
         district = None
     else:
         village, lm_q, lm_type, district = None, None, None, rng.choice(THIN[incident])

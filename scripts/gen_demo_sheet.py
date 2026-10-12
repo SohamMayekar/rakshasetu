@@ -1,19 +1,21 @@
-"""Generate the 300-row demo volunteer sheet and its ground truth (PRD F-D3, §16.1 scene 1:15).
+"""Generate a pack's 300-row demo volunteer sheet and its ground truth (PRD F-D3, §16.1 scene 1:15).
 
-    python scripts/gen_demo_sheet.py        (from the repo root, with services/api/.venv)
+    python scripts/gen_demo_sheet.py              (from the repo root, with services/api/.venv): BR
+    python scripts/gen_demo_sheet.py --pack MH    Mumbai
 
-Writes data/scenarios/BR/sheet/volunteer_sheet.csv (as a volunteer's Excel saved it: mixed phone formats,
+Writes data/scenarios/<pack>/sheet/volunteer_sheet.csv (as a volunteer's Excel saved it: mixed phone formats,
 misspelt villages, blank cells, 14 phones already damaged by Excel) and ground_truth.csv (which household each
 row really is, and what the import should do with it). The screens are English-only for now (decision D17), so
 the sheet is in English; the importer still reads Hindi and Hinglish headers and cells. Every English list has
 the same length as the Hinglish one it replaced, so the random stream (and every household) is unchanged.
 
 Deterministic (fixed seed). People and phone numbers are synthetic and never dialled; places are real OSM
-features from the committed gazetteer. Thawe is left out on purpose: the live demo's household is there.
+features from the committed gazetteer. The live demo's own place is left out on purpose (Thawe; Kurla West).
 Every misspelling is checked against the same fuzzy rule the location ladder uses, so the rows the generator
 calls "rules can read" really are; the rows it calls "needs AI" have no headcount the rules can find.
 """
 
+import argparse
 import csv
 import io
 import random
@@ -26,9 +28,6 @@ sys.path.insert(0, str(ROOT / "services" / "api"))
 from app.modules.location.names import norm
 from rapidfuzz import fuzz
 
-OUT = ROOT / "data" / "scenarios" / "BR" / "sheet"
-GAZ = ROOT / "data" / "scenarios" / "BR" / "gazetteer" / "places.csv"
-SEED = 2026_10_05
 ROWS = 300
 FUZZY_MIN = 85          # rakshasetu.config.yaml location.village_fuzzy_min
 
@@ -86,13 +85,62 @@ SEEDED_DUPLICATES = [   # existing seeded cases (data/scenarios/BR/cases.yaml) t
     ("br-030", "098765 20030", "Nawadah", 5), ("br-015", "9876520015", "Sidhwalia", 6)]
 
 
-def places() -> dict[str, dict]:
-    return {r["name"].strip(): r for r in csv.DictReader(GAZ.open()) if r["district"] == "Gopalganj"}
+# Mumbai (MH, m88). LANDMARKED: each phrase measured on the MH map with the real location ladder (m88): it pins
+# the ONE such landmark mapped near that place (step 4, a 300 m circle). VILLAGE_ONLY: places that resolve to
+# themselves with no landmark said. Kurla West is left out: the live demo's family is there.
+MH = {
+    "seed": 2026_10_07, "districts": ("Mumbai Suburban", "Mumbai City"),
+    "landmarked": {
+        "Kurla East": ["near the church"], "Ghatkopar West": ["near the church"], "Govandi East": ["near the church"],
+        "Malad West": ["near the church", "near the masjid"], "Wadala": ["near the church", "near the masjid"],
+        "Mahul": ["near the school", "near the hospital", "near the station"], "Cheeta Camp": ["near the station"],
+        "Andheri East": ["near the masjid"], "Powai": ["near the masjid"], "Santacruz West": ["near the masjid"],
+        "Vikhroli Gaon": ["near the station", "near the masjid"], "Parel": ["near the masjid"],
+        "Shivaji Nagar": ["near the church"], "Mankhurd Village": ["near the church"], "Goregaon East": ["near the masjid"],
+    },
+    "village_only": ["Kalina", "Saki Naka", "Jarimari", "Chembur", "Mankhurd", "Dharavi", "Sion Koliwada", "Bandra East",
+                     "Kherwadi", "Chandivali", "Asalpha", "Tilak Nagar", "Deonar", "Mahim", "Nahur"],
+    "variants": {
+        "Ghatkopar West": ["Ghatkoper West"], "Govandi East": ["Gowandi East"], "Wadala": ["Vadala"],
+        "Chembur": ["Chembure"], "Dharavi": ["Dharawi"], "Jarimari": ["Jari Mari"], "Saki Naka": ["Sakinaka"],
+        "Kalina": ["Kaleena"], "Mankhurd": ["Mankhurdh"], "Kherwadi": ["Kherwaadi"], "Malad West": ["Malaad West"],
+        "Cheeta Camp": ["Chita Camp"],
+    },
+    "given": [("Sunita", "सुनीता"), ("Rekha", "रेखा"), ("Anita", "अनीता"), ("Meena", "मीना"), ("Asha", "आशा"),
+              ("Sangeeta", "संगीता"), ("Lata", "लता"), ("Vaishali", "वैशाली"), ("Pooja", "पूजा"), ("Shabana", "शबाना"),
+              ("Rukhsana", "रुखसाना"), ("Mary", "मेरी"), ("Ramesh", "रमेश"), ("Suresh", "सुरेश"), ("Ganesh", "गणेश"),
+              ("Santosh", "संतोष"), ("Vijay", "विजय"), ("Prakash", "प्रकाश"), ("Anil", "अनिल"), ("Mahesh", "महेश"),
+              ("Sachin", "सचिन"), ("Rahul", "राहुल"), ("Imran", "इमरान"), ("Salim", "सलीम"), ("Joseph", "जोसेफ"),
+              ("Francis", "फ्रान्सिस"), ("Dattatray", "दत्तात्रय"), ("Tukaram", "तुकाराम"), ("Sandeep", "संदीप"),
+              ("Nitin", "नितीन"), ("Bharati", "भारती"), ("Kavita", "कविता"), ("Manisha", "मनीषा"), ("Yusuf", "यूसुफ"),
+              ("Kishor", "किशोर"), ("Dinesh", "दिनेश"), ("Shankar", "शंकर"), ("Laxman", "लक्ष्मण"), ("Vinod", "विनोद"),
+              ("Sunil", "सुनील")],
+    "surname": [("Patil", "पाटील"), ("Shinde", "शिंदे"), ("Jadhav", "जाधव"), ("Pawar", "पवार"), ("Sawant", "सावंत"),
+                ("Kamble", "कांबळे"), ("Gaikwad", "गायकवाड"), ("Chavan", "चव्हाण"), ("Shaikh", "शेख"), ("Khan", "खान"),
+                ("Ansari", "अंसारी"), ("Fernandes", "फर्नांडिस"), ("Yadav", "यादव"), ("Gupta", "गुप्ता")],
+    "seeded_duplicates": [("mh-018", "98765 30018", "Kalina", 7), ("mh-033", "+91-98765-30033", "Bandra East", 6),
+                          ("mh-035", "098765 30035", "Mankhurd", 9), ("mh-017", "9876530017", "Dharavi", 5)],
+    "relay_villages": ["Wadala", "Wadala", "Mahul", "Mahul", "Kurla East", "Kurla East", "Chembur", "Chembur"],
+    "das": ("Wadala", "near the church", ("Patil", "पाटील")),
+    "volunteers": ["Ravi", "Anjali", "Imran", "Pooja (NSS)", "Sanjay", "Neha", ""],
+    "village_header": "Area",   # a Mumbai volunteer writes the neighbourhood under "Area"
+}
+BR = {
+    "seed": 2026_10_05, "districts": ("Gopalganj",), "landmarked": LANDMARKED, "village_only": VILLAGE_ONLY,
+    "variants": VARIANTS, "given": GIVEN, "surname": SURNAME, "seeded_duplicates": SEEDED_DUPLICATES,
+    "relay_villages": ["Kalu Chhapra", "Kalu Chhapra", "Bhore", "Bhore", "Hathua", "Hathua", "Dewapur", "Dewapur"],
+    "das": ("Meera Chhapra", "near the school", ("Das", "दास")), "volunteers": VOLUNTEERS,
+}
 
 
-def check_variants(gaz: dict[str, dict]) -> None:
+def places(pack: str, districts) -> dict[str, dict]:
+    gaz = ROOT / "data" / "scenarios" / pack / "gazetteer" / "places.csv"
+    return {r["name"].strip(): r for r in csv.DictReader(gaz.open()) if r["district"] in districts}
+
+
+def check_variants(gaz: dict[str, dict], variants: dict) -> None:
     """Each spelling must still match its own village best, at the ladder's fuzzy floor."""
-    for name, variants in VARIANTS.items():
+    for name, variants in variants.items():
         for v in variants:
             scores = {p: fuzz.ratio(norm(v), norm(p)) for p in gaz}
             best = max(scores, key=scores.get)
@@ -120,9 +168,16 @@ class Phones:
 
 
 def main() -> None:
-    rng = random.Random(SEED)
-    gaz = places()
-    check_variants(gaz)
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--pack", default="BR", choices=["BR", "MH"])
+    pack = ap.parse_args().pack
+    cfg = {"BR": BR, "MH": MH}[pack]
+    OUT = ROOT / "data" / "scenarios" / pack / "sheet"
+    LANDMARKED, VILLAGE_ONLY, VARIANTS = cfg["landmarked"], cfg["village_only"], cfg["variants"]
+    GIVEN, SURNAME, VOLUNTEERS = cfg["given"], cfg["surname"], cfg["volunteers"]
+    rng = random.Random(cfg["seed"])
+    gaz = places(pack, cfg["districts"])
+    check_variants(gaz, VARIANTS)
     for v in [*LANDMARKED, *VILLAGE_ONLY]:
         assert v in gaz, v
     phones = Phones(rng)
@@ -203,16 +258,17 @@ def main() -> None:
         row(h, expect="new", phone_cell=Phones.damaged(h["phone"], resaved=i % 3 == 0), damaged=True)
     # E · a relief volunteer's phone on 8 different families (a relay phone): never identity.
     relay = phones.new()
-    for village in ["Kalu Chhapra", "Kalu Chhapra", "Bhore", "Bhore", "Hathua", "Hathua", "Dewapur", "Dewapur"]:
+    for village in cfg["relay_villages"]:
         h = household("relay_phone", village, None, rng.choice([3, 4, 5, 6]), phone=relay)
         row(h, expect="new", relay=True, note="volunteer's phone, different family")
-    # F · Ramesh Das and Rajesh Das: same village, landmark and headcount, different phones → refused, two cases.
+    # F · Ramesh and Rajesh of one surname: same place, landmark and headcount, different phones → refused, two cases.
+    das_place, das_landmark, (sur, sur_hi) = cfg["das"]
     for given in (("Ramesh", "रमेश"), ("Rajesh", "राजेश")):
-        h = household("das_pair", "Meera Chhapra", "near the school", 5, name=(f"{given[0]} Das", f"{given[1]} दास"))
-        used.setdefault("Meera Chhapra", []).append(given[0])
+        h = household("das_pair", das_place, das_landmark, 5, name=(f"{given[0]} {sur}", f"{given[1]} {sur_hi}"))
+        used.setdefault(das_place, []).append(given[0])
         row(h, expect="new", note="Ramesh ≠ Rajesh: never merged")
     # G · families already reported before the sheet (seeded cases): same phone and village → for a person.
-    for key, phone_cell, village, n in SEEDED_DUPLICATES:
+    for key, phone_cell, village, n in cfg["seeded_duplicates"]:
         h = household("seeded_duplicate", village, None, n, phone=phone_cell.replace(" ", "").replace("-", "")[-10:])
         row(h, expect="to_check", phone_cell=phone_cell, seed_case=key, village_cell=village,
             note=f"already reported as seed case {key}; village-only pins can't auto-merge (D10)")
@@ -261,7 +317,7 @@ def main() -> None:
     headers = ["S.No", "Name", "Mobile No", "No. of people", "Village", "Location/Landmark", "Remarks", "Time", "Status", "Volunteer"]
     buf = io.StringIO()
     w = csv.writer(buf, lineterminator="\r\n")     # Excel's line endings
-    w.writerow(headers)
+    w.writerow([cfg.get("village_header", h) if h == "Village" else h for h in headers])
     for i, r in enumerate(rows, start=1):
         w.writerow([i, *(r[h] for h in headers[1:])])
     (OUT / "volunteer_sheet.csv").write_text(buf.getvalue(), encoding="utf-8")

@@ -212,7 +212,10 @@ village_cues:
 
 # --- people's names (dedupe compares name tokens) ----------------------------------------------------
 surnames: [Das, Kumar, Kumari, Prasad, Yadav, Singh, Devi, Sharma, Mishra, Paswan, Ram, Sah, Mahto, Sahni, Mandal,
-           Thakur, Rai, Jha, Pandey, Tiwari, Gupta, Ansari, Khan, Choudhary, Manjhi]
+           Thakur, Rai, Jha, Pandey, Tiwari, Gupta, Ansari, Khan, Choudhary, Manjhi,
+           # Mumbai and Maharashtra (m88); not "More", which is also an English word
+           Patil, Shinde, Jadhav, Pawar, Sawant, Kamble, Gaikwad, Chavan, Deshmukh, Kulkarni, Joshi, Naik, Shaikh,
+           Fernandes, Bhosale, Salunkhe, Mane, Koli, Dsouza, Pereira]
 
 # --- who is speaking -----------------------------------------------------------------------------------
 on_site_cues: '\b(?:hum (?:log )?(?:yahan |abhi )?(?:fase|chhat)|we are (?:\d+|stuck|trapped|on the roof)|i am (?:stuck|trapped))\b|\bhum \d+ (?:log|jan)\b|हम (?:लोग )?फँसे|हम \S+ से हैं|आम्ही'

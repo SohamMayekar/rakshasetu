@@ -1,7 +1,8 @@
 """Per-scene demo resets (PRD F-C12): `make demo-reset SCENE=<id>` or POST /v1/demo/reset {scene}.
 
 A reset seeds the demo database (timestamps relative to now), then REPLAYS every scene before the chosen one
-through the real API, signed in as the person who does it on stage (data/scenarios/BR/demo.yaml): the
+through the real API, signed in as the person who does it on stage (data/scenarios/<pack>/demo.yaml; the pack
+is config demo.incident, MH): the
 recorded clip through the voice pipeline, the officer's paste, merge, check and sheet, the assignment and
 radio log, the team lead's taps, the family's answer. Nothing is written around the API except two things a
 reset has to do: it processes the queued jobs itself (so the next step sees the case), and for "Never stale"
@@ -22,6 +23,7 @@ import httpx
 import yaml
 from sqlalchemy import Engine, text
 
+from app.config import get_config
 from app.core.eventlog import SYSTEM, append_event
 from app.core.jobs import drain
 from app.db import engine_for, get_engine
@@ -37,23 +39,28 @@ class ScriptError(RuntimeError):
     """A step of the demo script didn't do what the script expects: the reset stops and says which."""
 
 
-def pack() -> Path:
-    return get_settings().data_dir / "scenarios" / "BR"
+def incident() -> str:
+    """The pack the performed demo runs on (config demo.incident)."""
+    return get_config().demo.get("incident", "MH")
 
 
-def script() -> dict:
-    return yaml.safe_load((pack() / "demo.yaml").read_text())
+def pack(code: str | None = None) -> Path:
+    return get_settings().data_dir / "scenarios" / (code or incident())
 
 
-def scene_ids() -> list[str]:
-    return [s["id"] for s in script()["scenes"]]
+def script(code: str | None = None) -> dict:
+    return yaml.safe_load((pack(code) / "demo.yaml").read_text())
+
+
+def scene_ids(code: str | None = None) -> list[str]:
+    return [s["id"] for s in script(code)["scenes"]]
 
 
 class Stage:
     """The people on stage, one at a time, through one HTTP client (signing in switches the cookie)."""
 
-    def __init__(self, http: httpx.Client, db: Engine):
-        self.http, self.db, self.who, self.state = http, db, None, {}
+    def __init__(self, http: httpx.Client, db: Engine, code: str):
+        self.http, self.db, self.code, self.who, self.state = http, db, code, None, {}
 
     def as_(self, username: str) -> "Stage":
         if self.who != username:
@@ -93,10 +100,10 @@ class Stage:
         raise ScriptError(f"report {report_id} wasn't in a case after {timeout:.0f} s")
 
     def team(self, name: str) -> int:
-        tid = self.one("SELECT t.id FROM teams t JOIN incidents i ON i.id = t.incident_id WHERE i.code = 'BR'"
-                       " AND t.name = :n", n=name)
+        tid = self.one("SELECT t.id FROM teams t JOIN incidents i ON i.id = t.incident_id WHERE i.code = :c"
+                       " AND t.name = :n", c=self.code, n=name)
         if not tid:
-            raise ScriptError(f"no team called {name!r} in BR")
+            raise ScriptError(f"no team called {name!r} in {self.code}")
         return tid
 
     def live_assignment(self, case_id: int) -> int:
@@ -109,9 +116,10 @@ class Stage:
 # ---- the steps: each one is a scene, played; a reset to scene N plays scenes 0..N-1 -------------------------
 
 def play_son(st: Stage, s: dict) -> None:
-    """0:00 The son in Mumbai: the recorded clip through the voice pipeline, from the son's phone."""
+    """0:00 A family asks for help: the recorded clip through the voice pipeline, from the son's phone."""
     st.as_("admin")
-    out = st.post("/v1/demo/play-clip", json={"clip": s["son"]["clip"], "device_id": s["son"]["device_id"]})
+    out = st.post("/v1/demo/play-clip", json={"clip": s["son"]["clip"], "device_id": s["son"]["device_id"],
+                                              "incident": s["incident"]})
     st.state["son"] = st.settle(out["report_id"])
 
 
@@ -119,7 +127,7 @@ def play_merge(st: Stage, s: dict) -> None:
     """0:50 Never doubled: the neighbour's forward is suggested and merged, the case checked; the Das family refused."""
     st.as_(s["operator"])
     son = st.state["son"]
-    rid = st.post("/v1/ingest/desk", json={"incident": "BR", "text": s["forward"]["text"], "phone": s["forward"]["phone"],
+    rid = st.post("/v1/ingest/desk", json={"incident": s["incident"], "text": s["forward"]["text"], "phone": s["forward"]["phone"],
                                            "client_id": str(uuid.uuid4()), "pasted_forward": True})["report_id"]
     fwd = st.settle(rid)
     if fwd != son:
@@ -129,7 +137,7 @@ def play_merge(st: Stage, s: dict) -> None:
             raise ScriptError("the neighbour's forward wasn't suggested as the son's household")
         st.state["son"] = son = st.post(f"/v1/merge-suggestions/{pair[0]['id']}/accept", json={})["kept"]
     st.post(f"/v1/cases/{son}/check", json={})
-    rid = st.post("/v1/ingest/desk", json={"incident": "BR", "text": s["das"]["text"], "phone": s["das"]["phone"],
+    rid = st.post("/v1/ingest/desk", json={"incident": s["incident"], "text": s["das"]["text"], "phone": s["das"]["phone"],
                                            "client_id": str(uuid.uuid4())})["report_id"]
     das = st.settle(rid)
     if das == son:
@@ -139,8 +147,8 @@ def play_merge(st: Stage, s: dict) -> None:
 def play_sheet(st: Stage, s: dict) -> None:
     """1:15 The volunteer sheet: upload, confirm the proposed mapping, wait for the summary."""
     st.as_(s["operator"])
-    path = pack() / s["sheet"]
-    imp = st.post("/v1/imports", files={"file": (path.name, path.read_bytes(), "text/csv")}, data={"incident": "BR"})
+    path = pack(s["incident"]) / s["sheet"]
+    imp = st.post("/v1/imports", files={"file": (path.name, path.read_bytes(), "text/csv")}, data={"incident": s["incident"]})
     st.post(f"/v1/imports/{imp['id']}/mapping", json={"mapping": imp["proposed"]})
     deadline = time.monotonic() + 90
     while time.monotonic() < deadline:
@@ -165,7 +173,7 @@ def play_stale(st: Stage, s: dict) -> None:
                      incident_id=row.incident_id, district_id=row.district_id, case_id=son, team_id=boat2,
                      data={"assignment_id": aid, "why": f"demo reset: {s['radio_team']}'s ETA has passed"})
     tick(st.db)
-    esc = [e for e in st.get("/v1/escalations", params={"incident": "BR"}) if e["team_id"] == boat2]
+    esc = [e for e in st.get("/v1/escalations", params={"incident": s["incident"]}) if e["team_id"] == boat2]
     if not esc:
         raise ScriptError(f"no escalation opened for {s['radio_team']}")
     st.post(f"/v1/escalations/{esc[0]['id']}/reassign", json={"case": str(son), "team_id": boat5})
@@ -214,9 +222,12 @@ def real_clock(db: Engine) -> int:
 PLAY = {"son": play_son, "merge": play_merge, "sheet": play_sheet, "stale": play_stale, "rescue": play_rescue}
 
 
-def reset(scene: str = "son", *, owner_url: str | None = None, http: httpx.Client | None = None) -> dict:
-    """Seed, then play every scene before `scene`. Returns what a person needs to carry on from there."""
-    ids = scene_ids()
+def reset(scene: str = "son", *, code: str | None = None, owner_url: str | None = None,
+          http: httpx.Client | None = None) -> dict:
+    """Seed, then play every scene before `scene` of pack `code` (default: the configured demo pack). Returns what
+    a person needs to carry on from there."""
+    code = code or incident()
+    ids = scene_ids(code)
     if scene not in ids:
         raise ScriptError(f"no scene {scene!r}; scenes are {', '.join(ids)}")
     owner_url = owner_url or os.environ.get("DEMO_OWNER_DATABASE_URL")
@@ -228,11 +239,11 @@ def reset(scene: str = "son", *, owner_url: str | None = None, http: httpx.Clien
     with quiet_streams(engine_for(owner_url)):   # partners hear nothing of the seed or the replay
         seed(owner_url, reason=f"demo reset to scene {scene!r}")
         timings = {"seed": round(time.monotonic() - t0, 1)}
-        s = script()
+        s = script(code)
         own = http is None
         http = http or httpx.Client(base_url=LOCAL, timeout=60)
         try:
-            st = Stage(http, get_engine())
+            st = Stage(http, get_engine(), code)
             for step in ids[:ids.index(scene)]:
                 t = time.monotonic()
                 PLAY[step](st, s)

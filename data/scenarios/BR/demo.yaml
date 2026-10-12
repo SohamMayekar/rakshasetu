@@ -3,6 +3,7 @@
 # API as the people who do it on stage, so the desk shows exactly what it would at that moment.
 # All people, phones and devices are synthetic.
 
+incident: BR
 operator: rdas                 # EOC Duty Officer on the projector desk (http://localhost)
 team_lead: boat5               # the responder phone: Fire & Rescue Boat 5
 

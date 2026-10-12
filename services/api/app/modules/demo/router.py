@@ -107,20 +107,23 @@ def start_surge(body: Surge, scope: Scope = Depends(require("incident.admin"))) 
 class Play(BaseModel):
     clip: str = Field(pattern=r"^clips/[A-Za-z0-9._-]+$")
     device_id: str | None = Field(default=None, min_length=8, max_length=100)
-    incident: str = Field("BR", pattern=r"^[A-Z]{2,4}$")
+    incident: str | None = Field(None, pattern=r"^[A-Z]{2,4}$")   # default: the demo's pack
 
 
 @router.post("/play-clip")
 def play_clip(body: Play, scope: Scope = Depends(require("incident.admin"))) -> dict:
     """PRD §16.4: a stored clip through the same live pipeline as a reporter's voice (say so on stage). It comes
     from the son's phone in the demo script unless another device is named."""
-    path = (scenes.pack() / body.clip).resolve()
-    if path.parent != (scenes.pack() / "clips").resolve() or path.suffix not in AUDIO or not path.is_file():
+    code = body.incident or scenes.incident()
+    if not (scenes.pack(code) / "demo.yaml").is_file():
         raise HTTPException(404, "No such clip")
-    device = body.device_id or scenes.script()["son"]["device_id"]
+    path = (scenes.pack(code) / body.clip).resolve()
+    if path.parent != (scenes.pack(code) / "clips").resolve() or path.suffix not in AUDIO or not path.is_file():
+        raise HTTPException(404, "No such clip")
+    device = body.device_id or scenes.script(code)["son"]["device_id"]
     with tempfile.NamedTemporaryFile(suffix=path.suffix) as tmp:
         shutil.copyfile(path, tmp.name)
-        reg = _register_voice(tmp.name, device, f"clip-{uuid.uuid4()}", body.incident)
+        reg = _register_voice(tmp.name, device, f"clip-{uuid.uuid4()}", code)
     with get_engine().begin() as c:
         append_event(c, actor=_actor(scope), action="demo.clip_played", entity_type="report", entity_id=reg["report_id"],
                      data={"report_id": reg["report_id"], "clip": body.clip, "synthetic_voice": ".synthetic." in path.name})

@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m87 (Mumbai floods is a full pack; the demo moves to it in m88) (reading measured: 88% of facts found on held-out reports, 98% right) (the desk's tabs: Cases, Teams, Alerts, Sheets) (the design run, m78–m82: docs/DESIGN_AUDIT.md) (the focus run, m73–m77: about families, teams and rescues) (the simplify run, m63–m72: docs/SIMPLIFY_PLAN.md); last release m62: see docs/VERIFICATION.md
+**Current milestone:** m88 IN PROGRESS on branch `m88-mumbai-demo` (not merged: e2e and DEMO.md still on Bihar) (Mumbai floods is a full pack; the demo moves to it in m88) (reading measured: 88% of facts found on held-out reports, 98% right) (the desk's tabs: Cases, Teams, Alerts, Sheets) (the design run, m78–m82: docs/DESIGN_AUDIT.md) (the focus run, m73–m77: about families, teams and rescues) (the simplify run, m63–m72: docs/SIMPLIFY_PLAN.md); last release m62: see docs/VERIFICATION.md
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -139,3 +139,8 @@
 
 - Docker Hub rate-limits anonymous pulls here (429), so base images come from `public.ecr.aws/docker/library/*` (the same official images, free, no account).
 - Docker's daemon isn't started by default in this sandbox; it was started with `dockerd`.
+
+## m88 · NOT DONE (session ended mid-branch, 12 Oct 2026)
+On branch `m88-mumbai-demo`, pushed, NOT merged. DONE there: the Mumbai demo script (`data/scenarios/MH/demo.yaml`), a synthetic Mumbai clip and its fixture, a 300-row Mumbai volunteer sheet (`gen_demo_sheet.py --pack MH`, "Area" header), demo resets per pack (config `demo.incident: MH`), the picker on Mumbai people (spatil, fb5, admin), public pages filing under the live incident, surge and partners on MH, Maharashtrian surnames, a test replaying the whole Mumbai demo (High · 150 m at the Shankar mandir and the bridge). API tests: 442 pass after the last picker-test fix (run `make test`).
+NOT DONE: `apps/web/e2e/golden.mjs` and `drills.mjs` still drive `/desk/BR` (the reset now replays MH, so `make e2e` will fail until they move to `/desk/MH`, user `spatil`, team `Fire Brigade Boat 5`, the Kurla West line); `docs/DEMO.md` still tells the Thawe story (swap in the lines from `data/scenarios/MH/demo.yaml`, sign in as S. Patil and `fb5`); the MH sheet README; the Makefile help text; then the gate and merge.
+

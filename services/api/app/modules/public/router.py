@@ -38,6 +38,11 @@ MAX_UPLOAD = 2 * 1024 * 1024
 REPLY = {"en": "Your report is registered. You don't need to remember anything."}
 
 
+def live_incident() -> str:
+    """Where a public report goes when its page names no incident (?i=): the live one (config demo.incident)."""
+    return get_config().demo.get("incident", "MH")
+
+
 def audio_mime(head: bytes) -> str:
     """The clip's real type from its first bytes (never the browser's say-so): the desk and a partner get a file
     a player can open, and evidence files are served with nosniff."""
@@ -122,21 +127,21 @@ def _register_voice(upload_path: str, device_id: str, session_id: str, incident:
 @router.post("/voice-turns")
 async def voice_turn(audio: UploadFile = File(...), device_id: str = Form(..., min_length=8, max_length=100),
                      session_id: str = Form(..., min_length=8, max_length=100),
-                     incident: str = Form("BR", pattern=r"^[A-Z]{2,4}$")) -> dict:
+                     incident: str | None = Form(None, pattern=r"^[A-Z]{2,4}$")) -> dict:
     data = await audio.read(MAX_UPLOAD + 1)
     if len(data) > MAX_UPLOAD:
         raise HTTPException(413, "Clip too large")
     with tempfile.NamedTemporaryFile(suffix=".upload") as tmp:
         tmp.write(data)
         tmp.flush()
-        reg = await run_in_threadpool(_register_voice, tmp.name, device_id, session_id, incident)
+        reg = await run_in_threadpool(_register_voice, tmp.name, device_id, session_id, incident or live_incident())
     return {**(await _wait_for_case(reg["report_id"])), "reply": REPLY}
 
 
 class TextTurn(BaseModel):
     device_id: str = Field(min_length=8, max_length=100)
     session_id: str = Field(min_length=8, max_length=100)
-    incident: str = Field("BR", pattern=r"^[A-Z]{2,4}$")
+    incident: str | None = Field(None, pattern=r"^[A-Z]{2,4}$")   # default: the live incident
     text: str = Field(min_length=2, max_length=2000)
 
 
@@ -146,7 +151,7 @@ async def text_turn(body: TextTurn) -> dict:
 
     def register():
         report = CanonicalReport(schema_version="1", idempotency_key=body.session_id, channel="web_form",
-                                 incident_hint=body.incident, reporter=Reporter(device_id=body.device_id),
+                                 incident_hint=body.incident or live_incident(), reporter=Reporter(device_id=body.device_id),
                                  content=Content(text=body.text), source=Source(system="reporter-pwa"))
         with get_engine().begin() as conn:
             return accept(conn, report, source_ns=f"voice:{dev[:16]}", actor=Actor("reporter", dev[:12], "reporter"),

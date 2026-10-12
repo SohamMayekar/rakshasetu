@@ -68,10 +68,16 @@
             "type": "string"
           },
           "incident": {
-            "default": "BR",
-            "pattern": "^[A-Z]{2,4}$",
-            "title": "Incident",
-            "type": "string"
+            "anyOf": [
+              {
+                "pattern": "^[A-Z]{2,4}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Incident"
           },
           "session_id": {
             "maxLength": 100,
@@ -533,10 +539,16 @@
             "title": "Device Id"
           },
           "incident": {
-            "default": "BR",
-            "pattern": "^[A-Z]{2,4}$",
-            "title": "Incident",
-            "type": "string"
+            "anyOf": [
+              {
+                "pattern": "^[A-Z]{2,4}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Incident"
           }
         },
         "required": [
@@ -863,10 +875,16 @@
             "type": "string"
           },
           "incident": {
-            "default": "BR",
-            "pattern": "^[A-Z]{2,4}$",
-            "title": "Incident",
-            "type": "string"
+            "anyOf": [
+              {
+                "pattern": "^[A-Z]{2,4}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Incident"
           },
           "session_id": {
             "maxLength": 100,

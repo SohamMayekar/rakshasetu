@@ -1,5 +1,5 @@
 """PRD F-C12: `make demo-reset` restores the starting state in under 10 s, and every scene resets on its own,
-by replaying the earlier scenes through the real API (data/scenarios/BR/demo.yaml). Plus the demo controls'
+by replaying the earlier scenes through the real API (data/scenarios/BR/demo.yaml; MH's script is checked at the end). Plus the demo controls'
 guards: local listener, DEMO_MODE, System admin."""
 
 import hashlib
@@ -16,14 +16,14 @@ pytestmark = [needs_db, pytest.mark.scenario]
 
 def test_a_reset_to_the_start_is_the_seed_under_10_s(seeded, client, app_db):
     t = time.monotonic()
-    out = scenes.reset("son", owner_url=TEST_OWNER_DB, http=client)
+    out = scenes.reset(code="BR", scene="son", owner_url=TEST_OWNER_DB, http=client)
     assert time.monotonic() - t < 10 and out["son_case"] is None
     assert one(app_db, "SELECT body::jsonb->'data'->>'reason' FROM events WHERE seq = 1") == "demo reset to scene 'son'"
     assert one(app_db, "SELECT count(*) FROM reports WHERE device_hash IS NOT NULL") == 0
 
 
 def test_a_reset_to_never_doubled_starts_with_the_sons_case_from_the_recorded_clip(seeded, client, app_db):
-    out = scenes.reset("merge", owner_url=TEST_OWNER_DB, http=client)
+    out = scenes.reset(code="BR", scene="merge", owner_url=TEST_OWNER_DB, http=client)
     pid = out["son_case"]
     c = one(app_db, "SELECT to_jsonb(c) FROM cases c WHERE public_id = :p", p=pid)
     assert c["priority"] == "P1" and c["people_count"] == 6 and c["status"] == "reported"
@@ -36,7 +36,7 @@ def test_a_reset_to_never_doubled_starts_with_the_sons_case_from_the_recorded_cl
 
 @pytest.mark.slow
 def test_a_reset_to_the_receipts_replays_the_whole_spine_through_the_api(seeded, client, app_db):
-    out = scenes.reset("receipts", owner_url=TEST_OWNER_DB, http=client)
+    out = scenes.reset(code="BR", scene="receipts", owner_url=TEST_OWNER_DB, http=client)
     assert list(out["timings"]) == ["seed", "son", "merge", "sheet", "stale", "rescue"]
     pid = out["son_case"]
     c = one(app_db, "SELECT to_jsonb(c) FROM cases c WHERE public_id = :p", p=pid)
@@ -77,7 +77,7 @@ def test_a_reset_to_the_receipts_replays_the_whole_spine_through_the_api(seeded,
 
 def test_a_reset_to_the_rescue_leaves_boat_5_waiting_on_the_real_clock(seeded, client, app_db, monkeypatch):
     monkeypatch.setattr(scenes, "PLAY", {**scenes.PLAY, "sheet": lambda st, s: None})   # the sheet isn't needed here
-    pid = scenes.reset("rescue", owner_url=TEST_OWNER_DB, http=client)["son_case"]
+    pid = scenes.reset(code="BR", scene="rescue", owner_url=TEST_OWNER_DB, http=client)["son_case"]
     a = one(app_db, "SELECT to_jsonb(a) FROM assignments a JOIN cases c ON c.id = a.case_id WHERE c.public_id = :p"
                     " AND a.state = 'open'", p=pid)
     assert a["phase"] == "offered" and a["demo_clock"] is False
@@ -88,7 +88,7 @@ def test_a_reset_to_the_rescue_leaves_boat_5_waiting_on_the_real_clock(seeded, c
 def test_an_unknown_scene_is_refused_before_anything_is_wiped(seeded, client, app_db):
     before = one(app_db, "SELECT count(*) FROM events")
     with pytest.raises(scenes.ScriptError, match="no scene 'finale'"):
-        scenes.reset("finale", owner_url=TEST_OWNER_DB, http=client)
+        scenes.reset(code="BR", scene="finale", owner_url=TEST_OWNER_DB, http=client)
     assert one(app_db, "SELECT count(*) FROM events") == before
 
 
@@ -104,3 +104,25 @@ def test_demo_controls_are_the_admins_on_the_local_listener_only(seeded, client,
     login(client, "admin")
     assert client.post("/v1/demo/play-clip", json={"clip": "clips/../demo.yaml"}).status_code == 422     # no path tricks
     assert client.post("/v1/demo/play-clip", json={"clip": "clips/nope.ogg"}).status_code == 404
+
+
+@pytest.mark.slow
+def test_the_mumbai_demo_replays_end_to_end_on_the_mumbai_map(seeded, client, app_db):
+    """m88: the performed demo runs on MH (config demo.incident). The same spine as BR's, on Kurla West: the
+    son's line is placed High at the Shankar mandir and the bridge, Ramesh Patil is merged, Rajesh Patil kept
+    apart, the sheet imported, NDRF Boat 2 overdue and the case moved to Fire Brigade Boat 5, 6 of 6 rescued."""
+    assert scenes.incident() == "MH"
+    out = scenes.reset(scene="receipts", owner_url=TEST_OWNER_DB, http=client)
+    pid = out["son_case"]
+    assert pid.startswith("MH-")
+    c = one(app_db, "SELECT to_jsonb(c) FROM cases c WHERE public_id = :p", p=pid)
+    assert c["status"] == "rescued" and "family_confirmed" in c["flags"] and c["attributes"]["person_names"] == ["Ramesh Patil"]
+    assert c["location_confidence"] == "high" and "Shankar" in c["location_method"].title()
+    assert "name Rajesh ≠ Ramesh" in one(app_db, "SELECT s.conflicts FROM merge_suggestions s JOIN cases c ON"
+                                                " c.id = s.candidate_case_id WHERE c.public_id = :p AND s.strength = 'refused'", p=pid)
+    assert one(app_db, "SELECT i.status FROM imports i JOIN incidents n ON n.id = i.incident_id WHERE n.code = 'MH'") == "done"
+    login(client, "spatil")
+    lines = [e["line"] for e in client.get(f"/v1/cases/{pid}/timeline").json()["events"]]
+    assert "Fire Brigade Boat 5: 2 more rescued, 6 of 6 in all, nobody left" in lines
+    assert client.get("/v1/audit/verify").json()["ok"] is True
+

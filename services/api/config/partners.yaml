@@ -7,7 +7,7 @@ partners:
     scopes: [report.submit, partner.annotate]
     subscriptions: [report.created, evidence.created, case.updated, audit.head]
     webhook_url_env: DEMO_PARTNER_WEBHOOK_URL   # empty: nothing goes out; `make webhook-sink` shows a receiver
-    incidents: [BR, OD, HP]
+    incidents: [MH, BR, OD, HP]
     rate_per_min: 600
     enabled: true
   - id: surge-generator
@@ -16,7 +16,7 @@ partners:
     secret_env: PARTNER_DEMO_SECRET
     scopes: [report.submit]
     subscriptions: []
-    incidents: [BR, OD, HP]
+    incidents: [MH, BR, OD, HP]
     rate_per_min: 6000
     enabled: true
     lane: surge

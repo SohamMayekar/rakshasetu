@@ -26,7 +26,7 @@ type State =
 
 export default function ReporterPage() {
   const [state, setState] = useState<State>({ kind: "idle" });
-  const [incident, setIncident] = useState("BR");
+  const [incident, setIncident] = useState<string | null>(null);   // none: the API files it under the live incident
   const handle = useRef<RecorderHandle | null>(null);
 
   useEffect(() => {
@@ -91,7 +91,7 @@ export default function ReporterPage() {
       form.append("audio", clip.blob, "clip");
       form.append("device_id", deviceId());
       form.append("session_id", newId());
-      form.append("incident", incident);
+      if (incident) form.append("incident", incident);
       await send(form, "/v1/public/voice-turns");
     } catch {
       setState({ kind: "no-mic" });

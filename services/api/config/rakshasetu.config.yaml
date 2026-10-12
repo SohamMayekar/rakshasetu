@@ -69,11 +69,13 @@ rescue:
   undo_seconds: 10
 
 demo:
+  incident: MH                             # the live incident: public reports go here unless ?i= says otherwise, and the
+                                           # performed demo runs on its pack (data/scenarios/MH/demo.yaml); BR's script stays for the tests
   short_timers_apply_to: live_demo_cases   # seeded cases keep realistic timers: no alarm storm mid-pitch
   sign_in_picker:                          # the 3 profiles on the demo's sign-in screen (D22); every other seeded user stays, off the picker
-    - {username: rdas,  title: "Duty officer", line: "Runs the control room desk for Bihar"}
-    - {username: boat5, title: "Rescue team",  line: "Fire & Rescue Boat 5's phone app"}
-    - {username: admin, title: "State admin",  line: "Sees all three disasters across the state"}
+    - {username: spatil, title: "Duty officer", line: "Runs the Mumbai Suburban control room desk"}
+    - {username: fb5,    title: "Rescue team",  line: "Fire Brigade Boat 5's phone app"}
+    - {username: admin,  title: "State admin",  line: "Sees every disaster the desks are handling"}
   seed_timestamps_relative_to_reset: true
   heartbeat_seconds: 10
 

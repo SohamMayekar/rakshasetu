@@ -1,0 +1,301 @@
+row,household,kind,village,people,phone_damaged,relay_phone,seed_case,needs_ai,expect,note
+2,H122,needs_ai,Sion Koliwada,,False,False,,True,new,no number of people the rules can read
+3,H041,repeat2,Parel,8,False,False,,False,new,
+4,H050,repeat2,Kurla East,6,False,False,,False,new,
+5,H069,repeat3,Malad West,5,False,False,,False,new,
+6,H113,needs_ai,Parel,,False,False,,True,new,no number of people the rules can read
+7,H028,repeat2,Mankhurd Village,6,False,False,,False,new,the same household again
+8,H121,needs_ai,Asalpha,,False,False,,True,new,no number of people the rules can read
+9,H018,repeat2,Santacruz West,4,False,False,,False,new,
+10,H152,single,Deonar,2,False,False,,False,new,
+11,H072,repeat_damaged_phone,Goregaon East,4,True,False,,False,new,"same household, but its phone was damaged by Excel: a likely duplicate for a person to confirm"
+12,H027,repeat2,Cheeta Camp,5,False,False,,False,new,the same household again
+13,H058,repeat3,Goregaon East,6,False,False,,False,new,
+14,H178,single,Saki Naka,3,False,False,,False,new,
+15,H013,repeat2,Powai,6,False,False,,False,new,the same household again
+16,H177,single,Vikhroli Gaon,5,False,False,,False,new,
+17,H056,repeat3,Goregaon East,4,False,False,,False,new,
+18,H066,repeat3,Powai,8,False,False,,False,new,the same household again
+19,H074,repeat_damaged_phone,Kurla East,4,True,False,,False,new,"same household, but its phone was damaged by Excel: a likely duplicate for a person to confirm"
+20,H199,single,Chandivali,7,False,False,,False,new,
+21,H187,single,Jarimari,6,False,False,,False,new,
+22,H087,relay_phone,Mahul,6,False,True,,False,new,"volunteer's phone, different family"
+23,H006,repeat2,Mahul,6,False,False,,False,new,
+24,H024,repeat2,Kurla East,6,False,False,,False,new,
+25,H032,repeat2,Powai,6,False,False,,False,new,the same household again
+26,H003,repeat2,Parel,3,False,False,,False,new,the same household again
+27,H064,repeat3,Wadala,8,False,False,,False,new,
+28,H010,repeat2,Govandi East,8,False,False,,False,new,the same household again
+29,H162,single,Nahur,2,False,False,,False,new,
+30,H042,repeat2,Andheri East,3,False,False,,False,new,the same household again
+31,H039,repeat2,Mankhurd Village,5,False,False,,False,new,
+32,H155,single,Tilak Nagar,7,False,False,,False,new,
+33,H092,relay_phone,Chembur,3,False,True,,False,new,"volunteer's phone, different family"
+34,H197,single,Andheri East,7,False,False,,False,new,
+35,H147,single,Cheeta Camp,5,False,False,,False,new,
+36,H188,single,Mankhurd,8,False,False,,False,new,
+37,H044,repeat2,Shivaji Nagar,5,False,False,,False,new,
+38,H093,das_pair,Wadala,5,False,False,,False,new,Ramesh ≠ Rajesh: never merged
+39,H202,single,Mankhurd,3,False,False,,False,new,
+40,H012,repeat2,Vikhroli Gaon,7,False,False,,False,new,
+41,H066,repeat3,Powai,8,False,False,,False,merged,
+42,H083,damaged_phone,Chembur,6,True,False,,False,new,
+43,H165,single,Parel,7,False,False,,False,new,
+44,H062,repeat3,Parel,8,False,False,,False,new,
+45,H063,repeat3,Kurla East,5,False,False,,False,new,the same household again
+46,H046,repeat2,Shivaji Nagar,5,False,False,,False,new,
+47,H045,repeat2,Shivaji Nagar,6,False,False,,False,new,
+48,H053,repeat3,Shivaji Nagar,6,False,False,,False,new,the same household again
+49,H167,single,Jarimari,5,False,False,,False,new,
+50,H137,single,Ghatkopar West,6,False,False,,False,new,
+51,H106,needs_ai,Saki Naka,,False,False,,True,new,no number of people the rules can read
+52,H022,repeat2,Cheeta Camp,4,False,False,,False,new,the same household again
+53,H124,done,Tilak Nagar,5,False,False,,False,history,
+54,H026,repeat2,Santacruz West,8,False,False,,False,new,
+55,H181,single,Goregaon East,3,False,False,,False,new,
+56,H166,single,Santacruz West,4,False,False,,False,new,
+57,H139,single,Parel,8,False,False,,False,new,
+58,H179,single,Vikhroli Gaon,6,False,False,,False,new,
+59,H004,repeat2,Govandi East,7,False,False,,False,new,the same household again
+60,H057,repeat3,Parel,5,False,False,,False,new,the same household again
+61,H204,single,Kalina,2,False,False,,False,new,
+62,H023,repeat2,Shivaji Nagar,3,False,False,,False,new,
+63,H040,repeat2,Powai,5,False,False,,False,new,
+64,H065,repeat3,Mahul,8,False,False,,False,new,the same household again
+65,H205,single,Deonar,3,False,False,,False,new,
+66,H006,repeat2,Mahul,6,False,False,,False,merged,the same household again
+67,H114,needs_ai,Ghatkopar West,,False,False,,True,new,no number of people the rules can read
+68,H056,repeat3,Goregaon East,4,False,False,,False,merged,the same household again
+69,H123,needs_ai,Powai,,False,False,,True,new,no number of people the rules can read
+70,H090,relay_phone,Kurla East,4,False,True,,False,new,"volunteer's phone, different family"
+71,H081,damaged_phone,Kalina,6,True,False,,False,new,
+72,H154,single,Andheri East,4,False,False,,False,new,
+73,H170,single,Jarimari,9,False,False,,False,new,
+74,H022,repeat2,Cheeta Camp,4,False,False,,False,merged,
+75,H141,single,Goregaon East,7,False,False,,False,new,
+76,H051,repeat3,Malad West,6,False,False,,False,new,the same household again
+77,H037,repeat2,Cheeta Camp,7,False,False,,False,new,
+78,H086,relay_phone,Wadala,4,False,True,,False,new,"volunteer's phone, different family"
+79,H079,damaged_phone,Bandra East,4,True,False,,False,new,
+80,H184,single,Sion Koliwada,8,False,False,,False,new,
+81,H007,repeat2,Cheeta Camp,3,False,False,,False,new,
+82,H032,repeat2,Powai,6,False,False,,False,merged,
+83,H110,needs_ai,Mankhurd,,False,False,,True,new,no number of people the rules can read
+84,H201,single,Wadala,5,False,False,,False,new,
+85,H015,repeat2,Powai,4,False,False,,False,new,the same household again
+86,H036,repeat2,Govandi East,8,False,False,,False,new,the same household again
+87,H200,single,Kherwadi,3,False,False,,False,new,
+88,H004,repeat2,Govandi East,7,False,False,,False,merged,
+89,H025,repeat2,Andheri East,5,False,False,,False,new,
+90,H076,damaged_phone,Sion Koliwada,4,True,False,,False,new,
+91,H038,repeat2,Mahul,8,False,False,,False,new,the same household again
+92,H156,single,Chandivali,8,False,False,,False,new,
+93,H101,no_location,,4,False,False,,False,to_check,no village: needs a person
+94,H096,seeded_duplicate,Bandra East,6,False,False,mh-033,False,to_check,already reported as seed case mh-033; village-only pins can't auto-merge (D10)
+95,H002,repeat2,Ghatkopar West,5,False,False,,False,new,the same household again
+96,H146,single,Shivaji Nagar,5,False,False,,False,new,
+97,H051,repeat3,Malad West,6,False,False,,False,merged,the same household again
+98,H143,single,Bandra East,6,False,False,,False,new,
+99,H082,damaged_phone,Kherwadi,4,True,False,,False,new,
+100,H111,needs_ai,Parel,,False,False,,True,new,no number of people the rules can read
+101,H085,relay_phone,Wadala,6,False,True,,False,new,"volunteer's phone, different family"
+102,H058,repeat3,Goregaon East,6,False,False,,False,merged,the same household again
+103,H134,single,Powai,6,False,False,,False,new,
+104,H036,repeat2,Govandi East,8,False,False,,False,merged,
+105,H014,repeat2,Cheeta Camp,6,False,False,,False,new,
+106,H133,single,Bandra East,3,False,False,,False,new,
+107,H125,done,Dharavi,4,False,False,,False,history,
+108,H148,single,Kurla East,5,False,False,,False,new,
+109,H078,damaged_phone,Saki Naka,6,True,False,,False,new,
+110,H130,done,Mahim,5,False,False,,False,history,
+111,H017,repeat2,Govandi East,8,False,False,,False,new,the same household again
+112,H089,relay_phone,Kurla East,3,False,True,,False,new,"volunteer's phone, different family"
+113,H067,repeat3,Andheri East,6,False,False,,False,new,the same household again
+114,H021,repeat2,Kurla East,3,False,False,,False,new,the same household again
+115,H135,single,Sion Koliwada,7,False,False,,False,new,
+116,H099,no_location,,5,False,False,,False,to_check,no village: needs a person
+117,H063,repeat3,Kurla East,5,False,False,,False,merged,
+118,H041,repeat2,Parel,8,False,False,,False,merged,the same household again
+119,H142,single,Kherwadi,4,False,False,,False,new,
+120,H030,repeat2,Shivaji Nagar,7,False,False,,False,new,
+121,H102,old_report,Deonar,3,False,False,,False,to_check,old report: confirm before sending a team
+122,H054,repeat3,Andheri East,6,False,False,,False,new,the same household again
+123,H138,single,Chembur,2,False,False,,False,new,
+124,H017,repeat2,Govandi East,8,False,False,,False,merged,
+125,H001,repeat2,Malad West,4,False,False,,False,new,
+126,H055,repeat3,Wadala,6,False,False,,False,new,the same household again
+127,H055,repeat3,Wadala,6,False,False,,False,merged,
+128,H011,repeat2,Govandi East,8,False,False,,False,new,the same household again
+129,H064,repeat3,Wadala,8,False,False,,False,merged,the same household again
+130,H175,single,Shivaji Nagar,8,False,False,,False,new,
+131,H062,repeat3,Parel,8,False,False,,False,merged,the same household again
+132,H094,das_pair,Wadala,5,False,False,,False,new,Ramesh ≠ Rajesh: never merged
+133,H073,repeat_damaged_phone,Wadala,6,True,False,,False,new,"same household, but its phone was damaged by Excel: a likely duplicate for a person to confirm"
+134,H047,repeat2,Kurla East,7,False,False,,False,new,the same household again
+135,H049,repeat2,Wadala,6,False,False,,False,new,
+136,H033,repeat2,Malad West,8,False,False,,False,new,the same household again
+137,H163,single,Nahur,7,False,False,,False,new,
+138,H054,repeat3,Andheri East,6,False,False,,False,merged,
+139,H136,single,Bandra East,5,False,False,,False,new,
+140,H150,single,Andheri East,8,False,False,,False,new,
+141,H035,repeat2,Goregaon East,8,False,False,,False,new,
+142,H183,single,Nahur,2,False,False,,False,new,
+143,H144,single,Bandra East,3,False,False,,False,new,
+144,H008,repeat2,Santacruz West,5,False,False,,False,new,the same household again
+145,H043,repeat2,Parel,4,False,False,,False,new,the same household again
+146,H107,needs_ai,Mankhurd Village,,False,False,,True,new,no number of people the rules can read
+147,H075,damaged_phone,Kherwadi,3,True,False,,False,new,
+148,H059,repeat3,Ghatkopar West,8,False,False,,False,new,the same household again
+149,H016,repeat2,Powai,8,False,False,,False,new,
+150,H140,single,Saki Naka,9,False,False,,False,new,
+151,H009,repeat2,Parel,5,False,False,,False,new,
+152,H034,repeat2,Mahul,5,False,False,,False,new,
+153,H059,repeat3,Ghatkopar West,8,False,False,,False,merged,the same household again
+154,H008,repeat2,Santacruz West,5,False,False,,False,merged,
+155,H050,repeat2,Kurla East,6,False,False,,False,merged,the same household again
+156,H057,repeat3,Parel,5,False,False,,False,merged,
+157,H025,repeat2,Andheri East,5,False,False,,False,merged,the same household again
+158,H104,old_report,Sion Koliwada,4,False,False,,False,to_check,old report: confirm before sending a team
+159,H010,repeat2,Govandi East,8,False,False,,False,merged,
+160,H061,repeat3,Govandi East,7,False,False,,False,new,the same household again
+161,H091,relay_phone,Chembur,6,False,True,,False,new,"volunteer's phone, different family"
+162,H046,repeat2,Shivaji Nagar,5,False,False,,False,merged,the same household again
+163,H015,repeat2,Powai,4,False,False,,False,merged,
+164,H120,needs_ai,Mankhurd Village,,False,False,,True,new,no number of people the rules can read
+165,H044,repeat2,Shivaji Nagar,5,False,False,,False,merged,the same household again
+166,H047,repeat2,Kurla East,7,False,False,,False,merged,
+167,H194,single,Santacruz West,3,False,False,,False,new,
+168,H052,repeat3,Goregaon East,6,False,False,,False,new,the same household again
+169,H064,repeat3,Wadala,8,False,False,,False,merged,the same household again
+170,H115,needs_ai,Santacruz West,,False,False,,True,new,no number of people the rules can read
+171,H035,repeat2,Goregaon East,8,False,False,,False,merged,the same household again
+172,H072,repeat_damaged_phone,Goregaon East,4,False,False,,False,to_check,
+173,H206,single,Parel,5,False,False,,False,new,
+174,H182,single,Ghatkopar West,3,False,False,,False,new,
+175,H051,repeat3,Malad West,6,False,False,,False,merged,
+176,H174,single,Mankhurd,2,False,False,,False,new,
+177,H164,single,Bandra East,3,False,False,,False,new,
+178,H192,single,Andheri East,4,False,False,,False,new,
+179,H003,repeat2,Parel,3,False,False,,False,merged,
+180,H039,repeat2,Mankhurd Village,5,False,False,,False,merged,the same household again
+181,H169,single,Mankhurd Village,3,False,False,,False,new,
+182,H001,repeat2,Malad West,4,False,False,,False,merged,the same household again
+183,H065,repeat3,Mahul,8,False,False,,False,merged,the same household again
+184,H173,single,Kurla East,5,False,False,,False,new,
+185,H176,single,Santacruz West,6,False,False,,False,new,
+186,H053,repeat3,Shivaji Nagar,6,False,False,,False,merged,the same household again
+187,H058,repeat3,Goregaon East,6,False,False,,False,merged,the same household again
+188,H040,repeat2,Powai,5,False,False,,False,merged,the same household again
+189,H070,repeat3,Wadala,5,False,False,,False,new,
+190,H105,needs_ai,Jarimari,,False,False,,True,new,no number of people the rules can read
+191,H203,single,Nahur,5,False,False,,False,new,
+192,H071,repeat_damaged_phone,Cheeta Camp,5,False,False,,False,new,
+193,H127,done,Sion Koliwada,4,False,False,,False,history,
+194,H043,repeat2,Parel,4,False,False,,False,merged,
+195,H071,repeat_damaged_phone,Cheeta Camp,5,True,False,,False,to_check,"same household, but its phone was damaged by Excel: a likely duplicate for a person to confirm"
+196,H161,single,Mankhurd,8,False,False,,False,new,
+197,H171,single,Mankhurd,7,False,False,,False,new,
+198,H065,repeat3,Mahul,8,False,False,,False,merged,
+199,H185,single,Deonar,3,False,False,,False,new,
+200,H068,repeat3,Malad West,4,False,False,,False,new,the same household again
+201,H005,repeat2,Andheri East,5,False,False,,False,new,the same household again
+202,H030,repeat2,Shivaji Nagar,7,False,False,,False,merged,the same household again
+203,H038,repeat2,Mahul,8,False,False,,False,merged,
+204,H118,needs_ai,Chembur,,False,False,,True,new,no number of people the rules can read
+205,H048,repeat2,Parel,8,False,False,,False,new,
+206,H196,single,Chembur,9,False,False,,False,new,
+207,H066,repeat3,Powai,8,False,False,,False,merged,the same household again
+208,H031,repeat2,Vikhroli Gaon,7,False,False,,False,new,the same household again
+209,H020,repeat2,Cheeta Camp,6,False,False,,False,new,
+210,H045,repeat2,Shivaji Nagar,6,False,False,,False,merged,the same household again
+211,H117,needs_ai,Chandivali,,False,False,,True,new,no number of people the rules can read
+212,H080,damaged_phone,Tilak Nagar,3,True,False,,False,new,
+213,H109,needs_ai,Nahur,,False,False,,True,new,no number of people the rules can read
+214,H056,repeat3,Goregaon East,4,False,False,,False,merged,the same household again
+215,H031,repeat2,Vikhroli Gaon,7,False,False,,False,merged,
+216,H068,repeat3,Malad West,4,False,False,,False,merged,
+217,H049,repeat2,Wadala,6,False,False,,False,merged,the same household again
+218,H153,single,Kurla East,7,False,False,,False,new,
+219,H029,repeat2,Powai,5,False,False,,False,new,the same household again
+220,H126,done,Dharavi,5,False,False,,False,history,
+221,H026,repeat2,Santacruz West,8,False,False,,False,merged,the same household again
+222,H077,damaged_phone,Tilak Nagar,3,True,False,,False,new,
+223,H074,repeat_damaged_phone,Kurla East,4,False,False,,False,to_check,
+224,H151,single,Mankhurd,6,False,False,,False,new,
+225,H190,single,Goregaon East,6,False,False,,False,new,
+226,H048,repeat2,Parel,8,False,False,,False,merged,the same household again
+227,H054,repeat3,Andheri East,6,False,False,,False,merged,the same household again
+228,H037,repeat2,Cheeta Camp,7,False,False,,False,merged,the same household again
+229,H095,seeded_duplicate,Kalina,7,False,False,mh-018,False,to_check,already reported as seed case mh-018; village-only pins can't auto-merge (D10)
+230,H062,repeat3,Parel,8,False,False,,False,merged,the same household again
+231,H060,repeat3,Goregaon East,5,False,False,,False,new,the same household again
+232,H011,repeat2,Govandi East,8,False,False,,False,merged,
+233,H084,damaged_phone,Bandra East,4,True,False,,False,new,
+234,H070,repeat3,Wadala,5,False,False,,False,merged,the same household again
+235,H132,single,Nahur,6,False,False,,False,new,
+236,H098,seeded_duplicate,Dharavi,5,False,False,mh-017,False,to_check,already reported as seed case mh-017; village-only pins can't auto-merge (D10)
+237,H168,single,Govandi East,3,False,False,,False,new,
+238,H068,repeat3,Malad West,4,False,False,,False,merged,the same household again
+239,H014,repeat2,Cheeta Camp,6,False,False,,False,merged,the same household again
+240,H172,single,Mahul,6,False,False,,False,new,
+241,H052,repeat3,Goregaon East,6,False,False,,False,merged,the same household again
+242,H100,no_location,,4,False,False,,False,to_check,no village: needs a person
+243,H088,relay_phone,Mahul,5,False,True,,False,new,"volunteer's phone, different family"
+244,H195,single,Bandra East,3,False,False,,False,new,
+245,H160,single,Santacruz West,8,False,False,,False,new,
+246,H059,repeat3,Ghatkopar West,8,False,False,,False,merged,
+247,H061,repeat3,Govandi East,7,False,False,,False,merged,
+248,H128,done,Chembur,2,False,False,,False,history,
+249,H012,repeat2,Vikhroli Gaon,7,False,False,,False,merged,the same household again
+250,H020,repeat2,Cheeta Camp,6,False,False,,False,merged,the same household again
+251,H198,single,Cheeta Camp,5,False,False,,False,new,
+252,H005,repeat2,Andheri East,5,False,False,,False,merged,
+253,H009,repeat2,Parel,5,False,False,,False,merged,the same household again
+254,H116,needs_ai,Mankhurd,,False,False,,True,new,no number of people the rules can read
+255,H023,repeat2,Shivaji Nagar,3,False,False,,False,merged,the same household again
+256,H018,repeat2,Santacruz West,4,False,False,,False,merged,the same household again
+257,H060,repeat3,Goregaon East,5,False,False,,False,merged,the same household again
+258,H034,repeat2,Mahul,5,False,False,,False,merged,the same household again
+259,H186,single,Mahul,5,False,False,,False,new,
+260,H159,single,Ghatkopar West,7,False,False,,False,new,
+261,H042,repeat2,Andheri East,3,False,False,,False,merged,
+262,H149,single,Kurla East,8,False,False,,False,new,
+263,H019,repeat2,Cheeta Camp,7,False,False,,False,new,the same household again
+264,H158,single,Santacruz West,6,False,False,,False,new,
+265,H002,repeat2,Ghatkopar West,5,False,False,,False,merged,
+266,H067,repeat3,Andheri East,6,False,False,,False,merged,
+267,H070,repeat3,Wadala,5,False,False,,False,merged,the same household again
+268,H069,repeat3,Malad West,5,False,False,,False,merged,the same household again
+269,H007,repeat2,Cheeta Camp,3,False,False,,False,merged,the same household again
+270,H029,repeat2,Powai,5,False,False,,False,merged,
+271,H180,single,Mahim,2,False,False,,False,new,
+272,H189,single,Chandivali,7,False,False,,False,new,
+273,H193,single,Saki Naka,4,False,False,,False,new,
+274,H033,repeat2,Malad West,8,False,False,,False,merged,
+275,H097,seeded_duplicate,Mankhurd,9,False,False,mh-035,False,to_check,already reported as seed case mh-035; village-only pins can't auto-merge (D10)
+276,H119,needs_ai,Kurla East,,False,False,,True,new,no number of people the rules can read
+277,H108,needs_ai,Cheeta Camp,,False,False,,True,new,no number of people the rules can read
+278,H016,repeat2,Powai,8,False,False,,False,merged,the same household again
+279,H131,done,Nahur,3,False,False,,False,history,
+280,H052,repeat3,Goregaon East,6,False,False,,False,merged,
+281,H063,repeat3,Kurla East,5,False,False,,False,merged,the same household again
+282,H067,repeat3,Andheri East,6,False,False,,False,merged,the same household again
+283,H024,repeat2,Kurla East,6,False,False,,False,merged,the same household again
+284,H157,single,Kalina,9,False,False,,False,new,
+285,H013,repeat2,Powai,6,False,False,,False,merged,
+286,H103,old_report,Dharavi,4,False,False,,False,to_check,old report: confirm before sending a team
+287,H019,repeat2,Cheeta Camp,7,False,False,,False,merged,
+288,H145,single,Chandivali,5,False,False,,False,new,
+289,H061,repeat3,Govandi East,7,False,False,,False,merged,the same household again
+290,H191,single,Kalina,7,False,False,,False,new,
+291,H053,repeat3,Shivaji Nagar,6,False,False,,False,merged,
+292,H069,repeat3,Malad West,5,False,False,,False,merged,the same household again
+293,H060,repeat3,Goregaon East,5,False,False,,False,merged,
+294,H073,repeat_damaged_phone,Wadala,6,False,False,,False,to_check,
+295,H057,repeat3,Parel,5,False,False,,False,merged,the same household again
+296,H027,repeat2,Cheeta Camp,5,False,False,,False,merged,
+297,H129,done,Saki Naka,4,False,False,,False,history,
+298,H028,repeat2,Mankhurd Village,6,False,False,,False,merged,
+299,H055,repeat3,Wadala,6,False,False,,False,merged,the same household again
+300,H021,repeat2,Kurla East,3,False,False,,False,merged,
+301,H112,needs_ai,Mahul,,False,False,,True,new,no number of people the rules can read
