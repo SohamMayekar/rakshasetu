@@ -56,7 +56,12 @@ export const STEP_WORD: Record<string, string> = {
 };
 
 /** The audit log's event codes ("assignment.acknowledged") as words ("Assignment acknowledged"). */
+const EVENT_WORD: Record<string, string> = {
+  "demo.clock_real": "Timer set to the real clock", "demo.clock_advanced": "Timer moved forward (demo clock)",
+  "demo.clip_played": "Recorded clip sent", "demo.language_model": "AI reading switched", "chain.genesis": "History started",
+};
 export function plainEvent(action: string): string {
+  if (EVENT_WORD[action]) return EVENT_WORD[action];
   const s = action.replace(/[._]/g, " ").replace(/\bp1\b/gi, "urgent");
   return s.charAt(0).toUpperCase() + s.slice(1);
 }

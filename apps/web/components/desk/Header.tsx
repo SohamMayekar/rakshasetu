@@ -14,13 +14,13 @@ export function Header({ me, incident, live }: { me: Me | null; incident: string
   const now = useNow(30_000);
   const districts = me?.districts.filter((d) => d.incident_id === inc?.id).map((d) => d.name) ?? [];
   return (
-    <header className="flex items-end justify-between gap-4 px-1">
+    <header className="flex items-start justify-between gap-4 px-1">
       <div className="min-w-0">
         <h1 className="truncate text-title font-semibold leading-tight tracking-tight">{inc ? inc.name : incident}</h1>
-        <p className="truncate text-small text-ink-2">{districts.length ? `${districts.join(" · ")} control room` : "District control room"}
+        <p className="text-small text-ink-2">{districts.length ? `${districts.join(" · ")} control room` : "District control room"}
           {me?.demo_mode && <span className="text-ink-3"> · demo data, clock 60× faster</span>}</p>
       </div>
-      <div className="flex shrink-0 items-center gap-4 text-small text-ink-2">   {/* plain text, not more cards (m79) */}
+      <div className="flex h-8 shrink-0 items-center gap-4 text-small text-ink-2">   {/* plain text, not more cards (m79) */}
         {live.connected ? (
           <span className="inline-flex items-center gap-1.5" title="Live updates are flowing"><span className="size-2 rounded-full bg-ink" aria-hidden />Live</span>
         ) : live.pausedSince ? (

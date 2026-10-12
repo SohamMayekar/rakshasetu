@@ -1,5 +1,7 @@
 # keywords · the rule path that never needs AI
 
+- **m84, how people really type:** a place said as "in Thawe" (a last-resort cue, so "in Thawe village" and "Thawe mein" still win, and the gazetteer still has to know the place), "on top of the school building" (roof), "small baby" (infant), "current is very strong" (strong current). Checked on the sentences in `docs/DEMO.md` and five variations, English and Hinglish.
+
 - **What it does:** `app/pipeline/keywords.py` reads the team-owned word lists in `services/api/dictionaries/hi.yaml` (Hindi in Devanagari, Hinglish, English) and fills the **same closed Extraction contract** the language model uses: headcount, hazards, needs, vulnerable people, village, landmarks with relation ("mandir ke peeche", or in English, where the relation comes first, "behind the Durga temple"), names, a callback phone. A quote that a pattern would end mid-word ("with th") is finished to the end of that word.
 - **Key files:** `dictionaries/hi.yaml` (regex patterns per field type), `app/pipeline/fields.py` (fields + provenance + the template summary).
 - **The tricky rule:** every value keeps the caller's exact words as its quote, so the receipt works the same with a **Rule** chip. `medicine` (routine) and `medical_urgent` (behosh, saans nahi) are separate. A roof hazard absorbs "trapped"; "chhota bachcha" is an infant, not also a child.

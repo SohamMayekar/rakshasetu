@@ -87,3 +87,27 @@ def test_injection_text_extracts_nothing_it_shouldnt():
 def test_names_and_phones():
     ex = extract_keywords("Ramesh Das ka parivar, 5 log, call 98765 43210")
     assert [p.name for p in ex.person_names] == ["Ramesh Das"] and ex.callback_phone == "+919876543210"
+
+
+@pytest.mark.parametrize("text, village, hazard, vulnerable", [
+    ("4 people stuck near the bridge in Thawe, one pregnant woman", "Thawe", "trapped_inside", "pregnant"),
+    ("Water entered our house in Mirganj, my old mother cannot walk, we are 3 people", "Mirganj", "water_entering", "elderly"),
+    ("Help! 10 people on top of the school building in Hathua, small baby with us, current is very strong",
+     "Hathua", "trapped_on_roof", "infant"),
+])
+def test_how_people_really_type_it_on_a_phone(text, village, hazard, vulnerable):
+    """m84: the place said as "in Thawe" (no "village"), "on top of the school building", "small baby", "current is
+    very strong". Each fact keeps its quote."""
+    ex = extract_keywords(text)
+    assert ex.location.village_or_locality.latin == village
+    assert hazard in {h.type for h in ex.hazards}
+    assert vulnerable in {v.type for v in ex.vulnerable}
+    for item in [*ex.hazards, *ex.vulnerable]:
+        assert item.quote in text
+
+
+def test_strong_current_and_a_village_named_explicitly_still_wins():
+    ex = extract_keywords("My son in Mumbai says: in Thawe village 5 people, the current is too strong")
+    assert ex.location.village_or_locality.latin == "Thawe"
+    assert "strong_current" in {h.type for h in ex.hazards}
+

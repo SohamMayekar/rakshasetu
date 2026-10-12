@@ -62,6 +62,7 @@ hazards:
   trapped_on_roof:
     - '\b(?:chhat|chhath|chat|chhaat|chhaj)\s*(?:par|pe|pr|ke upar)\b[^,.;]{0,30}'
     - '\b(?:on|stuck on) (?:the |our )?roof'
+    - '\bon top of (?:the |our |a )?(?:roof|house|home|building|school(?: building)?|ghar)\b'
     - '\b(?:\d+ )?(?:of them )?(?:are )?on the roof'
     - 'छत\s*(?:पर|पे)[^,।]{0,25}'
   trapped_inside:
@@ -79,7 +80,8 @@ hazards:
     - '\bthe water is rising(?: fast)?'
     - 'पानी\s*(?:बढ़|चढ़)\S*\s*(?:रहा|रही)?\s*(?:है)?'
   strong_current:
-    - '\b(?:tez bahav|tez dhaar|strong current)\b'
+    - '\b(?:tez bahav|tez dhaar|strong current|fast current)\b'
+    - '\bcurrent is (?:very |too )?(?:strong|fast)\b'
   buried:
     - '\b(?:dabe|dab gay[ae]|dab gaya|dabi|buried|malbe (?:mein|me)\w*)\b[^,.;]{0,20}'
     - '(?:दबे|दब गया|दब गए|मलबे)\S*'
@@ -120,6 +122,7 @@ vulnerable:
   infant:
     - '\b\d+\s*(?:mahine|month)s?\s*(?:ka|old)?\s*(?:bachcha|baby)?'
     - '\b(?:navjat|newborn|infant|chhota bachcha|a baby)\b'
+    - '\b(?:small|little|tiny) bab(?:y|ies)\b'
     - '(?:नवजात|शिशु)'
   child:
     - '\b(?:bachche|bachchey|baccha|bachcha|children|child|kids)\b(?! ke liye)[^,.;]{0,10}'
@@ -171,6 +174,7 @@ village_cues:
   - '^([A-Z][a-z]+):'
   - '^Calling about ([A-Z][a-z]+)'
   - '^(\S+)\s+(?:गाँव|गांव)?\s*में'
+  - '\bin ([A-Z][a-z]{3,})(?=[,.;]| near| behind| next| beside| close| on| and|$)'   # "in Thawe, near…": last, so explicit cues win
 
 # --- people's names (dedupe compares name tokens) ----------------------------------------------------
 surnames: [Das, Kumar, Kumari, Prasad, Yadav, Singh, Devi, Sharma, Mishra, Paswan, Ram, Sah, Mahto, Sahni, Mandal,

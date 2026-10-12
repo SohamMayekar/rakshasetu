@@ -69,15 +69,18 @@ export default function Audit() {
           <table className="w-full text-body">
             <thead className="sticky top-0 z-10 bg-paper"><tr className="border-b border-line text-left text-small text-ink-3">
               {details && <th className="py-3 pl-5 pr-3 font-medium">#</th>}<th className={`py-3 pr-3 font-medium ${details ? "" : "pl-5"}`}>time</th><th className="pr-3 font-medium">who</th>
-              <th className="pr-3 font-medium">what happened</th><th className="pr-3 font-medium">why</th>{details && <th className="pr-5 font-medium">fingerprint</th>}</tr></thead>
+              <th className="pr-5 font-medium">what happened</th>{details && <th className="pr-5 font-medium">fingerprint</th>}</tr></thead>
             <tbody>
               {(events ?? []).map((e) => (
                 <tr key={e.seq} className="border-b border-line/60 align-top last:border-b-0 hover:bg-wash/60">
                   {details && <td className="tabular py-2.5 pl-5 pr-3 text-ink-3">{e.seq}</td>}
-                  <td className={`tabular whitespace-nowrap py-2.5 pr-3 ${details ? "" : "pl-5"}`}>{new Date(e.at).toLocaleTimeString("en-IN", { hour12: false })}</td>
-                  <td className="py-2.5 pr-3">{e.actor.type === "user" ? ROLE[e.actor.role ?? ""] ?? e.actor.role : e.actor.type}</td>
-                  <td className="py-2.5 pr-3"><span className="font-medium">{plainEvent(e.action)}</span> <span className="text-ink-3">{e.entity.type.replace(/_/g, " ")} {e.entity.id}</span></td>
-                  <td className="py-2.5 pr-3 text-ink-2">{e.reason}</td>
+                  <td className={`tabular whitespace-nowrap py-2.5 pr-3 ${details ? "" : "pl-5"}`}>{new Date(e.at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false })}</td>
+                  <td className="whitespace-nowrap py-2.5 pr-3">{e.actor.type === "user" ? ROLE[e.actor.role ?? ""] ?? e.actor.role : e.actor.type}</td>
+                  <td className="py-2.5 pr-5">   {/* always three lines in the same order: what, on what, why (m84) */}
+                    <span className="block font-medium">{plainEvent(e.action)}</span>
+                    <span className="block text-small text-ink-3">{e.entity.type.replace(/_/g, " ")} {e.entity.id}</span>
+                    {e.reason && <span className="block text-small text-ink-2">&ldquo;{e.reason}&rdquo;</span>}
+                  </td>
                   {details && <td className="tabular py-2.5 pr-5 text-small text-ink-3">{e.hash.slice(0, 12)}…</td>}
                 </tr>
               ))}

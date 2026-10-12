@@ -103,7 +103,7 @@ export function Sidebar({ me, compact = false }: { me: Me | null; compact?: bool
           {!compact && (
             <span className="min-w-0 flex-1 leading-tight">
               <span className="block truncate text-body font-medium">{me.user.name}</span>
-              <span className="block truncate text-small text-ink-3">{me.user.role_label}</span>
+              {me.user.role_label !== me.user.name && <span className="block truncate text-small text-ink-3">{me.user.role_label}</span>}
             </span>
           )}
           <a href="/login" onClick={() => fetch("/v1/auth/logout", { method: "POST" })} title="Sign out"
