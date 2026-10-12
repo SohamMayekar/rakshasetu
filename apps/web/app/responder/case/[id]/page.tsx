@@ -12,6 +12,7 @@ import { RescueSheet } from "@/components/rescue/RescueSheet";
 import { BigButton, TapStatus } from "@/components/responder/Field";
 import { Priority, Ring } from "@/components/ui";
 import { api, ApiError, type CaseDetail } from "@/lib/api";
+import { useWakeLock } from "@/lib/wakelock";
 import { tap } from "@/lib/outbox";
 
 export default function ResponderCase({ params }: { params: Promise<{ id: string }> }) {
@@ -31,6 +32,7 @@ export default function ResponderCase({ params }: { params: Promise<{ id: string
     });
   }, [id]);
   useEffect(() => { load(); const t = setInterval(load, 5000); return () => clearInterval(t); }, [load]);
+  useWakeLock(["acknowledged", "reached"].includes(c?.assignment?.phase ?? ""));   // on the way or on scene: screen on
 
   if (denied) {
     return (

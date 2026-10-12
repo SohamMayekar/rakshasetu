@@ -90,7 +90,9 @@ def _write(fn, *args):
     try:
         with get_engine().begin() as c:
             return fn(c, *args)
-    except LookupError:
+    except LookupError as e:
+        if type(e) is not LookupError:      # a KeyError or IndexError is a bug, not a missing case: let it show
+            raise
         raise HTTPException(404, "No such case") from None
     except service.Conflict as e:
         raise HTTPException(409, e.message) from None
@@ -106,6 +108,17 @@ def move_pin(ref: str, body: PinMove, scope: Scope = Depends(require("case.move_
 @router.post("/{ref}/check", dependencies=[Depends(require_local)])
 def check(ref: str, scope: Scope = Depends(require("case.check"))) -> dict:
     return _write(service.check_case, scope, ref)
+
+
+class PriorityCall(BaseModel):
+    priority: str | None = Field(default=None, pattern="^P[1-4]$")   # None: back to the rules
+    reason: str = Field(min_length=3, max_length=300)
+
+
+@router.post("/{ref}/priority", dependencies=[Depends(require_local)])
+def set_priority(ref: str, body: PriorityCall, scope: Scope = Depends(require("priority.override"))) -> dict:
+    """P1 #2: an officer raises or lowers the priority, with a reason shown on the row; the rules' proposal stays visible."""
+    return _write(service.override_priority, scope, ref, body.priority, body.reason)
 
 
 @router.patch("/{ref}", dependencies=[Depends(require_local)])

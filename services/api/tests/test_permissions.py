@@ -80,7 +80,7 @@ ENDPOINTS = [
     ("incident.admin", "POST", "/v1/incidents",
      {"code": "XQ", "name": "Test flood", "type": "flood", "states": ["Assam"], "center": [26.14, 91.74],
       "districts": [{"name": "Kamrup", "state": "Assam", "centroid": [26.14, 91.74]}]}, "admin", "rdas", None),
-    ("priority.override", "POST", "/v1/cases/BR-151/priority", {}, "rdas", "priya", "m57"),
+    ("priority.override", "POST", "/v1/cases/BR-151/priority", {"priority": "P1", "reason": "pregnant, said on second call"}, "rdas", "priya", None),
     ("phone.reveal", "POST", lambda db: f"/v1/cases/{_case_with_phone(db)}/reveal-contact", {"reason": "calling back"},
      "priya", "seoc", None),
     ("partner.annotate", "POST", "/v1/partners/annotations", {}, None, None, "m58"),

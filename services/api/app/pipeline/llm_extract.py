@@ -11,6 +11,7 @@
 
 import hashlib
 import json
+import re
 
 from pydantic import ValidationError
 from rapidfuzz import fuzz
@@ -69,15 +70,44 @@ def remember(t: str, provider: str, model: str, ex: Extraction) -> None:
                   {"h": text_sha(t), "p": provider, "m": model, "r": ex.model_dump_json()})
 
 
+# P1 #11: the provider never sees a phone number. Indian numbers (+91 / 0 optional, separators allowed) become
+# <PHONE_1>, <PHONE_2> … before the call and are put back in the result (quotes, callback number) after it.
+PHONE = re.compile(r"(?<!\d)(?:\+?91[\s-]?|0)?[6-9](?:[\s-]?\d){9}(?!\d)")
+
+
+def mask_phones(t: str) -> tuple[str, dict[str, str]]:
+    """(text with placeholders, {placeholder: the number as written}). The same number gets the same token."""
+    tokens: dict[str, str] = {}
+    by_number: dict[str, str] = {}
+
+    def sub(m: re.Match) -> str:
+        number = m.group(0)
+        if number not in by_number:
+            by_number[number] = f"<PHONE_{len(by_number) + 1}>"
+            tokens[by_number[number]] = number
+        return by_number[number]
+    return PHONE.sub(sub, t), tokens
+
+
+def unmask(ex: Extraction, tokens: dict[str, str]) -> Extraction:
+    if not tokens:
+        return ex
+    raw = ex.model_dump_json()
+    for token, number in tokens.items():
+        raw = raw.replace(token, number)
+    return Extraction.model_validate_json(raw)
+
+
 def ask_model(report_text: str) -> tuple[Extraction, str, int]:
     """Returns (extraction, 'provider/model', ms). Raises AllProvidersFailed / ProviderUnavailable /
     ValidationError (after one retry). Network only; never called inside a DB transaction."""
-    user = f"<report>\n{report_text}\n</report>"
+    masked, tokens = mask_phones(report_text)
+    user = f"<report>\n{masked}\n</report>"
     last_error: Exception | None = None
     for _ in range(2):   # one retry on output that doesn't fit the contract
         res = llm.extract_json(SYSTEM_PROMPT, user, _schema(), est_tokens=900 + len(report_text) // 2)
         try:
-            ex = Extraction.model_validate(res.value)
+            ex = unmask(Extraction.model_validate(res.value), tokens)
             remember(report_text, res.provider, res.model, ex)
             return ex, f"{res.provider}/{res.model}", res.latency_ms
         except ValidationError as e:
@@ -118,3 +148,15 @@ def cross_check(ai: Extraction, keywords: Extraction) -> dict:
         if extra:
             missing[name] = extra
     return missing
+
+
+# P1 #11: words that try to steer a machine ("ignore your instructions", "system prompt", "mark this P1") are
+# flagged on the case. They change nothing: the model only reads facts, and priority comes from the rules.
+INSTRUCTION_LIKE = re.compile(
+    r"ignore\s+(?:all\s+|any\s+|the\s+|your\s+|previous\s+|above\s+)*(?:instructions?|rules|prompts?)"
+    r"|system\s+prompt|you\s+are\s+now\s+|mark\s+(?:this|it|me|us)\s+(?:as\s+)?(?:p\s*1|priority|urgent)"
+    r"|set\s+(?:the\s+)?priority\s+to|disregard\s+(?:the\s+)?(?:rules|instructions)", re.IGNORECASE)
+
+
+def instruction_like(t: str) -> bool:
+    return bool(INSTRUCTION_LIKE.search(t or ""))

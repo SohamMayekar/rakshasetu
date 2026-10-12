@@ -6,8 +6,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { useWakeLock } from "@/lib/wakelock";
+
 import { BigButton, TapStatus } from "@/components/responder/Field";
-import { Priority, Ring } from "@/components/ui";
+import { Clock, Priority, Ring } from "@/components/ui";
 import { api, ApiError } from "@/lib/api";
 import { useLive } from "@/lib/live";
 import { tap } from "@/lib/outbox";
@@ -68,6 +70,8 @@ function NewCase({ c }: { c: MyCase }) {
   );
 }
 
+const CACHE = "rs-my-cases";   // the last list this phone had, for when the network is gone
+
 export default function Responder() {
   const [state, setState] = useState<"loading" | "out" | "in">("loading");
   const [team, setTeam] = useState<MyTeam | null>(null);
@@ -75,15 +79,32 @@ export default function Responder() {
   const [since, setSince] = useState<number | null>(null);
   const known = useRef<Set<number>>(new Set());
 
+  const [offlineSince, setOfflineSince] = useState<string | null>(null);
   const load = useCallback(async () => {
     try {
       const r = await api<{ team: MyTeam; cases: MyCase[] }>("/v1/teams/me/cases");
       const fresh = r.cases.filter((c) => !known.current.has(c.assignment_id));
       if (known.current.size && fresh.length) { navigator.vibrate?.([200, 100, 200]); beep(); }
       r.cases.forEach((c) => known.current.add(c.assignment_id));
-      setTeam(r.team); setCases(r.cases); setState("in");
-    } catch (e) { if (e instanceof ApiError && (e.status === 401 || e.status === 403)) setState("out"); }
+      setTeam(r.team); setCases(r.cases); setState("in"); setOfflineSince(null);
+      try { localStorage.setItem(CACHE, JSON.stringify({ ...r, at: new Date().toISOString() })); } catch { /* storage full */ }
+    } catch (e) {
+      if (e instanceof ApiError && (e.status === 401 || e.status === 403)) { setState("out"); return; }
+      // No network: show the last list this phone had, saying how old it is (P1 #7). Taps still save on the phone.
+      try {
+        const c = JSON.parse(localStorage.getItem(CACHE) ?? "null") as { team: MyTeam; cases: MyCase[]; at: string } | null;
+        if (c) { setTeam(c.team); setCases(c.cases); setState("in"); setOfflineSince(c.at); }
+      } catch { /* nothing cached */ }
+    }
   }, []);
+  useWakeLock(cases.some((c) => c.phase === "acknowledged" || c.phase === "reached"));
+  useEffect(() => {   // the offline shell (network first) and a re-read whenever the network comes back
+    navigator.serviceWorker?.register("/responder-sw.js", { scope: "/responder" }).catch(() => {});
+    const back = () => load();
+    window.addEventListener("online", back);
+    const t = setInterval(load, 30_000);   // a fallback beside the live socket; also how "No network" is noticed
+    return () => { window.removeEventListener("online", back); clearInterval(t); };
+  }, [load]);
 
   useEffect(() => { load(); }, [load]);
   useEffect(() => {   // the WebSocket cursor: start from "now"
@@ -107,6 +128,11 @@ export default function Responder() {
       {offered && <NewCase c={offered} />}
       <p className="text-sm font-semibold text-ink-2">RakshaSetu · {team?.name}</p>
       <h1 className="mt-1 text-3xl font-semibold tracking-tight">My cases · मेरे केस</h1>
+      {offlineSince && (
+        <p className="mt-3 rounded-xl bg-ink px-4 py-2 text-base text-paper">
+          No network · showing My cases as of <Clock iso={offlineSince} />. Taps are saved on the phone and sent when it&apos;s back.
+        </p>
+      )}
       {cases.length === 0 && <p className="mt-8 text-lg text-ink-2">No cases assigned to your team right now.</p>}
       <ul className="mt-6 space-y-3">
         {cases.map((c) => (

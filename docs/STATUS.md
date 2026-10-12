@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m57 P1 items (install manifest, wake lock, …)
+**Current milestone:** m58 partner annotations + log
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -44,12 +44,14 @@
 | m41 | Ticker: overdue by one conditional UPDATE (case stays with the team), team overdue → greyed in dispatch, one escalation per team (role duty_officer, rises to incharge after 10 min), capacity-gap header per district, self-resolving; escalations list + ack (409 naming who); heartbeat display-only endpoint | tests/scenarios/test_t6_contact_overdue.py (5: T6 ×2, T7 ack, rise+resolve, capacity gap); permission row escalation.ack; live lag 0.21 s |
 | m42 | Team-level radio contact (refreshes every live assignment, clears overdue, resolves escalation, acks stand-downs), Extend/Reassign on escalations (stand-down owed, 409 naming who on a resolved one), teams list | tests/scenarios/test_t6_contact_overdue.py now 8 (radio restores, T7 extend, reassign + stand-down); permission row team.radio_contact |
 | m53 | All ten PRD scenario tests and one IDOR test per resource are in the suite and green: new T2 (a real worker process SIGKILLed mid-surge, its jobs reclaimed: every report in exactly one case, integrity 0, chain ✓), new T7 file (two officers on one escalation; the DB refuses a second open assignment), evidence and assignment IDOR (were skipped placeholders until now); docs/TESTS.md maps T1–T10 + IDOR to files and results | make test: all passed; T2 run: 76/300 in cases at the kill, 4 jobs held, 300/300 after reclaim |
+| m57 | P1 items, after a code audit of all 13 (built: empty queue line; partial: reporter's not-sent state, capacity-gap header, 'last confirmed', 409 messages; not built: the rest): #1 merge tightens the circle with both reports' landmarks + pin precedence + proposed moves; #2 officer priority override with a reason (rules' proposal stays visible); #7 installable team app, Wake Lock, network-first offline shell + last list of My cases; #11 phone placeholders before the language model + instruction-like words flag. Found and fixed: make up's Caddy reload never worked (admin API off) → restart | tests: test_merge_location (3), test_priority_override (2) + permission row enabled, test_instruction_words (2), LLM phone masking (1); Chromium: installable but for incognito, wake lock requested after acknowledging, offline reload shows the saved list; make e2e still 37/37 |
 
 ## NOT DONE (engineering)
 
 | What | Estimate |
 |---|---|
 | m51–m60: judge-legibility caption, evidence hardening, the full scenario set (T1–T10), golden-path e2e, failure drills, P1 items, partner annotations, polish, release docs | see the milestone plan in the build prompt |
+| P1 items not built (PRD order): #4 count conflict and "the other N?", #6 follow-up question and multi-clip continuation, #8 bulk approve (the capacity-gap header exists), #9 exact/near-duplicate forwards and the 72 h closed-case check, #10 LLM header suggestion for sheets, #12 the "last confirmed" fade on rows and a dedicated 409 banner (409 messages name who and when, shown inline); #5 WhatsApp is BLOCKED (no Meta test number). The reporter's "not sent yet" state exists but keeps the clip only in memory (no automatic retry, nothing survives a reload) | P1: only with time left |
 | Desk latency on the demo laptop with a GPU during `make surge`: measured only in headless Chromium with software WebGL (19–165 ms, 10 of 12 clicks under the 100 ms target) | one run on the laptop: open /desk/BR during `make surge`, click 10 rows |
 | The responder path on a real mid-range Android phone over mobile data through the tunnel (PRD F-C7 "done when"); only a Chromium phone viewport on the public listener (localhost) has been run, in the golden path | needs the humans, a phone and the tunnel |
 | The son speaking through the reporter page's microphone with live speech-to-text (`make e2e` with an STT key feeds the clip into Chromium's fake microphone; not run: no key) | needs an STT key (BLOCKED below) |

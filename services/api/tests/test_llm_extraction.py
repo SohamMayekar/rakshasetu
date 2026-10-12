@@ -158,3 +158,20 @@ def test_backfill_waits_while_the_language_model_is_switched_off(desk, client, a
     assert one(app_db, "SELECT error FROM jobs WHERE kind = 'llm.backfill'") == "waiting: language model off"
     assert one(app_db, "SELECT attempts FROM jobs WHERE kind = 'llm.backfill'") == 0
     assert one(app_db, "SELECT done_at IS NULL AND dead_at IS NULL FROM jobs WHERE kind = 'llm.backfill'")
+
+
+def test_the_model_never_sees_a_phone_number(desk, client, app_db, monkeypatch):
+    """P1 #11: numbers become <PHONE_n> before the call, and come back in the result after it."""
+    sent = []
+    out = copy.deepcopy(MODEL_OUTPUT)
+    out["callback_phone"] = "<PHONE_1>"
+
+    class Spy(StandIn):
+        def __call__(self, system, user, schema, est_tokens=0):
+            sent.append(user)
+            return super().__call__(system, user, schema, est_tokens)
+    monkeypatch.setattr(llm, "extract_json", Spy([out]))
+    rid = desk(LINE + " Mera number 98765 43210 hai, ya +91 98765 43211.")
+    drain(app_db)
+    assert sent and "98765" not in sent[0] and "<PHONE_1>" in sent[0] and "<PHONE_2>" in sent[0]
+    assert one(app_db, "SELECT extraction->>'callback_phone' FROM reports WHERE id = :r", r=rid) == "98765 43210"

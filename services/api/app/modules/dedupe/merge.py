@@ -7,6 +7,7 @@ undo ("split") restores them exactly, records a merge block, and is audited. Rul
 """
 
 import json
+import math
 
 from sqlalchemy import Connection, text
 
@@ -37,6 +38,78 @@ def _snapshot(conn: Connection, target_id: int, source_id: int) -> dict:
         "suggestions": j("SELECT id, status, decided_by, decided_at FROM merge_suggestions"
                          " WHERE (case_id = :s OR candidate_case_id = :s) AND status = 'open'", s=source_id),
     }
+
+
+PERSON_PIN = ("human", "gps")
+
+
+def _metres(lat1, lng1, lat2, lng2) -> float:
+    dy = (lat1 - lat2) * 111_320
+    dx = (lng1 - lng2) * 111_320 * math.cos(math.radians((lat1 + lat2) / 2))
+    return math.hypot(dx, dy)
+
+
+def merged_location(conn: Connection, target, source, actor: Actor) -> str | None:
+    """P1 #1 (PRD F-D2): what a merge does to the circle.
+    - Pin precedence: a pin a person set (or a phone's GPS) is never replaced by one the rules derived; if only
+      the folded-in case had one, the kept case takes it.
+    - The merged report's place lies INSIDE the current circle: re-run the location ladder on BOTH reports'
+      landmarks; if that gives a smaller circle inside the current one, the circle tightens, and the method
+      sentence names both. Never wider.
+    - It lies OUTSIDE: a proposed move for a person to accept (the family may have moved), never automatic.
+    Each outcome is an event. Returns which one happened."""
+    from app.contracts import Extraction
+    from app.modules.location.ladder import resolve
+    if target.geom is None or source.geom is None:
+        return None
+    t, sp = target, source
+    ev = dict(incident_id=target.incident_id, district_id=target.district_id, case_id=target.id, entity_type="case",
+              entity_id=target.id)
+    if target.location_source in PERSON_PIN:
+        return "kept"
+    if source.location_source in PERSON_PIN:
+        conn.execute(text("UPDATE cases SET geom = (SELECT geom FROM cases WHERE id = :s), radius_m = :r,"
+                          " location_confidence = :c, location_method = :m, location_source = :src WHERE id = :t"),
+                     {"s": source.id, "r": source.radius_m, "c": source.location_confidence, "m": source.location_method,
+                      "src": source.location_source, "t": target.id})
+        append_event(conn, actor=actor, action="case.location_changed", **ev,
+                     data={"why": f"{source.public_id} had a pin a person set", "method": source.location_method})
+        return "took_person_pin"
+    away = _metres(sp.lat, sp.lng, t.lat, t.lng)
+    if away > (target.radius_m or 0):
+        attrs = {"proposed_move": {"lat": sp.lat, "lng": sp.lng, "radius_m": source.radius_m, "from": source.public_id,
+                                   "method": source.location_method, "metres_away": round(away)}}
+        conn.execute(text("UPDATE cases SET attributes = attributes || CAST(:a AS jsonb) WHERE id = :t"),
+                     {"a": json.dumps(attrs, ensure_ascii=False), "t": target.id})
+        append_event(conn, actor=actor, action="case.location_proposed", **ev,
+                     data={**attrs["proposed_move"], "why": "the merged report places them outside the circle"})
+        return "proposed"
+    reports = conn.execute(text("SELECT extraction, coalesce(transcript, text) AS words FROM reports WHERE case_id = :t"
+                                " AND extraction IS NOT NULL ORDER BY received_at"), {"t": target.id}).all()
+    exs = [Extraction.model_validate(r.extraction) for r in reports]
+    if len(exs) < 2:
+        return None
+    seen, landmarks = set(), []
+    for x in exs:
+        for lm in x.location.landmarks:
+            if (lm.type, (lm.name or "").lower()) not in seen:
+                seen.add((lm.type, (lm.name or "").lower()))
+                landmarks.append(lm)
+    village = next((x.location.village_or_locality for x in exs if x.location.village_or_locality), None)
+    both = exs[0].model_copy(update={"location": exs[0].location.model_copy(
+        update={"village_or_locality": village, "landmarks": landmarks[:6]})})
+    loc = resolve(conn, target.incident_id, both, " ".join(r.words or "" for r in reports), district_hint=target.district_id)
+    if loc.lat is None or not loc.radius_m or loc.radius_m >= (target.radius_m or 0) \
+            or _metres(loc.lat, loc.lng, t.lat, t.lng) > (target.radius_m or 0):
+        return None
+    method = f"{loc.method} · both reports' landmarks"
+    conn.execute(text("UPDATE cases SET geom = ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)::geography, radius_m = :r,"
+                      " location_confidence = :c, location_method = :m, location_source = 'rule' WHERE id = :t"),
+                 {"lat": loc.lat, "lng": loc.lng, "r": loc.radius_m, "c": loc.confidence, "m": method, "t": target.id})
+    append_event(conn, actor=actor, action="case.location_tightened", **ev,
+                 data={"from_radius_m": target.radius_m, "to_radius_m": loc.radius_m, "method": method,
+                       "with": source.public_id})
+    return "tightened"
 
 
 def merge_cases(conn: Connection, *, target_id: int, source_id: int, actor: Actor, decided_by: str, score=None,
@@ -108,6 +181,8 @@ def merge_cases(conn: Connection, *, target_id: int, source_id: int, actor: Acto
     add(conn, type="merge", content=record_bytes({**meta, "signals": signals or {}, "decided_by": decided_by, "reason": reason}),
         mime=JSON, actor=actor, added_by=decided_by, case_id=target_id, incident_id=target.incident_id,
         district_id=target.district_id, meta=meta)
+    if not take_location:
+        merged_location(conn, target, source, actor)
     retriage(conn, target_id, actor, why=f"merged with {source.public_id}")
     data = {"merge_id": merge_id, "target": target.public_id, "source": source.public_id, "source_case_id": source_id,
             "score": score, "reasons": reasons or [], "line": line, "kind": "auto" if decided_by == "rule" else "person"}

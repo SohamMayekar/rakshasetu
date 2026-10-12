@@ -17,7 +17,8 @@ const ORDER = ["chain.genesis", "demo.language_model", "demo.surge_started", "im
   "rescue.disputed", "case.reopened", "rescue.confirmed", "rescue.recorded", "rescue.partial", "rescue.nobody_here",
   "rescue.couldnt_reach", "assignment.reassigned", "assignment.overdue", "escalation.raised", "merge.refused", "case.merged",
   "merge.suggested", "case.created", "demo.clip_played", "assignment.contact", "assignment.created", "assignment.acknowledged",
-  "assignment.reached", "case.checked", "case.closed", "import.uploaded", "import.progress"];
+  "assignment.reached", "case.checked", "case.priority_overridden", "case.priority_released", "case.closed",
+  "import.uploaded", "import.progress"];
 
 const TEMPLATES: Record<string, (d: D, c: Ctx, e: Envelope) => string | null> = {
   "chain.genesis": () => "The demo was reset: the audit chain starts again from here.",
@@ -56,6 +57,8 @@ const TEMPLATES: Record<string, (d: D, c: Ctx, e: Envelope) => string | null> = 
   "rescue.confirmed": (d) => `The family confirmed ${s(d.people_taken)} rescued, from the phone that reported.`,
   "rescue.disputed": (d, c, e) => `The family says not everyone was rescued. ${c.pub(e.data.case_id)} can't close until an officer radios the team.`,
   "case.reopened": (d, c, e) => `${c.pub(e.data.case_id)} reopened: the person on site says they weren't rescued. Back to the top as P1.`,
+  "case.priority_overridden": (d, c, e) => `${s(d.by)} set ${c.pub(e.data.case_id)} to ${s(d.to)} (the rules said ${s(d.rules_said)}): “${s(e.data.reason)}”. Later facts won't undo a person's call.`,
+  "case.priority_released": (d, c, e) => `${c.pub(e.data.case_id)} is back with the rules: ${s(d.to)}.`,
   "case.closed": (d, c, e) => (d.resolution ? `${c.pub(e.data.case_id)} closed: ${s(d.resolution)}.` : null),
 };
 

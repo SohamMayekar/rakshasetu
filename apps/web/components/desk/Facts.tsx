@@ -96,6 +96,15 @@ export function Facts({ c, canEdit, onQuote, onChanged }: {
           {c.location_source && <MethodChip method={c.location_source === "human" ? "human" : "rule"} />}
         </span>
         {c.location_method && <Because>{c.location_method}</Because>}
+        {(() => {   // P1 #1: a merged report from outside the circle never moves the pin by itself
+          const m = (c.attributes?.proposed_move ?? null) as { from: string; metres_away: number; method?: string } | null;
+          return m && (
+            <p className="mt-1 rounded-md border border-line px-2 py-1 text-xs">
+              <b>Proposed move:</b> {m.from}&apos;s report places them {m.metres_away.toLocaleString("en-IN")} m away
+              {m.method ? ` (${m.method})` : ""}. The pin stays until a person moves it (Move pin).
+            </p>
+          );
+        })()}
         {list("landmarks").length > 0 && (
           <span className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
             {list("landmarks").filter((p, i, all) => all.findIndex((q) => JSON.stringify(q.value) === JSON.stringify(p.value)) === i).map((p, i) => {

@@ -181,6 +181,9 @@ def prepare(engine: Engine, report, *, allow_model: bool = True, rules_why: str 
     if audio_only:
         fields["flags"] = ["audio_only", *fields.get("flags", [])]
         fields["summary"] = "audio only: listen"
+    if llm_extract.instruction_like(report.transcript or report.text or ""):   # P1 #11: flagged, and changes nothing
+        fields["flags"] = [*fields.get("flags", []), "instruction_like_text"]
+        receipt.append({"step": "words", "by": "Rule", "detail": "instruction-like words flagged · priority still comes only from the rules"})
     priority, reasons, rank = triage(fields)                  # Stage 3: rules, never the model
     fields.update(priority=priority, priority_reasons=reasons, p1_rank=rank)
     receipt.append({"step": "priority", "by": "Rule", "detail": f"{priority} · {' · '.join(reasons)}"})

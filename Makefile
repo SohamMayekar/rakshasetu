@@ -15,7 +15,7 @@ env: ## Create .env from .env.example if it doesn't exist
 
 up: env ## Build and start the whole stack (db, api, worker, ticker, web)
 	$(COMPOSE) up -d --build --wait
-	@$(COMPOSE) exec -T caddy caddy reload --config /etc/caddy/Caddyfile >/dev/null 2>&1 && echo "caddy: routes reloaded" || true
+	@$(COMPOSE) restart caddy >/dev/null 2>&1 && echo "caddy: restarted, so it serves the current Caddyfile (its admin API is off: no live reload)"
 
 down: ## Stop the stack (data volume kept)
 	$(COMPOSE) down

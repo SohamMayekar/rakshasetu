@@ -36,6 +36,35 @@ function Decide({ c, onDone }: { c: Case; onDone: () => void }) {
   );
 }
 
+// P1 #2: the officer raises or lowers the priority, with a reason everyone sees; or hands it back to the rules.
+type Override = { level: string; from: string; rules_said: string; by: string; reason: string } | null;
+function PriorityCall({ c, onDone }: { c: Case; onDone: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const o = c.priority_override as Override;
+  if (!open) return <Button size="sm" variant="quiet" onClick={() => setOpen(true)}>Change priority…</Button>;
+  return (
+    <form className="mt-2 flex w-full flex-wrap gap-2" onSubmit={async (e) => {
+      e.preventDefault();
+      const f = new FormData(e.currentTarget);
+      const level = String(f.get("level"));
+      try {
+        await api(`/v1/cases/${c.id}/priority`, { method: "POST", json: { priority: level === "rules" ? null : level, reason: String(f.get("reason")) } });
+        setOpen(false); onDone();
+      } catch (x) { setError(x instanceof Error ? x.message : String(x)); }
+    }}>
+      <select name="level" defaultValue={c.priority} className="h-8 rounded-md border border-line bg-paper px-2 text-sm">
+        {["P1", "P2", "P3", "P4"].map((l) => <option key={l}>{l}</option>)}
+        {o && <option value="rules">back to the rules</option>}
+      </select>
+      <input name="reason" required minLength={3} autoFocus placeholder="Why (shown on the case)" className="h-8 min-w-0 flex-1 rounded-md border border-line px-2 text-sm" />
+      <Button size="sm" variant="primary" type="submit">Confirm</Button>
+      <Button size="sm" variant="quiet" type="button" onClick={() => setOpen(false)}>Cancel</Button>
+      {error && <span className="w-full text-xs">{error}</span>}
+    </form>
+  );
+}
+
 // A person can merge any two cases they can see, with a reason; the older one is kept (undoable).
 function ManualMerge({ c, onDone }: { c: Case; onDone: (kept: number) => void }) {
   const [open, setOpen] = useState(false);
@@ -104,16 +133,21 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
             <span className="tabular text-xl font-semibold tracking-tight">{c.public_id}</span>
             <Chip tone="quiet">{c.status === "reported" ? "not checked yet" : c.status}</Chip>
             {c.status !== "reported" && !c.checked_at && <Chip tone="quiet">not checked yet</Chip>}
+            {c.flags.includes("instruction_like_text") && <Chip tone="attention">instruction-like words</Chip>}
           </p>
           <Button variant="quiet" size="sm" onClick={onClose}>Close</Button>
         </div>
         <p className="mt-1 text-sm">{c.summary}</p>
-        {c.priority_reasons.length > 0 && <Because>{c.priority} · {c.priority_reasons.join(" · ")}</Because>}
+        {(c.priority_override as Override)
+          ? <Because>{c.priority} · {(() => { const o = c.priority_override as NonNullable<Override>;
+              return `${o.level < o.from ? "raised" : o.level > o.from ? "lowered" : "kept"} by ${o.by}: “${o.reason}” · the rules said ${o.rules_said}`; })()}</Because>
+          : c.priority_reasons.length > 0 && <Because>{c.priority} · {c.priority_reasons.join(" · ")}</Because>}
         <div className="mt-3 flex flex-wrap gap-2">
           {!c.checked_at && can("case.check") && (
             <Button size="sm" variant="primary" onClick={() => act(() => api(`/v1/cases/${c.id}/check`, { method: "POST", json: {} }))}>Check</Button>
           )}
           {can("case.move_pin") && !picking && <Button size="sm" onClick={onPickStart}>Move pin</Button>}
+          {can("priority.override") && !["merged", "closed", "cancelled"].includes(c.status) && <PriorityCall c={c} onDone={() => { onChanged(); load(); }} />}
           {can("case.decide") && <Decide c={c} onDone={() => { onChanged(); load(); }} />}
         </div>
         {picking && (

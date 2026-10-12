@@ -119,10 +119,19 @@ def action_for(c, k: dict, scope: Scope) -> dict:
     return {"kind": "open", "label": "Open"}
 
 
+def _because(c) -> str:
+    """The rules' reasons, or a person's call with its reason and what the rules said (P1 #2)."""
+    o = c.priority_override
+    if o:
+        way = "raised" if o["level"] < o["from"] else "lowered" if o["level"] != o["from"] else "kept"
+        return f"{way} by {o['by']}: “{o['reason']}” · the rules said {o['rules_said']}"
+    return " · ".join(c.priority_reasons or [])
+
+
 def queue(conn: Connection, scope: Scope, incident_code: str) -> dict:
     where, params = scope.case_where("c")
     rows = conn.execute(text(f"""
-        SELECT c.id, c.public_id, c.status, c.priority, c.priority_reasons, c.p1_rank, c.summary, c.location_text,
+        SELECT c.id, c.public_id, c.status, c.priority, c.priority_reasons, c.priority_override, c.p1_rank, c.summary, c.location_text,
                c.location_confidence, ST_Y(c.geom::geometry) AS lat, ST_X(c.geom::geometry) AS lng, c.flags,
                c.queue_since, c.people_count, c.people_remaining, c.hazards, c.needs, c.incident_id, c.district_id,
                c.checked_at, c.attributes,
@@ -167,7 +176,7 @@ def queue(conn: Connection, scope: Scope, incident_code: str) -> dict:
         out.append({
             "id": c.id, "kind": "case", "public_id": c.public_id, "priority": c.priority, "status": c.status, "version": c.version,
             "line1": c.summary, "line2": f"{where_line}{owner} · waiting {_minutes(k['waited_s'])}",
-            "because": " · ".join(c.priority_reasons or []), "chip": k["chip"], "broken": k["broken"],
+            "because": _because(c), "chip": k["chip"], "broken": k["broken"],
             "action": action_for(c, k, scope),
             "sort": [PRIORITY_RANK[c.priority], 0 if k["broken"] else 1,
                      (c.p1_rank or 0) if c.priority == "P1" else 0, c.queue_since.isoformat()],

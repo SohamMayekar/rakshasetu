@@ -559,6 +559,33 @@
         "title": "Preview",
         "type": "object"
       },
+      "PriorityCall": {
+        "properties": {
+          "priority": {
+            "anyOf": [
+              {
+                "pattern": "^P[1-4]$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Priority"
+          },
+          "reason": {
+            "maxLength": 300,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "PriorityCall",
+        "type": "object"
+      },
       "Reassign": {
         "properties": {
           "case": {
@@ -1924,6 +1951,61 @@
           }
         },
         "summary": "Move Pin",
+        "tags": [
+          "cases"
+        ]
+      }
+    },
+    "/v1/cases/{ref}/priority": {
+      "post": {
+        "description": "P1 #2: an officer raises or lowers the priority, with a reason shown on the row; the rules' proposal stays visible.",
+        "operationId": "set_priority_v1_cases__ref__priority_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "ref",
+            "required": true,
+            "schema": {
+              "title": "Ref",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PriorityCall"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Set Priority V1 Cases  Ref  Priority Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Set Priority",
         "tags": [
           "cases"
         ]

@@ -124,7 +124,7 @@ def move_pin(conn: Connection, scope, ref: str, lat: float, lng: float, reason: 
     conn.execute(text(
         "UPDATE cases SET geom = ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)::geography, radius_m = :r,"
         " location_confidence = 'high', location_method = :m, location_source = 'human', district_id = :d,"
-        " flags = :f, version = version + 1, updated_at = now() WHERE id = :id"),
+        " flags = :f, attributes = attributes - 'proposed_move', version = version + 1, updated_at = now() WHERE id = :id"),
         {"lng": lng, "lat": lat, "r": radius, "m": method, "d": district, "f": flags, "id": case.id})
     append_event(conn, actor=_actor(scope), action="case.location_moved", entity_type="case", entity_id=case.id,
                  incident_id=case.incident_id, district_id=district, case_id=case.id, reason=reason,
@@ -212,6 +212,41 @@ def retriage(conn: Connection, case_id: int, actor: Actor, why: str) -> dict:
                  incident_id=c.incident_id, district_id=c.district_id, case_id=case_id, reason=why,
                  data={"from": c.priority, "to": priority, "reasons": reasons})
     return {"priority": priority, "changed": True}
+
+
+def override_priority(conn: Connection, scope, ref: str, level: str | None, reason: str) -> dict:
+    """P1 #2: rules propose, people decide. An officer raises or lowers a case's priority with a reason; the
+    rules' own proposal is kept beside it, and later facts never undo a person's call. `level=None` hands the
+    case back to the rules."""
+    from app.modules.triage.rules import facts_of, p1_rank, triage
+    case = lock_case(conn, scope, ref)
+    if case is None:
+        raise LookupError(ref)
+    if case.status in ("merged", "closed", "cancelled"):
+        raise NotAllowed(f"This case is {case.status}")
+    if not reason or len(reason.strip()) < 3:
+        raise NotAllowed("Say why: the reason is shown on the case")
+    facts = {"hazards": case.hazards, "needs": case.needs, "vulnerable": case.vulnerable, "people_count": case.people_count}
+    rules_said, rule_reasons, rule_rank = triage(facts)
+    before = case.priority
+    if level is None:
+        override, priority, reasons, rank = None, rules_said, rule_reasons, rule_rank
+        action = "case.priority_released"
+    else:
+        if level not in ("P1", "P2", "P3", "P4"):
+            raise NotAllowed("Priority is P1, P2, P3 or P4")
+        override = {"level": level, "from": before, "rules_said": rules_said, "by": scope.name, "by_id": scope.user_id,
+                    "role": scope.role, "reason": reason.strip(), "at": conn.execute(text("SELECT now()")).scalar().isoformat()}
+        priority, reasons = level, list(case.priority_reasons or [])
+        rank = p1_rank(facts_of(facts)) if level == "P1" else None
+        action = "case.priority_overridden"
+    conn.execute(text("UPDATE cases SET priority = :p, priority_reasons = :rs, p1_rank = :r, priority_override = CAST(:o AS jsonb),"
+                      " version = version + 1, updated_at = now() WHERE id = :id"),
+                 {"p": priority, "rs": reasons, "r": rank, "o": json.dumps(override) if override else None, "id": case.id})
+    append_event(conn, actor=_actor(scope), action=action, entity_type="case", entity_id=case.id,
+                 incident_id=case.incident_id, district_id=case.district_id, case_id=case.id, reason=reason.strip(),
+                 data={"from": before, "to": priority, "rules_said": rules_said, "by": scope.name})
+    return {"case_id": case.id, "priority": priority, "rules_said": rules_said, "override": override}
 
 
 def reveal_contact(conn: Connection, scope, case: dict, reason: str) -> dict | None:

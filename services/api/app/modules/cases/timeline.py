@@ -107,6 +107,18 @@ def line(action: str, d: dict, who: str | None) -> str:
             return f"Phone number shown to {d.get('by') or who}{'' if not d.get('masked') else ' (' + d['masked'] + ')'}"
         case "report.callback_added":
             return "A callback number was added"
+        case "case.location_tightened":
+            return f"The circle tightened with {d.get('with')}'s report: {d.get('from_radius_m')} m → {d.get('to_radius_m')} m · {d.get('method')}"
+        case "case.location_proposed":
+            return (f"{d.get('from')}'s report places them {d.get('metres_away')} m away, outside the circle: a proposed move,"
+                    " for a person to accept (the pin stays)")
+        case "case.location_changed":
+            return f"Took the pin a person set: {d.get('why')}"
+        case "case.priority_overridden":
+            way = "raised" if d.get("to", "P4") < d.get("from", "P4") else "lowered" if d.get("to") != d.get("from") else "kept"
+            return f"{d.get('to')}: {way} from {d.get('from')}{by} (the rules said {d.get('rules_said')})"
+        case "case.priority_released":
+            return f"Back to the rules: {d.get('to')}{by}"
         case "demo.clip_played":
             voice = "a synthetic voice" if d.get("synthetic_voice") else "a recording"
             return f"Played by the demo control from {d.get('clip')} ({voice}), through the same voice pipeline"
