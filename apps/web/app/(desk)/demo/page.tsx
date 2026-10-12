@@ -44,13 +44,16 @@ export default function DemoPage() {
     try { setLine(await fn()); } catch (e) { setLine(`${label}: ${why(e)}`); } finally { setBusy(null); refresh(); setQrKey((k) => k + 1); }
   };
 
-  if (me && me.user.role !== "admin") {
+  if (me && me.user.role !== "admin") {   // the duty officer on the projector: the script and the two "show" pages
     return (
       <AppShell me={me}><Page>
-        <PageHeader title="Demo controls" />
-        <p className="mt-3 text-sm text-ink-2">These need the Demo admin. Open <b>http://127.0.0.1/demo</b> and sign in as Demo admin there,
-          so the desk on <b>http://localhost</b> stays signed in as {me.user.name}.</p>
-        <p className="mt-3 text-sm"><a href="/login" className="underline underline-offset-2">Sign in as someone else</a></p>
+        <PageHeader title="Demo" sub="The 5-minute story, scene by scene. Every person and phone number is made up; the demo clock runs 60× faster." />
+        <Shows />
+        <Card className="mt-4 px-5 py-4 text-sm">
+          <ol className="space-y-2">{SCRIPT.map((x, i) => <li key={x.id}><b className="tabular">{i + 1}. {x.title}</b> <span className="text-ink-2">· {x.do}</span></li>)}</ol>
+          <p className="mt-3 text-ink-3">The reset buttons and QR codes are for the Demo admin: open <b>http://127.0.0.1/demo</b> and sign in as Demo admin
+            there, so this desk on <b>http://localhost</b> stays signed in as {me.user.name}.</p>
+        </Card>
       </Page></AppShell>
     );
   }
@@ -60,6 +63,7 @@ export default function DemoPage() {
     <Page>
       <PageHeader title="Demo controls" sub="Local only, demo mode only. Every control here is on the audit log." />
       {line && <p className="mt-4 rounded-xl bg-paper px-4 py-2.5 text-sm shadow-[var(--shadow-card)]" role="status">{line}</p>}
+      <Shows />
       <div className="text-sm">
 
       <Box title="Reset to a scene">
@@ -152,6 +156,28 @@ export default function DemoPage() {
       </div>
     </Page>
     </AppShell>
+  );
+}
+
+// The presenter's script: one line per scene, what to do and say (the ids are data/scenarios/BR/demo.yaml's).
+const SCRIPT = [
+  { id: "son", title: "The son", do: "A son in Mumbai speaks one sentence into the phone app; it becomes a case on the desk." },
+  { id: "merge", title: "Never doubled", do: "A neighbour's forward is the same family: merge it. Rajesh ≠ Ramesh: kept apart." },
+  { id: "sheet", title: "The volunteer sheet", do: "Add a 300-row sheet: new families, repeats merged, nothing dropped." },
+  { id: "stale", title: "Never stale", do: "Send SDRF Boat 2; it goes quiet; contact overdue; send another team." },
+  { id: "rescue", title: "The rescue", do: "Boat 5's phone: accept, reached, 4 taken, then 2: rescued 6 of 6; the son says yes." },
+  { id: "receipts", title: "The receipts", do: "Timeline & evidence, each item ✓; History: nothing was changed." },
+];
+
+// The two pages that show the system under pressure and talking to another team's system (m69: out of the sidebar).
+function Shows() {
+  return (
+    <div className="mt-5 grid gap-3 sm:grid-cols-2">
+      <a href="/surge" className="rounded-2xl bg-paper px-5 py-4 shadow-[var(--shadow-card)] hover:bg-wash">
+        <b>Show it under load</b><span className="block text-sm text-ink-2">50 made-up reports a second: nothing lost, nothing doubled.</span></a>
+      <a href="/partners" className="rounded-2xl bg-paper px-5 py-4 shadow-[var(--shadow-card)] hover:bg-wash">
+        <b>Show a partner system</b><span className="block text-sm text-ink-2">Another team&rsquo;s app sends signed notes (simulated by us).</span></a>
+    </div>
   );
 }
 

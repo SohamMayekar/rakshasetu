@@ -4,7 +4,7 @@
 // person and phone on screen is synthetic. On the desk it folds to icons so the map keeps its width.
 // Calm: neutral only (hue means priority), the current page is a quiet wash, never a colour.
 
-import { Activity, ClipboardList, Handshake, LayoutGrid, LogOut, type LucideIcon, Presentation, ShieldCheck } from "lucide-react";
+import { ClipboardList, LayoutGrid, LogOut, type LucideIcon, Presentation, ShieldCheck } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import type { Me } from "@/lib/api";
@@ -26,17 +26,19 @@ function initials(name: string) {
   return name.replace(/[^A-Za-z ]/g, " ").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("");
 }
 
+// At most three places (m69): your desk (or, if you see several incidents, all of them), History (the audit trail)
+// and Demo. Surge ("Show it under load") and the partner log ("Show a partner system") are inside Demo.
 function navItems(me: Me | null): Item[] {
   const can = (p: string) => !!me?.permissions.includes(p);
   const desk = !!me && ["call_taker", "duty_officer", "incharge", "admin"].includes(me.user.role);
+  const one = me?.incidents.length === 1 ? me.incidents[0] : null;
   const all: Item[] = [
-    { href: "/", label: "Incidents", icon: LayoutGrid, show: true, match: (p: string) => p === "/" },
-    ...(me?.incidents ?? []).filter(() => desk).map((i) => ({
-      href: `/desk/${i.code}`, label: `Desk · ${i.code}`, icon: ClipboardList, show: true, match: (p: string) => p.startsWith(`/desk/${i.code}`) })),
-    { href: "/surge", label: "Surge", icon: Activity, show: can("totals.view") },
-    { href: "/audit", label: "Audit", icon: ShieldCheck, show: can("audit.read") },
-    { href: "/partners", label: "Partner log", icon: Handshake, show: can("audit.read") },
-    { href: "/demo", label: "Demo controls", icon: Presentation, show: !!me?.demo_mode && can("incident.admin") },
+    desk && one
+      ? { href: `/desk/${one.code}`, label: "Desk", icon: ClipboardList, show: true, match: (p: string) => p.startsWith("/desk/") }
+      : { href: "/", label: "All incidents", icon: LayoutGrid, show: true, match: (p: string) => p === "/" || p.startsWith("/desk/") },
+    { href: "/audit", label: "History", icon: ShieldCheck, show: can("audit.read") },
+    { href: "/demo", label: "Demo", icon: Presentation, show: !!me?.demo_mode && desk,
+      match: (p: string) => ["/demo", "/surge", "/partners"].some((x) => p.startsWith(x)) },
   ];
   return all.filter((i) => i.show);
 }

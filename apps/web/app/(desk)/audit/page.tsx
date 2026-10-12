@@ -24,6 +24,7 @@ export default function Audit() {
   const [verify, setVerify] = useState<Verify | null>(null);
   const [busy, setBusy] = useState(false);
   const [caseId, setCaseId] = useState<string | null>(null);
+  const [details, setDetails] = useState(false);   // entry numbers and fingerprints: for the tamper demo, a click away
 
   useEffect(() => {
     const c = new URLSearchParams(location.search).get("case");
@@ -62,20 +63,22 @@ export default function Audit() {
             ))}
           </Card>
         )}
-        <Card className="mt-5 overflow-x-auto">
+        <p className="mt-5 flex justify-end"><Button size="sm" variant="quiet" onClick={() => setDetails(!details)} aria-expanded={details}>
+          {details ? "Hide details" : "Show details (entry numbers, fingerprints)"}</Button></p>
+        <Card className="mt-1 overflow-x-auto">
           <table className="w-full text-sm">
             <thead><tr className="border-b border-line text-left text-xs text-ink-3">
-              <th className="py-3 pl-5 pr-3 font-medium">#</th><th className="pr-3 font-medium">time</th><th className="pr-3 font-medium">who</th>
-              <th className="pr-3 font-medium">what happened</th><th className="pr-3 font-medium">why</th><th className="pr-5 font-medium">fingerprint</th></tr></thead>
+              {details && <th className="py-3 pl-5 pr-3 font-medium">#</th>}<th className={`py-3 pr-3 font-medium ${details ? "" : "pl-5"}`}>time</th><th className="pr-3 font-medium">who</th>
+              <th className="pr-3 font-medium">what happened</th><th className="pr-3 font-medium">why</th>{details && <th className="pr-5 font-medium">fingerprint</th>}</tr></thead>
             <tbody>
               {(events ?? []).map((e) => (
                 <tr key={e.seq} className="border-b border-line align-top last:border-b-0 hover:bg-wash/60">
-                  <td className="tabular py-2 pl-5 pr-3 text-ink-3">{e.seq}</td>
-                  <td className="tabular whitespace-nowrap py-2 pr-3">{new Date(e.at).toLocaleTimeString("en-IN", { hour12: false })}</td>
+                  {details && <td className="tabular py-2 pl-5 pr-3 text-ink-3">{e.seq}</td>}
+                  <td className={`tabular whitespace-nowrap py-2 pr-3 ${details ? "" : "pl-5"}`}>{new Date(e.at).toLocaleTimeString("en-IN", { hour12: false })}</td>
                   <td className="py-2 pr-3">{e.actor.type === "user" ? ROLE[e.actor.role ?? ""] ?? e.actor.role : e.actor.type}</td>
                   <td className="py-2 pr-3"><span className="font-medium">{plainEvent(e.action)}</span> <span className="text-ink-3">{e.entity.type.replace(/_/g, " ")} {e.entity.id}</span></td>
                   <td className="py-2 pr-3 text-ink-2">{e.reason}</td>
-                  <td className="tabular py-2 pr-5 text-xs text-ink-3">{e.hash.slice(0, 12)}…</td>
+                  {details && <td className="tabular py-2 pr-5 text-xs text-ink-3">{e.hash.slice(0, 12)}…</td>}
                 </tr>
               ))}
             </tbody>
