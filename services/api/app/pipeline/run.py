@@ -12,13 +12,17 @@ Stages are filled in milestone by milestone; each records a step in the report's
 
 import json
 
+from pydantic import ValidationError
 from sqlalchemy import Engine, text
 
 from app.config import get_config
 from app.contracts import Extraction
 from app.core.eventlog import WORKER
+from app.core.flags import language_model_enabled
 from app.core.jobs import handler
 from app.modules.cases.service import create_case
+from app.pipeline.fields import fields_from_extraction
+from app.pipeline.keywords import extract_keywords
 
 
 def load_report(engine: Engine, report_id: int):
@@ -27,12 +31,28 @@ def load_report(engine: Engine, report_id: int):
 
 
 def extract(report) -> tuple[Extraction, str, list[dict]]:
-    """Stage 1b. Until the keyword path (m18) and the language model (m19) exist, nothing is extracted."""
-    return Extraction.empty(report.language), "rules", [{"step": "extract", "by": "Rule", "detail": "no extractor yet"}]
+    """Stage 1b. Pre-structured partner/surge fields are used as given (validated against the contract);
+    otherwise the keyword path reads the text. The language model joins in m19."""
+    text_in = report.transcript or report.text or ""
+    if report.structured:
+        try:
+            ex = Extraction.model_validate(report.structured)
+            return ex, "structured", [{"step": "extract", "by": "Partner", "detail": "pre-structured fields, validated"}]
+        except ValidationError:
+            pass   # fall through: read the text instead
+    ex = extract_keywords(text_in)
+    why = "language model off" if not language_model_enabled() else "keywords"
+    return ex, "rules", [{"step": "extract", "by": "Rule", "detail": f"{why}: {_count(ex)} fields"}]
+
+
+def _count(ex: Extraction) -> int:
+    return (bool(ex.people_count) + len(ex.hazards) + len(ex.needs) + len(ex.vulnerable)
+            + bool(ex.location.village_or_locality) + len(ex.location.landmarks))
 
 
 def triage(fields: dict) -> tuple[str, list[str]]:
-    """Stage 3. With no extracted facts, only the catch-all rule (the last one in the config) can match."""
+    """Stage 3. The rule engine arrives in m25; until then every case gets the config's catch-all rule
+    (P4, "no urgent signal yet: check"), so a person reads it."""
     catch_all = get_config().priority[-1]
     return catch_all.level, [catch_all.reason]
 
@@ -43,7 +63,7 @@ def process_report(engine: Engine, payload: dict) -> None:
     if report is None or report.case_id is not None:
         return                                            # idempotent: already processed
     extraction, method, receipt = extract(report)
-    fields: dict = {}
+    fields = fields_from_extraction(extraction, method, report.id)
     priority, reasons = triage(fields)
     fields.update(priority=priority, priority_reasons=reasons)
     receipt.append({"step": "priority", "by": "Rule", "detail": f"{priority} · {reasons[0]}"})

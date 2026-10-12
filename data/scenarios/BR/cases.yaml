@@ -278,7 +278,7 @@ cases:
   channel: web_form
   relation: family
   phone: +91 98765 20013
-  text: Manjha gaon mein rasta kat gaya hai, 7 log fase hain, paani andar aa gaya, ek viklang vyakti hai, dawai khatam ho gayi. Jaldi madad bhejiye
+  text: Manjha gaon mein rasta kat gaya hai, 7 log wahan hain, paani andar aa gaya, ek viklang vyakti hai, dawai khatam ho gayi. Jaldi madad bhejiye
   status: reported
   truth:
     village: Manjha
@@ -782,7 +782,7 @@ cases:
   channel: partner
   relation: self
   phone: +91 98765 20035
-  text: Hum Sidhwalia se bol rahe hain, 6 log fase hain, khana nahi hai, dadi saans nahi le pa rahi
+  text: Hum Sidhwalia se bol rahe hain, 6 log fase hain, khana nahi hai, ek aadmi saans nahi le pa raha
   status: reported
   truth:
     village: Sidhwalia
@@ -989,7 +989,7 @@ cases:
   channel: partner
   relation: family
   phone: +91 98765 20044
-  text: Hum Barauli se bol rahe hain, rasta kat gaya hai, 9 log fase hain, paani tezi se badh raha hai, buzurg maa saath mein hain, khana nahi
+  text: Hum Barauli se bol rahe hain, rasta kat gaya hai, 9 log wahan hain, paani tezi se badh raha hai, buzurg maa saath mein hain, khana nahi
     hai. Please jaldi aaiye
   status: reported
   truth:

@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m18 · keyword extractor + rules-made cases (T10)
+**Current milestone:** m19 · LLM extraction + quote check
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -25,6 +25,7 @@
 | m15 | intake.accept(): report + job in one transaction, namespaced idempotency (ON CONFLICT … DO NOTHING), report.received event; POST /v1/ingest/reports (signed-in users); report.process pipeline skeleton creating one case per report (P4 catch-all until extraction exists; needs_location; district from the desk user or the incident's first district) | T1 (tests/scenarios): same JSON twice → one report, one job, one event, replay 200 + Idempotent-Replay; other caller's same key → separate report; double processing → one case; 422 on unknown channel or a priority field. Live: report via Caddy → worker → BR-199 in 2 s, chain ✓ |
 | m16 | Channel adapter registry; desk paste/type adapter POST /v1/ingest/desk (local only, client_id idempotency, pasted forward → forwarder); HMAC-signed partner ingestion on /v1/ingest/reports (raw-byte HMAC, ±300 s, required Idempotency-Key = body key, per-partner scopes/incidents/rate cap/kill switch) | pytest: desk paste → case; desk 404 on public; signed partner → case once (replay 200); bad signature, body changed after signing, stale timestamp ('replay rejected'), unknown/disabled partner → 401; missing/mismatched key → 400; out-of-scope incident 403; permission row report.submit enabled. Live: the contract card's curl+openssl recipe through :8080 → 202 then 200 Idempotent-Replay |
 | m17 | Provider layer: STT chain (Sarvam saaras:v4 → Groq whisper-large-v3 → recorded fixture), LLM chain (Groq gpt-oss-120b strict json_schema → Gemini Flash), fixture mode, 80%-of-free-cap guard (provider_usage), extraction_cache + runtime_flags tables, make provider-check | pytest (11): request shapes match the providers' docs (offline, httpx stubbed), fallback on primary failure, no keys → all skipped, fixture mode makes no network call, recorded transcript labelled 'fixture', 80% cap stops the 801st daily call, comment-as-value guard. Live: make provider-check → 4 × BLOCKED (no keys) |
+| m18 | Keyword extractor (team-owned dictionaries/hi.yaml: Hindi, Hinglish, English) filling the closed Extraction contract with quotes; Devanagari→Latin transliteration; structured partner fields used as given; case fields + per-field provenance + template summary; desk live-chips preview; demo control 'language model off' (runtime flag + event) | T10 (LM off): typed demo line → case in < 5 s, 6 people · roof · water inside · medicine · elderly, every chip method=rule with its quote. Keyword tests: demo line (Latin + Devanagari), seed texts 48/48 on headcount/hazards/needs/vulnerable, ranges/estimates, collapse words, routine vs urgent medicine, injection text extracts nothing, names + phone |
 
 ## NOT DONE (engineering)
 

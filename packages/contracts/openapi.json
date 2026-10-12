@@ -112,6 +112,33 @@
         "title": "Login",
         "type": "object"
       },
+      "Preview": {
+        "properties": {
+          "text": {
+            "maxLength": 5000,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "title": "Preview",
+        "type": "object"
+      },
+      "Switch": {
+        "properties": {
+          "on": {
+            "title": "On",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "on"
+        ],
+        "title": "Switch",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -539,6 +566,50 @@
         ]
       }
     },
+    "/v1/demo/language-model": {
+      "post": {
+        "description": "F-C14: switch the language model off (or back on). Speech-to-text stays on, so say \"language model\".",
+        "operationId": "language_model_v1_demo_language_model_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Switch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Language Model V1 Demo Language Model Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Language Model",
+        "tags": [
+          "demo"
+        ]
+      }
+    },
     "/v1/demo/status": {
       "get": {
         "operationId": "demo_status_v1_demo_status_get",
@@ -676,6 +747,50 @@
           }
         },
         "summary": "Ingest Desk",
+        "tags": [
+          "ingest"
+        ]
+      }
+    },
+    "/v1/ingest/desk/preview": {
+      "post": {
+        "description": "The keyword chips that fill in as a call-taker types (rules only, no AI, nothing stored).",
+        "operationId": "desk_preview_v1_ingest_desk_preview_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Preview"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Desk Preview V1 Ingest Desk Preview Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Desk Preview",
         "tags": [
           "ingest"
         ]

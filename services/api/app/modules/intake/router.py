@@ -7,7 +7,7 @@ POST /v1/ingest/desk     The call-taker's paste/type form (local listener; names
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.concurrency import run_in_threadpool
-from pydantic import ValidationError
+from pydantic import BaseModel, Field, ValidationError
 
 from app.channels import desk, partner
 from app.contracts import CanonicalReport
@@ -16,6 +16,8 @@ from app.core.eventlog import Actor
 from app.core.listener import require_local
 from app.db import get_engine
 from app.modules.intake.service import accept
+from app.pipeline.fields import fields_from_extraction
+from app.pipeline.keywords import extract_keywords
 
 router = APIRouter(prefix="/v1/ingest", tags=["ingest"])
 
@@ -66,6 +68,18 @@ def _parse(raw: bytes) -> CanonicalReport:
         return CanonicalReport.model_validate_json(raw)
     except ValidationError as e:
         raise HTTPException(422, e.errors(include_url=False, include_context=False)) from None
+
+
+class Preview(BaseModel):
+    text: str = Field(max_length=5000)
+
+
+@router.post("/desk/preview", dependencies=[Depends(require_local)])
+def desk_preview(body: Preview, _: Scope = Depends(require("report.submit"))) -> dict:
+    """The keyword chips that fill in as a call-taker types (rules only, no AI, nothing stored)."""
+    ex = extract_keywords(body.text)
+    fields = fields_from_extraction(ex, "rules", report_id=0)
+    return {"summary": fields["summary"], "extraction": ex.model_dump(exclude_none=True)}
 
 
 @router.post("/desk", status_code=202, dependencies=[Depends(require_local)])
