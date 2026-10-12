@@ -62,7 +62,7 @@ export default function ResponderCase({ params }: { params: Promise<{ id: string
       <div className="flex-1 px-5 pt-4">
         <p className="flex items-baseline gap-3 text-3xl font-semibold tracking-tight"><Priority level={c.priority} /><span className="tabular">{c.public_id}</span></p>
         {words && (
-          <p className="mt-3 whitespace-pre-line text-xl leading-snug" lang={words.language ?? "hi"}>&ldquo;{words.transcript ?? words.text}&rdquo;</p>
+          <p className="mt-3 whitespace-pre-line text-xl leading-snug" lang={words.language ?? undefined}>&ldquo;{words.transcript ?? words.text}&rdquo;</p>
         )}
         <p className="mt-2 text-lg text-ink-2">{c.summary}</p>
         <p className="mt-1 text-ink-2">{c.location_text ?? "Place not known"}{c.radius_m ? ` · within about ${c.radius_m >= 1000 ? `${c.radius_m / 1000} km` : `${c.radius_m} m`}` : ""}</p>
@@ -73,7 +73,7 @@ export default function ResponderCase({ params }: { params: Promise<{ id: string
         </div>
         {a && (
           <div className="mt-4 rounded-xl bg-wash px-4 py-3">
-            <p className="font-medium">You own this · आपका केस</p>
+            <p className="font-medium">You own this</p>
             <Ring due={a.next_contact_due} windowMs={Math.max(new Date(a.next_contact_due).getTime() - new Date(a.created_at).getTime(), 60_000)}
                   overdue={a.state === "overdue"} demo={a.demo_clock} />
           </div>
@@ -93,9 +93,9 @@ export default function ResponderCase({ params }: { params: Promise<{ id: string
           </div>
         )}
         {step === "reached" && (
-          <BigButton onClick={() => tap({ url: `/v1/assignments/${a!.id}/reached`, label: "Reached", caseId: c.id })}>Reached · पहुँच गए</BigButton>
+          <BigButton onClick={() => tap({ url: `/v1/assignments/${a!.id}/reached`, label: "Reached", caseId: c.id })}>Reached</BigButton>
         )}
-        {step === "rescue" && !rescuing && <BigButton onClick={() => setRescuing(true)}>Record rescue · बचाव दर्ज करें</BigButton>}
+        {step === "rescue" && !rescuing && <BigButton onClick={() => setRescuing(true)}>Record rescue</BigButton>}
         {rescuing && (
           <RescueSheet reported={c.people_remaining ?? c.people_count} onRecord={(body, label) => {   // a second trip starts at who's left
             // the team phone's own location at that moment (not the family's), if the phone will give it quickly.

@@ -41,6 +41,20 @@ number_words:
   दस: 10
   बारह: 12
   बीस: 20
+  # English (no "one": "one person is disabled" is not a headcount)
+  two: 2
+  three: 3
+  four: 4
+  five: 5
+  six: 6
+  seven: 7
+  eight: 8
+  nine: 9
+  ten: 10
+  eleven: 11
+  twelve: 12
+  fifteen: 15
+  twenty: 20
 estimate_words: '(?:lagbhag|kareeb|qareeb|about|around|approx(?:imately)?|लगभग|करीब)'
 
 # --- hazards (closed list in contracts/extraction.schema.json) --------------------------------------

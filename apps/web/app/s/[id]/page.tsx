@@ -11,12 +11,12 @@ import { adoptDevice, deviceId } from "@/lib/device";
 type Status = { public_id: string; tracked_as: string | null; other_reports: number | null; step: string; steps: string[]; last_update_at: string;
                 check?: { people_taken: number | null; answered: string | null } | null };
 
-const LABEL: Record<string, { hi: string; en: string }> = {
-  registered: { hi: "दर्ज", en: "Registered" },
-  help_assigned: { hi: "मदद तय", en: "Help assigned" },
-  team_reached: { hi: "टीम पहुँची", en: "Team reached" },
-  rescued: { hi: "बचा लिया गया", en: "Rescued" },
-  closed: { hi: "बंद", en: "Closed" },
+const LABEL: Record<string, string> = {
+  registered: "Registered",
+  help_assigned: "Help assigned",
+  team_reached: "Team reached",
+  rescued: "Rescued",
+  closed: "Closed",
 };
 
 function ago(iso: string, now: number) {
@@ -78,7 +78,7 @@ export default function StatusPage({ params }: { params: Promise<{ id: string }>
       )}
 
       {st.step === "closed" ? (
-        <p className="mt-8 text-2xl font-medium">{LABEL.closed.hi} · {LABEL.closed.en}</p>
+        <p className="mt-8 text-2xl font-medium">{LABEL.closed}</p>
       ) : (
         <ol className="mt-8 space-y-0" aria-label="Progress">
           {st.steps.map((s, i) => {
@@ -93,8 +93,8 @@ export default function StatusPage({ params }: { params: Promise<{ id: string }>
                   {done && <svg viewBox="0 0 16 16" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3.5 8.5l3 3 6-7" /></svg>}
                 </span>
                 <span className={done ? "text-neutral-950" : "text-neutral-400"}>
-                  <span className={`block text-xl ${now_ ? "font-semibold" : ""}`}>{LABEL[s].hi}</span>
-                  <span className="block" lang="en">{LABEL[s].en}{now_ ? " · current step" : ""}</span>
+                  <span className={`block text-xl ${now_ ? "font-semibold" : ""}`}>{LABEL[s]}</span>
+                  {now_ && <span className="block text-neutral-600">current step</span>}
                 </span>
               </li>
             );
@@ -104,7 +104,7 @@ export default function StatusPage({ params }: { params: Promise<{ id: string }>
 
       {st.check && <FamilyCheck id={st.tracked_as ?? st.public_id} check={st.check} />}
 
-      <p className="tabular mt-10 text-neutral-600" lang="en">
+      <p className="tabular mt-10 text-neutral-600">
         Last update {new Date(st.last_update_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })} · {ago(st.last_update_at, now)}
         {offline && <span className="block text-neutral-950">Can't reach the server right now; showing the last known step.</span>}
       </p>
@@ -127,29 +127,28 @@ function FamilyCheck({ id, check }: { id: string; check: { people_taken: number 
   if (answer) {
     return (
       <p className="mt-8 rounded-xl bg-neutral-100 px-4 py-3 text-lg">
-        धन्यवाद · Thank you.{answer === "no" && <span className="block text-base text-neutral-700" lang="en">An officer will check with the team.</span>}
+        Thank you.{answer === "no" && <span className="block text-base text-neutral-700">An officer will check with the team.</span>}
       </p>
     );
   }
   return (
     <section className="mt-8 rounded-2xl border border-neutral-300 p-5">
-      <p className="text-xl leading-snug">टीम के अनुसार {check.people_taken ?? ""} लोगों को बचा लिया गया। क्या यह सही है?</p>
-      <p className="mt-1 text-neutral-700" lang="en">Team says {check.people_taken ?? ""} people were rescued. Is that right?</p>
+      <p className="text-xl leading-snug">The team says {check.people_taken ?? ""} people were rescued. Is that right?</p>
       <div className="mt-4 grid grid-cols-2 gap-3">
-        <button disabled={busy} onClick={() => send("yes")} className="min-h-16 rounded-2xl bg-neutral-950 text-lg font-semibold text-white">हाँ · Yes</button>
-        <button disabled={busy} onClick={() => send("no")} className="min-h-16 rounded-2xl border-2 border-neutral-950 text-lg font-semibold">नहीं · No</button>
+        <button disabled={busy} onClick={() => send("yes")} className="min-h-16 rounded-2xl bg-neutral-950 text-lg font-semibold text-white">Yes</button>
+        <button disabled={busy} onClick={() => send("no")} className="min-h-16 rounded-2xl border-2 border-neutral-950 text-lg font-semibold">No</button>
       </div>
-      <p className="mt-3 text-sm text-neutral-600">आपको जवाब देने की ज़रूरत नहीं · You don&rsquo;t have to answer.</p>
+      <p className="mt-3 text-sm text-neutral-600">You don&rsquo;t have to answer.</p>
     </section>
   );
 }
 
 function Shell({ children }: { children: React.ReactNode }) {
   return (
-    <main className="mx-auto min-h-dvh max-w-md px-6 pb-10 pt-8" lang="hi">
+    <main className="mx-auto min-h-dvh max-w-md px-6 pb-10 pt-8">
       <p className="mb-8 text-sm font-medium tracking-wide text-neutral-500">RakshaSetu</p>
       {children}
-      <p className="mt-12 border-t border-neutral-200 pt-6 text-sm text-neutral-600" lang="en">
+      <p className="mt-12 border-t border-neutral-200 pt-6 text-sm text-neutral-600">
         You don't need to do anything here. If someone is in danger right now, call <b>112</b> or <b>1077</b>.
       </p>
     </main>

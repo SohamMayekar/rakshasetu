@@ -83,7 +83,7 @@ from app.core.eventlog import Actor
 from app.db import get_engine
 from app.modules.intake.service import accept
 r = CanonicalReport.model_validate({"schema_version": "1", "idempotency_key": "drill-d2", "channel": "partner", "incident_hint": "BR",
-    "content": {"text": "Kuchaikote gaon mein, station ke paas, 5 log chhat par fase hain, bachche hain"}, "source": {"system": "drill"}})
+    "content": {"text": "In Kuchaikote village, near the station, 5 people are stuck on the roof, children are there"}, "source": {"system": "drill"}})
 with get_engine().begin() as c:
     print(accept(c, r, source_ns="partner:drill", actor=Actor("partner", "drill", "partner")).report_id)`);
   const madePid = await until(async () => sql(`SELECT c.public_id FROM reports r JOIN cases c ON c.id = r.case_id WHERE r.id = ${rid}`), 20000);
@@ -128,7 +128,7 @@ with get_engine().begin() as c:
   say("D5 · the language model is switched off");
   await admin.post("/v1/demo/language-model", { data: { on: false } });
   const s5 = Date.now();
-  const rid5 = (await json(officer.post("/v1/ingest/desk", { data: { incident: "BR", text: "Barauli mein 4 log chhat par, ek buzurg hain, dawai chahiye",
+  const rid5 = (await json(officer.post("/v1/ingest/desk", { data: { incident: "BR", text: "In Barauli village, 4 people on the roof, an elderly man is there, they need medicine",
     phone: "+91 98765 73005", client_id: `drill5-${Date.now()}` } }))).report_id;
   const made5 = await until(async () => sql(`SELECT c.public_id || ' ' || r.extraction_method FROM reports r JOIN cases c ON c.id = r.case_id WHERE r.id = ${rid5}`), 10000);
   check(!!made5 && (Date.now() - s5) <= 5000 && made5.endsWith("rules"), `a typed report became ${made5?.split(" ")[0]} in ${((Date.now() - s5) / 1000).toFixed(1)} s, read by the rules (≤ 5 s)`);

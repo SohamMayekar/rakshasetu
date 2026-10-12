@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m59 outbound webhooks + contract card
+**Current milestone:** m60 visual redesign
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -45,6 +45,7 @@
 | m42 | Team-level radio contact (refreshes every live assignment, clears overdue, resolves escalation, acks stand-downs), Extend/Reassign on escalations (stand-down owed, 409 naming who on a resolved one), teams list | tests/scenarios/test_t6_contact_overdue.py now 8 (radio restores, T7 extend, reassign + stand-down); permission row team.radio_contact |
 | m53 | All ten PRD scenario tests and one IDOR test per resource are in the suite and green: new T2 (a real worker process SIGKILLed mid-surge, its jobs reclaimed: every report in exactly one case, integrity 0, chain ✓), new T7 file (two officers on one escalation; the DB refuses a second open assignment), evidence and assignment IDOR (were skipped placeholders until now); docs/TESTS.md maps T1–T10 + IDOR to files and results | make test: all passed; T2 run: 76/300 in cases at the kill, 4 jobs held, 300/300 after reclaim |
 | m57 | P1 items, after a code audit of all 13 (built: empty queue line; partial: reporter's not-sent state, capacity-gap header, 'last confirmed', 409 messages; not built: the rest): #1 merge tightens the circle with both reports' landmarks + pin precedence + proposed moves; #2 officer priority override with a reason (rules' proposal stays visible); #7 installable team app, Wake Lock, network-first offline shell + last list of My cases; #11 phone placeholders before the language model + instruction-like words flag. Found and fixed: make up's Caddy reload never worked (admin API off) → restart | tests: test_merge_location (3), test_priority_override (2) + permission row enabled, test_instruction_words (2), LLM phone masking (1); Chromium: installable but for incognito, wake lock requested after acknowledging, offline reload shows the saved list; make e2e still 37/37 |
+| m59 | English only on every screen (D17), at the team's request: the reporter page, the family's status page, the team app, the rescue sheet and the desk's new-report box lose their Hindi lines; the fixed reply is English. The demo data is English too (48 seed cases, the 300-row sheet with English headers, the surge generator, the forward, the Das report, a new synthetic English clip of the son's line + its transcript fixture), each generator on its old random stream so every household, headcount, phone and expected outcome is unchanged. Rules: English 'behind the Durga temple' (relation first), English number words, quotes end on a whole word. Hindi and Hinglish are still read (dictionary, gazetteer, sheet headers, Devanagari font) | ground_truth.csv byte-identical; seed texts 48/48 against their truth; demo sheet 300/300 rows agree, merges precision 1.000; make test: 408 passed; make e2e: all 37 checks in 157 s in English (hover lights '6 people are stuck on the roof'); stale FAILED-*.png screenshots removed and ignored |
 
 ## NOT DONE (engineering)
 
@@ -72,7 +73,7 @@
 - **Record the demo clips:** the shipped `son-line.synthetic.ogg` is a synthetic espeak-ng voice (labelled everywhere). Record the demo line, and the rehearsed judge inputs, in a real voice into `data/scenarios/BR/clips/` (see its README). With STT keys present no transcript file is needed; never present a fixture transcript as live recognition.
 - **Set `PUBLIC_URL`** in `.env` to the tunnel's address on the day, so the /demo page's QR codes work.
 
-- **Record the reply clip (H-05):** one fixed Hindi sentence, "Aapki report darj ho gayi hai. Aapko kuch yaad rakhne ki zaroorat nahi.", saved as `apps/web/public/audio/hi/registered.mp3`. Until then the reporter page shows the sentence as text only.
+- **Record the reply clip (H-05):** the one fixed sentence, "Your report is registered. You don't need to remember anything.", in a real voice, saved as `apps/web/public/audio/en/registered.mp3` (English-only screens, D17). Until then the reporter page shows the sentence as text only.
 
 - **Demo village = Thawe, Gopalganj** (decision D5): Muzaffarpur's OSM data has no village with a mapped temple and bridge within 500 m. The pitch line changes from "[village], Muzaffarpur" to "Thawe, Gopalganj". Evidence in `data/scenarios/BR/README.md`.
 

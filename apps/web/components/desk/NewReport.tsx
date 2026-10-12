@@ -70,8 +70,8 @@ export function NewReport({ incident, onSaved, onClose }: {
       <form className="flex-1 space-y-4 overflow-y-auto px-5 py-4" onSubmit={(e) => { e.preventDefault(); save(new FormData(e.currentTarget)); }}>
         <label className="block">
           <span className="text-sm text-ink-2">What did they say? Type the call, or paste a forwarded message.</span>
-          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={6} required autoFocus lang="hi"
-                    placeholder="थावे गाँव में, दुर्गा मंदिर के पीछे, पुल के पास, छत पे 6 लोग फँसे हैं…"
+          <textarea value={text} onChange={(e) => setText(e.target.value)} rows={6} required autoFocus
+                    placeholder="In Thawe village, behind the Durga temple, near the bridge, 6 people are stuck on the roof…"
                     className="mt-1 w-full rounded-lg border border-line p-3 text-[15px] leading-snug" />
         </label>
         <div aria-live="polite" className="min-h-14">

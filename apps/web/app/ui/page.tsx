@@ -34,8 +34,8 @@ export default function DesignSystem() {
 
       <Section title="Receipts">
         <div className="space-y-2 text-sm">
-          <p className="flex items-center gap-2"><Check state="checked" /> 6 people <MethodChip method="ai" /> <span className="text-ink-3">&ldquo;chhat pe 6 log fase hain&rdquo;</span></p>
-          <p className="flex items-center gap-2"><Check state="unchecked" /> medicine <MethodChip method="rule" /> <span className="text-ink-3">&ldquo;dawai chahiye&rdquo;</span></p>
+          <p className="flex items-center gap-2"><Check state="checked" /> 6 people <MethodChip method="ai" /> <span className="text-ink-3">&ldquo;6 people are stuck on the roof&rdquo;</span></p>
+          <p className="flex items-center gap-2"><Check state="unchecked" /> medicine <MethodChip method="rule" /> <span className="text-ink-3">&ldquo;they need medicine&rdquo;</span></p>
           <p className="flex items-center gap-2"><Check state="amber" /> elderly <MethodChip method="ai" /> <span className="text-ink-3">quote not found in the transcript</span></p>
           <p className="flex items-center gap-2"><Check state="checked" /> pin moved <MethodChip method="human" /> <MethodChip method="partner" /> <MethodChip method="fixture" /></p>
           <div className="flex items-center gap-2"><ChannelTag channel="voice" /><Receipt steps={RECEIPT} /></div>
@@ -63,7 +63,7 @@ export default function DesignSystem() {
 
       <Section title="Type">
         <p className="text-3xl font-semibold tracking-tight tabular">BR-214</p>
-        <p className="text-sm">थावे गाँव में, दुर्गा मंदिर के पीछे, पुल के पास, छत पे 6 लोग फँसे हैं।</p>
+        <p className="text-sm">In Thawe village, behind the Durga temple, near the bridge, 6 people are stuck on the roof.</p>
         <p className="tabular text-sm text-ink-2">0123456789 · 14:32 · 2.1 km</p>
       </Section>
 

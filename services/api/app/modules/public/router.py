@@ -4,8 +4,9 @@ POST /v1/public/voice-turns   one clip (≤ 30 s) from the reporter PWA → repo
 POST /v1/public/text-turns    the PWA's "type instead" link
 GET  /v1/public/turns/{id}    the case id once the pipeline has made it (for this device only)
 
-The reply is the one fixed sentence (REPLY), never generated text. The PWA plays the team's recorded Hindi
-clip (apps/web/public/audio/hi/registered.mp3, human task H-05) if it exists, and shows the text either way.
+The reply is the one fixed sentence (REPLY), never generated text. The PWA plays the team's recorded clip of
+it (apps/web/public/audio/en/registered.mp3, human task H-05) if it exists, and shows the text either way.
+English only for now (decision D17).
 
 A reporter is identified only by a random device id the PWA keeps in localStorage. It is hashed, treated
 like a phone number in duplicate matching, and links the device to its case for the optional
@@ -34,9 +35,7 @@ from app.settings import get_settings
 
 router = APIRouter(prefix="/v1/public", tags=["public"])
 MAX_UPLOAD = 2 * 1024 * 1024
-REPLY = {"hi": "आपकी रिपोर्ट दर्ज हो गई है। आपको कुछ याद रखने की ज़रूरत नहीं।",
-         "latin": "Aapki report darj ho gayi hai. Aapko kuch yaad rakhne ki zaroorat nahi.",
-         "en": "Your report is registered. You don't need to remember anything."}
+REPLY = {"en": "Your report is registered. You don't need to remember anything."}
 
 
 def device_hash(device_id: str) -> str:

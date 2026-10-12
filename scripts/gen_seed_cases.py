@@ -16,7 +16,7 @@ import yaml
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "data" / "scenarios" / "BR" / "cases.yaml"
 
-# Real OSM place nodes (openstreetmap.fr Bihar extract, 12 Oct 2026): name, Devanagari, lat, lon, district.
+# Real OSM place nodes (openstreetmap.fr Bihar extract, 12 Oct 2026): name, Devanagari (unused now), lat, lon, district.
 VILLAGES = [
     ("Thawe", "थावे", 26.437367, 84.394655, "Gopalganj"),
     ("Uchkagaon", "उचकागाँव", 26.451277, 84.285564, "Gopalganj"),
@@ -36,26 +36,33 @@ VILLAGES = [
     ("Minapur", "मीनापुर", 26.278771, 85.332022, "Muzaffarpur"),
 ]
 
-# Phrase banks per language. {n} = people, {v} = village. Each report uses ONE language, like a real caller.
+# Phrase banks. {n} = people, {v} = village. The screens are English-only for now (decision D17), so every
+# text is English; the HINGLISH bank survives only as the key to the random stream: an English line is picked
+# at the same index as the Hinglish one used to be, so every case keeps its village, headcount, kinds, times
+# and phone (the demo sheet's seeded duplicates point at them). The keyword dictionary still reads Hindi
+# and Hinglish (services/api/dictionaries/hi.yaml); only the demo data changed.
+HINGLISH_SIZES = {"lead": 3, "trapped_on_roof": 2, "trapped_inside": 2, "cut_off": 2, "water_entering": 2, "water_rising": 2,
+                  "medicine": 2, "food": 2, "drinking_water": 1, "baby_supplies": 1, "medical_urgent": 2, "elderly": 2,
+                  "infant": 2, "child": 1, "pregnant": 1, "disabled": 1, "tail": 3}
 BANK = {
-    "hinglish": {
-        "lead": ["{v} gaon mein", "{v} mein", "Hum {v} se bol rahe hain,"],
-        "trapped_on_roof": ["{n} log chhat par fase hain", "chhat pe {n} log fase hain"],
-        "trapped_inside": ["{n} log ghar mein band hain, bahar nahi nikal pa rahe", "{n} log fase hain"],
-        "cut_off": ["rasta kat gaya hai, {n} log wahan hain", "{n} log ka sampark toot gaya, rasta band hai"],
-        "water_entering": ["ghar mein paani ghus gaya hai", "paani andar aa gaya"],
-        "water_rising": ["paani badh raha hai", "paani tezi se badh raha hai"],
-        "medicine": ["dawai chahiye", "dawai khatam ho gayi"],
-        "food": ["khana nahi hai", "do din se khana nahi mila"],
-        "drinking_water": ["peene ka paani nahi hai"],
-        "baby_supplies": ["bachche ke liye doodh chahiye"],
-        "medical_urgent": ["ek aadmi behosh hai", "ek aadmi saans nahi le pa raha"],
-        "elderly": ["ek buzurg hain", "buzurg maa saath mein hain"],
-        "infant": ["6 mahine ka bachcha hai", "ek chhota bachcha hai"],
-        "child": ["do bachche hain"],
-        "pregnant": ["ek garbhvati mahila hai"],
-        "disabled": ["ek viklang vyakti hai"],
-        "tail": ["jaldi madad bhejiye", "please jaldi aaiye", ""],
+    "hinglish": {   # English lines, one per Hinglish line the generator used to pick (same list lengths)
+        "lead": ["In {v} village,", "{v}:", "Calling from {v} village,"],
+        "trapped_on_roof": ["{n} people are stuck on the roof", "{n} of them are on the roof"],
+        "trapped_inside": ["{n} people are trapped inside the house, they can't get out", "{n} people trapped at home"],
+        "cut_off": ["the road is cut, {n} people are there", "{n} people cut off, the road is blocked"],
+        "water_entering": ["water has entered the house", "water has come in"],
+        "water_rising": ["the water is rising", "the water is rising fast"],
+        "medicine": ["they need medicine", "medicines have run out"],
+        "food": ["no food", "no food for two days"],
+        "drinking_water": ["no drinking water"],
+        "baby_supplies": ["milk needed for the baby"],
+        "medical_urgent": ["a man is unconscious", "someone is unconscious"],
+        "elderly": ["an elderly man is with them", "their old mother is with them"],
+        "infant": ["there is a 6 month old baby", "there is a newborn"],
+        "child": ["two children are there"],
+        "pregnant": ["a pregnant woman is with them"],
+        "disabled": ["one person is disabled"],
+        "tail": ["please send help quickly", "please come fast", ""],
     },
     "english": {
         "lead": ["In {v} village,", "{v}:", "Calling about {v},"],
@@ -77,9 +84,11 @@ BANK = {
         "tail": ["please send help", ""],
     },
 }
-DEVANAGARI = [("{v} में {n} लोग छत पर फँसे हैं, पानी बढ़ रहा है", ["trapped_on_roof", "water_rising"]),
-              ("{v} में {n} लोग फँसे हैं, दवाई चाहिए", ["trapped_inside", "medicine"]),
-              ("{v} में घर में पानी घुस गया है, {n} लोग हैं, एक बुज़ुर्ग हैं", ["water_entering", "elderly"])]
+assert all(len(BANK["hinglish"][k]) == n for k, n in HINGLISH_SIZES.items())
+# What used to be three Devanagari templates, in English (same kinds, same random draw).
+DEVANAGARI = [("In {v} village, {n} people are stuck on the roof, the water is rising", ["trapped_on_roof", "water_rising"]),
+              ("In {v} village, {n} people are trapped, they need medicine", ["trapped_inside", "medicine"]),
+              ("In {v} village, water has entered the house, {n} people are there, an elderly man is with them", ["water_entering", "elderly"])]
 NEED_TYPES = {"medicine", "food", "drinking_water", "baby_supplies", "medical_urgent"}
 VULN_TYPES = {"elderly", "infant", "child", "pregnant", "disabled"}
 RELATIONS = ["family", "family", "neighbour", "self", "volunteer", "forwarder"]
@@ -99,7 +108,7 @@ def make_case(i, rng):
     script = rng.choice(["hinglish", "hinglish", "hinglish", "english", "devanagari"])
     if script == "devanagari":
         template, kinds = rng.choice(DEVANAGARI)
-        text = template.format(v=name_hi, n=n)
+        text = template.format(v=name, n=n)
     else:
         bank = BANK[script]
         situation = rng.choice(["trapped_on_roof", "trapped_on_roof", "trapped_inside", "cut_off"])
@@ -137,12 +146,12 @@ def main():
     # Two honesty cases the PRD requires on screen (F-L4 "seeded honesty"):
     cases.append({"key": "br-low", "district": "Gopalganj", "minutes_ago": 0, "channel": "web_form", "relation": "family",
                   "phone": "+91 98765 29001", "status": "reported",
-                  "text": "Phulwaria mein hamare rishtedaar fase hain, 4 log, khana nahi hai",
+                  "text": "Our relatives are trapped in Phulwaria village, 4 people, no food",
                   "truth": {"village": "Phulwaria", "village_point": [26.45924, 84.250717], "household": None, "people_count": 4, "hazards": ["trapped_inside"],
                             "needs": ["food"], "vulnerable": [], "note": "village only: expect a Low 1.5 km circle"}})
     cases.append({"key": "br-noloc", "district": "Gopalganj", "minutes_ago": 0, "channel": "web_form", "relation": "family",
                   "phone": "+91 98765 29002", "status": "reported",
-                  "text": "Hum log fase hain, 3 log hain, jaldi aaiye",
+                  "text": "We are trapped, 3 people, please come quickly",
                   "truth": {"village": None, "village_point": None, "household": None, "people_count": 3, "hazards": ["trapped_inside"],
                             "needs": [], "vulnerable": [], "note": "no location: expect a Needs location row (P2, so a reset starts with no broken P1 promise)"}})
     # Spread report times over the last ten hours, oldest first (timestamps are relative to the seed moment).

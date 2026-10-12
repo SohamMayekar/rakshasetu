@@ -8,7 +8,7 @@ cases:
   channel: web_form
   relation: volunteer
   phone: +91 98765 20001
-  text: हथुआ में घर में पानी घुस गया है, 5 लोग हैं, एक बुज़ुर्ग हैं
+  text: In Hathua village, water has entered the house, 5 people are there, an elderly man is with them
   status: checked
   truth:
     village: Hathua
@@ -30,7 +30,7 @@ cases:
   channel: spreadsheet
   relation: self
   phone: +91 98765 20002
-  text: कांटी में घर में पानी घुस गया है, 8 लोग हैं, एक बुज़ुर्ग हैं
+  text: In Kanti village, water has entered the house, 8 people are there, an elderly man is with them
   status: reported
   truth:
     village: Kanti
@@ -52,7 +52,7 @@ cases:
   channel: web_form
   relation: self
   phone: +91 98765 20003
-  text: Hum Thawe se bol rahe hain, chhat pe 8 log fase hain, paani andar aa gaya. Jaldi madad bhejiye
+  text: Calling from Thawe village, 8 of them are on the roof, water has come in. Please send help quickly
   status: checked
   truth:
     village: Thawe
@@ -74,7 +74,7 @@ cases:
   channel: spreadsheet
   relation: volunteer
   phone: +91 98765 20004
-  text: Hum Mirganj se bol rahe hain, chhat pe 12 log fase hain, paani badh raha hai, do din se khana nahi mila. Please jaldi aaiye
+  text: Calling from Mirganj village, 12 of them are on the roof, the water is rising, no food for two days. Please come fast
   status: reported
   truth:
     village: Mirganj
@@ -97,7 +97,7 @@ cases:
   channel: spreadsheet
   relation: neighbour
   phone: +91 98765 20005
-  text: हथुआ में घर में पानी घुस गया है, 6 लोग हैं, एक बुज़ुर्ग हैं
+  text: In Hathua village, water has entered the house, 6 people are there, an elderly man is with them
   status: reported
   truth:
     village: Hathua
@@ -119,7 +119,7 @@ cases:
   channel: web_form
   relation: forwarder
   phone: +91 98765 20006
-  text: मीनापुर में 7 लोग छत पर फँसे हैं, पानी बढ़ रहा है
+  text: In Minapur village, 7 people are stuck on the roof, the water is rising
   status: checked
   truth:
     village: Minapur
@@ -141,7 +141,7 @@ cases:
   channel: web_form
   relation: family
   phone: +91 98765 20007
-  text: हथुआ में 12 लोग फँसे हैं, दवाई चाहिए
+  text: In Hathua village, 12 people are trapped, they need medicine
   status: checked
   truth:
     village: Hathua
@@ -187,8 +187,8 @@ cases:
   channel: spreadsheet
   relation: neighbour
   phone: +91 98765 20009
-  text: Hum Minapur se bol rahe hain, 5 log ghar mein band hain, bahar nahi nikal pa rahe, paani tezi se badh raha hai, bachche ke liye doodh
-    chahiye. Please jaldi aaiye
+  text: Calling from Minapur village, 5 people are trapped inside the house, they can't get out, the water is rising fast, milk needed for the
+    baby. Please come fast
   status: reported
   truth:
     village: Minapur
@@ -234,7 +234,7 @@ cases:
   channel: web_form
   relation: family
   phone: +91 98765 20011
-  text: फुलवरिया में 3 लोग छत पर फँसे हैं, पानी बढ़ रहा है
+  text: In Phulwaria village, 3 people are stuck on the roof, the water is rising
   status: reported
   truth:
     village: Phulwaria
@@ -256,7 +256,7 @@ cases:
   channel: partner
   relation: forwarder
   phone: +91 98765 20012
-  text: देवापुर में घर में पानी घुस गया है, 9 लोग हैं, एक बुज़ुर्ग हैं
+  text: In Dewapur village, water has entered the house, 9 people are there, an elderly man is with them
   status: checked
   truth:
     village: Dewapur
@@ -278,7 +278,8 @@ cases:
   channel: web_form
   relation: family
   phone: +91 98765 20013
-  text: Manjha gaon mein rasta kat gaya hai, 7 log wahan hain, paani andar aa gaya, ek viklang vyakti hai, dawai khatam ho gayi. Jaldi madad bhejiye
+  text: In Manjha village, the road is cut, 7 people are there, water has come in, one person is disabled, medicines have run out. Please send
+    help quickly
   status: reported
   truth:
     village: Manjha
@@ -302,7 +303,7 @@ cases:
   channel: spreadsheet
   relation: family
   phone: +91 98765 20014
-  text: Mirganj mein 2 log fase hain, bachche ke liye doodh chahiye. Jaldi madad bhejiye
+  text: 'Mirganj: 2 people trapped at home, milk needed for the baby. Please send help quickly'
   status: reported
   truth:
     village: Mirganj
@@ -324,7 +325,7 @@ cases:
   channel: web_form
   relation: volunteer
   phone: +91 98765 20015
-  text: सिधवलिया में 6 लोग फँसे हैं, दवाई चाहिए
+  text: In Sidhwalia village, 6 people are trapped, they need medicine
   status: reported
   truth:
     village: Sidhwalia
@@ -346,7 +347,7 @@ cases:
   channel: web_form
   relation: self
   phone: +91 98765 20016
-  text: Hum Uchkagaon se bol rahe hain, 4 log chhat par fase hain, ghar mein paani ghus gaya hai, khana nahi hai
+  text: Calling from Uchkagaon village, 4 people are stuck on the roof, water has entered the house, no food
   status: reported
   truth:
     village: Uchkagaon
@@ -392,7 +393,7 @@ cases:
   channel: spreadsheet
   relation: volunteer
   phone: +91 98765 20018
-  text: Hum Kuchaikote se bol rahe hain, 3 log chhat par fase hain, peene ka paani nahi hai. Please jaldi aaiye
+  text: Calling from Kuchaikote village, 3 people are stuck on the roof, no drinking water. Please come fast
   status: reported
   truth:
     village: Kuchaikote
@@ -414,7 +415,7 @@ cases:
   channel: web_form
   relation: forwarder
   phone: +91 98765 20019
-  text: Hathua mein 8 log chhat par fase hain, paani tezi se badh raha hai, do bachche hain, khana nahi hai
+  text: 'Hathua: 8 people are stuck on the roof, the water is rising fast, two children are there, no food'
   status: checked
   truth:
     village: Hathua
@@ -438,7 +439,7 @@ cases:
   channel: web_form
   relation: family
   phone: +91 98765 20020
-  text: Hathua gaon mein 7 log ghar mein band hain, bahar nahi nikal pa rahe, paani andar aa gaya, do din se khana nahi mila. Please jaldi aaiye
+  text: In Hathua village, 7 people are trapped inside the house, they can't get out, water has come in, no food for two days. Please come fast
   status: reported
   truth:
     village: Hathua
@@ -461,7 +462,7 @@ cases:
   channel: web_form
   relation: self
   phone: +91 98765 20021
-  text: हथुआ में घर में पानी घुस गया है, 3 लोग हैं, एक बुज़ुर्ग हैं
+  text: In Hathua village, water has entered the house, 3 people are there, an elderly man is with them
   status: checked
   truth:
     village: Hathua
@@ -483,7 +484,7 @@ cases:
   channel: web_form
   relation: neighbour
   phone: +91 98765 20022
-  text: Hum Uchkagaon se bol rahe hain, chhat pe 6 log fase hain, paani tezi se badh raha hai, dawai khatam ho gayi. Please jaldi aaiye
+  text: Calling from Uchkagaon village, 6 of them are on the roof, the water is rising fast, medicines have run out. Please come fast
   status: checked
   truth:
     village: Uchkagaon
@@ -506,8 +507,8 @@ cases:
   channel: web_form
   relation: family
   phone: +91 98765 20023
-  text: Dewapur gaon mein 5 log ghar mein band hain, bahar nahi nikal pa rahe, paani badh raha hai, ek buzurg hain, peene ka paani nahi hai. Jaldi
-    madad bhejiye
+  text: In Dewapur village, 5 people are trapped inside the house, they can't get out, the water is rising, an elderly man is with them, no drinking
+    water. Please send help quickly
   status: reported
   truth:
     village: Dewapur
@@ -554,7 +555,7 @@ cases:
   channel: web_form
   relation: forwarder
   phone: +91 98765 20025
-  text: Hum Kuchaikote se bol rahe hain, chhat pe 5 log fase hain, ek buzurg hain, peene ka paani nahi hai
+  text: Calling from Kuchaikote village, 5 of them are on the roof, an elderly man is with them, no drinking water
   status: checked
   truth:
     village: Kuchaikote
@@ -600,7 +601,7 @@ cases:
   channel: spreadsheet
   relation: volunteer
   phone: +91 98765 20027
-  text: Kanti gaon mein 2 log chhat par fase hain, paani badh raha hai, do bachche hain
+  text: In Kanti village, 2 people are stuck on the roof, the water is rising, two children are there
   status: checked
   truth:
     village: Kanti
@@ -623,7 +624,7 @@ cases:
   channel: partner
   relation: family
   phone: +91 98765 20028
-  text: Hum Barauli se bol rahe hain, 7 log chhat par fase hain, ek garbhvati mahila hai, peene ka paani nahi hai. Please jaldi aaiye
+  text: Calling from Barauli village, 7 people are stuck on the roof, a pregnant woman is with them, no drinking water. Please come fast
   status: checked
   truth:
     village: Barauli
@@ -669,7 +670,7 @@ cases:
   channel: web_form
   relation: neighbour
   phone: +91 98765 20030
-  text: Nawadah mein 5 log chhat par fase hain, ghar mein paani ghus gaya hai. Please jaldi aaiye
+  text: 'Nawadah: 5 people are stuck on the roof, water has entered the house. Please come fast'
   status: reported
   truth:
     village: Nawadah
@@ -691,7 +692,7 @@ cases:
   channel: partner
   relation: volunteer
   phone: +91 98765 20031
-  text: मीनापुर में घर में पानी घुस गया है, 3 लोग हैं, एक बुज़ुर्ग हैं
+  text: In Minapur village, water has entered the house, 3 people are there, an elderly man is with them
   status: reported
   truth:
     village: Minapur
@@ -713,8 +714,7 @@ cases:
   channel: partner
   relation: family
   phone: +91 98765 20032
-  text: Hum Mirganj se bol rahe hain, 3 log ka sampark toot gaya, rasta band hai, paani tezi se badh raha hai, ek chhota bachcha hai. Please jaldi
-    aaiye
+  text: Calling from Mirganj village, 3 people cut off, the road is blocked, the water is rising fast, there is a newborn. Please come fast
   status: checked
   truth:
     village: Mirganj
@@ -759,7 +759,7 @@ cases:
   channel: partner
   relation: forwarder
   phone: +91 98765 20034
-  text: Kuchaikote mein 4 log chhat par fase hain, paani andar aa gaya, bachche ke liye doodh chahiye. Please jaldi aaiye
+  text: 'Kuchaikote: 4 people are stuck on the roof, water has come in, milk needed for the baby. Please come fast'
   status: checked
   truth:
     village: Kuchaikote
@@ -782,7 +782,7 @@ cases:
   channel: partner
   relation: self
   phone: +91 98765 20035
-  text: Hum Sidhwalia se bol rahe hain, 6 log fase hain, khana nahi hai, ek aadmi saans nahi le pa raha
+  text: Calling from Sidhwalia village, 6 people trapped at home, no food, someone is unconscious
   status: reported
   truth:
     village: Sidhwalia
@@ -805,7 +805,7 @@ cases:
   channel: web_form
   relation: family
   phone: +91 98765 20036
-  text: Thawe mein chhat pe 2 log fase hain, paani tezi se badh raha hai. Jaldi madad bhejiye
+  text: 'Thawe: 2 of them are on the roof, the water is rising fast. Please send help quickly'
   status: reported
   truth:
     village: Thawe
@@ -850,8 +850,8 @@ cases:
   channel: partner
   relation: family
   phone: +91 98765 20038
-  text: Phulwaria mein 6 log ghar mein band hain, bahar nahi nikal pa rahe, paani tezi se badh raha hai, ek garbhvati mahila hai, bachche ke liye
-    doodh chahiye. Please jaldi aaiye
+  text: 'Phulwaria: 6 people are trapped inside the house, they can''t get out, the water is rising fast, a pregnant woman is with them, milk
+    needed for the baby. Please come fast'
   status: reported
   truth:
     village: Phulwaria
@@ -898,7 +898,7 @@ cases:
   channel: spreadsheet
   relation: family
   phone: +91 98765 20040
-  text: बरौली में घर में पानी घुस गया है, 5 लोग हैं, एक बुज़ुर्ग हैं
+  text: In Barauli village, water has entered the house, 5 people are there, an elderly man is with them
   status: reported
   truth:
     village: Barauli
@@ -920,8 +920,8 @@ cases:
   channel: web_form
   relation: forwarder
   phone: +91 98765 20041
-  text: Hum Sirsian se bol rahe hain, 4 log ka sampark toot gaya, rasta band hai, paani andar aa gaya, ek chhota bachcha hai, bachche ke liye
-    doodh chahiye. Jaldi madad bhejiye
+  text: Calling from Sirsian village, 4 people cut off, the road is blocked, water has come in, there is a newborn, milk needed for the baby.
+    Please send help quickly
   status: reported
   truth:
     village: Sirsian
@@ -945,7 +945,7 @@ cases:
   channel: web_form
   relation: neighbour
   phone: +91 98765 20042
-  text: मांझा में 9 लोग छत पर फँसे हैं, पानी बढ़ रहा है
+  text: In Manjha village, 9 people are stuck on the roof, the water is rising
   status: reported
   truth:
     village: Manjha
@@ -967,7 +967,7 @@ cases:
   channel: web_form
   relation: forwarder
   phone: +91 98765 20043
-  text: मांझा में घर में पानी घुस गया है, 5 लोग हैं, एक बुज़ुर्ग हैं
+  text: In Manjha village, water has entered the house, 5 people are there, an elderly man is with them
   status: reported
   truth:
     village: Manjha
@@ -989,8 +989,8 @@ cases:
   channel: partner
   relation: family
   phone: +91 98765 20044
-  text: Hum Barauli se bol rahe hain, rasta kat gaya hai, 9 log wahan hain, paani tezi se badh raha hai, buzurg maa saath mein hain, khana nahi
-    hai. Please jaldi aaiye
+  text: Calling from Barauli village, the road is cut, 9 people are there, the water is rising fast, their old mother is with them, no food. Please
+    come fast
   status: reported
   truth:
     village: Barauli
@@ -1014,7 +1014,7 @@ cases:
   channel: web_form
   relation: family
   phone: +91 98765 20045
-  text: हथुआ में घर में पानी घुस गया है, 5 लोग हैं, एक बुज़ुर्ग हैं
+  text: In Hathua village, water has entered the house, 5 people are there, an elderly man is with them
   status: reported
   truth:
     village: Hathua
@@ -1058,7 +1058,7 @@ cases:
   relation: family
   phone: +91 98765 29001
   status: reported
-  text: Phulwaria mein hamare rishtedaar fase hain, 4 log, khana nahi hai
+  text: Our relatives are trapped in Phulwaria village, 4 people, no food
   truth:
     village: Phulwaria
     village_point:
@@ -1079,7 +1079,7 @@ cases:
   relation: family
   phone: +91 98765 29002
   status: reported
-  text: Hum log fase hain, 3 log hain, jaldi aaiye
+  text: We are trapped, 3 people, please come quickly
   truth:
     village: null
     village_point: null

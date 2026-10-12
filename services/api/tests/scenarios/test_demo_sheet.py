@@ -30,8 +30,8 @@ def test_the_demo_sheet_imports_within_45_s_and_matches_its_ground_truth(seeded,
     login(client, "priya")
     imp = client.post("/v1/imports", files={"file": ("volunteer_sheet.csv", data, "text/csv")},
                       data={"incident": "BR"}).json()
-    assert imp["proposed"] == {"S.No": "ignore", "Naam": "name", "Mob No": "phone", "Kitne log": "headcount",
-                               "Gaon": "village", "Location/Landmark": "location", "Remarks": "notes", "Samay": "time",
+    assert imp["proposed"] == {"S.No": "ignore", "Name": "name", "Mobile No": "phone", "No. of people": "headcount",
+                               "Village": "village", "Location/Landmark": "location", "Remarks": "notes", "Time": "time",
                                "Status": "status", "Volunteer": "ignore"}
     client.post(f"/v1/imports/{imp['id']}/mapping", json={"mapping": imp["proposed"]})
     drain(app_db)

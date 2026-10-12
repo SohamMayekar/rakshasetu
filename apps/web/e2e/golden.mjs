@@ -22,8 +22,8 @@ const OUT = join(ROOT, "docs/screens/golden");
 const DESK = "http://localhost", LOCAL = "http://127.0.0.1", PUBLIC = "http://127.0.0.1:8080";
 const SCRIPT = { son: "demo-son-phone-0001", sheet: join(ROOT, "data/scenarios/BR/sheet/volunteer_sheet.csv"),
   clip: "clips/son-line.synthetic.ogg",
-  forward: "Ramesh Das ka parivaar Thawe gaon mein hai, Durga mandir ke peeche, pul ke paas. 6 log chhat par fase hain, paani bahut hai.",
-  das: "Rajesh Das, 5 log, Thawe gaon, mandir ke paas, chhat par fase hain" };
+  forward: "Ramesh Das's family is in Thawe village, behind the Durga temple, near the bridge. 6 people are stuck on the roof, there is a lot of water.",
+  das: "Rajesh Das, 5 people, Thawe village, near the temple, stuck on the roof" };
 mkdirSync(OUT, { recursive: true });
 
 const log = [];
@@ -104,8 +104,13 @@ try {
   // ---- 0:25 the case, with receipts ----------------------------------------------------------------------------
   await open(pid);
   const facts = O.locator('[data-section="Facts"]');
-  await facts.getByText("6", { exact: true }).first().hover();
-  const lit = await until(async () => (await O.locator('[data-section="Timeline & evidence"] mark').first().innerText({ timeout: 300 })), 5000);
+  // let the drawer finish loading first (suggestions, timeline), so nothing shifts under the pointer
+  await O.locator('[data-section="Assignment"] li').first().waitFor();
+  await O.locator('[data-section="Timeline & evidence"]').getByText(/6 people/).first().waitFor();
+  const lit = await until(async () => {
+    await facts.getByText("6", { exact: true }).first().hover();
+    return O.locator('[data-section="Timeline & evidence"] mark').first().innerText({ timeout: 300 });
+  }, 8000);
   check(!!lit && /6/.test(lit), `hovering "6" lights up the son's own words: “${lit}”`);
   const factsText = await facts.innerText();
   check(/RULE|AI/.test(factsText), "every fact carries its method chip");
@@ -209,7 +214,7 @@ try {
     check(await sent("Reached"), `trip ${n}: reached`);
     await A.getByRole("button", { name: /Record rescue/ }).click();
     for (let i = 0; i < minus; i++) await A.getByRole("button", { name: "One fewer" }).click();
-    await A.getByRole("button", { name: left ? "Yes · हाँ" : "No · नहीं" }).click();
+    await A.getByRole("button", { name: left ? "Yes" : "No", exact: true }).click();
     check(await sent(label), `trip ${n}: "${label}"`);
   }
   const caseId = async () => (await (await O.request.get(`${DESK}/v1/cases/${pid}`)).json()).id;
@@ -231,10 +236,10 @@ try {
 
   // the family: only the phone that reported is asked, and need not answer
   await J.reload();
-  const asked = await until(async () => (await J.locator("body").innerText({ timeout: 300 })).match(/Team says 6 people were rescued\. Is that right\?/)?.[0], 20000);
+  const asked = await until(async () => (await J.locator("body").innerText({ timeout: 300 })).match(/The team says 6 people were rescued\. Is that right\?/)?.[0], 20000);
   check(!!asked, `the son's phone: "${asked} · You don't have to answer."`);
   await shot(J, "11-phone-the-family-is-asked");
-  await J.getByRole("button", { name: "हाँ · Yes" }).click();
+  await J.getByRole("button", { name: "Yes", exact: true }).click();
   const thanked = await until(async () => (await J.locator("body").innerText({ timeout: 300 })).includes("Thank you"), 10000);
   const conf = await until(async () => (await caption()).startsWith("The family confirmed 6 rescued") && (await caption()), 15000);
   check(thanked && !!conf, `he taps Yes: "${conf}"`);

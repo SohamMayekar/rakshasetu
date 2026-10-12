@@ -31,6 +31,20 @@ def test_the_devanagari_demo_line():
     assert to_latin(ex.location.village_or_locality.original) == "Thave"
 
 
+def test_the_english_demo_line():
+    """The line on stage since D17: the relation comes before the landmark, and every quote is whole words."""
+    line = ("My family is in Thawe village, behind the Durga temple, near the bridge. 6 people are stuck on the roof. "
+            "Water has come in, there is an elderly man, they need medicine.")
+    ex = extract_keywords(line)
+    assert (ex.people_count.value, ex.people_count.quote) == (6, "6 people are stuck on the roof")
+    assert {h.type for h in ex.hazards} == {"trapped_on_roof", "water_entering"}
+    assert {n.type for n in ex.needs} == {"medicine"} and [v.quote for v in ex.vulnerable] == ["elderly man"]
+    lm = {lm.type: lm for lm in ex.location.landmarks}
+    assert (lm["temple"].relation, lm["temple"].quote) == ("behind", "behind the Durga temple")
+    assert (lm["bridge"].relation, lm["bridge"].quote) == ("near", "near the bridge")
+    assert ex.location.village_or_locality.latin == "Thawe" and ex.reporter_on_site is False
+
+
 def test_seed_texts_match_their_ground_truth():
     cases = yaml.safe_load((get_settings().data_dir / "scenarios" / "BR" / "cases.yaml").read_text())["cases"]
     right = 0

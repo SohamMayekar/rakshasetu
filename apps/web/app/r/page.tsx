@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { deviceId, newId } from "@/lib/device";
 import { canRecord, record, type RecorderHandle } from "@/lib/recorder";
 
-type Reply = { hi: string; latin: string; en: string };
+type Reply = { en: string };
 type State =
   | { kind: "idle" }
   | { kind: "no-mic" }
@@ -69,7 +69,7 @@ export default function ReporterPage() {
 
   function registered(publicId: string, reply: Reply) {
     setState({ kind: "registered", publicId, reply });
-    const clip = new Audio("/audio/hi/registered.mp3");   // the team's recorded sentence, if it exists
+    const clip = new Audio("/audio/en/registered.mp3");   // the team's recorded sentence, if it exists
     clip.play().catch(() => {});
   }
 
@@ -95,13 +95,10 @@ export default function ReporterPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pb-10 pt-8" lang="hi">
+    <main className="mx-auto flex min-h-dvh max-w-md flex-col px-6 pb-10 pt-8">
       <header className="mb-8">
         <p className="text-sm font-medium tracking-wide text-neutral-500">RakshaSetu</p>
-        <h1 className="mt-1 text-2xl font-semibold leading-snug">
-          मदद के लिए बताइए
-          <span className="block text-lg font-normal text-neutral-600" lang="en">Tell us who needs help, and where</span>
-        </h1>
+        <h1 className="mt-1 text-2xl font-semibold leading-snug">Tell us who needs help, and where</h1>
       </header>
 
       <section aria-live="polite" className="flex flex-1 flex-col items-center justify-center text-center">
@@ -120,9 +117,9 @@ export default function ReporterPage() {
       {state.kind !== "registered" && state.kind !== "typing" && (
         <footer className="mt-8 flex flex-col items-center gap-3 text-sm text-neutral-600">
           <button className="underline underline-offset-4" onClick={() => setState({ kind: "typing" })}>
-            टाइप करें · Type instead
+            Type instead
           </button>
-          <p lang="en">If someone is in danger right now, also call <b>112</b> or <b>1077</b>.</p>
+          <p>If someone is in danger right now, also call <b>112</b> or <b>1077</b>.</p>
         </footer>
       )}
     </main>
@@ -160,25 +157,25 @@ function StatusLine({ state }: { state: State }) {
   const big = "mt-6 text-xl font-medium";
   switch (state.kind) {
     case "idle":
-      return <p className={big}>बोलने के लिए दबाएँ<span className="block text-base font-normal text-neutral-600" lang="en">Tap once and speak</span></p>;
+      return <p className={big}>Tap once and speak</p>;
     case "listening":
-      return <p className={big}>सुन रहे हैं… <span className="tabular">{Math.floor(state.seconds)}s</span><span className="block text-base font-normal text-neutral-600" lang="en">Listening. Tap to stop, or just pause.</span></p>;
+      return <p className={big}>Listening… <span className="tabular">{Math.floor(state.seconds)}s</span><span className="block text-base font-normal text-neutral-600">Tap to stop, or just pause.</span></p>;
     case "sending":
     case "processing":
-      return <p className={big}>भेज रहे हैं…<span className="block text-base font-normal text-neutral-600" lang="en">Sending</span></p>;
+      return <p className={big}>Sending…</p>;
     case "empty":
-      return <p className={big}>कुछ सुनाई नहीं दिया, फिर से कोशिश करें<span className="block text-base font-normal text-neutral-600" lang="en">Didn't hear anything, try again</span></p>;
+      return <p className={big}>Didn&rsquo;t hear anything. Please try again.</p>;
     case "busy":
-      return <p className={big} lang="en">Please wait a moment and try again.</p>;
+      return <p className={big}>Please wait a moment and try again.</p>;
     case "not-sent":
       return (
         <div className="mt-6">
-          <p className="text-xl font-medium text-amber-700">अभी नहीं भेजा गया<span className="block text-base font-normal" lang="en">Not sent yet. If urgent, call 112 / 1077.</span></p>
-          <button className="mt-4 rounded-full border border-neutral-900 px-6 py-3 font-medium" onClick={state.retry}>फिर भेजें · Send again</button>
+          <p className="text-xl font-medium text-amber-700">Not sent yet<span className="block text-base font-normal">If urgent, call 112 / 1077.</span></p>
+          <button className="mt-4 rounded-full border border-neutral-900 px-6 py-3 font-medium" onClick={state.retry}>Send again</button>
         </div>
       );
     case "no-mic":
-      return <p className={big} lang="en">This browser can't use the microphone. Open this page in Chrome, or type instead.</p>;
+      return <p className={big}>This browser can&rsquo;t use the microphone. Open this page in Chrome, or type instead.</p>;
     default:
       return null;
   }
@@ -196,17 +193,16 @@ function Registered({ publicId, reply, onAgain }: { publicId: string; reply: Rep
   }
   return (
     <div className="w-full">
-      <p className="text-sm font-medium uppercase tracking-wider text-neutral-500">दर्ज हो गई · Registered</p>
+      <p className="text-sm font-medium uppercase tracking-wider text-neutral-500">Registered</p>
       <p className="tabular mt-2 text-6xl font-semibold tracking-tight">{publicId}</p>
-      <p className="mt-6 text-lg leading-relaxed">{reply.hi}</p>
-      <p className="mt-1 text-neutral-600" lang="en">{reply.en}</p>
-      <a href={`/s/${publicId}`} className="mt-6 inline-block rounded-full bg-neutral-950 px-6 py-3 font-medium text-white">स्थिति देखें · See status</a>
+      <p className="mt-6 text-lg leading-relaxed">{reply.en}</p>
+      <a href={`/s/${publicId}`} className="mt-6 inline-block rounded-full bg-neutral-950 px-6 py-3 font-medium text-white">See status</a>
       <div className="mt-10 border-t border-neutral-200 pt-6 text-left">
         {saved === "yes" ? (
-          <p className="text-neutral-700" lang="en">Thank you. We'll only use it to call you back.</p>
+          <p className="text-neutral-700">Thank you. We'll only use it to call you back.</p>
         ) : saved === "skip" ? null : (
           <>
-            <label className="block text-sm text-neutral-700" lang="en" htmlFor="cb">A number we can call back? <span className="text-neutral-500">(optional)</span></label>
+            <label className="block text-sm text-neutral-700" htmlFor="cb">A number we can call back? <span className="text-neutral-500">(optional)</span></label>
             <div className="mt-2 flex gap-2">
               <input id="cb" inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
                 className="tabular min-w-0 flex-1 rounded-xl border border-neutral-300 px-4 py-3 text-lg" placeholder="98xxxxxxxx" />
@@ -216,7 +212,7 @@ function Registered({ publicId, reply, onAgain }: { publicId: string; reply: Rep
           </>
         )}
       </div>
-      <button onClick={onAgain} className="mt-8 text-sm text-neutral-600 underline underline-offset-4">एक और रिपोर्ट · Report another</button>
+      <button onClick={onAgain} className="mt-8 text-sm text-neutral-600 underline underline-offset-4">Report another</button>
     </div>
   );
 }
@@ -225,12 +221,12 @@ function TypeInstead({ onSend }: { incident: string; onSend: (text: string) => v
   const [text, setText] = useState("");
   return (
     <div className="w-full text-left">
-      <label htmlFor="t" className="block text-lg font-medium">लिखिए · Type it</label>
-      <p className="mt-1 text-sm text-neutral-600" lang="en">Who is stuck, how many people, the village, and anything nearby (a temple, a bridge, a school).</p>
+      <label htmlFor="t" className="block text-lg font-medium">Type it</label>
+      <p className="mt-1 text-sm text-neutral-600">Who is stuck, how many people, the village, and anything nearby (a temple, a bridge, a school).</p>
       <textarea id="t" value={text} onChange={(e) => setText(e.target.value)} rows={5}
         className="mt-3 w-full rounded-2xl border border-neutral-300 p-4 text-lg" />
       <button onClick={() => onSend(text)} disabled={text.trim().length < 2}
-        className="mt-4 w-full rounded-full bg-neutral-950 py-4 text-lg font-medium text-white disabled:bg-neutral-300">भेजें · Send</button>
+        className="mt-4 w-full rounded-full bg-neutral-950 py-4 text-lg font-medium text-white disabled:bg-neutral-300">Send</button>
     </div>
   );
 }

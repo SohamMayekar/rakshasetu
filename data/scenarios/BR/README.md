@@ -2,10 +2,10 @@
 
 **Demo village: Thawe, Gopalganj district, Bihar.** Chosen at H0–H1 from real OpenStreetMap data (PRD §21 #6).
 
-**The demo line** (Hindi; the judge may change the number of people):
-> थावे गाँव में, दुर्गा मंदिर के पीछे, पुल के पास, छत पे 6 लोग फँसे हैं। पानी घुस गया है, एक बुज़ुर्ग हैं, दवाई चाहिए।
-> *Thawe gaon mein, Durga mandir ke peeche, pul ke paas, chhat pe 6 log fase hain. Paani ghus gaya hai, ek buzurg hain, dawai chahiye.*
-> ("In Thawe village, behind the Durga temple, near the bridge, 6 people are stuck on the roof. Water has come in, there's an elderly person, we need medicine.")
+**The demo line** (English: the screens and the demo are English-only for now, decision D17; the judge may change the number of people):
+> My family is in Thawe village, behind the Durga temple, near the bridge. 6 people are stuck on the roof. Water has come in, there is an elderly man, they need medicine.
+
+The rules still read the same line in Hindi or Hinglish ("थावे गाँव में, दुर्गा मंदिर के पीछे, पुल के पास, छत पे 6 लोग फँसे हैं…"; tested), so the language can come back later without code changes.
 
 ## Why Thawe and not a Muzaffarpur village (measured on the extract, 12 Oct 2026)
 

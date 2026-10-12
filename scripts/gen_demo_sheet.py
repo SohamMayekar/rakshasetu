@@ -3,8 +3,10 @@
     python scripts/gen_demo_sheet.py        (from the repo root, with services/api/.venv)
 
 Writes data/scenarios/BR/sheet/volunteer_sheet.csv (as a volunteer's Excel saved it: mixed phone formats,
-Hindi/English names and headers, misspelt villages, blank cells, 14 phones already damaged by Excel) and
-ground_truth.csv (which household each row really is, and what the import should do with it).
+misspelt villages, blank cells, 14 phones already damaged by Excel) and ground_truth.csv (which household each
+row really is, and what the import should do with it). The screens are English-only for now (decision D17), so
+the sheet is in English; the importer still reads Hindi and Hinglish headers and cells. Every English list has
+the same length as the Hinglish one it replaced, so the random stream (and every household) is unchanged.
 
 Deterministic (fixed seed). People and phone numbers are synthetic and never dialled; places are real OSM
 features from the committed gazetteer. Thawe is left out on purpose: the live demo's household is there.
@@ -33,21 +35,21 @@ FUZZY_MIN = 85          # rakshasetu.config.yaml location.village_fuzzy_min
 # Villages whose words name ONE mapped landmark of that type within 2 km (checked against the gazetteer in
 # m31), so a row that says it gets a Medium pin on that landmark, and two rows about one household overlap.
 LANDMARKED = {
-    "Kalu Chhapra": ["school ke paas", "school ke peeche", "स्कूल के पास"],
-    "Bhore": ["aspatal ke paas", "hospital ke saamne"],
-    "Hathua": ["hospital ke saamne", "aspatal ke paas"],
-    "Katiya": ["aspatal ke peeche", "hospital ke paas"],
-    "Phulwaria": ["hospital ke paas", "aspatal ke bagal mein"],
-    "Kuchaikote": ["station ke paas", "railway station ke saamne"],
-    "Barauli": ["station ke paas", "station ke peeche"],
-    "Mirganj": ["railway station ke paas", "station ke saamne"],
-    "Sidhwalia": ["station ke paas", "स्टेशन के पास"],
-    "Babutola": ["station ke paas"],
-    "Manjha": ["station ke paas", "station ke bagal mein"],
-    "Panchdeuri": ["station ke paas"],
-    "Meera Chhapra": ["school ke paas", "school ke saamne"],
-    "Nirkhi Chhapra": ["school ke paas"],
-    "Barasra": ["school ke paas"],
+    "Kalu Chhapra": ["near the school", "behind the school", "next to the school"],
+    "Bhore": ["near the hospital", "opposite the hospital"],
+    "Hathua": ["opposite the hospital", "near the hospital"],
+    "Katiya": ["behind the hospital", "near the hospital"],
+    "Phulwaria": ["near the hospital", "beside the hospital"],
+    "Kuchaikote": ["near the station", "opposite the railway station"],
+    "Barauli": ["near the station", "behind the station"],
+    "Mirganj": ["near the railway station", "opposite the station"],
+    "Sidhwalia": ["near the station", "next to the station"],
+    "Babutola": ["near the station"],
+    "Manjha": ["near the station", "beside the station"],
+    "Panchdeuri": ["near the station"],
+    "Meera Chhapra": ["near the school", "opposite the school"],
+    "Nirkhi Chhapra": ["near the school"],
+    "Barasra": ["near the school"],
 }
 VILLAGE_ONLY = ["Uchkagaon", "Dewapur", "Nawadah", "Baikunthpur", "Bijaipur", "Nautan", "Lakri Nabiganj",
                 "Taiya Dumri", "Panditpur", "Ansari Dumri", "Harpur", "Khanpur"]
@@ -70,15 +72,15 @@ GIVEN = [("Sita", "सीता"), ("Gita", "गीता"), ("Sunita", "सु�
 SURNAME = [("Devi", "देवी"), ("Kumari", "कुमारी"), ("Yadav", "यादव"), ("Prasad", "प्रसाद"), ("Ram", "राम"),
            ("Mahto", "महतो"), ("Paswan", "पासवान"), ("Sah", "साह"), ("Singh", "सिंह"), ("Manjhi", "मांझी"),
            ("Kushwaha", "कुशवाहा"), ("Ansari", "अंसारी"), ("Chaudhary", "चौधरी"), ("Rai", "राय")]
-SITUATION = ["chhat par fase hain", "ghar mein paani ghus gaya", "paani badh raha hai", "rasta kat gaya hai",
-             "छत पर फँसे हैं", "ghar ke andar fase hain, bahar nahi nikal pa rahe"]
-EXTRA = ["dawai chahiye", "khana nahi hai", "peene ka paani nahi hai", "ek buzurg hain", "chhota bachcha hai",
-         "garbhvati mahila hai", "दवाई चाहिए", "bachche ke liye doodh chahiye", "", "", ""]
-NO_COUNT = ["poora parivaar phansa hai, maa-baap aur bachche", "ghar ke sab log chhat par hain",
-            "pariwar ke sab sadasya fase hain, paani badh raha hai", "saare log ek kamre mein band hain",
-            "hum sab yahan fase hain, koi madad nahi aayi"]
+SITUATION = ["stuck on the roof", "water has entered the house", "the water is rising", "the road is cut",
+             "trapped on the roof", "trapped inside the house, they can't get out"]
+EXTRA = ["need medicine", "no food", "no drinking water", "an elderly man is there", "a newborn is there",
+         "a pregnant woman is there", "medicines needed", "milk needed for the baby", "", "", ""]
+NO_COUNT = ["the whole family is trapped, parents and children", "everyone in the house is on the roof",
+            "all the family members are trapped, the water is rising", "everyone is shut in one room",
+            "we are all trapped here, no help has come"]
 VOLUNTEERS = ["Ravi", "Anjali", "Imran", "Pooja (NSS)", "Sanjay", "Neha", ""]
-DONE = ["done", "Rescued", "✓", "ho gaya", "DONE"]
+DONE = ["done", "Rescued", "✓", "safe", "DONE"]
 SEEDED_DUPLICATES = [   # existing seeded cases (data/scenarios/BR/cases.yaml) the sheet reports again
     ("br-010", "98765 20010", "Barauli", 6), ("br-013", "+91-98765-20013", "Manjha", 7),
     ("br-030", "098765 20030", "Nawadah", 5), ("br-015", "9876520015", "Sidhwalia", 6)]
@@ -140,12 +142,12 @@ def main() -> None:
         if r < 0.25 and village in VARIANTS:
             return rng.choice(VARIANTS[village])
         if r < 0.33 and gaz[village]["name_hi"]:
-            return gaz[village]["name_hi"]
+            return village          # was the Devanagari spelling; English-only screens (D17)
         return village
 
     def headcount(n: int) -> str:
-        return rng.choice([str(n), str(n), f"{n} log", f"{n - 1}-{n}", f"about {n}" if n > 6 else str(n),
-                           {2: "do", 3: "teen", 4: "char", 5: "paanch", 6: "chhe", 7: "saat", 8: "aath"}.get(n, str(n))])
+        return rng.choice([str(n), str(n), f"{n} people", f"{n - 1}-{n}", f"about {n}" if n > 6 else str(n),
+                           {2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven", 8: "eight"}.get(n, str(n))])
 
     def remarks() -> str:
         bits = [rng.choice(SITUATION)] + [e for e in rng.sample(EXTRA, k=rng.choice([1, 2])) if e]
@@ -163,13 +165,13 @@ def main() -> None:
             when="", count_cell: str | None = None, remarks_cell: str | None = None, note="", ai=False, relay=False,
             seed_case="", village_cell: str | None = None, landmark_cell: str | None = None) -> None:
         rows.append({
-            "Naam": h["name"][1] if hindi_name else h["name"][0],
-            "Mob No": phone_cell if phone_cell is not None else phones.written(h["phone"]),
-            "Kitne log": count_cell if count_cell is not None else (headcount(h["people"]) if h["people"] else ""),
-            "Gaon": village_cell if village_cell is not None else (spelled(h["village"]) if h["village"] else ""),
+            "Name": h["name"][0],          # hindi_name still draws from the stream; the name stays in English
+            "Mobile No": phone_cell if phone_cell is not None else phones.written(h["phone"]),
+            "No. of people": count_cell if count_cell is not None else (headcount(h["people"]) if h["people"] else ""),
+            "Village": village_cell if village_cell is not None else (spelled(h["village"]) if h["village"] else ""),
             "Location/Landmark": landmark_cell if landmark_cell is not None else (h["landmark"] or ""),
             "Remarks": remarks_cell if remarks_cell is not None else h["remarks"],
-            "Samay": when, "Status": status, "Volunteer": rng.choice(VOLUNTEERS),
+            "Time": when, "Status": status, "Volunteer": rng.choice(VOLUNTEERS),
             "_truth": {"household": h["id"], "kind": h["kind"], "village": h["village"] or "", "people": h["people"] or "",
                        "phone_damaged": damaged, "relay_phone": relay, "seed_case": seed_case, "needs_ai": ai,
                        "expect": expect, "note": note}})
@@ -206,7 +208,7 @@ def main() -> None:
         row(h, expect="new", relay=True, note="volunteer's phone, different family")
     # F · Ramesh Das and Rajesh Das: same village, landmark and headcount, different phones → refused, two cases.
     for given in (("Ramesh", "रमेश"), ("Rajesh", "राजेश")):
-        h = household("das_pair", "Meera Chhapra", "school ke paas", 5, name=(f"{given[0]} Das", f"{given[1]} दास"))
+        h = household("das_pair", "Meera Chhapra", "near the school", 5, name=(f"{given[0]} Das", f"{given[1]} दास"))
         used.setdefault("Meera Chhapra", []).append(given[0])
         row(h, expect="new", note="Ramesh ≠ Rajesh: never merged")
     # G · families already reported before the sheet (seeded cases): same phone and village → for a person.
@@ -217,8 +219,8 @@ def main() -> None:
     # H · no place at all.
     for _ in range(3):
         h = household("no_location", None, None, rng.choice([3, 4, 5]))
-        row(h, expect="to_check", remarks_cell=rng.choice(["hum log fase hain, jaldi aaiye", "paani bahut hai, madad chahiye",
-                                                          "bachche aur buzurg fase hain"]), note="no village: needs a person")
+        row(h, expect="to_check", remarks_cell=rng.choice(["we are trapped, please come quickly", "there is a lot of water, we need help",
+                                                          "children and elderly people are trapped"]), note="no village: needs a person")
     # I · old reports (dates long before any demo run), one with a day/month that reads both ways.
     for when in ("01/10/2026 06:30", "02/10/2026 21:10", "03/10 11:20"):
         h = household("old_report", rng.choice(VILLAGE_ONLY), None, rng.choice([3, 4, 5]))
@@ -256,7 +258,7 @@ def main() -> None:
         seen.add(t["household"])
 
     OUT.mkdir(parents=True, exist_ok=True)
-    headers = ["S.No", "Naam", "Mob No", "Kitne log", "Gaon", "Location/Landmark", "Remarks", "Samay", "Status", "Volunteer"]
+    headers = ["S.No", "Name", "Mobile No", "No. of people", "Village", "Location/Landmark", "Remarks", "Time", "Status", "Volunteer"]
     buf = io.StringIO()
     w = csv.writer(buf, lineterminator="\r\n")     # Excel's line endings
     w.writerow(headers)

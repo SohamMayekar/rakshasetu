@@ -38,6 +38,8 @@ def dictionary(lang: str = "hi") -> dict:
 
 
 def _quote(text: str, start: int, end: int) -> str:
+    while 0 < end < len(text) and text[end - 1].isascii() and text[end - 1].isalpha() and text[end].isascii() and text[end].isalpha():
+        end += 1   # a pattern's trailing "[^,.;]{0,15}" can stop mid-word ("with th"): finish the word
     q = text[start:end].strip(" ,.;:-—।")
     return q[:300] if q else text[start:end][:300]
 
@@ -109,6 +111,12 @@ def _landmarks(text: str, d: dict) -> list[Landmark]:
                 if after:
                     relation, end = rel, end + after.end()
                     break
+            if relation == "unknown":   # English puts the relation first: "behind the Durga temple"
+                for rel, rp in rel_map.items():
+                    ahead = re.search(rf"(?<![\w]){rp}\s+(?:the\s+)?$", text[max(0, start - 25):start], re.IGNORECASE)
+                    if ahead:
+                        relation, start = rel, start - len(ahead.group(0))
+                        break
             out.append(Landmark(type=kind, name=name.title() if name and not DEVANAGARI.search(name) else name,
                                 relation=relation, quote=_quote(text, start, end)))
             break   # one mention per landmark type is enough for the ladder

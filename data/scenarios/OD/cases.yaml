@@ -5,7 +5,7 @@ cases:
      status: checked, fields: {people_count: 5, people_count_kind: stated, hazards: [structure_collapsed], vulnerable: [elderly, injured], needs: [medicine],
      location: {lat: 20.2010, lon: 86.3200, radius_m: 1500, confidence: low, source: rule, method: "Low · 1.5 km · village only: Erasama (approximate)"}, location_text: "Erasama"}}
   - {key: od-02, district: Kendrapara, minutes_ago: 70, channel: whatsapp, relation: family, phone: "+91 98765 11002",
-     text: "Mahakalapada mein paani ghar ke andar, 8 log, 2 bachche, khana nahi hai",
+     text: "In Mahakalapada, water has entered the house, 8 people, 2 children, no food",
      status: reported, fields: {people_count: 8, people_count_kind: stated, hazards: [water_entering], vulnerable: [child], needs: [food],
      location: {lat: 20.4300, lon: 86.7500, radius_m: 1500, confidence: low, source: rule, method: "Low · 1.5 km · village only: Mahakalapada (approximate)"}, location_text: "Mahakalapada"}}
   - {key: od-03, district: Puri, minutes_ago: 50, channel: web_form, relation: self, phone: "+91 98765 11003",
@@ -17,6 +17,6 @@ cases:
      status: reported, fields: {people_count: 40, people_count_kind: estimated, hazards: [cut_off], needs: [drinking_water],
      location: {lat: 20.3166, lon: 86.6114, radius_m: 1500, confidence: low, source: rule, method: "Low · 1.5 km · village only: Paradip (approximate)"}, location_text: "Paradip"}}
   - {key: od-05, district: Kendrapara, minutes_ago: 12, channel: web_form, relation: volunteer, phone: "+91 98765 11005",
-     text: "Rajnagar, 6 log ghar ki chhat par, paani badh raha hai",
+     text: "Rajnagar: 6 people on the roof of the house, the water is rising",
      status: reported, fields: {people_count: 6, people_count_kind: stated, hazards: [trapped_on_roof, water_rising], needs: [rescue],
      location: {lat: 20.5700, lon: 86.7000, radius_m: 1500, confidence: low, source: rule, method: "Low · 1.5 km · village only: Rajnagar (approximate)"}, location_text: "Rajnagar"}}

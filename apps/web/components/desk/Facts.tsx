@@ -109,7 +109,8 @@ export function Facts({ c, canEdit, onQuote, onChanged }: {
           <span className="mt-1 flex flex-wrap gap-x-3 gap-y-1">
             {list("landmarks").filter((p, i, all) => all.findIndex((q) => JSON.stringify(q.value) === JSON.stringify(p.value)) === i).map((p, i) => {
               const v = p.value as { type: string; name?: string | null; relation?: string };
-              return <Receipt key={i} p={p} onQuote={onQuote}>{v.name ? `${v.name} ` : ""}{word(v.type)}{v.relation && v.relation !== "unknown" ? ` (${v.relation})` : ""}</Receipt>;
+              const named = v.name && v.name.toLowerCase().includes(word(v.type).toLowerCase());   // "Durga Temple", not "Durga Temple temple"
+              return <Receipt key={i} p={p} onQuote={onQuote}>{named ? v.name : `${v.name ? `${v.name} ` : ""}${word(v.type)}`}{v.relation && v.relation !== "unknown" ? ` (${v.relation})` : ""}</Receipt>;
             })}
           </span>
         )}

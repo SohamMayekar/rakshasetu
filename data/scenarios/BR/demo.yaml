@@ -11,10 +11,10 @@ son:                           # 0:00 the judge, as Ramesh's son in Mumbai, on t
   device_id: demo-son-phone-0001   # the son's phone after a reset; the /demo page has a QR that opens his status page as it
 
 forward:                       # 0:50 a neighbour's WhatsApp forward, pasted by the officer
-  text: "Ramesh Das ka parivaar Thawe gaon mein hai, Durga mandir ke peeche, pul ke paas. 6 log chhat par fase hain, paani bahut hai."
+  text: "Ramesh Das's family is in Thawe village, behind the Durga temple, near the bridge. 6 people are stuck on the roof, there is a lot of water."
   phone: "+91 98765 70002"
 das:                           # 1:05 a different family, same village and headcount: refused
-  text: "Rajesh Das, 5 log, Thawe gaon, mandir ke paas, chhat par fase hain"
+  text: "Rajesh Das, 5 people, Thawe village, near the temple, stuck on the roof"
   phone: "+91 98765 70003"
 sheet: sheet/volunteer_sheet.csv   # 1:15
 

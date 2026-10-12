@@ -19,7 +19,7 @@ function Login({ onIn }: { onIn: () => void }) {
   const [error, setError] = useState<string | null>(null);
   return (
     <main className="mx-auto max-w-md px-5 py-10">
-      <p className="text-sm font-semibold text-ink-2">RakshaSetu · टीम</p>
+      <p className="text-sm font-semibold text-ink-2">RakshaSetu · Team</p>
       <h1 className="mt-1 text-3xl font-semibold tracking-tight">Sign in as your team</h1>
       <form className="mt-8 space-y-3" onSubmit={async (e) => {
         e.preventDefault();
@@ -49,13 +49,13 @@ const where = (c: MyCase) => `${c.location_text ?? "place not known"}${c.distanc
 function NewCase({ c }: { c: MyCase }) {
   return (
     <main className="fixed inset-0 z-50 flex flex-col bg-paper px-5 pb-6 pt-8">
-      <p className="text-sm font-semibold uppercase tracking-widest text-ink-3">नया केस · New case</p>
+      <p className="text-sm font-semibold uppercase tracking-widest text-ink-3">New case</p>
       <p className="mt-2 flex items-baseline gap-3 text-4xl font-semibold tracking-tight"><Priority level={c.priority} /><span className="tabular">{c.public_id}</span></p>
       <p className="mt-4 text-2xl leading-snug">{c.summary}</p>
       <p className="mt-2 text-lg text-ink-2">{where(c)}</p>
       {c.priority_reasons.length > 0 && <p className="mt-1 text-sm text-ink-3">{c.priority} because {c.priority_reasons.join(" · ")}</p>}
       <div className="mt-auto space-y-3">
-        <p className="text-center text-sm text-ink-2">Acknowledge with your ETA · ETA चुनें</p>
+        <p className="text-center text-sm text-ink-2">Acknowledge with your ETA</p>
         <div className="grid grid-cols-3 gap-3">
           {[15, 30, 60].map((m) => (
             <BigButton key={m} variant={m === 30 ? "primary" : "secondary"}
@@ -127,7 +127,7 @@ export default function Responder() {
     <main className="mx-auto max-w-md px-5 pb-10 pt-6">
       {offered && <NewCase c={offered} />}
       <p className="text-sm font-semibold text-ink-2">RakshaSetu · {team?.name}</p>
-      <h1 className="mt-1 text-3xl font-semibold tracking-tight">My cases · मेरे केस</h1>
+      <h1 className="mt-1 text-3xl font-semibold tracking-tight">My cases</h1>
       {offlineSince && (
         <p className="mt-3 rounded-xl bg-ink px-4 py-2 text-base text-paper">
           No network · showing My cases as of <Clock iso={offlineSince} />. Taps are saved on the phone and sent when it&apos;s back.

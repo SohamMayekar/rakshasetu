@@ -1,301 +1,301 @@
-S.No,Naam,Mob No,Kitne log,Gaon,Location/Landmark,Remarks,Samay,Status,Volunteer
-1,मनोज पासवान,91-98765-71060,5,Kuchaikot,station ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe, khana nahi hai",,,Imran
-2,Chandan Ram,+91 98765-70331,,Kalu Chhapra,स्कूल के पास,"ghar mein paani ghus gaya, दवाई चाहिए, chhota bachcha hai",,,Sanjay
-3,Asha Kushwaha,+919876570779,6,Katiya,aspatal ke peeche,छत पर फँसे हैं,,,
-4,Radha Yadav,9876571131,6,Nirkhi Chhapra,school ke paas,"ghar mein paani ghus gaya, chhota bachcha hai",,,Pooja (NSS)
-5,Jagdish Manjhi,98765 71376,3,Kaalu Chhapra,,"ghar ke andar fase hain, bahar nahi nikal pa rahe, ek buzurg hain, dawai chahiye",,,Sanjay
-6,Lalita Chaudhary,9876570072,8 log,Kalu Chhapra,स्कूल के पास,"chhat par fase hain, ek buzurg hain, bachche ke liye doodh chahiye",,,Imran
-7,Savitri Chaudhary,98765-71376,6,Hathuwa,,"ghar ke andar fase hain, bahar nahi nikal pa rahe, ek buzurg hain, chhota bachcha hai",,,
-8,Prakash Manjhi,+919876570395,paanch,Nirkhi Chhapra,school ke paas,"rasta kat gaya hai, ek buzurg hain",,,Neha
-9,भोला पासवान,098765 70020,3,Barauli,station ke paas,"paani badh raha hai, दवाई चाहिए, chhota bachcha hai",,,Sanjay
-10,Savitri Ram,98765-70368,teen,Barasra,school ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe, garbhvati mahila hai, bachche ke liye doodh chahiye",,,Ravi
-11,Asha Ram,+91 98765-70441,saat,Mirganj,station ke saamne,"chhat par fase hain, khana nahi hai",,,
-12,Asha Ram,98765 70441,7,Mirganj,station ke saamne,"chhat par fase hain, khana nahi hai",,,Anjali
-13,Vijay Mahto,91-98765-73183,4,Nawadah,,"paani badh raha hai, bachche ke liye doodh chahiye",,,Sanjay
-14,सीता महतो,098765 70934,4,Kuchaikote,railway station ke saamne,"ghar ke andar fase hain, bahar nahi nikal pa rahe, dawai chahiye",,,Neha
-15,Mohan Manjhi,98765 73281,3,Baikunthpur,,"chhat par fase hain, chhota bachcha hai, bachche ke liye doodh chahiye",,,Sanjay
-16,Manoj Paswan,9876571060,5 log,Kuchaikote,station ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe, khana nahi hai",,,Sanjay
-17,Jagdish Mahto,91-98765-72126,5,Khanpur,,"chhat par fase hain, bachche ke liye doodh chahiye",,Rescued,Sanjay
-18,Phoolmati Rai,+91 98765-71083,2-3,Nirkhi Chhapra,school ke paas,"rasta kat gaya hai, peene ka paani nahi hai",,,Ravi
-19,Sonu Kushwaha,98765-71376,5,Kalu Chhapra,,"rasta kat gaya hai, peene ka paani nahi hai",,,Sanjay
-20,संतोष राम,098765 70774,5,Sidhwaliya,station ke paas,"chhat par fase hain, garbhvati mahila hai, bachche ke liye doodh chahiye",,,Ravi
-21,Kishori Yadav,+91 98765-70628,5,Hathua,hospital ke saamne,"ghar mein paani ghus gaya, khana nahi hai",,,Imran
-22,Vijay Sah,98765-70256,about 8,Manjha,station ke bagal mein,"rasta kat gaya hai, bachche ke liye doodh chahiye",,,Anjali
-23,Mohan Rai,+919876573312,3 log,Nautan,,"paani badh raha hai, दवाई चाहिए",,,Anjali
-24,Phoolmati Singh,98765-72304,6,Barouli,station ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe, khana nahi hai",,,Sanjay
-25,Rekha Ram,098765 71983,,Phulwaria,,saare log ek kamre mein band hain,,,Imran
-26,आशा कुशवाहा,9876570779,,Katia,aspatal ke peeche,छत पर फँसे हैं,,,Sanjay
-27,Santosh Ram,98765-70774,paanch,Sidhwalia,station ke paas,"chhat par fase hain, garbhvati mahila hai, bachche ke liye doodh chahiye",,,
-28,Umesh Ram,+919876570094,5 log,Kalu Chhapra,school ke peeche,"chhat par fase hain, दवाई चाहिए, garbhvati mahila hai",,,
-29,Rekha Prasad,98765-70333,paanch,Katiya,hospital ke paas,"chhat par fase hain, ek buzurg hain",,,
-30,Pappu Manjhi,098765 72131,4,Bijaipur,,"paani badh raha hai, dawai chahiye",,,Ravi
-31,Phoolmati Chaudhary,098765 72777,4,Harpur,,"ghar mein paani ghus gaya, garbhvati mahila hai, bachche ke liye doodh chahiye",,,Sanjay
-32,Arvind Manjhi,9876571646,,Manjha,,"pariwar ke sab sadasya fase hain, paani badh raha hai",,,Ravi
-33,Lakhan Ram,098765 70372,,Hathua,aspatal ke paas,"ghar mein paani ghus gaya, chhota bachcha hai",,,Anjali
-34,Munna Ram,98765 70861,,Kuchaikote,station ke paas,"ghar mein paani ghus gaya, bachche ke liye doodh chahiye",,,Ravi
-35,Vijay Prasad,98765 72047,char,Lakri Nabiganj,,छत पर फँसे हैं,,✓,Ravi
-36,Sunita Mahto,098765 72470,5,Lakri Nabiganj,,"छत पर फँसे हैं, chhota bachcha hai, khana nahi hai",,,Pooja (NSS)
-37,Shanti Prasad,+91 98765-72128,5,Khanpur,,"rasta kat gaya hai, chhota bachcha hai, दवाई चाहिए",,,Neha
-38,Dinesh Prasad,98765-71055,7 log,Nirkhi Chapra,school ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe, peene ka paani nahi hai",,,Sanjay
-39,Umesh Prasad,098765 73029,9 log,Ansari Dumri,,"छत पर फँसे हैं, peene ka paani nahi hai, bachche ke liye doodh chahiye",,,Anjali
-40,Jagdish Yadav,+91 98765-70477,6-7,Babu Tola,station ke paas,"paani badh raha hai, ek buzurg hain, chhota bachcha hai",,,Neha
-41,Suresh Ansari,9876573339,char,Dewapur,,"ghar ke andar fase hain, bahar nahi nikal pa rahe, दवाई चाहिए",,,Sanjay
-42,Chandan Singh,9876572098,do,Lakri Nabiganj,,"छत पर फँसे हैं, peene ka paani nahi hai",,✓,
-43,Sonu Ansari,91-98765-70175,5 log,Fulwaria,hospital ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe, dawai chahiye",,,Ravi
-44,Shivnath Paswan,098765 71016,5 log,Babu Tola,station ke paas,"छत पर फँसे हैं, दवाई चाहिए",,,Pooja (NSS)
-45,Munna Yadav,+91 98765-72379,paanch,Katiya,hospital ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe",,,Anjali
-46,Sonu Ansari,98765 70175,5,Phulwaria,hospital ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe, dawai chahiye",,,Ravi
-47,Sonu Kumari,919877000000,3,Hathua,aspatal ke paas,"छत पर फँसे हैं, ek buzurg hain",,,Imran
-48,Chandan Ram,+919876570331,5 log,Kalu Chapra,स्कूल के पास,"ghar mein paani ghus gaya, दवाई चाहिए, chhota bachcha hai",,,Neha
-49,Gita Ansari,98765 70775,aath,Manja,station ke bagal mein,"ghar ke andar fase hain, bahar nahi nikal pa rahe, peene ka paani nahi hai",,,Neha
-50,Dinesh Ansari,91-98765-73204,7 log,Nautan,,"ghar mein paani ghus gaya, dawai chahiye",,,Anjali
-51,Sita Mahto,098765 70934,,Kuchaikote,railway station ke saamne,"ghar ke andar fase hain, bahar nahi nikal pa rahe, dawai chahiye",,,Anjali
-52,बबलू कुमारी,98765-70854,char,Panchdeuri,station ke paas,छत पर फँसे हैं,,,
-53,विजय महतो,+91 98765-70221,7,Phulwaria,hospital ke paas,"paani badh raha hai, ek buzurg hain, chhota bachcha hai",,,Imran
-54,Umesh Devi,9.19877E+11,paanch,तैया डुमरी,,"छत पर फँसे हैं, khana nahi hai, ek buzurg hain",,,Pooja (NSS)
-55,Lalita Sah,+919876571580,,Meerganj,,ghar ke sab log chhat par hain,,,Imran
-56,Dinesh Ram,+919876572208,4-5,Hathua,aspatal ke paas,"chhat par fase hain, ek buzurg hain",,,
-57,Mohan Ram,98765 70533,paanch,Babu Tola,station ke paas,"chhat par fase hain, peene ka paani nahi hai",,,
-58,Lakhan Kushwaha,98765-73114,chhe,Nirkhi Chhapra,school ke paas,"छत पर फँसे हैं, garbhvati mahila hai",,,Ravi
-59,Asha Mahto,919877000000,3,Nawada,,"paani badh raha hai, garbhvati mahila hai",,,Sanjay
-60,Kishori Manjhi,098765 71852,,Nirkhi Chhapra,,"hum sab yahan fase hain, koi madad nahi aayi",,,Anjali
-61,Kishori Kumari,9.19877E+11,5,Katiya,aspatal ke peeche,"paani badh raha hai, chhota bachcha hai, garbhvati mahila hai",,,Neha
-62,Suresh Singh,+91 98765-72786,7,Mira Chhapra,school ke paas,"chhat par fase hain, peene ka paani nahi hai, ek buzurg hain",,,Sanjay
-63,Ramji Paswan,91-98765-72367,5,Babutola,station ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe, bachche ke liye doodh chahiye",,,Imran
-64,सीता प्रसाद,98765-70718,,Babutola,station ke paas,"rasta kat gaya hai, दवाई चाहिए",,,Sanjay
-65,Rekha Devi,91-98765-71997,2-3,Harpur,,"rasta kat gaya hai, bachche ke liye doodh chahiye",,✓,Ravi
-66,Anil Ansari,98765-70981,7,Bhore,hospital ke saamne,"ghar ke andar fase hain, bahar nahi nikal pa rahe, peene ka paani nahi hai",,,Imran
-67,Sunita Rai,9876572155,7,Ansari Dumri,,"rasta kat gaya hai, chhota bachcha hai",,,Anjali
-68,दिनेश प्रसाद,+91 98765-71055,,Nirkhi Chhapra,school ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe, peene ka paani nahi hai",,,Sanjay
-69,Manoj Kumari,098765 72335,5,Dewapur,,"rasta kat gaya hai, दवाई चाहिए",,,Anjali
-70,Shanti Chaudhary,91-98765-70684,,Kuchaykote,station ke paas,"ghar mein paani ghus gaya, ek buzurg hain",,,
-71,Shivnath Kushwaha,98765-71955,,Kuchaykote,,"hum sab yahan fase hain, koi madad nahi aayi",,,Neha
-72,Pushpa Kushwaha,9876570897,6,Hathuwa,hospital ke saamne,"ghar mein paani ghus gaya, peene ka paani nahi hai, khana nahi hai",,,Anjali
-73,Radha Yadav,9.19877E+11,6,Nirkhi Chhapra,school ke paas,"ghar mein paani ghus gaya, chhota bachcha hai",,,Imran
-74,Hari Manjhi,9876572836,6-7,Nawadah,,"rasta kat gaya hai, chhota bachcha hai, peene ka paani nahi hai",,,Ravi
-75,Radha Manjhi,098765 70026,,Bhore,aspatal ke paas,"rasta kat gaya hai, peene ka paani nahi hai",,,Imran
-76,Anil Manjhi,098765 71472,4,,,"hum log fase hain, jaldi aaiye",,,Ravi
-77,Lalita Manjhi,098765 70966,3-4,Barasra,school ke paas,"chhat par fase hain, bachche ke liye doodh chahiye, garbhvati mahila hai",,,Pooja (NSS)
-78,Chandan Kumari,91-98765-71159,7,Sidhwalia,स्टेशन के पास,paani badh raha hai,,,Anjali
-79,Gita Chaudhary,+91 98765-72674,2,Baikunthpur,,"ghar ke andar fase hain, bahar nahi nikal pa rahe, bachche ke liye doodh chahiye",,,Imran
-80,Anita Kushwaha,9876572554,9,Harpur,,"rasta kat gaya hai, दवाई चाहिए",,,Sanjay
-81,Ramesh Das,098765 71394,4-5,Meera Chhapra,school ke paas,rasta kat gaya hai,,,Anjali
-82,Phoolmati Kushwaha,9876571726,,Bhore,,saare log ek kamre mein band hain,,,Sanjay
-83,Jagdish Devi,9876570423,5,Bhore,aspatal ke paas,"chhat par fase hain, dawai chahiye",,,Neha
-84,Hari Ansari,91-98765-72592,saat,Nirkhi Chhapra,school ke paas,"paani badh raha hai, khana nahi hai",,,
-85,Munna Ram,+919876570861,chhe,Kuchaikote,station ke paas,"ghar mein paani ghus gaya, bachche ke liye doodh chahiye",,,Ravi
-86,Lalita Paswan,9876570308,about 7,Nirkhi Chhapra,school ke paas,"chhat par fase hain, peene ka paani nahi hai, bachche ke liye doodh chahiye",,,Ravi
-87,Sonu Sah,98765-72323,6,Pandeetpur,,"chhat par fase hain, ek buzurg hain, peene ka paani nahi hai",,,Imran
-88,Manoj Paswan,91-98765-71060,4-5,Kuchaikote,station ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe, khana nahi hai",,,Imran
-89,Radha Manjhi,91-98765-70026,7,Bhore,aspatal ke paas,"rasta kat gaya hai, peene ka paani nahi hai",,,Sanjay
-90,Kamla Yadav,91-98765-72075,5,Harpur,,"ghar ke andar fase hain, bahar nahi nikal pa rahe, दवाई चाहिए",,✓,Ravi
-91,Gita Rai,+919876573067,8,Sidhwalia,station ke paas,"rasta kat gaya hai, bachche ke liye doodh chahiye",,,Ravi
-92,Hari Prasad,+919876570143,,Kalu Chhapra,school ke peeche,"ghar mein paani ghus gaya, ek buzurg hain",,,Sanjay
-93,Sita Mahto,98765-70934,4 log,Kuchaikote,railway station ke saamne,"ghar ke andar fase hain, bahar nahi nikal pa rahe, dawai chahiye",,,Neha
-94,Pappu Manjhi,+919876571681,,Nawadah,,ghar ke sab log chhat par hain,,,Neha
-95,Dinesh Yadav,+91 98765-72497,about 7,Sidhwalia,स्टेशन के पास,"rasta kat gaya hai, peene ka paani nahi hai",,,Sanjay
-96,Dinesh Devi,98765-72175,7,Barauli,station ke peeche,"ghar ke andar fase hain, bahar nahi nikal pa rahe",,,Neha
-97,Chandan Sah,9876570293,6,Nirkhi Chhapra,school ke paas,"rasta kat gaya hai, dawai chahiye",,,Neha
-98,Rajesh Das,+91 98765-71425,4-5,Mira Chhapra,school ke paas,"ghar mein paani ghus gaya, दवाई चाहिए",,,Sanjay
-99,Hari Prasad,98765 70143,6,Kalu Chhapra,school ke peeche,"ghar mein paani ghus gaya, ek buzurg hain",,,Sanjay
-100,Jagdish Devi,98765-70423,paanch,Bhore,aspatal ke paas,"chhat par fase hain, dawai chahiye",,,
-101,Meena Kushwaha,98765 72720,5,Meera Chhapra,school ke saamne,"ghar ke andar fase hain, bahar nahi nikal pa rahe, garbhvati mahila hai",,,Neha
-102,Savitri Manjhi,098765 70778,7-8,Meera Chhapra,school ke paas,"ghar mein paani ghus gaya, peene ka paani nahi hai",,,Pooja (NSS)
-103,Dinesh Devi,98765 71078,7-8,Kuchaykote,station ke paas,"chhat par fase hain, bachche ke liye doodh chahiye",,,Sanjay
-104,Anita Rai,98765-71090,saat,Bhorey,aspatal ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe, khana nahi hai",,,Sanjay
-105,Chandan Sah,9876571722,,Harpur,,ghar ke sab log chhat par hain,,,Ravi
-106,Anil Ansari,91-98765-70981,about 7,Bhore,hospital ke saamne,"ghar ke andar fase hain, bahar nahi nikal pa rahe, peene ka paani nahi hai",,,
-107,Naresh Ansari,98765 73133,5 log,Nirkhi Chhapra,school ke paas,छत पर फँसे हैं,,,Anjali
-108,Pappu Kushwaha,+91 98765-73152,teen,Sidhwalia,station ke paas,"rasta kat gaya hai, ek buzurg hain",,,Imran
-109,कमला राय,98765-70602,2-3,Mirganj,station ke saamne,paani badh raha hai,,,Neha
-110,Pushpa Kushwaha,+919876570897,,Hathua,hospital ke saamne,"ghar mein paani ghus gaya, peene ka paani nahi hai, khana nahi hai",,,Imran
-111,Sunita Devi,919877000000,4 log,Taiya Dumri,,"छत पर फँसे हैं, ek buzurg hain",,,Anjali
-112,मोहन राम,+91 98765-70533,5,Babu Tola,station ke paas,"chhat par fase hain, peene ka paani nahi hai",,,
-113,Chandan Sah,91-98765-70293,,Nirkhi Chapra,school ke paas,"rasta kat gaya hai, dawai chahiye",,,
-114,Gita Rai,+919876573420,6 log,Bhorey,hospital ke saamne,"rasta kat gaya hai, ek buzurg hain",,,Neha
-115,सुरेश चौधरी,9876570816,4,Sidhwalia,स्टेशन के पास,"ghar mein paani ghus gaya, chhota bachcha hai",,,Anjali
-116,Meena Sah,098765 70503,char,Babutola,station ke paas,"rasta kat gaya hai, दवाई चाहिए, peene ka paani nahi hai",,,Sanjay
-117,Pappu Mahto,9876573031,7 log,Taiya Dumri,,"paani badh raha hai, bachche ke liye doodh chahiye, दवाई चाहिए",,,Ravi
-118,Munna Sah,98765 70192,,Mirgunj,railway station ke paas,"rasta kat gaya hai, दवाई चाहिए",,,Anjali
-119,Lalita Paswan,9876570308,,Nirkhi Chhapra,school ke paas,"chhat par fase hain, peene ka paani nahi hai, bachche ke liye doodh chahiye",,,Anjali
-120,Lakhan Rai,+91 98765-72248,paanch,Kalu Chhapra,स्कूल के पास,"chhat par fase hain, dawai chahiye, bachche ke liye doodh chahiye",,,Sanjay
-121,Phoolmati Paswan,98765-72033,paanch,Uchkagaon,,"ghar ke andar fase hain, bahar nahi nikal pa rahe, दवाई चाहिए",,DONE,Ravi
-122,Pushpa Kumari,98765 70817,4-5,Baraulee,station ke peeche,"ghar mein paani ghus gaya, chhota bachcha hai",,,Sanjay
-123,Munna Mahto,098765 70044,3 log,Hathua,hospital ke saamne,"chhat par fase hain, peene ka paani nahi hai, garbhvati mahila hai",,,Neha
-124,Vijay Yadav,9876572954,about 8,Dewapur,,"छत पर फँसे हैं, chhota bachcha hai, dawai chahiye",,,Imran
-125,Lakhan Singh,91-98765-70565,4-5,Manjha,station ke paas,"chhat par fase hain, khana nahi hai, dawai chahiye",,,Anjali
-126,Babloo Chaudhary,9876572640,8,Ansari Dumri,,"chhat par fase hain, dawai chahiye",,,Imran
-127,Kamla Mahto,98765-70099,aath,Panchdeori,station ke paas,"rasta kat gaya hai, chhota bachcha hai, garbhvati mahila hai",,,Neha
-128,Jagdish Singh,9876572181,3,Taiya Dumri,,"छत पर फँसे हैं, garbhvati mahila hai",,,Imran
-129,अनीता महतो,+919876571089,6,Nirkhi Chhapra,school ke paas,"paani badh raha hai, peene ka paani nahi hai",,,Sanjay
-130,Sunita Ram,+91 98765-71376,3 log,Dewapur,,"ghar ke andar fase hain, bahar nahi nikal pa rahe, garbhvati mahila hai, dawai chahiye",,,
-131,Lakhan Ram,098765 70372,3 log,Hathuwa,aspatal ke paas,"ghar mein paani ghus gaya, chhota bachcha hai",,,Pooja (NSS)
-132,Kamla Chaudhary,98765-70726,4,Sidhwalia,station ke paas,"paani badh raha hai, ek buzurg hain",,,Anjali
-133,Shivnath Paswan,98765 72263,6-7,Nawadah,,"छत पर फँसे हैं, garbhvati mahila hai",,,Anjali
-134,Phoolmati Devi,9876570645,paanch,Kuchaikote,station ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe, dawai chahiye, khana nahi hai",,,
-135,Pushpa Prasad,9876573165,aath,Harpur,,"paani badh raha hai, chhota bachcha hai",,,Pooja (NSS)
-136,Prakash Mahto,098765 72915,2-3,Meera Chhapra,school ke saamne,ghar mein paani ghus gaya,,,
-137,Munna Singh,098765 72041,char,Baikunthpur,,"ghar mein paani ghus gaya, peene ka paani nahi hai",,✓,Pooja (NSS)
-138,Prakash Manjhi,+91 98765-70395,,Nirkhi Chapra,school ke paas,"rasta kat gaya hai, ek buzurg hain",,,Pooja (NSS)
-139,Dinesh Rai,98765-70699,chhe,Babutola,station ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe, dawai chahiye, ek buzurg hain",,,Ravi
-140,Suresh Kushwaha,98765-72565,5,Panchdeuri,station ke paas,paani badh raha hai,,,
-141,Radha Kumari,9.19877E+11,char,Dewapur,,"ghar ke andar fase hain, bahar nahi nikal pa rahe, dawai chahiye, chhota bachcha hai",,,Imran
-142,Phoolmati Devi,+91 98765-70645,5,Kuchaikote,station ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe, dawai chahiye, khana nahi hai",,,Pooja (NSS)
-143,Kishori Kumari,098765 71040,5 log,Barasra,school ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe",,,Sanjay
-144,Naresh Chaudhary,91-98765-72064,3-4,तैया डुमरी,,"ghar mein paani ghus gaya, khana nahi hai, chhota bachcha hai",,done,Ravi
-145,Babloo Kumari,98765-70854,char,Panchdeuri,station ke paas,छत पर फँसे हैं,,,Imran
-146,गीता प्रसाद,91-98765-70696,8,Katiya,aspatal ke peeche,"rasta kat gaya hai, ek buzurg hain",,,Pooja (NSS)
-147,गीता अंसारी,098765 70775,,Manja,station ke bagal mein,"ghar ke andar fase hain, bahar nahi nikal pa rahe, peene ka paani nahi hai",,,Sanjay
-148,Sita Kumari,098765 72743,3 log,Nirkhi Chhapra,school ke paas,"paani badh raha hai, bachche ke liye doodh chahiye",,,Sanjay
-149,Naresh Devi,919877000000,4 log,Khanpur,,"ghar ke andar fase hain, bahar nahi nikal pa rahe, bachche ke liye doodh chahiye",,,Ravi
-150,Birju Devi,+91 98765-72415,4-5,Khanpur,,"rasta kat gaya hai, दवाई चाहिए",,,Imran
-151,दिनेश देवी,+91 98765-71078,,Kuchaikot,station ke paas,"chhat par fase hain, bachche ke liye doodh chahiye",,,Neha
-152,Lalita Ansari,9.19877E+11,char,Lakri Nabiganj,,"rasta kat gaya hai, khana nahi hai",,,Pooja (NSS)
-153,Lakhan Singh,91-98765-70565,5,Manja,station ke paas,"chhat par fase hain, khana nahi hai, dawai chahiye",,,Sanjay
-154,Lalita Singh,91-98765-71521,3-4,तैया डुमरी,,"rasta kat gaya hai, garbhvati mahila hai",02/10/2026 21:10,,Ravi
-155,Sonu Kumari,098765 71117,3,Hathua,aspatal ke paas,"छत पर फँसे हैं, ek buzurg hain",,,Sanjay
-156,Shivnath Paswan,91-98765-71016,,Babutola,station ke paas,"छत पर फँसे हैं, दवाई चाहिए",,,Sanjay
-157,Lalita Yadav,098765 20030,5,Nawadah,,"rasta kat gaya hai, दवाई चाहिए",,,
-158,Dinesh Prasad,98765-71055,7,Nirkhi Chhapra,school ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe, peene ka paani nahi hai",,,Neha
-159,Pushpa Singh,98765 70010,saat,Phulwaria,aspatal ke bagal mein,"छत पर फँसे हैं, khana nahi hai",,,Imran
-160,Prakash Paswan,98765-70681,5-6,Mirganj,railway station ke paas,"छत पर फँसे हैं, bachche ke liye doodh chahiye",,,Imran
-161,Gita Mahto,+91 98765-70657,6,Mirganj,station ke saamne,rasta kat gaya hai,,,Anjali
-162,Dinesh Rai,098765 70699,,Babutola,station ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe, dawai chahiye, ek buzurg hain",,,Anjali
-163,Usha Kumari,9876572509,8,Manjha,station ke paas,"छत पर फँसे हैं, khana nahi hai",,,Anjali
-164,Radha Ram,98765-70330,about 7,Hathua,aspatal ke paas,"paani badh raha hai, peene ka paani nahi hai, दवाई चाहिए",,,Anjali
-165,Babloo Kumari,+91 98765-70854,,Panchdeori,station ke paas,छत पर फँसे हैं,,,
-166,Asha Ansari,98765-70306,char,Manjha,station ke paas,"paani badh raha hai, dawai chahiye",,,Imran
-167,Vijay Mahto,098765 70221,7 log,Phulwaria,hospital ke paas,"paani badh raha hai, ek buzurg hain, chhota bachcha hai",,,Neha
-168,Gita Kumari,98765-70120,7 log,Hathua,aspatal ke paas,ghar mein paani ghus gaya,,,Anjali
-169,Gita Kumari,9876570120,saat,Hathua,aspatal ke paas,ghar mein paani ghus gaya,,,Pooja (NSS)
-170,Sita Ram,9876571376,6,Bhore,,rasta kat gaya hai,,,Pooja (NSS)
-171,Naresh Mahto,9.19877E+11,6,Ansari Dumri,,chhat par fase hain,,,
-172,Vijay Ansari,+91 98765-71550,3,Harpur,,"chhat par fase hain, bachche ke liye doodh chahiye",03/10 11:20,,Anjali
-173,Arvind Singh,98765-71887,,Nirkhi Chhapra,,"poora parivaar phansa hai, maa-baap aur bachche",,,Neha
-174,Meena Sah,98765 71919,,Lakri Nabiganj,,ghar ke sab log chhat par hain,,,Neha
-175,Arvind Sah,91-98765-72822,about 8,Ansari Dumri,,"rasta kat gaya hai, peene ka paani nahi hai",,,Pooja (NSS)
-176,Lalita Manjhi,91-98765-70966,4,Barasra,school ke paas,"chhat par fase hain, bachche ke liye doodh chahiye, garbhvati mahila hai",,,Neha
-177,Gita Manjhi,9.19877E+11,chhe,Nawadah,,"ghar ke andar fase hain, bahar nahi nikal pa rahe, peene ka paani nahi hai",,,Neha
-178,Phoolmati Rai,9876571083,,Nirkhi Chapra,school ke paas,"rasta kat gaya hai, peene ka paani nahi hai",,,Sanjay
-179,Ramji Rai,91-98765-72948,3,Barasra,school ke paas,"rasta kat gaya hai, dawai chahiye, दवाई चाहिए",,,Pooja (NSS)
-180,Anita Mahto,98765-71089,6 log,Nirkhi Chapra,school ke paas,"paani badh raha hai, peene ka paani nahi hai",,,Anjali
-181,Pushpa Kumari,9876570817,5 log,Baraulee,station ke peeche,"ghar mein paani ghus gaya, chhota bachcha hai",,,Neha
-182,Phoolmati Manjhi,+91 98765-70345,,Panchdeuri,station ke paas,"ghar mein paani ghus gaya, garbhvati mahila hai, chhota bachcha hai",,,Neha
-183,Naresh Ram,91-98765-72697,3-4,Lakri Nabiganj,,"ghar ke andar fase hain, bahar nahi nikal pa rahe",,,Imran
-184,Hari Mahto,098765 73131,7,Bijaipur,,"ghar ke andar fase hain, bahar nahi nikal pa rahe",,,Ravi
-185,Shivnath Devi,9876570701,about 8,Nirkhi Chhapra,school ke paas,chhat par fase hain,,,Ravi
-186,शिवनाथ देवी,91-98765-70701,,Nirkhi Chhapra,school ke paas,chhat par fase hain,,,
-187,Kishori Kumari,+91 98765-71040,5,Barasra,school ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe",,,Sanjay
-188,Pushpa Ram,+919876572235,chhe,Panditpur,,"chhat par fase hain, garbhvati mahila hai, peene ka paani nahi hai",,,
-189,Shivnath Mahto,98765 73022,2 log,Bijaipur,,"paani badh raha hai, khana nahi hai",,,Sanjay
-190,Phoolmati Rai,91-98765-70910,3,Sidhwalia,स्टेशन के पास,"ghar mein paani ghus gaya, chhota bachcha hai, khana nahi hai",,,Sanjay
-191,Sita Rai,+91 98765-71708,,Katiya,,"poora parivaar phansa hai, maa-baap aur bachche",,,Sanjay
-192,Lakhan Ram,9876570757,4-5,Bhore,hospital ke saamne,"paani badh raha hai, peene ka paani nahi hai",,,
-193,Chandan Yadav,+919876573179,3,Baraulee,station ke peeche,"chhat par fase hain, दवाई चाहिए",,,
-194,मीना साह,+91 98765-70503,4,Babu Tola,station ke paas,"rasta kat gaya hai, दवाई चाहिए, peene ka paani nahi hai",,,Ravi
-195,सोनू चौधरी,98765 70298,4-5,Nirkhi Chhapra,school ke paas,"paani badh raha hai, peene ka paani nahi hai",,,Ravi
-196,Kamla Chaudhary,91-98765-70726,4,Sidhwaliya,station ke paas,"paani badh raha hai, ek buzurg hain",,,Sanjay
-197,Munna Mahto,+919876572521,6,Panditpur,,"ghar mein paani ghus gaya, khana nahi hai, ek buzurg hain",,,Imran
-198,Radha Ram,98765-70330,7,Hathuwa,aspatal ke paas,"paani badh raha hai, peene ka paani nahi hai, दवाई चाहिए",,,Neha
-199,Umesh Devi,098765 72613,5,Barauli,station ke paas,"paani badh raha hai, peene ka paani nahi hai",,,
-200,Prakash Devi,9876570482,about 8,Panchdeuri,station ke paas,"paani badh raha hai, दवाई चाहिए",,,Neha
-201,Dinesh Yadav,9876571804,,Nawadah,,"hum sab yahan fase hain, koi madad nahi aayi",,,
-202,Santosh Kushwaha,+919876571929,,Harpur,,ghar ke sab log chhat par hain,,,Pooja (NSS)
-203,Usha Mahto,+91 98765-72290,4 log,तैया डुमरी,,"छत पर फँसे हैं, peene ka paani nahi hai, dawai chahiye",,,Sanjay
-204,Bhola Paswan,098765 70020,3,Barouli,station ke paas,"paani badh raha hai, दवाई चाहिए, chhota bachcha hai",,,
-205,Kamla Prasad,+919876572573,5,Hathua,hospital ke saamne,ghar mein paani ghus gaya,,,
-206,Gita Prasad,91-98765-70696,8 log,Katiya,aspatal ke peeche,"rasta kat gaya hai, ek buzurg hain",,,
-207,Chandan Kumari,919877000000,7,Sidhwalia,स्टेशन के पास,paani badh raha hai,,,Neha
-208,Naresh Prasad,+91-98765-20013,7,Manjha,,"paani badh raha hai, chhota bachcha hai",,,Ravi
-209,Prakash Devi,98765 70482,8,Panchdeori,station ke paas,"paani badh raha hai, दवाई चाहिए",,,Pooja (NSS)
-210,Pushpa Prasad,98765 73217,7 log,Bijaipur,,"ghar ke andar fase hain, bahar nahi nikal pa rahe, दवाई चाहिए, chhota bachcha hai",,,Anjali
-211,Suresh Chaudhary,+919876570816,4,Sidhwalia,स्टेशन के पास,"ghar mein paani ghus gaya, chhota bachcha hai",,,Neha
-212,Radha Kumari,91-98765-72442,6,Katiya,aspatal ke peeche,"chhat par fase hain, dawai chahiye, khana nahi hai",,,Anjali
-213,Kamla Manjhi,+919876572860,saat,Panditpur,,"chhat par fase hain, chhota bachcha hai, bachche ke liye doodh chahiye",,,
-214,सुनीता यादव,91-98765-70685,,Phulwariya,aspatal ke bagal mein,"छत पर फँसे हैं, ek buzurg hain",,,Sanjay
-215,Pushpa Singh,91-98765-70010,6-7,Phulwaria,aspatal ke bagal mein,"छत पर फँसे हैं, khana nahi hai",,,
-216,Pushpa Rai,+919876571977,,Bhore,,"poora parivaar phansa hai, maa-baap aur bachche",,,Neha
-217,मुन्ना राम,+91 98765-70861,,Kuchaikote,station ke paas,"ghar mein paani ghus gaya, bachche ke liye doodh chahiye",,,Neha
-218,Birju Yadav,+91 98765-70052,3,Nirkhi Chhapra,school ke paas,"paani badh raha hai, garbhvati mahila hai",,,
-219,Lalita Sah,+91 98765-72486,about 9,Baikunthpur,,"chhat par fase hain, दवाई चाहिए",,,
-220,Asha Ansari,+91 98765-70306,4,Manjha,station ke paas,"paani badh raha hai, dawai chahiye",,,Sanjay
-221,Savitri Manjhi,98765 70778,,Meera Chhapra,school ke paas,"ghar mein paani ghus gaya, peene ka paani nahi hai",,,Imran
-222,Savitri Ram,98765-70368,teen,Barasra,school ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe, garbhvati mahila hai, bachche ke liye doodh chahiye",,,Neha
-223,लखन राम,+919876570757,5,Bhore,hospital ke saamne,"paani badh raha hai, peene ka paani nahi hai",,,Neha
-224,Chandan Ansari,9876573351,9 log,Panditpur,,"rasta kat gaya hai, khana nahi hai, garbhvati mahila hai",,,Neha
-225,Radha Ram,9876570874,teen,Sidhwalia,स्टेशन के पास,chhat par fase hain,,,Ravi
-226,Lalita Yadav,98765-71376,4,Bhore,,"rasta kat gaya hai, dawai chahiye",,,Sanjay
-227,सावित्री मांझी,98765 70778,about 8,Meera Chhapra,school ke paas,"ghar mein paani ghus gaya, peene ka paani nahi hai",,,Anjali
-228,Anita Rai,98765-71090,7 log,Bhore,aspatal ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe, khana nahi hai",,,Pooja (NSS)
-229,Chandan Devi,+91 98765-72973,7 log,Khanpur,,"paani badh raha hai, ek buzurg hain",,,Anjali
-230,Gita Rai,98765 73328,5,Babu Tola,station ke paas,"ghar mein paani ghus gaya, dawai chahiye",,,Anjali
-231,Shanti Chaudhary,098765 72704,8,Ansari Dumri,,"छत पर फँसे हैं, दवाई चाहिए",,,Anjali
-232,अनीता महतो,098765 71089,5-6,Nirkhi Chhapra,school ke paas,"paani badh raha hai, peene ka paani nahi hai",,,Anjali
-233,Anil Rai,98765 20010,6,Barauli,,"छत पर फँसे हैं, peene ka paani nahi hai, bachche ke liye doodh chahiye",,,Pooja (NSS)
-234,ललिता चौधरी,098765 70072,,Kalu Chhapra,स्कूल के पास,"chhat par fase hain, ek buzurg hain, bachche ke liye doodh chahiye",,,
-235,Kamla Mahto,9876570099,about 8,Panchdeuri,station ke paas,"rasta kat gaya hai, chhota bachcha hai, garbhvati mahila hai",,,Sanjay
-236,Radha Ram,+919876572182,6,तैया डुमरी,,"ghar mein paani ghus gaya, ek buzurg hain",,,Imran
-237,Asha Sah,91-98765-73387,chhe,Babu Tola,station ke paas,chhat par fase hain,,,Anjali
-238,गीता महतो,91-98765-70657,,Mirganj,station ke saamne,rasta kat gaya hai,,,Imran
-239,Arvind Kumari,+919876571376,2-3,Hathua,,"rasta kat gaya hai, garbhvati mahila hai",,,Sanjay
-240,Rekha Prasad,098765 70333,5,Katiya,hospital ke paas,"chhat par fase hain, ek buzurg hain",,,Imran
-241,प्रकाश पासवान,098765 70681,,Mirganj,railway station ke paas,"छत पर फँसे हैं, bachche ke liye doodh chahiye",,,Ravi
-242,Umesh Singh,919877000000,4,Harpur,,"ghar ke andar fase hain, bahar nahi nikal pa rahe, peene ka paani nahi hai",,,Pooja (NSS)
-243,Rekha Manjhi,+919876572150,5,Barasra,school ke paas,ghar mein paani ghus gaya,,,Anjali
-244,Phoolmati Rai,+91 98765-70910,3,Sidhwalia,स्टेशन के पास,"ghar mein paani ghus gaya, chhota bachcha hai, khana nahi hai",,,Pooja (NSS)
-245,Kishori Kumari,9876571040,5,Barasra,school ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe",,,Sanjay
-246,Munna Paswan,098765 72615,8 log,Unchkagaon,,"rasta kat gaya hai, garbhvati mahila hai, peene ka paani nahi hai",,,Imran
-247,Phoolmati Paswan,098765 71782,,Kalu Chhapra,,saare log ek kamre mein band hain,,,
-248,Shanti Chaudhary,91-98765-70684,4-5,Kuchaikote,station ke paas,"ghar mein paani ghus gaya, ek buzurg hain",,,Imran
-249,Asha Kushwaha,098765 70779,6,Katia,aspatal ke peeche,छत पर फँसे हैं,,,Pooja (NSS)
-250,Shivnath Paswan,098765 71016,,Babu Tola,station ke paas,"छत पर फँसे हैं, दवाई चाहिए",,,
-251,Bhola Manjhi,98765-71466,3,,,"hum log fase hain, jaldi aaiye",,,Imran
-252,Jagdish Yadav,98765 70477,about 7,Babutola,station ke paas,"paani badh raha hai, ek buzurg hain, chhota bachcha hai",,,Pooja (NSS)
-253,किशोरी यादव,+91 98765-70628,,Hathuwa,hospital ke saamne,"ghar mein paani ghus gaya, khana nahi hai",,,Ravi
-254,Vijay Sah,+91 98765-70256,,Manjha,station ke bagal mein,"rasta kat gaya hai, bachche ke liye doodh chahiye",,,
-255,Manoj Manjhi,98765-72986,5,Ansari Dumri,,"ghar ke andar fase hain, bahar nahi nikal pa rahe, peene ka paani nahi hai",,,Imran
-256,Kamla Rai,+919876570602,2-3,Mirganj,station ke saamne,paani badh raha hai,,,Pooja (NSS)
-257,Umesh Ram,+919876570094,4-5,Kalu Chapra,school ke peeche,"chhat par fase hain, दवाई चाहिए, garbhvati mahila hai",,,Ravi
-258,Radha Ram,91-98765-70874,2-3,Sidhwalia,स्टेशन के पास,chhat par fase hain,,,Pooja (NSS)
-259,Phoolmati Rai,98765 71083,3,Nirkhi Chhapra,school ke paas,"rasta kat gaya hai, peene ka paani nahi hai",,,
-260,Munna Sah,91-98765-70192,5,Mirganj,railway station ke paas,"rasta kat gaya hai, दवाई चाहिए",,,Ravi
-261,Dinesh Devi,98765 71078,7-8,Kuchaikote,station ke paas,"chhat par fase hain, bachche ke liye doodh chahiye",,,Pooja (NSS)
-262,Rekha Ansari,98765 71617,,Uchkagaon,,ghar ke sab log chhat par hain,,,Pooja (NSS)
-263,Phoolmati Manjhi,98765 70345,5-6,Panchdeori,station ke paas,"ghar mein paani ghus gaya, garbhvati mahila hai, chhota bachcha hai",,,
-264,Kamla Yadav,98765-72647,7,तैया डुमरी,,"ghar mein paani ghus gaya, garbhvati mahila hai, bachche ke liye doodh chahiye",,,
-265,अनिल अंसारी,098765 70981,7 log,Bhore,hospital ke saamne,"ghar ke andar fase hain, bahar nahi nikal pa rahe, peene ka paani nahi hai",,,
-266,Sunita Yadav,98765 70685,5-6,Phulwaria,aspatal ke bagal mein,"छत पर फँसे हैं, ek buzurg hain",,,Imran
-267,अरविंद साह,098765 70214,chhe,Barasra,school ke paas,"rasta kat gaya hai, khana nahi hai",,,
-268,Radha Ram,+91 98765-70874,3,Sidhwaliya,स्टेशन के पास,chhat par fase hain,,,
-269,Hari Ansari,+919876572889,aath,Nautan,,"rasta kat gaya hai, chhota bachcha hai",,,Neha
-270,Phoolmati Rai,098765 70910,3,Sidhwalia,स्टेशन के पास,"ghar mein paani ghus gaya, chhota bachcha hai, khana nahi hai",,,Sanjay
-271,राधा सिंह,98765 70021,,Panchdeuri,station ke paas,"rasta kat gaya hai, दवाई चाहिए",,,Pooja (NSS)
-272,Shanti Sah,098765 73254,chhe,Lakri Nabiganj,,"ghar ke andar fase hain, bahar nahi nikal pa rahe, garbhvati mahila hai, ek buzurg hain",,,Sanjay
-273,Suresh Chaudhary,98765 70816,4,Sidhwalya,स्टेशन के पास,"ghar mein paani ghus gaya, chhota bachcha hai",,,Ravi
-274,Radha Singh,98765-70021,5,Panchdeuri,station ke paas,"rasta kat gaya hai, दवाई चाहिए",,,Anjali
-275,पुष्पा कुमारी,+91 98765-70817,5,Barauli,station ke peeche,"ghar mein paani ghus gaya, chhota bachcha hai",,,
-276,Birju Yadav,9876570052,,Nirkhi Chhapra,school ke paas,"paani badh raha hai, garbhvati mahila hai",,,
-277,Lalita Manjhi,+91 98765-70966,4,Barasra,school ke paas,"chhat par fase hain, bachche ke liye doodh chahiye, garbhvati mahila hai",,,Imran
-278,Sonu Chaudhary,9876570298,5 log,Nirkhi Chhapra,school ke paas,"paani badh raha hai, peene ka paani nahi hai",,,
-279,Savitri Mahto,+91 98765-71376,4,Dewapur,,"chhat par fase hain, दवाई चाहिए",,,Sanjay
-280,Bhola Kumari,+919876571788,,Nirkhi Chapra,,"poora parivaar phansa hai, maa-baap aur bachche",,,Pooja (NSS)
-281,Kamla Mahto,91-98765-70498,6,Nirkhi Chapra,school ke paas,"paani badh raha hai, bachche ke liye doodh chahiye",,,Anjali
-282,Anita Rai,98765-71090,about 7,Bhorey,aspatal ke paas,"ghar ke andar fase hain, bahar nahi nikal pa rahe, khana nahi hai",,,Ravi
-283,Phoolmati Singh,098765 73080,6 log,Hathua,hospital ke saamne,"rasta kat gaya hai, khana nahi hai",,,Imran
-284,Arvind Devi,+919876573100,char,Harpur,,"ghar ke andar fase hain, bahar nahi nikal pa rahe",,,Sanjay
-285,Mohan Kumari,9876520015,6,Sidhwalia,,"rasta kat gaya hai, garbhvati mahila hai",,,
-286,Savitri Sah,+919876571442,4,,,bachche aur buzurg fase hain,,,Imran
-287,Naresh Singh,098765 71508,char,Dewapur,,"ghar ke andar fase hain, bahar nahi nikal pa rahe, ek buzurg hain",01/10/2026 06:30,,Sanjay
-288,Sita Prasad,+91 98765-70718,5,Babutola,station ke paas,"rasta kat gaya hai, दवाई चाहिए",,,Anjali
-289,Manoj Kumari,+919876572338,4,Lakri Nabiganj,,"ghar ke andar fase hain, bahar nahi nikal pa rahe, दवाई चाहिए, bachche ke liye doodh chahiye",,,Neha
-290,Phoolmati Mahto,098765 71754,,Bijaipur,,saare log ek kamre mein band hain,,,Ravi
-291,कमला महतो,9876570498,6,Nirkhi Chhapra,school ke paas,"paani badh raha hai, bachche ke liye doodh chahiye",,,Ravi
-292,Meena Mahto,+919876573274,3,Nirkhi Chhapra,school ke paas,"छत पर फँसे हैं, peene ka paani nahi hai, bachche ke liye doodh chahiye",,,Sanjay
-293,Kishori Kumari,9876571102,paanch,Katia,aspatal ke peeche,"paani badh raha hai, chhota bachcha hai, garbhvati mahila hai",,,
-294,Munna Mahto,98765 70044,3,Hathua,hospital ke saamne,"chhat par fase hain, peene ka paani nahi hai, garbhvati mahila hai",,,Anjali
-295,Usha Devi,9876571836,,Harpur,,"pariwar ke sab sadasya fase hain, paani badh raha hai",,,
-296,Shanti Mahto,9.19877E+11,4-5,Bijaipur,,"छत पर फँसे हैं, dawai chahiye",,,Anjali
-297,Pushpa Kushwaha,098765 70897,5-6,Hathua,hospital ke saamne,"ghar mein paani ghus gaya, peene ka paani nahi hai, khana nahi hai",,,
-298,Arvind Sah,+919876570214,6,Barasra,school ke paas,"rasta kat gaya hai, khana nahi hai",,,Neha
-299,Sonu Kumari,+91 98765-73062,6,Khanpur,,"ghar ke andar fase hain, bahar nahi nikal pa rahe, chhota bachcha hai",,,Sanjay
-300,Shivnath Chaudhary,98765 72289,about 9,Baikunthpur,,"छत पर फँसे हैं, garbhvati mahila hai",,,Imran
+S.No,Name,Mobile No,No. of people,Village,Location/Landmark,Remarks,Time,Status,Volunteer
+1,Manoj Paswan,91-98765-71060,5,Kuchaikot,near the station,"trapped inside the house, they can't get out, no food",,,Imran
+2,Chandan Ram,+91 98765-70331,,Kalu Chhapra,next to the school,"water has entered the house, medicines needed, a newborn is there",,,Sanjay
+3,Asha Kushwaha,+919876570779,6,Katiya,behind the hospital,trapped on the roof,,,
+4,Radha Yadav,9876571131,6,Nirkhi Chhapra,near the school,"water has entered the house, a newborn is there",,,Pooja (NSS)
+5,Jagdish Manjhi,98765 71376,3,Kaalu Chhapra,,"trapped inside the house, they can't get out, an elderly man is there, need medicine",,,Sanjay
+6,Lalita Chaudhary,9876570072,8 people,Kalu Chhapra,next to the school,"stuck on the roof, an elderly man is there, milk needed for the baby",,,Imran
+7,Savitri Chaudhary,98765-71376,6,Hathuwa,,"trapped inside the house, they can't get out, an elderly man is there, a newborn is there",,,
+8,Prakash Manjhi,+919876570395,five,Nirkhi Chhapra,near the school,"the road is cut, an elderly man is there",,,Neha
+9,Bhola Paswan,098765 70020,3,Barauli,near the station,"the water is rising, medicines needed, a newborn is there",,,Sanjay
+10,Savitri Ram,98765-70368,three,Barasra,near the school,"trapped inside the house, they can't get out, a pregnant woman is there, milk needed for the baby",,,Ravi
+11,Asha Ram,+91 98765-70441,seven,Mirganj,opposite the station,"stuck on the roof, no food",,,
+12,Asha Ram,98765 70441,7,Mirganj,opposite the station,"stuck on the roof, no food",,,Anjali
+13,Vijay Mahto,91-98765-73183,4,Nawadah,,"the water is rising, milk needed for the baby",,,Sanjay
+14,Sita Mahto,098765 70934,4,Kuchaikote,opposite the railway station,"trapped inside the house, they can't get out, need medicine",,,Neha
+15,Mohan Manjhi,98765 73281,3,Baikunthpur,,"stuck on the roof, a newborn is there, milk needed for the baby",,,Sanjay
+16,Manoj Paswan,9876571060,5 people,Kuchaikote,near the station,"trapped inside the house, they can't get out, no food",,,Sanjay
+17,Jagdish Mahto,91-98765-72126,5,Khanpur,,"stuck on the roof, milk needed for the baby",,Rescued,Sanjay
+18,Phoolmati Rai,+91 98765-71083,2-3,Nirkhi Chhapra,near the school,"the road is cut, no drinking water",,,Ravi
+19,Sonu Kushwaha,98765-71376,5,Kalu Chhapra,,"the road is cut, no drinking water",,,Sanjay
+20,Santosh Ram,098765 70774,5,Sidhwaliya,near the station,"stuck on the roof, a pregnant woman is there, milk needed for the baby",,,Ravi
+21,Kishori Yadav,+91 98765-70628,5,Hathua,opposite the hospital,"water has entered the house, no food",,,Imran
+22,Vijay Sah,98765-70256,about 8,Manjha,beside the station,"the road is cut, milk needed for the baby",,,Anjali
+23,Mohan Rai,+919876573312,3 people,Nautan,,"the water is rising, medicines needed",,,Anjali
+24,Phoolmati Singh,98765-72304,6,Barouli,near the station,"trapped inside the house, they can't get out, no food",,,Sanjay
+25,Rekha Ram,098765 71983,,Phulwaria,,everyone is shut in one room,,,Imran
+26,Asha Kushwaha,9876570779,,Katia,behind the hospital,trapped on the roof,,,Sanjay
+27,Santosh Ram,98765-70774,five,Sidhwalia,near the station,"stuck on the roof, a pregnant woman is there, milk needed for the baby",,,
+28,Umesh Ram,+919876570094,5 people,Kalu Chhapra,behind the school,"stuck on the roof, medicines needed, a pregnant woman is there",,,
+29,Rekha Prasad,98765-70333,five,Katiya,near the hospital,"stuck on the roof, an elderly man is there",,,
+30,Pappu Manjhi,098765 72131,4,Bijaipur,,"the water is rising, need medicine",,,Ravi
+31,Phoolmati Chaudhary,098765 72777,4,Harpur,,"water has entered the house, a pregnant woman is there, milk needed for the baby",,,Sanjay
+32,Arvind Manjhi,9876571646,,Manjha,,"all the family members are trapped, the water is rising",,,Ravi
+33,Lakhan Ram,098765 70372,,Hathua,near the hospital,"water has entered the house, a newborn is there",,,Anjali
+34,Munna Ram,98765 70861,,Kuchaikote,near the station,"water has entered the house, milk needed for the baby",,,Ravi
+35,Vijay Prasad,98765 72047,four,Lakri Nabiganj,,trapped on the roof,,✓,Ravi
+36,Sunita Mahto,098765 72470,5,Lakri Nabiganj,,"trapped on the roof, a newborn is there, no food",,,Pooja (NSS)
+37,Shanti Prasad,+91 98765-72128,5,Khanpur,,"the road is cut, a newborn is there, medicines needed",,,Neha
+38,Dinesh Prasad,98765-71055,7 people,Nirkhi Chapra,near the school,"trapped inside the house, they can't get out, no drinking water",,,Sanjay
+39,Umesh Prasad,098765 73029,9 people,Ansari Dumri,,"trapped on the roof, no drinking water, milk needed for the baby",,,Anjali
+40,Jagdish Yadav,+91 98765-70477,6-7,Babu Tola,near the station,"the water is rising, an elderly man is there, a newborn is there",,,Neha
+41,Suresh Ansari,9876573339,four,Dewapur,,"trapped inside the house, they can't get out, medicines needed",,,Sanjay
+42,Chandan Singh,9876572098,two,Lakri Nabiganj,,"trapped on the roof, no drinking water",,✓,
+43,Sonu Ansari,91-98765-70175,5 people,Fulwaria,near the hospital,"trapped inside the house, they can't get out, need medicine",,,Ravi
+44,Shivnath Paswan,098765 71016,5 people,Babu Tola,near the station,"trapped on the roof, medicines needed",,,Pooja (NSS)
+45,Munna Yadav,+91 98765-72379,five,Katiya,near the hospital,"trapped inside the house, they can't get out",,,Anjali
+46,Sonu Ansari,98765 70175,5,Phulwaria,near the hospital,"trapped inside the house, they can't get out, need medicine",,,Ravi
+47,Sonu Kumari,919877000000,3,Hathua,near the hospital,"trapped on the roof, an elderly man is there",,,Imran
+48,Chandan Ram,+919876570331,5 people,Kalu Chapra,next to the school,"water has entered the house, medicines needed, a newborn is there",,,Neha
+49,Gita Ansari,98765 70775,eight,Manja,beside the station,"trapped inside the house, they can't get out, no drinking water",,,Neha
+50,Dinesh Ansari,91-98765-73204,7 people,Nautan,,"water has entered the house, need medicine",,,Anjali
+51,Sita Mahto,098765 70934,,Kuchaikote,opposite the railway station,"trapped inside the house, they can't get out, need medicine",,,Anjali
+52,Babloo Kumari,98765-70854,four,Panchdeuri,near the station,trapped on the roof,,,
+53,Vijay Mahto,+91 98765-70221,7,Phulwaria,near the hospital,"the water is rising, an elderly man is there, a newborn is there",,,Imran
+54,Umesh Devi,9.19877E+11,five,Taiya Dumri,,"trapped on the roof, no food, an elderly man is there",,,Pooja (NSS)
+55,Lalita Sah,+919876571580,,Meerganj,,everyone in the house is on the roof,,,Imran
+56,Dinesh Ram,+919876572208,4-5,Hathua,near the hospital,"stuck on the roof, an elderly man is there",,,
+57,Mohan Ram,98765 70533,five,Babu Tola,near the station,"stuck on the roof, no drinking water",,,
+58,Lakhan Kushwaha,98765-73114,six,Nirkhi Chhapra,near the school,"trapped on the roof, a pregnant woman is there",,,Ravi
+59,Asha Mahto,919877000000,3,Nawada,,"the water is rising, a pregnant woman is there",,,Sanjay
+60,Kishori Manjhi,098765 71852,,Nirkhi Chhapra,,"we are all trapped here, no help has come",,,Anjali
+61,Kishori Kumari,9.19877E+11,5,Katiya,behind the hospital,"the water is rising, a newborn is there, a pregnant woman is there",,,Neha
+62,Suresh Singh,+91 98765-72786,7,Mira Chhapra,near the school,"stuck on the roof, no drinking water, an elderly man is there",,,Sanjay
+63,Ramji Paswan,91-98765-72367,5,Babutola,near the station,"trapped inside the house, they can't get out, milk needed for the baby",,,Imran
+64,Sita Prasad,98765-70718,,Babutola,near the station,"the road is cut, medicines needed",,,Sanjay
+65,Rekha Devi,91-98765-71997,2-3,Harpur,,"the road is cut, milk needed for the baby",,✓,Ravi
+66,Anil Ansari,98765-70981,7,Bhore,opposite the hospital,"trapped inside the house, they can't get out, no drinking water",,,Imran
+67,Sunita Rai,9876572155,7,Ansari Dumri,,"the road is cut, a newborn is there",,,Anjali
+68,Dinesh Prasad,+91 98765-71055,,Nirkhi Chhapra,near the school,"trapped inside the house, they can't get out, no drinking water",,,Sanjay
+69,Manoj Kumari,098765 72335,5,Dewapur,,"the road is cut, medicines needed",,,Anjali
+70,Shanti Chaudhary,91-98765-70684,,Kuchaykote,near the station,"water has entered the house, an elderly man is there",,,
+71,Shivnath Kushwaha,98765-71955,,Kuchaykote,,"we are all trapped here, no help has come",,,Neha
+72,Pushpa Kushwaha,9876570897,6,Hathuwa,opposite the hospital,"water has entered the house, no drinking water, no food",,,Anjali
+73,Radha Yadav,9.19877E+11,6,Nirkhi Chhapra,near the school,"water has entered the house, a newborn is there",,,Imran
+74,Hari Manjhi,9876572836,6-7,Nawadah,,"the road is cut, a newborn is there, no drinking water",,,Ravi
+75,Radha Manjhi,098765 70026,,Bhore,near the hospital,"the road is cut, no drinking water",,,Imran
+76,Anil Manjhi,098765 71472,4,,,"we are trapped, please come quickly",,,Ravi
+77,Lalita Manjhi,098765 70966,3-4,Barasra,near the school,"stuck on the roof, milk needed for the baby, a pregnant woman is there",,,Pooja (NSS)
+78,Chandan Kumari,91-98765-71159,7,Sidhwalia,next to the station,the water is rising,,,Anjali
+79,Gita Chaudhary,+91 98765-72674,2,Baikunthpur,,"trapped inside the house, they can't get out, milk needed for the baby",,,Imran
+80,Anita Kushwaha,9876572554,9,Harpur,,"the road is cut, medicines needed",,,Sanjay
+81,Ramesh Das,098765 71394,4-5,Meera Chhapra,near the school,the road is cut,,,Anjali
+82,Phoolmati Kushwaha,9876571726,,Bhore,,everyone is shut in one room,,,Sanjay
+83,Jagdish Devi,9876570423,5,Bhore,near the hospital,"stuck on the roof, need medicine",,,Neha
+84,Hari Ansari,91-98765-72592,seven,Nirkhi Chhapra,near the school,"the water is rising, no food",,,
+85,Munna Ram,+919876570861,six,Kuchaikote,near the station,"water has entered the house, milk needed for the baby",,,Ravi
+86,Lalita Paswan,9876570308,about 7,Nirkhi Chhapra,near the school,"stuck on the roof, no drinking water, milk needed for the baby",,,Ravi
+87,Sonu Sah,98765-72323,6,Pandeetpur,,"stuck on the roof, an elderly man is there, no drinking water",,,Imran
+88,Manoj Paswan,91-98765-71060,4-5,Kuchaikote,near the station,"trapped inside the house, they can't get out, no food",,,Imran
+89,Radha Manjhi,91-98765-70026,7,Bhore,near the hospital,"the road is cut, no drinking water",,,Sanjay
+90,Kamla Yadav,91-98765-72075,5,Harpur,,"trapped inside the house, they can't get out, medicines needed",,✓,Ravi
+91,Gita Rai,+919876573067,8,Sidhwalia,near the station,"the road is cut, milk needed for the baby",,,Ravi
+92,Hari Prasad,+919876570143,,Kalu Chhapra,behind the school,"water has entered the house, an elderly man is there",,,Sanjay
+93,Sita Mahto,98765-70934,4 people,Kuchaikote,opposite the railway station,"trapped inside the house, they can't get out, need medicine",,,Neha
+94,Pappu Manjhi,+919876571681,,Nawadah,,everyone in the house is on the roof,,,Neha
+95,Dinesh Yadav,+91 98765-72497,about 7,Sidhwalia,next to the station,"the road is cut, no drinking water",,,Sanjay
+96,Dinesh Devi,98765-72175,7,Barauli,behind the station,"trapped inside the house, they can't get out",,,Neha
+97,Chandan Sah,9876570293,6,Nirkhi Chhapra,near the school,"the road is cut, need medicine",,,Neha
+98,Rajesh Das,+91 98765-71425,4-5,Mira Chhapra,near the school,"water has entered the house, medicines needed",,,Sanjay
+99,Hari Prasad,98765 70143,6,Kalu Chhapra,behind the school,"water has entered the house, an elderly man is there",,,Sanjay
+100,Jagdish Devi,98765-70423,five,Bhore,near the hospital,"stuck on the roof, need medicine",,,
+101,Meena Kushwaha,98765 72720,5,Meera Chhapra,opposite the school,"trapped inside the house, they can't get out, a pregnant woman is there",,,Neha
+102,Savitri Manjhi,098765 70778,7-8,Meera Chhapra,near the school,"water has entered the house, no drinking water",,,Pooja (NSS)
+103,Dinesh Devi,98765 71078,7-8,Kuchaykote,near the station,"stuck on the roof, milk needed for the baby",,,Sanjay
+104,Anita Rai,98765-71090,seven,Bhorey,near the hospital,"trapped inside the house, they can't get out, no food",,,Sanjay
+105,Chandan Sah,9876571722,,Harpur,,everyone in the house is on the roof,,,Ravi
+106,Anil Ansari,91-98765-70981,about 7,Bhore,opposite the hospital,"trapped inside the house, they can't get out, no drinking water",,,
+107,Naresh Ansari,98765 73133,5 people,Nirkhi Chhapra,near the school,trapped on the roof,,,Anjali
+108,Pappu Kushwaha,+91 98765-73152,three,Sidhwalia,near the station,"the road is cut, an elderly man is there",,,Imran
+109,Kamla Rai,98765-70602,2-3,Mirganj,opposite the station,the water is rising,,,Neha
+110,Pushpa Kushwaha,+919876570897,,Hathua,opposite the hospital,"water has entered the house, no drinking water, no food",,,Imran
+111,Sunita Devi,919877000000,4 people,Taiya Dumri,,"trapped on the roof, an elderly man is there",,,Anjali
+112,Mohan Ram,+91 98765-70533,5,Babu Tola,near the station,"stuck on the roof, no drinking water",,,
+113,Chandan Sah,91-98765-70293,,Nirkhi Chapra,near the school,"the road is cut, need medicine",,,
+114,Gita Rai,+919876573420,6 people,Bhorey,opposite the hospital,"the road is cut, an elderly man is there",,,Neha
+115,Suresh Chaudhary,9876570816,4,Sidhwalia,next to the station,"water has entered the house, a newborn is there",,,Anjali
+116,Meena Sah,098765 70503,four,Babutola,near the station,"the road is cut, medicines needed, no drinking water",,,Sanjay
+117,Pappu Mahto,9876573031,7 people,Taiya Dumri,,"the water is rising, milk needed for the baby, medicines needed",,,Ravi
+118,Munna Sah,98765 70192,,Mirgunj,near the railway station,"the road is cut, medicines needed",,,Anjali
+119,Lalita Paswan,9876570308,,Nirkhi Chhapra,near the school,"stuck on the roof, no drinking water, milk needed for the baby",,,Anjali
+120,Lakhan Rai,+91 98765-72248,five,Kalu Chhapra,next to the school,"stuck on the roof, need medicine, milk needed for the baby",,,Sanjay
+121,Phoolmati Paswan,98765-72033,five,Uchkagaon,,"trapped inside the house, they can't get out, medicines needed",,DONE,Ravi
+122,Pushpa Kumari,98765 70817,4-5,Baraulee,behind the station,"water has entered the house, a newborn is there",,,Sanjay
+123,Munna Mahto,098765 70044,3 people,Hathua,opposite the hospital,"stuck on the roof, no drinking water, a pregnant woman is there",,,Neha
+124,Vijay Yadav,9876572954,about 8,Dewapur,,"trapped on the roof, a newborn is there, need medicine",,,Imran
+125,Lakhan Singh,91-98765-70565,4-5,Manjha,near the station,"stuck on the roof, no food, need medicine",,,Anjali
+126,Babloo Chaudhary,9876572640,8,Ansari Dumri,,"stuck on the roof, need medicine",,,Imran
+127,Kamla Mahto,98765-70099,eight,Panchdeori,near the station,"the road is cut, a newborn is there, a pregnant woman is there",,,Neha
+128,Jagdish Singh,9876572181,3,Taiya Dumri,,"trapped on the roof, a pregnant woman is there",,,Imran
+129,Anita Mahto,+919876571089,6,Nirkhi Chhapra,near the school,"the water is rising, no drinking water",,,Sanjay
+130,Sunita Ram,+91 98765-71376,3 people,Dewapur,,"trapped inside the house, they can't get out, a pregnant woman is there, need medicine",,,
+131,Lakhan Ram,098765 70372,3 people,Hathuwa,near the hospital,"water has entered the house, a newborn is there",,,Pooja (NSS)
+132,Kamla Chaudhary,98765-70726,4,Sidhwalia,near the station,"the water is rising, an elderly man is there",,,Anjali
+133,Shivnath Paswan,98765 72263,6-7,Nawadah,,"trapped on the roof, a pregnant woman is there",,,Anjali
+134,Phoolmati Devi,9876570645,five,Kuchaikote,near the station,"trapped inside the house, they can't get out, need medicine, no food",,,
+135,Pushpa Prasad,9876573165,eight,Harpur,,"the water is rising, a newborn is there",,,Pooja (NSS)
+136,Prakash Mahto,098765 72915,2-3,Meera Chhapra,opposite the school,water has entered the house,,,
+137,Munna Singh,098765 72041,four,Baikunthpur,,"water has entered the house, no drinking water",,✓,Pooja (NSS)
+138,Prakash Manjhi,+91 98765-70395,,Nirkhi Chapra,near the school,"the road is cut, an elderly man is there",,,Pooja (NSS)
+139,Dinesh Rai,98765-70699,six,Babutola,near the station,"trapped inside the house, they can't get out, need medicine, an elderly man is there",,,Ravi
+140,Suresh Kushwaha,98765-72565,5,Panchdeuri,near the station,the water is rising,,,
+141,Radha Kumari,9.19877E+11,four,Dewapur,,"trapped inside the house, they can't get out, need medicine, a newborn is there",,,Imran
+142,Phoolmati Devi,+91 98765-70645,5,Kuchaikote,near the station,"trapped inside the house, they can't get out, need medicine, no food",,,Pooja (NSS)
+143,Kishori Kumari,098765 71040,5 people,Barasra,near the school,"trapped inside the house, they can't get out",,,Sanjay
+144,Naresh Chaudhary,91-98765-72064,3-4,Taiya Dumri,,"water has entered the house, no food, a newborn is there",,done,Ravi
+145,Babloo Kumari,98765-70854,four,Panchdeuri,near the station,trapped on the roof,,,Imran
+146,Gita Prasad,91-98765-70696,8,Katiya,behind the hospital,"the road is cut, an elderly man is there",,,Pooja (NSS)
+147,Gita Ansari,098765 70775,,Manja,beside the station,"trapped inside the house, they can't get out, no drinking water",,,Sanjay
+148,Sita Kumari,098765 72743,3 people,Nirkhi Chhapra,near the school,"the water is rising, milk needed for the baby",,,Sanjay
+149,Naresh Devi,919877000000,4 people,Khanpur,,"trapped inside the house, they can't get out, milk needed for the baby",,,Ravi
+150,Birju Devi,+91 98765-72415,4-5,Khanpur,,"the road is cut, medicines needed",,,Imran
+151,Dinesh Devi,+91 98765-71078,,Kuchaikot,near the station,"stuck on the roof, milk needed for the baby",,,Neha
+152,Lalita Ansari,9.19877E+11,four,Lakri Nabiganj,,"the road is cut, no food",,,Pooja (NSS)
+153,Lakhan Singh,91-98765-70565,5,Manja,near the station,"stuck on the roof, no food, need medicine",,,Sanjay
+154,Lalita Singh,91-98765-71521,3-4,Taiya Dumri,,"the road is cut, a pregnant woman is there",02/10/2026 21:10,,Ravi
+155,Sonu Kumari,098765 71117,3,Hathua,near the hospital,"trapped on the roof, an elderly man is there",,,Sanjay
+156,Shivnath Paswan,91-98765-71016,,Babutola,near the station,"trapped on the roof, medicines needed",,,Sanjay
+157,Lalita Yadav,098765 20030,5,Nawadah,,"the road is cut, medicines needed",,,
+158,Dinesh Prasad,98765-71055,7,Nirkhi Chhapra,near the school,"trapped inside the house, they can't get out, no drinking water",,,Neha
+159,Pushpa Singh,98765 70010,seven,Phulwaria,beside the hospital,"trapped on the roof, no food",,,Imran
+160,Prakash Paswan,98765-70681,5-6,Mirganj,near the railway station,"trapped on the roof, milk needed for the baby",,,Imran
+161,Gita Mahto,+91 98765-70657,6,Mirganj,opposite the station,the road is cut,,,Anjali
+162,Dinesh Rai,098765 70699,,Babutola,near the station,"trapped inside the house, they can't get out, need medicine, an elderly man is there",,,Anjali
+163,Usha Kumari,9876572509,8,Manjha,near the station,"trapped on the roof, no food",,,Anjali
+164,Radha Ram,98765-70330,about 7,Hathua,near the hospital,"the water is rising, no drinking water, medicines needed",,,Anjali
+165,Babloo Kumari,+91 98765-70854,,Panchdeori,near the station,trapped on the roof,,,
+166,Asha Ansari,98765-70306,four,Manjha,near the station,"the water is rising, need medicine",,,Imran
+167,Vijay Mahto,098765 70221,7 people,Phulwaria,near the hospital,"the water is rising, an elderly man is there, a newborn is there",,,Neha
+168,Gita Kumari,98765-70120,7 people,Hathua,near the hospital,water has entered the house,,,Anjali
+169,Gita Kumari,9876570120,seven,Hathua,near the hospital,water has entered the house,,,Pooja (NSS)
+170,Sita Ram,9876571376,6,Bhore,,the road is cut,,,Pooja (NSS)
+171,Naresh Mahto,9.19877E+11,6,Ansari Dumri,,stuck on the roof,,,
+172,Vijay Ansari,+91 98765-71550,3,Harpur,,"stuck on the roof, milk needed for the baby",03/10 11:20,,Anjali
+173,Arvind Singh,98765-71887,,Nirkhi Chhapra,,"the whole family is trapped, parents and children",,,Neha
+174,Meena Sah,98765 71919,,Lakri Nabiganj,,everyone in the house is on the roof,,,Neha
+175,Arvind Sah,91-98765-72822,about 8,Ansari Dumri,,"the road is cut, no drinking water",,,Pooja (NSS)
+176,Lalita Manjhi,91-98765-70966,4,Barasra,near the school,"stuck on the roof, milk needed for the baby, a pregnant woman is there",,,Neha
+177,Gita Manjhi,9.19877E+11,six,Nawadah,,"trapped inside the house, they can't get out, no drinking water",,,Neha
+178,Phoolmati Rai,9876571083,,Nirkhi Chapra,near the school,"the road is cut, no drinking water",,,Sanjay
+179,Ramji Rai,91-98765-72948,3,Barasra,near the school,"the road is cut, need medicine, medicines needed",,,Pooja (NSS)
+180,Anita Mahto,98765-71089,6 people,Nirkhi Chapra,near the school,"the water is rising, no drinking water",,,Anjali
+181,Pushpa Kumari,9876570817,5 people,Baraulee,behind the station,"water has entered the house, a newborn is there",,,Neha
+182,Phoolmati Manjhi,+91 98765-70345,,Panchdeuri,near the station,"water has entered the house, a pregnant woman is there, a newborn is there",,,Neha
+183,Naresh Ram,91-98765-72697,3-4,Lakri Nabiganj,,"trapped inside the house, they can't get out",,,Imran
+184,Hari Mahto,098765 73131,7,Bijaipur,,"trapped inside the house, they can't get out",,,Ravi
+185,Shivnath Devi,9876570701,about 8,Nirkhi Chhapra,near the school,stuck on the roof,,,Ravi
+186,Shivnath Devi,91-98765-70701,,Nirkhi Chhapra,near the school,stuck on the roof,,,
+187,Kishori Kumari,+91 98765-71040,5,Barasra,near the school,"trapped inside the house, they can't get out",,,Sanjay
+188,Pushpa Ram,+919876572235,six,Panditpur,,"stuck on the roof, a pregnant woman is there, no drinking water",,,
+189,Shivnath Mahto,98765 73022,2 people,Bijaipur,,"the water is rising, no food",,,Sanjay
+190,Phoolmati Rai,91-98765-70910,3,Sidhwalia,next to the station,"water has entered the house, a newborn is there, no food",,,Sanjay
+191,Sita Rai,+91 98765-71708,,Katiya,,"the whole family is trapped, parents and children",,,Sanjay
+192,Lakhan Ram,9876570757,4-5,Bhore,opposite the hospital,"the water is rising, no drinking water",,,
+193,Chandan Yadav,+919876573179,3,Baraulee,behind the station,"stuck on the roof, medicines needed",,,
+194,Meena Sah,+91 98765-70503,4,Babu Tola,near the station,"the road is cut, medicines needed, no drinking water",,,Ravi
+195,Sonu Chaudhary,98765 70298,4-5,Nirkhi Chhapra,near the school,"the water is rising, no drinking water",,,Ravi
+196,Kamla Chaudhary,91-98765-70726,4,Sidhwaliya,near the station,"the water is rising, an elderly man is there",,,Sanjay
+197,Munna Mahto,+919876572521,6,Panditpur,,"water has entered the house, no food, an elderly man is there",,,Imran
+198,Radha Ram,98765-70330,7,Hathuwa,near the hospital,"the water is rising, no drinking water, medicines needed",,,Neha
+199,Umesh Devi,098765 72613,5,Barauli,near the station,"the water is rising, no drinking water",,,
+200,Prakash Devi,9876570482,about 8,Panchdeuri,near the station,"the water is rising, medicines needed",,,Neha
+201,Dinesh Yadav,9876571804,,Nawadah,,"we are all trapped here, no help has come",,,
+202,Santosh Kushwaha,+919876571929,,Harpur,,everyone in the house is on the roof,,,Pooja (NSS)
+203,Usha Mahto,+91 98765-72290,4 people,Taiya Dumri,,"trapped on the roof, no drinking water, need medicine",,,Sanjay
+204,Bhola Paswan,098765 70020,3,Barouli,near the station,"the water is rising, medicines needed, a newborn is there",,,
+205,Kamla Prasad,+919876572573,5,Hathua,opposite the hospital,water has entered the house,,,
+206,Gita Prasad,91-98765-70696,8 people,Katiya,behind the hospital,"the road is cut, an elderly man is there",,,
+207,Chandan Kumari,919877000000,7,Sidhwalia,next to the station,the water is rising,,,Neha
+208,Naresh Prasad,+91-98765-20013,7,Manjha,,"the water is rising, a newborn is there",,,Ravi
+209,Prakash Devi,98765 70482,8,Panchdeori,near the station,"the water is rising, medicines needed",,,Pooja (NSS)
+210,Pushpa Prasad,98765 73217,7 people,Bijaipur,,"trapped inside the house, they can't get out, medicines needed, a newborn is there",,,Anjali
+211,Suresh Chaudhary,+919876570816,4,Sidhwalia,next to the station,"water has entered the house, a newborn is there",,,Neha
+212,Radha Kumari,91-98765-72442,6,Katiya,behind the hospital,"stuck on the roof, need medicine, no food",,,Anjali
+213,Kamla Manjhi,+919876572860,seven,Panditpur,,"stuck on the roof, a newborn is there, milk needed for the baby",,,
+214,Sunita Yadav,91-98765-70685,,Phulwariya,beside the hospital,"trapped on the roof, an elderly man is there",,,Sanjay
+215,Pushpa Singh,91-98765-70010,6-7,Phulwaria,beside the hospital,"trapped on the roof, no food",,,
+216,Pushpa Rai,+919876571977,,Bhore,,"the whole family is trapped, parents and children",,,Neha
+217,Munna Ram,+91 98765-70861,,Kuchaikote,near the station,"water has entered the house, milk needed for the baby",,,Neha
+218,Birju Yadav,+91 98765-70052,3,Nirkhi Chhapra,near the school,"the water is rising, a pregnant woman is there",,,
+219,Lalita Sah,+91 98765-72486,about 9,Baikunthpur,,"stuck on the roof, medicines needed",,,
+220,Asha Ansari,+91 98765-70306,4,Manjha,near the station,"the water is rising, need medicine",,,Sanjay
+221,Savitri Manjhi,98765 70778,,Meera Chhapra,near the school,"water has entered the house, no drinking water",,,Imran
+222,Savitri Ram,98765-70368,three,Barasra,near the school,"trapped inside the house, they can't get out, a pregnant woman is there, milk needed for the baby",,,Neha
+223,Lakhan Ram,+919876570757,5,Bhore,opposite the hospital,"the water is rising, no drinking water",,,Neha
+224,Chandan Ansari,9876573351,9 people,Panditpur,,"the road is cut, no food, a pregnant woman is there",,,Neha
+225,Radha Ram,9876570874,three,Sidhwalia,next to the station,stuck on the roof,,,Ravi
+226,Lalita Yadav,98765-71376,4,Bhore,,"the road is cut, need medicine",,,Sanjay
+227,Savitri Manjhi,98765 70778,about 8,Meera Chhapra,near the school,"water has entered the house, no drinking water",,,Anjali
+228,Anita Rai,98765-71090,7 people,Bhore,near the hospital,"trapped inside the house, they can't get out, no food",,,Pooja (NSS)
+229,Chandan Devi,+91 98765-72973,7 people,Khanpur,,"the water is rising, an elderly man is there",,,Anjali
+230,Gita Rai,98765 73328,5,Babu Tola,near the station,"water has entered the house, need medicine",,,Anjali
+231,Shanti Chaudhary,098765 72704,8,Ansari Dumri,,"trapped on the roof, medicines needed",,,Anjali
+232,Anita Mahto,098765 71089,5-6,Nirkhi Chhapra,near the school,"the water is rising, no drinking water",,,Anjali
+233,Anil Rai,98765 20010,6,Barauli,,"trapped on the roof, no drinking water, milk needed for the baby",,,Pooja (NSS)
+234,Lalita Chaudhary,098765 70072,,Kalu Chhapra,next to the school,"stuck on the roof, an elderly man is there, milk needed for the baby",,,
+235,Kamla Mahto,9876570099,about 8,Panchdeuri,near the station,"the road is cut, a newborn is there, a pregnant woman is there",,,Sanjay
+236,Radha Ram,+919876572182,6,Taiya Dumri,,"water has entered the house, an elderly man is there",,,Imran
+237,Asha Sah,91-98765-73387,six,Babu Tola,near the station,stuck on the roof,,,Anjali
+238,Gita Mahto,91-98765-70657,,Mirganj,opposite the station,the road is cut,,,Imran
+239,Arvind Kumari,+919876571376,2-3,Hathua,,"the road is cut, a pregnant woman is there",,,Sanjay
+240,Rekha Prasad,098765 70333,5,Katiya,near the hospital,"stuck on the roof, an elderly man is there",,,Imran
+241,Prakash Paswan,098765 70681,,Mirganj,near the railway station,"trapped on the roof, milk needed for the baby",,,Ravi
+242,Umesh Singh,919877000000,4,Harpur,,"trapped inside the house, they can't get out, no drinking water",,,Pooja (NSS)
+243,Rekha Manjhi,+919876572150,5,Barasra,near the school,water has entered the house,,,Anjali
+244,Phoolmati Rai,+91 98765-70910,3,Sidhwalia,next to the station,"water has entered the house, a newborn is there, no food",,,Pooja (NSS)
+245,Kishori Kumari,9876571040,5,Barasra,near the school,"trapped inside the house, they can't get out",,,Sanjay
+246,Munna Paswan,098765 72615,8 people,Unchkagaon,,"the road is cut, a pregnant woman is there, no drinking water",,,Imran
+247,Phoolmati Paswan,098765 71782,,Kalu Chhapra,,everyone is shut in one room,,,
+248,Shanti Chaudhary,91-98765-70684,4-5,Kuchaikote,near the station,"water has entered the house, an elderly man is there",,,Imran
+249,Asha Kushwaha,098765 70779,6,Katia,behind the hospital,trapped on the roof,,,Pooja (NSS)
+250,Shivnath Paswan,098765 71016,,Babu Tola,near the station,"trapped on the roof, medicines needed",,,
+251,Bhola Manjhi,98765-71466,3,,,"we are trapped, please come quickly",,,Imran
+252,Jagdish Yadav,98765 70477,about 7,Babutola,near the station,"the water is rising, an elderly man is there, a newborn is there",,,Pooja (NSS)
+253,Kishori Yadav,+91 98765-70628,,Hathuwa,opposite the hospital,"water has entered the house, no food",,,Ravi
+254,Vijay Sah,+91 98765-70256,,Manjha,beside the station,"the road is cut, milk needed for the baby",,,
+255,Manoj Manjhi,98765-72986,5,Ansari Dumri,,"trapped inside the house, they can't get out, no drinking water",,,Imran
+256,Kamla Rai,+919876570602,2-3,Mirganj,opposite the station,the water is rising,,,Pooja (NSS)
+257,Umesh Ram,+919876570094,4-5,Kalu Chapra,behind the school,"stuck on the roof, medicines needed, a pregnant woman is there",,,Ravi
+258,Radha Ram,91-98765-70874,2-3,Sidhwalia,next to the station,stuck on the roof,,,Pooja (NSS)
+259,Phoolmati Rai,98765 71083,3,Nirkhi Chhapra,near the school,"the road is cut, no drinking water",,,
+260,Munna Sah,91-98765-70192,5,Mirganj,near the railway station,"the road is cut, medicines needed",,,Ravi
+261,Dinesh Devi,98765 71078,7-8,Kuchaikote,near the station,"stuck on the roof, milk needed for the baby",,,Pooja (NSS)
+262,Rekha Ansari,98765 71617,,Uchkagaon,,everyone in the house is on the roof,,,Pooja (NSS)
+263,Phoolmati Manjhi,98765 70345,5-6,Panchdeori,near the station,"water has entered the house, a pregnant woman is there, a newborn is there",,,
+264,Kamla Yadav,98765-72647,7,Taiya Dumri,,"water has entered the house, a pregnant woman is there, milk needed for the baby",,,
+265,Anil Ansari,098765 70981,7 people,Bhore,opposite the hospital,"trapped inside the house, they can't get out, no drinking water",,,
+266,Sunita Yadav,98765 70685,5-6,Phulwaria,beside the hospital,"trapped on the roof, an elderly man is there",,,Imran
+267,Arvind Sah,098765 70214,six,Barasra,near the school,"the road is cut, no food",,,
+268,Radha Ram,+91 98765-70874,3,Sidhwaliya,next to the station,stuck on the roof,,,
+269,Hari Ansari,+919876572889,eight,Nautan,,"the road is cut, a newborn is there",,,Neha
+270,Phoolmati Rai,098765 70910,3,Sidhwalia,next to the station,"water has entered the house, a newborn is there, no food",,,Sanjay
+271,Radha Singh,98765 70021,,Panchdeuri,near the station,"the road is cut, medicines needed",,,Pooja (NSS)
+272,Shanti Sah,098765 73254,six,Lakri Nabiganj,,"trapped inside the house, they can't get out, a pregnant woman is there, an elderly man is there",,,Sanjay
+273,Suresh Chaudhary,98765 70816,4,Sidhwalya,next to the station,"water has entered the house, a newborn is there",,,Ravi
+274,Radha Singh,98765-70021,5,Panchdeuri,near the station,"the road is cut, medicines needed",,,Anjali
+275,Pushpa Kumari,+91 98765-70817,5,Barauli,behind the station,"water has entered the house, a newborn is there",,,
+276,Birju Yadav,9876570052,,Nirkhi Chhapra,near the school,"the water is rising, a pregnant woman is there",,,
+277,Lalita Manjhi,+91 98765-70966,4,Barasra,near the school,"stuck on the roof, milk needed for the baby, a pregnant woman is there",,,Imran
+278,Sonu Chaudhary,9876570298,5 people,Nirkhi Chhapra,near the school,"the water is rising, no drinking water",,,
+279,Savitri Mahto,+91 98765-71376,4,Dewapur,,"stuck on the roof, medicines needed",,,Sanjay
+280,Bhola Kumari,+919876571788,,Nirkhi Chapra,,"the whole family is trapped, parents and children",,,Pooja (NSS)
+281,Kamla Mahto,91-98765-70498,6,Nirkhi Chapra,near the school,"the water is rising, milk needed for the baby",,,Anjali
+282,Anita Rai,98765-71090,about 7,Bhorey,near the hospital,"trapped inside the house, they can't get out, no food",,,Ravi
+283,Phoolmati Singh,098765 73080,6 people,Hathua,opposite the hospital,"the road is cut, no food",,,Imran
+284,Arvind Devi,+919876573100,four,Harpur,,"trapped inside the house, they can't get out",,,Sanjay
+285,Mohan Kumari,9876520015,6,Sidhwalia,,"the road is cut, a pregnant woman is there",,,
+286,Savitri Sah,+919876571442,4,,,children and elderly people are trapped,,,Imran
+287,Naresh Singh,098765 71508,four,Dewapur,,"trapped inside the house, they can't get out, an elderly man is there",01/10/2026 06:30,,Sanjay
+288,Sita Prasad,+91 98765-70718,5,Babutola,near the station,"the road is cut, medicines needed",,,Anjali
+289,Manoj Kumari,+919876572338,4,Lakri Nabiganj,,"trapped inside the house, they can't get out, medicines needed, milk needed for the baby",,,Neha
+290,Phoolmati Mahto,098765 71754,,Bijaipur,,everyone is shut in one room,,,Ravi
+291,Kamla Mahto,9876570498,6,Nirkhi Chhapra,near the school,"the water is rising, milk needed for the baby",,,Ravi
+292,Meena Mahto,+919876573274,3,Nirkhi Chhapra,near the school,"trapped on the roof, no drinking water, milk needed for the baby",,,Sanjay
+293,Kishori Kumari,9876571102,five,Katia,behind the hospital,"the water is rising, a newborn is there, a pregnant woman is there",,,
+294,Munna Mahto,98765 70044,3,Hathua,opposite the hospital,"stuck on the roof, no drinking water, a pregnant woman is there",,,Anjali
+295,Usha Devi,9876571836,,Harpur,,"all the family members are trapped, the water is rising",,,
+296,Shanti Mahto,9.19877E+11,4-5,Bijaipur,,"trapped on the roof, need medicine",,,Anjali
+297,Pushpa Kushwaha,098765 70897,5-6,Hathua,opposite the hospital,"water has entered the house, no drinking water, no food",,,
+298,Arvind Sah,+919876570214,6,Barasra,near the school,"the road is cut, no food",,,Neha
+299,Sonu Kumari,+91 98765-73062,6,Khanpur,,"trapped inside the house, they can't get out, a newborn is there",,,Sanjay
+300,Shivnath Chaudhary,98765 72289,about 9,Baikunthpur,,"trapped on the roof, a pregnant woman is there",,,Imran

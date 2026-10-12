@@ -1,6 +1,6 @@
 "use client";
 
-// Field pieces for the responder app: big type, buttons ≥ 64 px in the bottom third, Hindi + English labels,
+// Field pieces for the responder app: big type, buttons ≥ 64 px in the bottom third, English labels,
 // and the tap status line ("Saved on phone → Sent 02:32") with its 10-second Undo.
 
 import { useEffect, useState } from "react";

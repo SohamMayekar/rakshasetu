@@ -10,8 +10,8 @@ export type RescueBody = {
   outcome?: "nobody_here" | "couldnt_reach" | "other" | null; reason?: string | null;
 };
 
-const REASONS: [string, string][] = [["water_current", "Water or current · पानी/बहाव"], ["road_bridge", "Road or bridge · सड़क/पुल"],
-                                     ["night", "Night · रात"], ["other", "Other · अन्य"]];
+const REASONS: [string, string][] = [["water_current", "Water or current"], ["road_bridge", "Road or bridge"],
+                                     ["night", "Night"], ["other", "Other"]];
 
 export function RescueSheet({ reported, onRecord, big = true }: {
   reported: number | null; onRecord: (body: RescueBody, label: string) => void; big?: boolean;
@@ -24,7 +24,7 @@ export function RescueSheet({ reported, onRecord, big = true }: {
   return (
     <div className="space-y-4">
       <div>
-        <p className={big ? "text-lg font-medium" : "text-sm font-medium"}>How many people did you take? · कितने लोगों को निकाला?</p>
+        <p className={big ? "text-lg font-medium" : "text-sm font-medium"}>How many people did you take?</p>
         <div className="mt-2 flex items-center gap-3">
           <button className={`${btn()} !w-20`} onClick={() => setTaken(Math.max(0, taken - 1))} aria-label="One fewer">−</button>
           <span className={`tabular ${big ? "text-5xl" : "text-3xl"} w-20 text-center font-semibold`} aria-live="polite">{taken}</span>
@@ -33,24 +33,24 @@ export function RescueSheet({ reported, onRecord, big = true }: {
         {reported != null && <p className="mt-1 text-sm text-ink-2">Reported: {reported}</p>}
       </div>
       <div>
-        <p className={big ? "text-lg font-medium" : "text-sm font-medium"}>Is anyone still there? · क्या कोई अभी भी वहाँ है?</p>
+        <p className={big ? "text-lg font-medium" : "text-sm font-medium"}>Is anyone still there?</p>
         <div className="mt-2 grid grid-cols-3 gap-2">
-          <button className={btn(true)} onClick={() => onRecord({ people_taken: taken, anyone_left: "no" }, `Rescued ${taken} · nobody left`)}>No · नहीं</button>
-          <button className={btn()} onClick={() => onRecord({ people_taken: taken, anyone_left: "yes" }, `Took ${taken} · someone still there`)}>Yes · हाँ</button>
+          <button className={btn(true)} onClick={() => onRecord({ people_taken: taken, anyone_left: "no" }, `Rescued ${taken} · nobody left`)}>No</button>
+          <button className={btn()} onClick={() => onRecord({ people_taken: taken, anyone_left: "yes" }, `Took ${taken} · someone still there`)}>Yes</button>
           <button className={btn()} onClick={() => onRecord({ people_taken: taken, anyone_left: "dont_know" }, `Took ${taken} · don't know`)}>Don&rsquo;t know</button>
         </div>
       </div>
       <details className="text-sm">
         <summary className="cursor-pointer select-none py-2 underline underline-offset-4">Couldn&rsquo;t do it?</summary>
         <div className="mt-2 space-y-2">
-          <button className={btn()} onClick={() => onRecord({ outcome: "nobody_here" }, "Nobody here")}>Nobody here · कोई नहीं मिला</button>
-          <button className={btn()} onClick={() => setMore(more === "reach" ? null : "reach")}>Couldn&rsquo;t reach · पहुँच नहीं सके</button>
+          <button className={btn()} onClick={() => onRecord({ outcome: "nobody_here" }, "Nobody here")}>Nobody here</button>
+          <button className={btn()} onClick={() => setMore(more === "reach" ? null : "reach")}>Couldn&rsquo;t reach</button>
           {more === "reach" && (
             <div className="grid grid-cols-2 gap-2">
               {REASONS.map(([k, label]) => <button key={k} className={btn()} onClick={() => onRecord({ outcome: "couldnt_reach", reason: k }, `Couldn't reach · ${label.split(" · ")[0]}`)}>{label}</button>)}
             </div>
           )}
-          <button className={btn()} onClick={() => setMore(more === "other" ? null : "other")}>Other: tell officer · अधिकारी को बताएँ</button>
+          <button className={btn()} onClick={() => setMore(more === "other" ? null : "other")}>Other: tell the officer</button>
           {more === "other" && (
             <form className="space-y-2" onSubmit={(e) => { e.preventDefault(); onRecord({ outcome: "other", reason: String(new FormData(e.currentTarget).get("reason")) }, "Told the officer"); }}>
               <textarea name="reason" required minLength={3} rows={3} placeholder="What should the officer know?" className="w-full rounded-xl border border-line p-3" />

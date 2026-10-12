@@ -30,16 +30,16 @@ PARTNER = "surge-generator"
 
 # Real places from the committed BR gazetteer, with a landmark that resolves to a Medium pin there (m31), and
 # district-level places for the thin packs (they have no gazetteer: those cases are honest "district only").
-BR = [("Kalu Chhapra", "school ke paas", "school"), ("Bhore", "aspatal ke paas", "hospital"),
-      ("Katiya", "aspatal ke peeche", "hospital"), ("Barauli", "station ke paas", "railway_station"),
-      ("Mirganj", "station ke paas", "railway_station"), ("Kuchaikote", "station ke paas", "railway_station"),
-      ("Meera Chhapra", "school ke paas", "school"), ("Hathua", "hospital ke saamne", "hospital"),
+BR = [("Kalu Chhapra", "near the school", "school"), ("Bhore", "near the hospital", "hospital"),
+      ("Katiya", "behind the hospital", "hospital"), ("Barauli", "near the station", "railway_station"),
+      ("Mirganj", "near the station", "railway_station"), ("Kuchaikote", "near the station", "railway_station"),
+      ("Meera Chhapra", "near the school", "school"), ("Hathua", "opposite the hospital", "hospital"),
       ("Uchkagaon", None, None), ("Dewapur", None, None), ("Nawadah", None, None), ("Nautan", None, None)]
 THIN = {"OD": ["Jagatsinghpur", "Kendrapara", "Puri"], "HP": ["Kullu", "Mandi"]}
-SITUATIONS = [("trapped_on_roof", "chhat par fase hain"), ("water_entering", "ghar mein paani ghus gaya"),
-              ("trapped_inside", "ghar ke andar fase hain"), ("cut_off", "rasta kat gaya hai")]
-NEEDS = [("medicine", "dawai chahiye"), ("food", "khana nahi hai"), ("drinking_water", "peene ka paani nahi"), (None, None)]
-VULN = [("elderly", "ek buzurg hain"), ("child", "bachche hain"), (None, None), (None, None)]
+SITUATIONS = [("trapped_on_roof", "stuck on the roof"), ("water_entering", "water has entered the house"),
+              ("trapped_inside", "trapped inside the house"), ("cut_off", "the road is cut")]
+NEEDS = [("medicine", "they need medicine"), ("food", "no food"), ("drinking_water", "no drinking water"), (None, None)]
+VULN = [("elderly", "an elderly man is with them"), ("child", "children are there"), (None, None), (None, None)]
 # Synthetic names (most real reports name the family; a repeat report names the same one). 40 × 12 = 480
 # combinations, so two different families in one village sometimes share a name, as they do in life.
 GIVEN = ["Ramesh", "Suresh", "Mahesh", "Dinesh", "Rajesh", "Mukesh", "Umesh", "Ganesh", "Rakesh", "Naresh",
@@ -56,24 +56,26 @@ def household(rng: random.Random, n: int) -> dict:
     need, need_q = rng.choice(NEEDS)
     vul, vul_q = rng.choice(VULN)
     name = f"{rng.choice(GIVEN)} {rng.choice(FAMILY)}" if rng.random() < 0.85 else None
-    name_q = f"{name} ka parivaar" if name else None
-    count_q = f"{people} log"
+    name_q = f"{name}'s family" if name else None
+    count_q = f"{people} people"
     if incident == "BR":
         village, lm_q, lm_type = rng.choice(BR)
-        lead = f"{village} gaon mein" + (f", {lm_q}" if lm_q else "")
+        lead = f"in {village} village" + (f", {lm_q}" if lm_q else "")
         district = None
     else:
         village, lm_q, lm_type, district = None, None, None, rng.choice(THIN[incident])
-        lead = f"{district} zila mein"
-    text = ", ".join(x for x in [name_q, lead, f"{count_q} {sit_q}", need_q, vul_q] if x)
-    ex = {"language": "hi", "people_count": {"value": people, "kind": "stated", "quote": count_q},
+        lead = f"in {district} district"
+    lead = f"{name_q} is {lead}" if name_q else lead[0].upper() + lead[1:]
+    sep = " " if sit.startswith("trapped") else ", "     # "6 people stuck on the roof" · "6 people, the road is cut"
+    text = ", ".join(x for x in [lead, f"{count_q}{sep}{sit_q}", need_q, vul_q] if x)
+    ex = {"language": "en", "people_count": {"value": people, "kind": "stated", "quote": count_q},
           "hazards": [{"type": sit, "quote": sit_q}],
           "needs": [{"type": need, "quote": need_q}] if need else [],
           "vulnerable": [{"type": vul, "quote": vul_q}] if vul else [],
           "location": {"village_or_locality": {"original": village, "latin": village, "quote": village} if village else None,
                        "district": district, "state": None,
                        "landmarks": [{"type": lm_type, "name": None, "relation": "near", "quote": lm_q}] if lm_type else []},
-          "person_names": [{"name": name, "quote": name_q}] if name else [], "callback_phone": None, "reporter_on_site": None}
+          "person_names": [{"name": name, "quote": name}] if name else [], "callback_phone": None, "reporter_on_site": None}
     return {"incident": incident, "text": text, "structured": ex, "phone": f"+9199{n:08d}"}
 
 
@@ -109,7 +111,7 @@ async def main() -> None:
             key = f"surge-{run}-{i}"
             body = json.dumps({"schema_version": "1", "idempotency_key": key, "channel": "partner",
                                "incident_hint": h["incident"], "reporter": {"phone": h["phone"], "relation": "unknown"},
-                               "content": {"text": h["text"], "language": "hi"}, "structured": h["structured"],
+                               "content": {"text": h["text"], "language": "en"}, "structured": h["structured"],
                                "source": {"system": "surge.py", "simulated": True}}, ensure_ascii=False).encode()
             ts = str(int(time.time()))
             t0 = time.perf_counter()
