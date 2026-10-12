@@ -1,0 +1,10 @@
+# metrics · the promise bar and the integrity check
+
+- **The promise bar** (`GET /v1/metrics/promises?incident=`, polled every 2 s by the desk; desks see their districts, the SEOC viewer the whole incident):
+  - **Never lost · provenance:** "40 reports = 40 cases + 0 merged + 0 to check + 0 without a home · oldest waiting 4 s". Each report sits in exactly one bucket (the first report of its case · a further report folded into a case · a report nobody could read into a case · a report still in the pipeline), so **it adds up by construction**, and the test checks each number against its own query.
+  - **Never doubled · uncertainty:** merged (merges not undone) · to check (open likely duplicates) · refused.
+  - **Never stale · responsibility:** P1 without an owner for more than 5 min · contact overdue ("owned but overdue" counts against this promise).
+- **A number inverts (ink chip) only when its promise is broken** — a report without a home for 2 min, a likely duplicate undecided for 15 min, any P1 unowned past 5 min, any overdue contact — never because it is large. Clicking "to check", "P1 without owner" or "contact overdue" filters Needs you now to exactly those rows.
+- **After a reset:** 0 P1 without owner, 0 contact overdue (seeded P1s start owned and checked; PRD E22, tested).
+- **`GET /v1/integrity`:** invariants that must always hold — no report without a case after 2 min, no live case without a report, no merged case without a target, no "owned" case without a live assignment, no live assignment on a closed case, never two live owners, no dead jobs, every evidence file still matching its hash, the audit chain verifying. It returns `{"problems": 0, ...}` or names each problem ("1 case(s) marked as owned with no live assignment"). Every rehearsal should end with Verify ✓ and integrity = 0.
+- **Deviation:** the PRD's contract lists `metrics.promises` as a computed WebSocket message every 2 s; the desk polls the endpoint every 2 s instead (same numbers, one query per desk, nothing for the hub to compute per subscriber).

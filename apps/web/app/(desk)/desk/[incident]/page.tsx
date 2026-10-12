@@ -9,6 +9,7 @@ import { use, useCallback, useEffect, useMemo, useState } from "react";
 import { CaseMap } from "@/components/desk/CaseMap";
 import { Drawer, type Picked } from "@/components/desk/Drawer";
 import { Header } from "@/components/desk/Header";
+import { PromiseBar, type QueueFilter } from "@/components/desk/PromiseBar";
 import { NeedsYouNow } from "@/components/desk/NeedsYouNow";
 import { ImportSheet } from "@/components/desk/ImportSheet";
 import { NewReport } from "@/components/desk/NewReport";
@@ -19,6 +20,13 @@ import { type Envelope, useLive } from "@/lib/live";
 import type { Queue, QueueRow } from "@/lib/queue";
 
 const CLOSED = new Set(["merged", "cancelled"]);
+
+function matches(r: QueueRow, f: QueueFilter): boolean {
+  if (f === "p1_unowned") return r.priority === "P1" && !!r.chip && (r.chip.startsWith("no owner") || r.chip.includes("P1 without an owner"));
+  if (f === "overdue") return !!r.chip?.startsWith("contact overdue");
+  if (f === "duplicates") return r.action.kind === "match";
+  return true;
+}
 
 function caseIds(events: Envelope[]): number[] {
   const ids = new Set<number>();
@@ -48,6 +56,7 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [escalations, setEscalations] = useState<Escalation[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [filter, setFilter] = useState<QueueFilter>(null);
   const loadQueue = useCallback(() => {
     api<Escalation[]>(`/v1/escalations?incident=${encodeURIComponent(incident)}`).then(setEscalations).catch(() => setEscalations([]));
     api<Queue>(`/v1/queue?incident=${encodeURIComponent(incident)}`).then(setQueue).catch(() => {});
@@ -128,6 +137,7 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
   return (
     <div className="flex h-screen flex-col">
       <Header me={me} incident={incident} live={live} />
+      {me?.permissions.includes("totals.view") && <PromiseBar incident={incident} onFilter={setFilter} />}
       <div className="flex min-h-0 flex-1">
         <nav className="flex w-full shrink-0 flex-col border-r border-line md:w-[380px]" aria-label="Needs you now">
           {me?.permissions.includes("report.submit") && (
@@ -144,7 +154,13 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
           <Escalations items={escalations} publicIds={(id) => cases.get(id)?.public_id}
                        onOpenCase={(id) => { setSelected(id); setFocus("Assignment"); setComposing(false); setImporting(null); }}
                        onChanged={loadQueue} />
-          <NeedsYouNow queue={queue} selected={selected} onSelect={(id) => { if (id < 0) { setImporting({ id: -id, filter: "waiting" }); return; } setSelected(id); setFocus(null); setComposing(false); setImporting(null); }} onAction={onAction} />
+          {filter && (
+            <p className="flex items-center justify-between bg-wash px-4 py-1.5 text-xs">
+              <span>Showing {{ p1_unowned: "P1 without an owner", overdue: "contact overdue", duplicates: "likely duplicates" }[filter]}</span>
+              <button className="underline underline-offset-2" onClick={() => setFilter(null)}>Show all</button>
+            </p>
+          )}
+          <NeedsYouNow key={filter ?? "all"} queue={queue && filter ? { ...queue, rows: queue.rows.filter((r) => matches(r, filter)) } : queue} selected={selected} onSelect={(id) => { if (id < 0) { setImporting({ id: -id, filter: "waiting" }); return; } setSelected(id); setFocus(null); setComposing(false); setImporting(null); }} onAction={onAction} />
         </nav>
         <main className="relative hidden min-w-0 flex-1 md:block">
           <CaseMap cases={open} selected={selected} dim={dim} onSelect={(id) => { if (!picking) { setSelected(id); setComposing(false); } }}

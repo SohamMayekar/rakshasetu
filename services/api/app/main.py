@@ -19,6 +19,7 @@ from app.modules.escalations.router import router as escalations_router
 from app.modules.evidence.router import router as evidence_router
 from app.modules.imports.router import router as imports_router
 from app.modules.intake.router import router as intake_router
+from app.modules.metrics.router import router as metrics_router
 from app.modules.public.router import router as public_router
 from app.modules.queue.router import router as queue_router
 from app.modules.realtime.hub import hub
@@ -61,6 +62,7 @@ def create_app() -> FastAPI:
     app.include_router(intake_router)
     app.include_router(imports_router)
     app.include_router(merges_router)
+    app.include_router(metrics_router)
     app.include_router(public_router)
     app.include_router(queue_router)
     app.include_router(demo_router)

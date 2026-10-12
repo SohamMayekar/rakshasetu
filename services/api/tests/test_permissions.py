@@ -56,7 +56,7 @@ ENDPOINTS = [
     ("report.submit", "POST", "/v1/ingest/desk", {"incident": "BR", "text": "6 log chhat par", "client_id": "perm-0001"},
      "priya", "seoc", None),
     # case.status_public: anyone with the case number, no login (tests/test_status_page.py).
-    ("totals.view", "GET", "/v1/metrics/promises?incident=BR", None, "seoc", "boat5", "m47"),
+    ("totals.view", "GET", "/v1/metrics/promises?incident=BR", None, "seoc", "boat5", None),
     ("case.check", "POST", "/v1/cases/BR-151/check", {}, "priya", "seoc", None),
     ("case.move_pin", "PATCH", "/v1/cases/BR-151/location", {"lat": 26.44, "lng": 84.40, "reason": "caller confirmed"},
      "priya", "seoc", None),

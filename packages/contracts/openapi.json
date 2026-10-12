@@ -3006,6 +3006,29 @@
         ]
       }
     },
+    "/v1/integrity": {
+      "get": {
+        "operationId": "integrity_check_v1_integrity_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Integrity Check V1 Integrity Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Integrity Check",
+        "tags": [
+          "metrics"
+        ]
+      }
+    },
     "/v1/me": {
       "get": {
         "operationId": "me_v1_me_get",
@@ -3285,6 +3308,50 @@
         "summary": "Undo",
         "tags": [
           "merges"
+        ]
+      }
+    },
+    "/v1/metrics/promises": {
+      "get": {
+        "operationId": "promise_bar_v1_metrics_promises_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "incident",
+            "required": true,
+            "schema": {
+              "title": "Incident",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Promise Bar V1 Metrics Promises Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Promise Bar",
+        "tags": [
+          "metrics"
         ]
       }
     },

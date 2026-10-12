@@ -209,6 +209,11 @@ def seed_owners(conn: Connection, root: Path, loaded: dict) -> int:
             if not options:
                 continue
             team = conn.execute(text("SELECT * FROM teams WHERE id = :t"), {"t": options[0]["team_id"]}).one()
+            if c.checked_at is None:   # in the seeded story the desk checked these before dispatching them
+                first = conn.execute(text("SELECT id FROM reports WHERE case_id = :c ORDER BY id LIMIT 1"), {"c": c.id}).scalar()
+                _mark_checked(conn, first, pack.get("checker_id"))
+                c = conn.execute(text("SELECT c.*, ST_Y(c.geom::geometry) AS lat, ST_X(c.geom::geometry) AS lng"
+                                      " FROM cases c WHERE c.id = :c"), {"c": c.id}).one()
             create(conn, case=c, team=team, actor=SYSTEM, phase="acknowledged", eta_minutes=30,
                    due_s=rng.randint(15, 45) * 60)
             owned += 1
