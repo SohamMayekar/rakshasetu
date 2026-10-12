@@ -15,10 +15,11 @@ def seeded(owner_db):
     return seed(TEST_OWNER_DB), owner_db
 
 
-def test_three_incidents_and_their_districts(seeded):
+def test_four_incidents_and_their_districts(seeded):
     summary, eng = seeded
-    assert summary["incidents"] == 3
-    assert {r[0] for r in q(eng, "SELECT code FROM incidents")} == {"BR", "OD", "HP"}
+    assert summary["incidents"] == 4
+    assert {r[0] for r in q(eng, "SELECT code FROM incidents")} == {"BR", "OD", "HP", "MH"}
+    assert q(eng, "SELECT count(*) FROM districts WHERE incident_id = (SELECT id FROM incidents WHERE code='MH')")[0][0] == 2
     assert q(eng, "SELECT count(*) FROM districts WHERE incident_id = (SELECT id FROM incidents WHERE code='BR')")[0][0] == 2
 
 

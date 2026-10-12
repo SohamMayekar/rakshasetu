@@ -1,0 +1,13 @@
+# MH · the live pack. Districts and coordinates are real OpenStreetMap features (ODbL, © OpenStreetMap contributors),
+# taken from the openstreetmap.fr Maharashtra extract of 12 Oct 2026 (see README.md). People and phones are synthetic.
+code: MH
+name: Mumbai floods, Oct 2026
+type: flood
+states: [Maharashtra]
+language: hi
+status: active
+center: [19.068603, 72.876583]          # Kurla West, by the Mithi river (the demo neighbourhood)
+next_case_number: 151
+districts:
+  - {name: Mumbai Suburban, osm: Mumbai Suburban District, state: Maharashtra, centroid: [19.140252, 72.879945]}   # the live desk's district
+  - {name: Mumbai City,     osm: Mumbai City District,     state: Maharashtra, centroid: [18.987925, 72.83888]}

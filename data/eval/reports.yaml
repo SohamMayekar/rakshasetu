@@ -92,7 +92,7 @@ reports:
   - text: "मेरे भाई का परिवार हथुआ में है, 6 लोग, घर में पानी भर गया है, एक बुजुर्ग बीमार हैं"
     people: 6
     hazards: [water_entering]
-    vulnerable: [elderly]
+    vulnerable: [elderly, sick]   # 'बीमार' = sick; missing from the first label
     village: Hathua
     on_site: false
 
@@ -409,3 +409,101 @@ holdout:
     people: 12
     hazards: [strong_current]
     village: Sasamusa
+
+# Mumbai (m87): reports the way Mumbai sends them — English, Hindi, Marathi, mixed. Labels written before the
+# Marathi and Mumbai words were added; the lists were then improved against them (so this set is tuned too).
+# Scored against the MH gazetteer.
+mumbai:
+  - text: "My family is in Kurla West, near the Mithi river bridge behind the Ganesh mandir. 6 people are stuck on the terrace, water has entered the house, my grandmother needs medicine."
+    people: 6
+    hazards: [trapped_on_roof, water_entering]
+    needs: [medicine]
+    vulnerable: [elderly]
+    village: Kurla West
+    landmarks: [bridge, temple]
+    on_site: false
+
+  - text: "Saki Naka mein paani ghar mein ghus gaya hai, 5 log first floor pe fase hain, ek bachcha hai"
+    people: 5
+    hazards: [water_entering, trapped_inside]
+    vulnerable: [child]
+    village: Saki Naka
+
+  - text: "आम्ही चेंबूरला अडकलो आहोत, घरात पाणी शिरले आहे, 4 जण आहोत, आजी आजारी आहे"
+    people: 4
+    hazards: [trapped_inside, water_entering]
+    vulnerable: [elderly, sick]
+    village: Chembur
+    on_site: true
+
+  - text: "Vikhroli Surya Nagar la darad kosalli, 3 lok dabun gele, lavkar madat pathva"
+    people: 3
+    hazards: [landslide, buried]
+    village: [Vikhroli, Surya Nagar]                    # Surya Nagar is the Vikhroli neighbourhood (the map has both)
+
+  - text: "Local train stuck between Kurla and Vidyavihar for 3 hours, around 200 passengers, water rising on the tracks"
+    people: 200
+    hazards: [cut_off, trapped_inside, water_rising]   # stuck inside a stopped train is trapped inside too
+    village: [Kurla, Vidya Vihar]                       # between two stations: either is right
+
+  - text: "माझे आई-वडील धारावी मध्ये आहेत, पाणी वाढत आहे, त्यांना औषध हवे आहे"
+    hazards: [water_rising]
+    needs: [medicine]
+    vulnerable: [elderly]
+    village: Dharavi
+    on_site: false
+
+  - text: "Andheri subway flooded, 2 cars stuck with 7 people inside, water up to the windows"
+    people: 7
+    hazards: [cut_off, trapped_inside]
+    village: Andheri
+
+  - text: "Jarimari mein naale ke paas 12 log chawl ki chhat pe hain, khana nahi hai, pregnant lady hai"
+    people: 12
+    hazards: [trapped_on_roof]
+    needs: [food]
+    vulnerable: [pregnant]
+    village: Jarimari
+
+  - text: "Govandi station ke saamne 20 log ruke hain, road pe kamar tak paani, bachche aur buzurg"
+    people: 20
+    hazards: [cut_off]
+    vulnerable: [child, elderly]
+    village: Govandi
+    landmarks: [railway_station]
+
+  - text: "Sion Koliwada, fishermen say 8 people on a roof near the church, strong current in the creek"
+    people: 8
+    hazards: [trapped_on_roof, strong_current]
+    village: Sion Koliwada
+    landmarks: [church]
+
+  - text: "Kalina, 3 people including a 4 month old baby trapped in a ground floor room, milk needed"
+    people: 3
+    hazards: [trapped_inside]
+    needs: [baby_supplies]
+    vulnerable: [infant]
+    village: Kalina
+
+  - text: "Ghatkopar West hill par landslide, 2 ghar gir gaye, log malbe mein dabe hain"
+    hazards: [landslide, structure_collapsed, buried]
+    village: [Ghatkopar West, Ghatkopar]
+
+  - text: "Kurla East mein hum 5 log hain, building mein paani bhar gaya hai, papa sugar ke mareez hain dawai khatam"
+    people: 5
+    hazards: [water_entering]
+    needs: [medicine]
+    vulnerable: [sick]
+    village: Kurla East
+    on_site: true
+
+  - text: "मालाड पश्चिम में 9 लोग फंसे हैं, पानी तेजी से बढ़ रहा है"
+    people: 9
+    hazards: [trapped_inside, water_rising]
+    village: [Malad West, Malad]
+
+  - text: "Wadala: elderly couple alone on 1st floor, water in the building, cannot walk, no drinking water"
+    hazards: [water_entering]
+    needs: [drinking_water]
+    vulnerable: [elderly, disabled]
+    village: Wadala

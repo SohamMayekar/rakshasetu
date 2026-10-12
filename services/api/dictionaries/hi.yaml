@@ -1,4 +1,4 @@
-# Keyword dictionary: Hindi, Hinglish (Latin script) and the English a caller mixes in (PRD §8.2).
+# Keyword dictionary: Hindi, Hinglish (Latin script), Marathi (Mumbai, m87) and the English a caller mixes in (PRD §8.2).
 # TEAM-OWNED: every member should be able to explain any line. Patterns are regular expressions matched
 # case-insensitively on the original text; the matched words become the field's quote.
 # \b doesn't work for Devanagari, so Devanagari patterns are written without it.
@@ -6,7 +6,7 @@
 language: hi
 
 # --- how many people -----------------------------------------------------------------------------
-people_nouns: '(?:log|logon|logo|jan|sadasya|members?|people|ppl|persons?|of them|of us|लोग|लोगों|सदस्य|जन)'
+people_nouns: '(?:log|logon|logo|lok|jan|sadasya|members?|people|ppl|persons?|passengers|of them|of us|लोक|जण|लोग|लोगों|सदस्य|जन)'
 number_words:
   ek: 1
   do: 2
@@ -67,33 +67,44 @@ hazards:
     - '\bon top of (?:the |our |a )?(?:roof|house|home|building|school(?: building)?|ghar)\b'
     - '\b(?:\d+ )?(?:of them )?(?:are )?on the roof'
     - 'छत\s*(?:पर|पे)[^,।]{0,25}'
+    - '\b(?:on|stuck on) (?:the |our |a )?terrace\b'
+    - '\b(?:terrace|gachchi|gacchi) (?:par|pe|var)\b'
+    - '(?:छतावर|गच्चीवर)'
   trapped_inside:
     - '\b(?:fase|phase|fanse|phanse|fasa|fase hue)\s*(?:hain|hai|hue|huye)?\b'
     - '\bghar mein band\b[^,.;]{0,30}'
     - '\b(?:trapped|stuck|can''t get out|cannot get out)\b[^,.;]{0,25}'
     - '(?:फँसे|फंसे|फसे)\s*(?:हैं|है|हुए)?'
+    - '\b(?:adakle|adkle|adakun|adkun)\b'
+    - '(?:अडकलो|अडकले|अडकून)'
   water_entering:
     - '\bpa+ni\s*(?:ghus|andar|ghar mein|ghar ke andar|bhar)\w*(?:\s*(?:gaya|aa gaya|gaya hai|raha hai|hai))?'
     - '\bpa+ni\s*(?:ghutne|kamar|gale|seene)\s*tak\b'
     - '\bwater (?:has )?(?:entered|entering|come in|is inside|inside)\w*(?: the house)?'
     - '\bwater (?:is )?(?:up to|upto) (?:the )?(?:first floor|knees?|waist|chest|neck)\b'
     - 'पानी\s*(?:घुस|अंदर|भर)\S*(?:\s*(?:गया|आ गया|गया है))?'
+    - '\bwater (?:in|inside) the (?:house|building|room|chawl)\b'
+    - '\b(?:gharat pani|pani (?:ghusla|shirla|aala))\b'
+    - '(?:घरात पाणी|पाणी (?:शिरले|घुसले|आले))'
   water_rising:
     - '\bpa+ni\s*(?:tezi se\s*)?(?:badh|chadh|upar aa)\w*\s*(?:raha|rahi)?\s*(?:hai)?'
     - '\bwater(?: level)? (?:is )?(?:rising|going up)\w*(?: fast)?'
     - '\bthe water is rising(?: fast)?'
-    - 'पानी\s*(?:बढ़|चढ़)\S*\s*(?:रहा|रही)?\s*(?:है)?'
+    - 'पानी\s*(?:तेजी से\s*)?(?:बढ़|चढ़)\S*\s*(?:रहा|रही)?\s*(?:है)?'
+    - '\bpani vadhat\b'
+    - 'पाणी\s*वाढत'
   strong_current:
     - '\b(?:tez bahav|tez dhaar|strong current|fast current)\b'
     - '\bcurrent is (?:very |too )?(?:strong|fast)\b'
   buried:
-    - '\b(?:dabe|dab gay[ae]|dab gaya|dabi|buried|malbe (?:mein|me)\w*)\b[^,.;]{0,20}'
+    - '\b(?:dabe|dab gay[ae]|dab gaya|dabi|dabun|buried|malbe (?:mein|me)\w*)\b[^,.;]{0,20}'
     - '(?:दबे|दब गया|दब गए|मलबे)\S*'
   structure_collapsed:
-    - '\b(?:imarat|ghar|makaan|building|school building)?\s*(?:gir gay[ai]|gir gaya|dhah gaya|collapsed|fell on)\b[^,.;]{0,20}'
+    - '\b(?:imarat|ghar|makaan|building|school building)?\s*(?:gir gay[aie]|gir gaya|dhah gaya|collapsed|fell on)\b[^,.;]{0,20}'
     - '(?:इमारत|मकान|घर)?\s*(?:गिर गई|गिर गया|ढह गया)'
   landslide:
-    - '\b(?:landslide|bhuskhalan|pahad khisak\w*)\b'
+    - '\b(?:landslide|bhuskhalan|pahad khisak\w*|darad kosal\w*)\b'
+    - 'दरड\s*कोसळ\S*'
     - 'भूस्खलन'
   cut_off:
     - '\b(?:rasta|raasta|sadak)\s*(?:kat|band|toot|beh)\w*(?:\s*(?:gaya|gayi|hai))*'
@@ -102,12 +113,19 @@ hazards:
     - '\bstranded\b'
     - '\bsampark toot\w*'
     - 'रास्ता\s*(?:कट|बंद)\S*'
+    - '\b(?:road|roads|street|subway|underpass) (?:is |are )?(?:under water|flooded|waterlogged|submerged)\b'
+    - '\b(?:subway|underpass) (?:is )?(?:flooded|band)\b'
+    - '\b(?:road|sadak|rasta) (?:pe|par) (?:ghutne|kamar|gale) tak pa+ni\b'
+    - '\b(?:local )?(?:train|bus) (?:is )?(?:stuck|stopped|halted|stalled)\b'
+    - '\bstalled (?:bus|train|car)\b'
 
 # --- needs -------------------------------------------------------------------------------------------
 needs:
   medicine:
     - '\b(?:dawai|dawa|davai|dawaai|medicines?)\b[^,.;]{0,25}'
     - '(?:दवाई|दवा)\S*[^,।]{0,15}'
+    - '\baushadh\b'
+    - 'औषध\S*'
   medical_urgent:
     - '\b(?:behosh|unconscious|saans nahi|can''t breathe|bleeding|khoon beh\w*|prasav pida|labour pain|heart attack)\b[^,.;]{0,20}'
     - '(?:बेहोश|सांस नहीं|साँस नहीं|खून बह)\S*'
@@ -136,6 +154,8 @@ vulnerable:
     - '\b(?:buzurg|bujurg|budhe|boodhe|elderly|old (?:man|woman|lady|mother|father|people|couple)|dadi|dada|nani|nana|grand(?:mother|father|ma|pa))\b[^,.;]{0,15}'
     - '\b(?:above|over) [6-9]\d\b(?: years)?'
     - '(?:बुज़ुर्ग|बुजुर्ग|बूढ़े)\S*'
+    - '\b(?:aaji|aajoba|ajji|ajoba)\b'
+    - '(?:आजी|आजोबा)'
   pregnant:
     - '\b(?:garbhvati|garbhwati|pregnant)\b[^,.;]{0,10}'
     - '\b(?:prasav pida|labour pain|in labou?r)\b'
@@ -147,6 +167,7 @@ vulnerable:
   sick:
     - '\b(?:bimar|beemar|sick|diabetic)\b'
     - '\b(?:sugar|bp|dil) ke (?:mareez|mariz)\b'
+    - '(?:आजारी|बीमार)'
   injured:
     - '\b(?:ghayal|injured|chot lagi|bleeding|khoon beh\w*)\b'
     - 'घायल'
@@ -166,11 +187,11 @@ landmarks:
   panchayat_bhawan: '(?:panchayat bhawan|पंचायत भवन)'
   canal: '(?:nahar|canal|नहर)'
   tower: '(?:mobile tower|tower|टावर)'
-landmark_names: '(?:durga|shiv|shiva|hanuman|kali|ram janki|ramjanki|mahavir|mahadev|thakur|devi|sita|krishna|दुर्गा|शिव|हनुमान|काली)'
+landmark_names: '(?:durga|shiv|shiva|shankar|ganesh|ganpati|vinayak|sai baba|sai|balaji|mahalaxmi|vitthal|khandoba|hanuman|kali|ram janki|ramjanki|mahavir|mahadev|thakur|devi|sita|krishna|दुर्गा|शिव|हनुमान|काली)'
 relations:
-  behind: '(?:ke peeche|ke pichhe|peeche|behind|के पीछे)'
-  near: '(?:ke paas|ke pas|paas|nazdeek|near|next to|के पास)'
-  opposite: '(?:ke saamne|saamne|opposite|के सामने)'
+  behind: '(?:ke peeche|ke pichhe|peeche|behind|maage|के पीछे|मागे)'
+  near: '(?:ke paas|ke pas|paas|nazdeek|near|next to|by the|javal|के पास|जवळ)'
+  opposite: '(?:ke saamne|saamne|opposite|samor|के सामने|समोर)'
   beside: '(?:ke bagal|bagal mein|beside|के बगल)'
   in_front: '(?:in front of|ke aage|के आगे)'
 
@@ -194,5 +215,5 @@ surnames: [Das, Kumar, Kumari, Prasad, Yadav, Singh, Devi, Sharma, Mishra, Paswa
            Thakur, Rai, Jha, Pandey, Tiwari, Gupta, Ansari, Khan, Choudhary, Manjhi]
 
 # --- who is speaking -----------------------------------------------------------------------------------
-on_site_cues: '\b(?:hum (?:log )?(?:yahan |abhi )?(?:fase|chhat)|we are (?:\d+|stuck|trapped|on the roof)|i am (?:stuck|trapped))\b|हम (?:लोग )?फँसे|हम \S+ से हैं'
-remote_cues: '\b(?:mere|meri|my|hamare|rishtedaar|relatives?|parents|maa-baap|family is|calling about)\b|मेरे|मेरी|हमारे'
+on_site_cues: '\b(?:hum (?:log )?(?:yahan |abhi )?(?:fase|chhat)|we are (?:\d+|stuck|trapped|on the roof)|i am (?:stuck|trapped))\b|\bhum \d+ (?:log|jan)\b|हम (?:लोग )?फँसे|हम \S+ से हैं|आम्ही'
+remote_cues: '\b(?:mere|meri|my|hamare|rishtedaar|relatives?|parents|maa-baap|family is|calling about|maza|mazi|majhe|maze)\b|मेरे|मेरी|हमारे|माझे|माझी|माझा'

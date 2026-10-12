@@ -25,7 +25,7 @@ from app.core.phones import protect
 from app.db import engine_for
 from app.settings import get_settings
 
-PACKS = ("BR", "OD", "HP")
+PACKS = ("BR", "OD", "HP", "MH")   # MH is the live desk; BR, the pack the API tests run against
 DEMO_PASSWORD = "rakshasetu"  # synthetic demo users only; documented in data/scenarios/users.yaml
 KEEP_TABLES = {"schema_migrations", "spatial_ref_sys"}
 

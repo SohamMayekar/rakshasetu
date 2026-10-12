@@ -1,0 +1,38 @@
+# Teams deployed for the Mumbai floods (PRD F-C4). Synthetic names for real kinds of team (NDRF pre-positions teams in
+# Mumbai each monsoon; the fire brigade, SDRF, police, Aapda Mitra volunteers and Koli fishermen's boats all do flood
+# rescue). The fire brigade's agency is the schema's "Fire & Rescue". Positions are near real places; position_age_min makes "position 20 min old" honest.
+# has_app: false = radio-only (the timer *is* the radio schedule).
+teams:
+  - {name: "NDRF Boat 2", agency: NDRF, district: Mumbai Suburban, capabilities: [boat, rope], has_app: false, radio_channel: VHF,
+     base: [19.0712, 72.8695], position_age_min: 20, max_active: 2, reserved_for_demo: true}   # the demo's radio boat: free at reset
+  - {name: "Fire Brigade Boat 5", agency: "Fire & Rescue", district: Mumbai Suburban, capabilities: [boat, medical], has_app: true, radio_channel: VHF,
+     base: [19.0745, 72.8860], position_age_min: 6, max_active: 2, reserved_for_demo: true}    # the demo phone's team: free at reset
+  - {name: "NDRF Team 5 (Andheri)", agency: NDRF, district: Mumbai Suburban, capabilities: [boat, medical, rope], has_app: true, radio_channel: satellite,
+     base: [19.1180, 72.8470], position_age_min: 35, max_active: 3}
+  - {name: "SDRF Boat 6 (Kurla)", agency: SDRF, district: Mumbai Suburban, capabilities: [boat, medical], has_app: false, radio_channel: VHF,
+     base: [19.0650, 72.8790], position_age_min: 25, max_active: 2}
+  - {name: "Fishermen boat · Sion Koliwada (radio only)", agency: Fishermen, district: Mumbai City, capabilities: [boat], has_app: false, radio_channel: phone,
+     base: [19.0405, 72.8640], position_age_min: 50, max_active: 1}
+  - {name: "Aapda Mitra team, Kurla ward", agency: "Aapda Mitra", district: Mumbai Suburban, capabilities: [rope, medical], has_app: true, radio_channel: phone,
+     base: [19.0700, 72.8800], position_age_min: 12, max_active: 2}
+  - {name: "Fire Brigade Boat 4", agency: "Fire & Rescue", district: Mumbai Suburban, capabilities: [boat], has_app: true, radio_channel: VHF,
+     base: [19.0860, 72.9080], position_age_min: 90, max_active: 2, status: out_of_service, status_reason: "Out of service · engine repair"}
+  - {name: "Police QRT Kurla", agency: Police, district: Mumbai Suburban, capabilities: [rope], has_app: true, radio_channel: VHF,
+     base: [19.0660, 72.8830], position_age_min: 15, max_active: 2}
+  - {name: "Fire Brigade Boat 7 (Chembur)", agency: "Fire & Rescue", district: Mumbai Suburban, capabilities: [boat, rope], has_app: true, radio_channel: VHF,
+     base: [19.0540, 72.8990], position_age_min: 18, max_active: 2}
+  - {name: "NDRF Team 7 (Vikhroli)", agency: NDRF, district: Mumbai Suburban, capabilities: [medical, rope], has_app: true, radio_channel: satellite,
+     base: [19.1150, 72.9290], position_age_min: 30, max_active: 3}
+  - {name: "Fire Brigade Boat 3 (Byculla)", agency: "Fire & Rescue", district: Mumbai City, capabilities: [boat, medical], has_app: false, radio_channel: VHF,
+     base: [18.9750, 72.8330], position_age_min: 40, max_active: 2}
+  - {name: "NDRF Team 9 (Wadala)", agency: NDRF, district: Mumbai City, capabilities: [boat, medical, rope], has_app: true, radio_channel: satellite,
+     base: [19.0270, 72.8760], position_age_min: 25, max_active: 3}
+  # More of the suburbs' deployed teams (a Mumbai monsoon fields dozens). Synthetic names, real places.
+  - {name: "Fire Brigade Boat 8 (Andheri)", agency: "Fire & Rescue", district: Mumbai Suburban, capabilities: [boat, rope], has_app: true, radio_channel: VHF,
+     base: [19.1160, 72.8540], position_age_min: 14, max_active: 2}
+  - {name: "Fire Brigade Boat 9 (Malad)", agency: "Fire & Rescue", district: Mumbai Suburban, capabilities: [boat], has_app: true, radio_channel: VHF,
+     base: [19.1840, 72.8410], position_age_min: 22, max_active: 2}
+  - {name: "SDRF Boat 10 (Govandi)", agency: SDRF, district: Mumbai Suburban, capabilities: [boat, medical], has_app: true, radio_channel: VHF,
+     base: [19.0530, 72.9200], position_age_min: 16, max_active: 3}
+  - {name: "NDRF Team 11 (Kalina)", agency: NDRF, district: Mumbai Suburban, capabilities: [boat, medical, rope], has_app: true, radio_channel: satellite,
+     base: [19.0790, 72.8610], position_age_min: 28, max_active: 3}

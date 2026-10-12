@@ -132,7 +132,8 @@ def to_latin(name: str) -> str:
     import unicodedata
 
     from indic_transliteration import sanscript
-    iast = sanscript.transliterate(name, sanscript.DEVANAGARI, sanscript.IAST).replace("ṃ", "n")
+    iast = sanscript.transliterate(name, sanscript.DEVANAGARI, sanscript.IAST)
+    iast = re.sub("ṃ(?=[pbm])", "m", iast).replace("ṃ", "n")   # the nasal before p/b/m is "m": चेंबूर = Chembur
     plain = "".join(ch for ch in unicodedata.normalize("NFD", iast) if unicodedata.category(ch) != "Mn")
     # Hindi drops the inherent final vowel: मीनापुर is "Minapur", not "Minapura".
     if "\u0915" <= name[-1] <= "\u0939" and plain.endswith("a"):

@@ -128,7 +128,7 @@ def test_seeded_p1s_start_owned_and_the_demo_team_starts_free(seeded, app_db):
                        " AND NOT EXISTS (SELECT 1 FROM assignments a WHERE a.case_id = c.id AND a.state = 'open')") == 0
     assert one(app_db, "SELECT min(extract(epoch FROM next_contact_due - now())) FROM assignments") > 14 * 60
     assert one(app_db, "SELECT count(*) FROM assignments a JOIN teams t ON t.id = a.team_id"
-                       " WHERE t.name = 'Fire & Rescue Boat 5'") == 0
+                       " WHERE t.name IN ('Fire & Rescue Boat 5', 'Fire Brigade Boat 5')") == 0
     assert all(r[0] for r in rows(app_db, "SELECT demo_clock = false FROM assignments"))
     assert isinstance(one(app_db, "SELECT max(created_at) FROM assignments"), datetime)
 

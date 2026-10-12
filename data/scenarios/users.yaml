@@ -3,6 +3,13 @@
 # (config/rakshasetu.config.yaml demo.sign_in_picker): rdas, boat5, admin. The others are for the permission and
 # IDOR tests, and can still sign in with a username and password (D22).
 users:
+  # Mumbai (MH), the live desk
+  - {username: spatil,   name: "S. Patil",       role: duty_officer, incidents: [MH], districts: {MH: [Mumbai Suburban]}}
+  - {username: afernandes, name: "A. Fernandes", role: call_taker,   incidents: [MH], districts: {MH: [Mumbai Suburban]}}
+  - {username: rkulkarni, name: "R. Kulkarni",   role: incharge,     incidents: [MH], districts: {MH: [Mumbai Suburban]}}
+  - {username: fb5,      name: "Lead, Fire Brigade Boat 5", role: team_lead, incidents: [MH], districts: {MH: [Mumbai Suburban]}, team: "Fire Brigade Boat 5"}
+  - {username: mitra,    name: "Lead, Aapda Mitra Kurla", role: team_lead, incidents: [MH], districts: {MH: [Mumbai Suburban]}, team: "Aapda Mitra team, Kurla ward"}
+  # Bihar (BR): the pack the API tests run against
   - {username: priya,    name: "Priya Kumari",   role: call_taker,   incidents: [BR], districts: {BR: [Gopalganj]}}
   - {username: rdas,     name: "R. Das",         role: duty_officer, incidents: [BR], districts: {BR: [Gopalganj]}}
   - {username: asinha,   name: "A. Sinha",       role: incharge,     incidents: [BR], districts: {BR: [Gopalganj]}}
@@ -10,7 +17,7 @@ users:
   - {username: spatra,   name: "S. Patra",       role: duty_officer, incidents: [OD], districts: {OD: all}}
   - {username: nthakur,  name: "N. Thakur",      role: duty_officer, incidents: [HP], districts: {HP: all}}
   - {username: seoc,     name: "SEOC Bihar (1070)", role: seoc_viewer, incidents: [BR], districts: {BR: all}}
-  - {username: admin,    name: "State admin",    role: admin,        incidents: [BR, OD, HP], districts: {BR: all, OD: all, HP: all}}
+  - {username: admin,    name: "State admin",    role: admin,        incidents: [MH, BR, OD, HP], districts: {MH: all, BR: all, OD: all, HP: all}}
   - {username: boat5,    name: "Lead, Fire & Rescue Boat 5", role: team_lead, incidents: [BR], districts: {BR: [Gopalganj]}, team: "Fire & Rescue Boat 5"}
   - {username: ndrf03,   name: "Lead, NDRF T-03",  role: team_lead, incidents: [BR], districts: {BR: [Gopalganj]}, team: "NDRF T-03 (deployed)"}
   - {username: amitra,   name: "Lead, Aapda Mitra Thawe", role: team_lead, incidents: [BR], districts: {BR: [Gopalganj]}, team: "Aapda Mitra team, Thawe block"}

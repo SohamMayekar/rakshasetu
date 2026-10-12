@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m86 (reading measured: 88% of facts found on held-out reports, 98% right) (the desk's tabs: Cases, Teams, Alerts, Sheets) (the design run, m78–m82: docs/DESIGN_AUDIT.md) (the focus run, m73–m77: about families, teams and rescues) (the simplify run, m63–m72: docs/SIMPLIFY_PLAN.md); last release m62: see docs/VERIFICATION.md
+**Current milestone:** m87 (Mumbai floods is a full pack; the demo moves to it in m88) (reading measured: 88% of facts found on held-out reports, 98% right) (the desk's tabs: Cases, Teams, Alerts, Sheets) (the design run, m78–m82: docs/DESIGN_AUDIT.md) (the focus run, m73–m77: about families, teams and rescues) (the simplify run, m63–m72: docs/SIMPLIFY_PLAN.md); last release m62: see docs/VERIFICATION.md
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -49,6 +49,7 @@
 | m62 | Release: README (run it, architecture, honesty, docs index), AI_USAGE.md (the two AI jobs; no live AI call was made here; how the build used Claude Code), docs/TEACHBACK.md (20 questions), docs/VERIFICATION.md (the stop conditions, the 9 components → demo moment → tests, T1–T10, the golden path with its screenshots, drills, DONE/NOT DONE/BLOCKED, the humans' pre-stage list), TESTS/DRILLS/MEASUREMENTS brought up to the final code | Fresh clone of the release branch in its own Docker project: make up ✓ 1 min 49 s, make seed ✓ 6.1 s, make test ✓ 415 passed, make demo-reset ✓ 5.0 s, make verify ✓ 223 events (one sandbox-only step: the proxy's CA in infra/certs/). Main stack: make e2e 37/37 in 157 s, ✓ 1,874 events verified, integrity 0; make drills 14/14 |
 | m83 | No demo page (D40): the Demo tab, the projector captions, the load and partner-log screens, and the demo-only API (scene list, clip list, partner moment, QR codes, `segno`) removed; `make demo-reset`, play-clip, the language-model switch and the surge API stay for the terminal, the tests and the drills; 'State admin' replaces 'Demo admin'; the honesty note is one line; docs/DEMO.md is the performed script | make test 418 passed (the QR test left with the QR codes; the controls test now covers the remaining endpoints); make e2e 39/39 in 141 s, reading the panel, timeline and API instead of captions; ✓ 223 events |
 | m86 | Reading measured (D43): `make read-eval` scores the word rules on 41 tuned + 20 held-out labelled reports; word lists learn 'pani', '7 of us', 'family of five', 'grandmother', 'above 70', 'bachi', 'bleeding', 'can't walk', 'water up to the knees', more place cues; address words never become the village | make test 434 passed (+12); held-out 88% found / 98% right; tuned 100% / 100%; make e2e 40/40; ✓ 223 events |
+| m87 | Mumbai floods (MH) pack (D44): real OSM gazetteer (Mumbai City + Suburban), 16 teams, 48 cases, 5 Mumbai desk users; `import_osm.py --pack` and `gen_seed_cases.py --pack`; Marathi and Mumbai words; place scan: longest name first, Marathi endings, ṃ before b/p/m | make test 441 passed (+6); read-eval: tuned 100%, held-out 91% found / 98% right, Mumbai 99% / 100%; make e2e 40/40; ✓ 402 events |
 
 ## The focus run (m73–m77) at a glance
 

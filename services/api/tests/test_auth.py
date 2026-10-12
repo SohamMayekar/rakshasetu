@@ -38,17 +38,17 @@ def test_the_picker_shows_three_profiles_and_the_other_users_still_exist(seeded,
     assert [(u["title"], u["username"], u["role"]) for u in users] == [
         ("Duty officer", "rdas", "duty_officer"), ("Rescue team", "boat5", "team_lead"), ("State admin", "admin", "admin")]
     assert users[1]["team"] == "Fire & Rescue Boat 5"
-    assert one(app_db, "SELECT count(*) FROM users") == 12
+    assert one(app_db, "SELECT count(*) FROM users") == 17
     login(client, "asinha")   # off the picker, still a real user with their own role
     assert client.get("/v1/me").json()["user"]["role"] == "incharge"
 
 
-def test_the_duty_officer_sees_only_bihar_and_the_admin_sees_all_three(seeded, client):
+def test_the_duty_officer_sees_only_bihar_and_the_admin_sees_all_four(seeded, client):
     login(client, "rdas")
     assert [i["code"] for i in client.get("/v1/me").json()["incidents"]] == ["BR"]
     client.post("/v1/auth/logout")
     login(client, "admin")
-    assert sorted(i["code"] for i in client.get("/v1/me").json()["incidents"]) == ["BR", "HP", "OD"]
+    assert sorted(i["code"] for i in client.get("/v1/me").json()["incidents"]) == ["BR", "HP", "MH", "OD"]
 
 
 def test_the_picker_is_refused_through_the_tunnel_even_on_local(seeded, client):

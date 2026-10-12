@@ -16,7 +16,7 @@ ASSAM = {"code": "AS", "name": "Assam floods, Oct 2026", "type": "flood", "state
 def test_each_incident_has_its_own_promise_bar_and_the_seoc_sees_only_its_state(seeded, client):
     login(client, "admin")
     codes = [i["code"] for i in client.get("/v1/incidents").json()]
-    assert codes == ["BR", "OD", "HP"]
+    assert codes == ["BR", "OD", "HP", "MH"]
     login(client, "seoc")
     incs = client.get("/v1/incidents").json()
     assert [i["code"] for i in incs] == ["BR"] and incs[0]["promises"]["lost"]["adds_up"]

@@ -1,7 +1,7 @@
 """How well the word rules read real-looking reports (m86): labelled messages in data/eval/reports.yaml.
 
-Two sets: `reports` (40, the lists were improved against them) and `holdout` (20, written afterwards and never
-tuned on; its score is the honest one).
+Three sets: `reports` (41, the lists were improved against them), `holdout` (20, written afterwards and never
+tuned on; its score is the honest one) and `mumbai` (15, Mumbai's English, Hindi and Marathi; scored on MH's map).
 
 The place is scored the way the pipeline finds it: the known place the words point to (fuzzy, any script), else a
 known place named anywhere in the text (the gazetteer scan, stage 1d), else the words' own place name for a
@@ -24,7 +24,7 @@ from tests.conftest import needs_db, one
 
 SETS = ("hazards", "needs", "vulnerable", "landmarks")
 ONES = ("people", "village", "phone", "on_site")
-FLOOR = {"reports": 0.97, "holdout": 0.85}   # share of labelled facts found, and of facts read that are right
+FLOOR = {"reports": 0.97, "holdout": 0.85, "mumbai": 0.90}   # share of labelled facts found, and of facts read that are right
 
 
 def _read(x, place) -> dict:
@@ -40,9 +40,9 @@ def _read(x, place) -> dict:
 
 
 @needs_db
-@pytest.mark.parametrize("which", ["reports", "holdout"])
+@pytest.mark.parametrize("which", ["reports", "holdout", "mumbai"])
 def test_read_eval(seeded, app_db, which):
-    incident = one(app_db, "SELECT id FROM incidents WHERE code = 'BR'")
+    incident = one(app_db, "SELECT id FROM incidents WHERE code = :c", c="MH" if which == "mumbai" else "BR")
     reports = yaml.safe_load((get_settings().data_dir / "eval" / "reports.yaml").read_text())[which]
     score: dict[str, Counter] = {f: Counter() for f in SETS + ONES}
     misses = []
@@ -58,9 +58,10 @@ def test_read_eval(seeded, app_db, which):
                 misses.append(f"{f:<10} want {sorted(want)} got {sorted(got[f])} · {r['text'][:70]}")
         for f in ONES:
             want = r.get(f)
-            if f == "village" and want:
-                want = norm(want)
             g = got[f]
+            if f == "village" and want:   # a label may list two right answers ("between Kurla and Vidyavihar")
+                options = [norm(w) for w in (want if isinstance(want, list) else [want])]
+                want = g if g in options else options[0]
             if want is None and g is None:
                 continue
             key = "right" if g == want else "missed" if g is None else "wrong"

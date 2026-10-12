@@ -9,3 +9,5 @@
 - **How to show it:** demo control "language model off", then type the demo line: the case appears with Rule chips. On the 48 seed texts (English since m59, D17) it matches the ground truth on headcount, hazards, needs and vulnerable people for 48/48; the Hindi demo line and the Hinglish tests still pass.
 
 - **Measured (m86):** `make read-eval` scores the rules field by field on `data/eval/reports.yaml`. Held out (never tuned on): 88% of labelled facts found, 98% of what was read is right. A held-out miss is fixed only by moving that report into the tuned set and writing a fresh held-out one.
+
+- **Marathi and Mumbai (m87):** one word list for Hindi, Hinglish, Marathi and English (callers mix them in one message): अडकलो/adakle, घरात पाणी, दरड कोसळली, आजी/आजोबा, औषध, जण/lok; terrace, chawl, flooded subway, stalled train or bus. `make read-eval` has a 15-report Mumbai set scored on the MH map: 99% found, 100% right (tuned).

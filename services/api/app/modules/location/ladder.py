@@ -27,6 +27,7 @@ from sqlalchemy import Connection, text
 from app.config import get_config
 from app.contracts import Extraction
 from app.modules.location.names import norm
+from app.pipeline.keywords import DEVANAGARI
 
 TYPE_WORD = {"temple": "temple", "mosque": "mosque", "church": "church", "gurdwara": "gurdwara",
              "place_of_worship": "place of worship", "bridge": "bridge", "school": "school", "hospital": "hospital",
@@ -94,12 +95,13 @@ def match_place(conn: Connection, incident_id: int, ex: Extraction, report_text:
     # names a district, not the town, so "<name> district/zila" is left to step 7.
     scan_text = re.sub(r"\S+\s+(?:district|zila|jila|zilla|ज़िला|जिला)", " ", report_text or "", flags=re.IGNORECASE)
     words = re.findall(r"[A-Za-z]+|[ऀ-ॿ]+", scan_text)
-    grams = [" ".join(words[i:i + n]) for n in (1, 2) for i in range(len(words) - n + 1)]
-    for p in places:
-        if len(p.name_norm) < 4:
-            continue
-        for g in grams:
-            if fuzz.ratio(norm(g), p.name_norm) >= 92:
+    # Two-word names first: "Sion Koliwada" is one place; "Koliwada" alone is many.
+    grams = [" ".join(words[i:i + n]) for n in (2, 1) for i in range(len(words) - n + 1)]
+    # Marathi joins a case ending to the name ("चेंबूरला" = to Chembur, "धारावीत" = in Dharavi): try it without.
+    grams += [w for w in (re.sub(r"(?:ला|त|मध्ये|मधे|च्या|ची|चा|हून)$", "", w) for w in words if DEVANAGARI.match(w)) if w]
+    for g in grams:   # in the order above, so the longest name said wins
+        for p in places:
+            if len(p.name_norm) >= 4 and fuzz.ratio(norm(g), p.name_norm) >= 92:
                 return p, 92
     return None, 0
 

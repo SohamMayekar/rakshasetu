@@ -1,4 +1,4 @@
-# BR · Bihar floods (the live pack)
+# BR · Bihar floods (the pack the API tests run against; the live desk is MH)
 
 **Demo village: Thawe, Gopalganj district, Bihar.** Chosen at H0–H1 from real OpenStreetMap data (PRD §21 #6).
 
