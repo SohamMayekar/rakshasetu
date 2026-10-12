@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m54 golden-path e2e, part 1 (0:00–1:45)
+**Current milestone:** m55 golden-path e2e, part 2 (1:45–3:05)
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)

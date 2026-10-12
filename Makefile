@@ -5,7 +5,7 @@ WEB := apps/web
 
 COMPOSE := docker compose -f infra/docker-compose.yml --env-file .env
 
-.PHONY: help env up down nuke ps logs smoke psql demo-sheet sheet-eval screens contracts seed demo-reset surge verify tamper provider-check keys copy-check dev-api dev-web test test-api test-web lint
+.PHONY: help env up down nuke ps logs smoke psql demo-sheet sheet-eval screens e2e contracts seed demo-reset surge verify tamper provider-check keys copy-check dev-api dev-web test test-api test-web lint
 
 help: ## List the targets
 	@grep -E '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) | awk -F':.*?## ' '{printf "  make %-12s %s\n", $$1, $$2}'
@@ -62,6 +62,8 @@ sheet-eval: ## Import the demo sheet into the TEST database and print time, outc
 screens: ## Screenshots at 1366×768 and phone: make screens OUT=docs/screens/m32 PAGES="/ui#design-system /r#reporter"
 	cd apps/web && node e2e/shoot.mjs ../../$(OUT) $(PAGES)
 
+e2e: ## The golden path (PRD §16.1) through the real screens on the running stack; resets the demo; screenshots in docs/screens/golden
+	cd apps/web && node e2e/golden.mjs
 contracts: ## Regenerate packages/contracts/openapi.json from the code
 	services/api/.venv/bin/python scripts/export_openapi.py
 
