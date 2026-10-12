@@ -49,8 +49,22 @@ def create_case(conn: Connection, *, incident_id: int, district_id: int | None, 
              summary=fields.get("summary"), flags=flags, queue_since=queue_since,
              attrs=json.dumps(fields.get("attributes", {}), ensure_ascii=False))).scalar_one()
     conn.execute(text("UPDATE reports SET case_id = :c, status = 'processed' WHERE id = :r"), {"c": case_id, "r": report_id})
+    link_report_evidence(conn, report_id=report_id, case_id=case_id, incident_id=incident_id, district_id=district_id,
+                         actor=actor)
     append_event(conn, actor=actor, action="case.created", entity_type="case", entity_id=case_id,
                  incident_id=incident_id, district_id=district_id, case_id=case_id,
                  data={"public_id": public_id, "report_id": report_id, "priority": fields.get("priority", "P4"),
                        "priority_reasons": fields.get("priority_reasons", []), "flags": flags})
     return {"case_id": case_id, "public_id": public_id, "district_id": district_id}
+
+
+def link_report_evidence(conn: Connection, *, report_id: int, case_id: int, incident_id: int, district_id: int | None,
+                         actor: Actor) -> None:
+    """Attach a report's files to its case. Each file's sha256 goes into the audit chain (rule R16), so a file
+    swapped on disk later no longer matches what history recorded."""
+    rows = conn.execute(text("UPDATE evidence SET case_id = :c WHERE report_id = :r AND case_id IS NULL"
+                             " RETURNING id, type, sha256, uri"), {"c": case_id, "r": report_id}).all()
+    for ev in rows:
+        append_event(conn, actor=actor, action="evidence.added", entity_type="evidence", entity_id=ev.id,
+                     incident_id=incident_id, district_id=district_id, case_id=case_id,
+                     data={"evidence_id": ev.id, "type": ev.type, "sha256": ev.sha256, "uri": ev.uri, "report_id": report_id})

@@ -43,6 +43,28 @@ def load_report(engine: Engine, report_id: int):
         return c.execute(text("SELECT * FROM reports WHERE id = :id"), {"id": report_id}).one_or_none()
 
 
+def transcribe(engine: Engine, report) -> tuple[str | None, dict]:
+    """Stage 1a (voice only; network, outside any transaction). Returns (transcript or None, receipt step)."""
+    from app.core import storage
+    from app.providers import stt
+    with engine.connect() as c:
+        ev = c.execute(text("SELECT sha256, meta FROM evidence WHERE report_id = :r AND type = 'audio' ORDER BY id LIMIT 1"),
+                       {"r": report.id}).one_or_none()
+    if ev is None:
+        return None, {"step": "stt", "by": "Rule", "detail": "no audio attached"}
+    wav = storage.path_for(ev.meta["wav_sha256"]).read_bytes()
+    try:
+        res = stt.transcribe(wav, float(ev.meta.get("seconds", 0)), ev.sha256)
+    except AllProvidersFailed as e:
+        return None, {"step": "stt", "by": "AI", "detail": "speech-to-text failed: " + "; ".join(
+            f"{a['provider']} {a['outcome']}" for a in e.attempts)}
+    by, label = ("Fixture", "recorded transcript (not a live STT call)") if res.provider == "fixture" \
+        else ("AI", f"{res.provider} {res.model} · {res.latency_ms / 1000:.1f} s")
+    if not res.value.text.strip():
+        return None, {"step": "stt", "by": by, "detail": f"{label}: empty transcript"}
+    return res.value.text.strip(), {"step": "stt", "by": by, "detail": label, "language": res.value.language}
+
+
 def extract(report) -> Extracted:
     """Stage 1b (network; never inside a transaction).
     Pre-structured partner/surge fields → used as given (validated). Language model on → the model's
@@ -103,9 +125,27 @@ def process_report(engine: Engine, payload: dict) -> None:
     report = load_report(engine, payload["report_id"])
     if report is None or report.case_id is not None:
         return                                            # idempotent: already processed
-    out = extract(report)
-    extraction, method, receipt = out.extraction, out.method, out.receipt
+    stt_steps: list[dict] = []
+    audio_only = False
+    if report.channel == "voice" and not report.transcript:
+        transcript, step = transcribe(engine, report)
+        stt_steps.append(step)
+        if transcript is None:
+            audio_only = True          # the clip still becomes a case: "audio only: listen", sorted as urgent
+        else:
+            with engine.begin() as conn:
+                conn.execute(text("UPDATE reports SET transcript = :t, language = :l WHERE id = :id AND transcript IS NULL"),
+                             {"t": transcript, "l": step.get("language"), "id": report.id})
+            report = load_report(engine, report.id)
+    if audio_only:
+        out = Extracted(Extraction.empty(), "rules", [])
+    else:
+        out = extract(report)
+    extraction, method, receipt = out.extraction, out.method, stt_steps + out.receipt
     fields = fields_from_extraction(extraction, method, report.id, out.amber, out.extras)
+    if audio_only:
+        fields["flags"] = ["audio_only"]
+        fields["summary"] = "audio only: listen"
     priority, reasons = triage(fields)
     fields.update(priority=priority, priority_reasons=reasons)
     receipt.append({"step": "priority", "by": "Rule", "detail": f"{priority} · {reasons[0]}"})

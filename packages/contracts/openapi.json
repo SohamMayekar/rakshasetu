@@ -1,6 +1,62 @@
 {
   "components": {
     "schemas": {
+      "Body_voice_turn_v1_public_voice_turns_post": {
+        "properties": {
+          "audio": {
+            "contentMediaType": "application/octet-stream",
+            "title": "Audio",
+            "type": "string"
+          },
+          "device_id": {
+            "maxLength": 100,
+            "minLength": 8,
+            "title": "Device Id",
+            "type": "string"
+          },
+          "incident": {
+            "default": "BR",
+            "pattern": "^[A-Z]{2,4}$",
+            "title": "Incident",
+            "type": "string"
+          },
+          "session_id": {
+            "maxLength": 100,
+            "minLength": 8,
+            "title": "Session Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "audio",
+          "device_id",
+          "session_id"
+        ],
+        "title": "Body_voice_turn_v1_public_voice_turns_post",
+        "type": "object"
+      },
+      "Callback": {
+        "properties": {
+          "device_id": {
+            "maxLength": 100,
+            "minLength": 8,
+            "title": "Device Id",
+            "type": "string"
+          },
+          "phone": {
+            "maxLength": 40,
+            "minLength": 6,
+            "title": "Phone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "device_id",
+          "phone"
+        ],
+        "title": "Callback",
+        "type": "object"
+      },
       "DeskReport": {
         "properties": {
           "client_id": {
@@ -137,6 +193,41 @@
           "on"
         ],
         "title": "Switch",
+        "type": "object"
+      },
+      "TextTurn": {
+        "properties": {
+          "device_id": {
+            "maxLength": 100,
+            "minLength": 8,
+            "title": "Device Id",
+            "type": "string"
+          },
+          "incident": {
+            "default": "BR",
+            "pattern": "^[A-Z]{2,4}$",
+            "title": "Incident",
+            "type": "string"
+          },
+          "session_id": {
+            "maxLength": 100,
+            "minLength": 8,
+            "title": "Session Id",
+            "type": "string"
+          },
+          "text": {
+            "maxLength": 2000,
+            "minLength": 2,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "device_id",
+          "session_id",
+          "text"
+        ],
+        "title": "TextTurn",
         "type": "object"
       },
       "ValidationError": {
@@ -1126,6 +1217,201 @@
         "summary": "Me",
         "tags": [
           "auth"
+        ]
+      }
+    },
+    "/v1/public/cases/{public_id}/callback": {
+      "post": {
+        "description": "After registration only, optional: 'A number we can call back?'. Only the device that reported can add\nit, and only once per report (what someone told us is never overwritten).",
+        "operationId": "add_callback_v1_public_cases__public_id__callback_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "public_id",
+            "required": true,
+            "schema": {
+              "title": "Public Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Callback"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Add Callback V1 Public Cases  Public Id  Callback Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Add Callback",
+        "tags": [
+          "public"
+        ]
+      }
+    },
+    "/v1/public/text-turns": {
+      "post": {
+        "operationId": "text_turn_v1_public_text_turns_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextTurn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Text Turn V1 Public Text Turns Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Text Turn",
+        "tags": [
+          "public"
+        ]
+      }
+    },
+    "/v1/public/turns/{report_id}": {
+      "get": {
+        "description": "Only the device that sent the report can poll it.",
+        "operationId": "turn_v1_public_turns__report_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "report_id",
+            "required": true,
+            "schema": {
+              "title": "Report Id",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "device_id",
+            "required": true,
+            "schema": {
+              "title": "Device Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Turn V1 Public Turns  Report Id  Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Turn",
+        "tags": [
+          "public"
+        ]
+      }
+    },
+    "/v1/public/voice-turns": {
+      "post": {
+        "operationId": "voice_turn_v1_public_voice_turns_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_voice_turn_v1_public_voice_turns_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Voice Turn V1 Public Voice Turns Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Voice Turn",
+        "tags": [
+          "public"
         ]
       }
     }
