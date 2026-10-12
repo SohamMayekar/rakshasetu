@@ -1,7 +1,8 @@
 "use client";
 
-// The public status page (PRD F-L3). Polls every 3 s (no WebSocket through the tunnel). Shows the step and
-// when it last changed, nothing else: no names, numbers, location, priority or ETA. "Help assigned", never
+// The public status page (PRD F-L3). Polls every 3 s (no WebSocket through the tunnel). One sentence says where
+// things stand (m70), with when it last changed; the four steps are a tap away. Nothing else: no names, numbers,
+// location, priority or ETA. "Help assigned", never
 // "help on the way": we don't know the boat is moving. When a team goes quiet, only "last update" ages.
 
 import { Clock3, Phone } from "lucide-react";
@@ -13,6 +14,15 @@ import { adoptDevice, deviceId } from "@/lib/device";
 
 type Status = { public_id: string; tracked_as: string | null; other_reports: number | null; step: string; steps: string[]; last_update_at: string;
                 check?: { people_taken: number | null; answered: string | null } | null };
+
+// One sentence per step, in the family's words. "Assigned", never "on the way": we don't know the boat is moving.
+const SENTENCE: Record<string, string> = {
+  registered: "We have your report. The control room is finding a rescue team.",
+  help_assigned: "Help assigned: a rescue team has your report.",
+  team_reached: "The rescue team has reached the place.",
+  rescued: "The rescue team says people were rescued.",
+  closed: "This case is closed.",
+};
 
 const LABEL: Record<string, string> = {
   registered: "Registered",
@@ -71,8 +81,8 @@ export default function StatusPage({ params }: { params: Promise<{ id: string }>
   const current = st.step === "closed" ? -1 : st.steps.indexOf(st.step);
   return (
     <Shell>
-      <p className="text-sm font-medium uppercase tracking-wider text-ink-3">Case</p>
-      <p className="tabular text-5xl font-semibold tracking-tight">{st.tracked_as ?? st.public_id}</p>
+      <p className="text-sm text-ink-3">Case <span className="tabular">{st.tracked_as ?? st.public_id}</span></p>
+      <p className="mt-2 text-[26px] font-semibold leading-snug tracking-tight">{SENTENCE[st.step] ?? LABEL[st.step]}</p>
       {st.tracked_as && (
         <p className="mt-3 rounded-xl bg-wash px-4 py-3 text-ink">
           Your report {st.public_id} is now tracked as <b className="tabular">{st.tracked_as}</b>, together with{" "}
@@ -80,29 +90,30 @@ export default function StatusPage({ params }: { params: Promise<{ id: string }>
         </p>
       )}
 
-      {st.step === "closed" ? (
-        <p className="mt-8 text-2xl font-medium">{LABEL.closed}</p>
-      ) : (
-        <ol className="mt-8 space-y-0" aria-label="Progress">
-          {st.steps.map((s, i) => {
-            const done = i <= current;
-            const now_ = i === current;
-            return (
-              <li key={s} className="relative flex gap-4 pb-7 last:pb-0">
-                {i < st.steps.length - 1 && (
-                  <span aria-hidden className={`absolute left-[11px] top-7 h-[calc(100%-20px)] w-0.5 ${i < current ? "bg-ink" : "bg-line"}`} />
-                )}
-                <span aria-hidden className={`mt-1 grid size-6 shrink-0 place-items-center rounded-full border-2 ${done ? "border-ink bg-ink text-paper" : "border-line bg-paper"}`}>
-                  {done && <svg viewBox="0 0 16 16" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3.5 8.5l3 3 6-7" /></svg>}
-                </span>
-                <span className={done ? "text-ink" : "text-ink-3"}>
-                  <span className={`block text-xl ${now_ ? "font-semibold" : ""}`}>{LABEL[s]}</span>
-                  {now_ && <span className="block text-ink-2">current step</span>}
-                </span>
-              </li>
-            );
-          })}
-        </ol>
+      {st.step !== "closed" && (
+        <details className="mt-6">
+          <summary className="cursor-pointer select-none text-sm text-ink-2 underline underline-offset-4">Show all steps</summary>
+          <ol className="mt-4 space-y-0" aria-label="Progress">
+            {st.steps.map((s, i) => {
+              const done = i <= current;
+              const now_ = i === current;
+              return (
+                <li key={s} className="relative flex gap-4 pb-6 last:pb-0">
+                  {i < st.steps.length - 1 && (
+                    <span aria-hidden className={`absolute left-[11px] top-7 h-[calc(100%-20px)] w-0.5 ${i < current ? "bg-ink" : "bg-line"}`} />
+                  )}
+                  <span aria-hidden className={`mt-1 grid size-6 shrink-0 place-items-center rounded-full border-2 ${done ? "border-ink bg-ink text-paper" : "border-line bg-paper"}`}>
+                    {done && <svg viewBox="0 0 16 16" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M3.5 8.5l3 3 6-7" /></svg>}
+                  </span>
+                  <span className={done ? "text-ink" : "text-ink-3"}>
+                    <span className={`block text-lg ${now_ ? "font-semibold" : ""}`}>{LABEL[s]}</span>
+                    {now_ && <span className="block text-sm text-ink-2">now</span>}
+                  </span>
+                </li>
+              );
+            })}
+          </ol>
+        </details>
       )}
 
       {st.check && <FamilyCheck id={st.tracked_as ?? st.public_id} check={st.check} />}

@@ -220,11 +220,11 @@ try {
           `trip ${n}: the team's phone shows a full-screen New case ${pid}`);
     if (n === 1) await shot(A, "09-phone-new-case");
     await A.getByRole("button", { name: "15 min" }).click();
-    check(await sent("Acknowledged · ETA 15"), `trip ${n}: acknowledged with ETA 15 (saved on the phone, 10 s to undo, then sent)`);
+    check(await sent("Accepted · ETA 15 min"), `trip ${n}: accepted, there in 15 min (saved on the phone, 10 s to undo, then sent)`);
     await A.goto(`${PUBLIC}/responder/case/${await caseId()}`);
-    await A.getByRole("button", { name: /Reached/ }).click();
+    await A.getByRole("button", { name: /reached them/ }).click();
     check(await sent("Reached"), `trip ${n}: reached`);
-    await A.getByRole("button", { name: /Record rescue/ }).click();
+    await A.getByRole("button", { name: /Record the rescue/ }).click();
     for (let i = 0; i < minus; i++) await A.getByRole("button", { name: "One fewer" }).click();
     await A.getByRole("button", { name: left ? "Yes" : "No", exact: true }).click();
     check(await sent(label), `trip ${n}: "${label}"`);

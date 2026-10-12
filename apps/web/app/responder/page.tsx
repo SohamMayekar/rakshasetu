@@ -1,7 +1,8 @@
 "use client";
 
-// The responder app (PRD F-C7): the team lead logs in as their team. "My cases" with each check-in ring; a NEW
-// assignment takes the whole screen with Acknowledge + ETA chips (one tap). New assignments arrive over the
+// The responder app (PRD F-C7): the team lead logs in as their team. "My cases", each with its check-in ring and
+// ONE big next action (m70: I've reached them · Record the rescue); a NEW assignment takes the whole screen with
+// "Accept: we'll be there in 15 / 30 / 60 min" (one tap). New assignments arrive over the
 // WebSocket with a vibration and a sound. While the app is open it says "last seen" every 10 s — display only.
 
 import { LifeBuoy } from "lucide-react";
@@ -16,6 +17,7 @@ import { api, ApiError } from "@/lib/api";
 import { useLive } from "@/lib/live";
 import { tap } from "@/lib/outbox";
 import type { MyCase, MyTeam } from "@/lib/responder";
+import { PRIORITY_WORD } from "@/lib/words";
 
 function Login({ onIn }: { onIn: () => void }) {
   const [error, setError] = useState<string | null>(null);
@@ -55,14 +57,14 @@ function NewCase({ c }: { c: MyCase }) {
       <p className="mt-2 flex items-baseline gap-3 text-4xl font-semibold tracking-tight"><Priority level={c.priority} /><span className="tabular">{c.public_id}</span></p>
       <p className="mt-4 text-2xl leading-snug">{c.summary}</p>
       <p className="mt-2 text-lg text-ink-2">{where(c)}</p>
-      {c.priority_reasons.length > 0 && <p className="mt-1 text-sm text-ink-3">{c.priority} because {c.priority_reasons.join(" · ")}</p>}
+      {c.priority_reasons.length > 0 && <p className="mt-1 text-sm text-ink-3">{PRIORITY_WORD[c.priority]} because {c.priority_reasons.join(" · ")}</p>}
       <div className="mt-auto space-y-3">
-        <p className="text-center text-sm text-ink-2">Acknowledge with your ETA</p>
+        <p className="text-center text-sm text-ink-2">Accept: we&rsquo;ll be there in</p>
         <div className="grid grid-cols-3 gap-3">
           {[15, 30, 60].map((m) => (
             <BigButton key={m} variant={m === 30 ? "primary" : "secondary"}
                        onClick={() => tap({ url: `/v1/assignments/${c.assignment_id}/acknowledge`, body: { eta_minutes: m },
-                                            label: `Acknowledged · ETA ${m}`, caseId: c.id })}>{m} min</BigButton>
+                                            label: `Accepted · ETA ${m} min`, caseId: c.id })}>{m} min</BigButton>
           ))}
         </div>
         <TapStatus caseId={c.id} />
@@ -143,23 +145,29 @@ export default function Responder() {
       )}
       <ul className="mt-6 space-y-3">
         {cases.map((c) => (
-          <li key={c.id}>
-            <a href={`/responder/case/${c.id}`} className="block rounded-[24px] bg-paper p-4 shadow-[var(--shadow-card)] active:bg-wash">
+          <li key={c.id} className="rounded-[24px] bg-paper p-4 shadow-[var(--shadow-card)]">
+            <a href={`/responder/case/${c.id}`} className="block active:opacity-70">
               <p className="flex items-baseline justify-between gap-2">
                 <span className="flex items-baseline gap-2 text-xl font-semibold"><Priority level={c.priority} /><span className="tabular">{c.public_id}</span></span>
-                <span className="text-sm text-ink-2">{{ offered: "new", acknowledged: "on the way", reached: "on scene" }[c.phase]}</span>
+                <span className="text-sm text-ink-2">{{ offered: "new", acknowledged: "accepted", reached: "you are there" }[c.phase]}</span>
               </p>
               <p className="mt-1 text-lg leading-snug">{c.summary}</p>
               <p className="text-ink-2">{where(c)}</p>
-              <div className="mt-2"><Ring due={c.next_contact_due} windowMs={Math.max(new Date(c.next_contact_due).getTime() - new Date(c.created_at).getTime(), 60_000)}
-                                         overdue={c.state === "overdue"} demo={c.demo_clock} /></div>
             </a>
+            <div className="mt-2"><Ring due={c.next_contact_due} windowMs={Math.max(new Date(c.next_contact_due).getTime() - new Date(c.created_at).getTime(), 60_000)}
+                                       overdue={c.state === "overdue"} demo={c.demo_clock} /></div>
+            <div className="mt-3">   {/* the one next action, big enough for wet hands */}
+              {c.phase === "acknowledged" && (
+                <BigButton onClick={() => tap({ url: `/v1/assignments/${c.assignment_id}/reached`, label: "Reached", caseId: c.id })}>I&rsquo;ve reached them</BigButton>
+              )}
+              {c.phase === "reached" && <a href={`/responder/case/${c.id}?rescue=1`} className="flex min-h-16 w-full items-center justify-center rounded-2xl bg-ink px-5 text-lg font-semibold text-paper">Record the rescue</a>}
+            </div>
             {/* the last taps stay visible here: the full-screen New case closes as soon as the server has the tap */}
             <div className="mt-1.5"><TapStatus caseId={c.id} /></div>
           </li>
         ))}
       </ul>
-      <p className="mt-8 text-xs text-ink-3">While this screen is open your team shows as &ldquo;last seen&rdquo;. That never counts as a check-in: tap an action or radio the control room.</p>
+      <p className="mt-8 text-xs text-ink-3">Only a tap here or a radio call counts as a check-in.</p>
     </main>
   );
 }

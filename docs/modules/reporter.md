@@ -1,5 +1,7 @@
 # reporter · the voice PWA at /r (public listener)
 
+- **m70:** one big microphone button, the text box right under it (no "Type instead" mode) and one Send button. The confirmation asks for nothing: "We have your report", the fixed reply, the case number only "in case a rescuer asks", and "See what happens next"; the optional call-back number is folded behind a link.
+
 - **What it does:** one big button. Tap once and speak; recording stops after ~2 s of silence or at 30 s. The clip goes to `POST /v1/public/voice-turns` with a random **device id** (localStorage) and a per-clip session id (its idempotency key). The server stores the original content-addressed, transcodes it with ffmpeg to 16 kHz mono WAV, refuses empty or too-short clips ("Didn't hear anything, try again", no case), and runs the same pipeline. The phone shows the case id only after the server confirms it.
 - **Key tables / files:** `reports` (channel `voice`, `device_hash`), `evidence` (type `audio`, sha256), `app/modules/public/router.py`, `apps/web/app/r/page.tsx`, `apps/web/lib/recorder.ts`.
 - **The tricky rule:** the case never depends on AI. If every speech-to-text provider fails, the clip still becomes an **"audio only: listen"** case with an id. The reply is the one fixed sentence ("Your report is registered. You don't need to remember anything.", plus the team's recorded clip once it exists), never generated text, never a promised time. Every screen is English-only for now (D17); the server still understands Hindi and Hinglish speech and text.

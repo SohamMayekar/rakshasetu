@@ -1,5 +1,7 @@
 # status page · /s/<case id> (public listener)
 
+- **m70:** one sentence says where things stand ("We have your report. The control room is finding a rescue team." · "Help assigned: a rescue team has your report." · "The rescue team has reached the place." · "The rescue team says people were rescued."), then the last update; the four steps are under "Show all steps". The family's optional question is unchanged.
+
 - **What it does:** shows anyone with the case number one of four steps (Registered → Help assigned → Team reached → Rescued) and when it last changed. It polls `GET /v1/public/cases/{id}/status` every 3 s; no WebSocket through the tunnel.
 - **Key data:** `cases.status` mapped to a step; the time of the last step-changing event in `events`.
 - **The tricky rule:** it shows **nothing personal or operational**: no names, numbers (not even masked), location, priority, escalation or ETA (an API test checks the body). It says "Help assigned", never that help is on its way, because we don't know a boat is moving. When a team goes quiet the page doesn't change; only "last update" ages. A merged report shows "tracked as BR-214, together with N other reports".

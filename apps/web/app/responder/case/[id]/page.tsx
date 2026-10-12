@@ -22,6 +22,7 @@ export default function ResponderCase({ params }: { params: Promise<{ id: string
   const [more, setMore] = useState(false);
   const [releasing, setReleasing] = useState(false);
   const [rescuing, setRescuing] = useState(false);
+  useEffect(() => { if (new URLSearchParams(location.search).get("rescue")) setRescuing(true); }, []);   // from My cases' "Record the rescue"
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(() => {
@@ -69,13 +70,10 @@ export default function ResponderCase({ params }: { params: Promise<{ id: string
         <p className="mt-2 text-lg text-ink-2">{c.summary}</p>
         <p className="mt-1 text-ink-2">{c.location_text ?? "Place not known"}{c.radius_m ? ` · within about ${c.radius_m >= 1000 ? `${c.radius_m / 1000} km` : `${c.radius_m} m`}` : ""}</p>
         {c.location_confidence && c.location_confidence !== "high" && <p className="text-sm text-ink-3">The place is approximate: search the circle.</p>}
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          {c.lat != null && <a href={`geo:${c.lat},${c.lng}?q=${c.lat},${c.lng}(${c.public_id})`} className="flex min-h-14 items-center justify-center rounded-2xl border-2 border-ink font-semibold">Navigate</a>}
-          <button onClick={call} className="min-h-14 rounded-2xl border-2 border-ink font-semibold">Call · on site</button>
-        </div>
+        {c.lat != null && <a href={`geo:${c.lat},${c.lng}?q=${c.lat},${c.lng}(${c.public_id})`} className="mt-4 flex min-h-14 items-center justify-center rounded-2xl border-2 border-ink font-semibold">Navigate</a>}
         {a && (
           <div className="mt-4 rounded-2xl bg-wash px-4 py-3">
-            <p className="font-medium">You own this</p>
+            <p className="font-medium">Your team has this</p>
             <Ring due={a.next_contact_due} windowMs={Math.max(new Date(a.next_contact_due).getTime() - new Date(a.created_at).getTime(), 60_000)}
                   overdue={a.state === "overdue"} demo={a.demo_clock} />
           </div>
@@ -84,20 +82,21 @@ export default function ResponderCase({ params }: { params: Promise<{ id: string
       </div>
       <div className="space-y-3 px-5 pt-4">
         <TapStatus caseId={c.id} />
+        {step === "acknowledge" && <p className="text-center text-sm text-ink-2">Accept: we&rsquo;ll be there in</p>}
         {step === "acknowledge" && (
           <div className="grid grid-cols-3 gap-3">
             {[15, 30, 60].map((m) => (
               <BigButton key={m} variant={m === 30 ? "primary" : "secondary"}
-                         onClick={() => tap({ url: `/v1/assignments/${a!.id}/acknowledge`, body: { eta_minutes: m }, label: `Acknowledged · ETA ${m}`, caseId: c.id })}>
-                ETA {m}
+                         onClick={() => tap({ url: `/v1/assignments/${a!.id}/acknowledge`, body: { eta_minutes: m }, label: `Accepted · ETA ${m} min`, caseId: c.id })}>
+                {m} min
               </BigButton>
             ))}
           </div>
         )}
         {step === "reached" && (
-          <BigButton onClick={() => tap({ url: `/v1/assignments/${a!.id}/reached`, label: "Reached", caseId: c.id })}>Reached</BigButton>
+          <BigButton onClick={() => tap({ url: `/v1/assignments/${a!.id}/reached`, label: "Reached", caseId: c.id })}>I&rsquo;ve reached them</BigButton>
         )}
-        {step === "rescue" && !rescuing && <BigButton onClick={() => setRescuing(true)}>Record rescue</BigButton>}
+        {step === "rescue" && !rescuing && <BigButton onClick={() => setRescuing(true)}>Record the rescue</BigButton>}
         {rescuing && (
           <RescueSheet reported={c.people_remaining ?? c.people_count} onRecord={(body, label) => {   // a second trip starts at who's left
             // the team phone's own location at that moment (not the family's), if the phone will give it quickly.
@@ -120,12 +119,13 @@ export default function ResponderCase({ params }: { params: Promise<{ id: string
         <button onClick={() => setMore(!more)} className="min-h-12 w-full text-base underline underline-offset-4">More</button>
         {more && a && (
           <div className="space-y-2">
-            {!releasing ? <BigButton variant="secondary" onClick={() => setReleasing(true)}>Release this case</BigButton> : (
+            <BigButton variant="secondary" onClick={call}>Call the family (the number is shown to you; it&rsquo;s logged)</BigButton>
+            {!releasing ? <BigButton variant="secondary" onClick={() => setReleasing(true)}>Hand this case back</BigButton> : (
               <form className="space-y-2" onSubmit={(e) => { e.preventDefault();
-                tap({ url: `/v1/assignments/${a.id}/release`, body: { reason: String(new FormData(e.currentTarget).get("reason")) }, label: "Released", caseId: c.id });
+                tap({ url: `/v1/assignments/${a.id}/release`, body: { reason: String(new FormData(e.currentTarget).get("reason")) }, label: "Handed back", caseId: c.id });
                 setReleasing(false); }}>
                 <input name="reason" required minLength={3} placeholder="Why? e.g. boat engine failed" className="h-14 w-full rounded-xl border border-line px-4 text-lg" />
-                <BigButton>Release</BigButton>
+                <BigButton>Hand back</BigButton>
               </form>
             )}
           </div>

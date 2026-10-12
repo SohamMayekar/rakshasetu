@@ -1,9 +1,11 @@
 "use client";
 
-// The reporter PWA (PRD F-L2): one big button, tap once to talk. No login, no install, nothing to remember.
-// The reply is a fixed sentence (never generated text); the case id is shown only after the server confirms.
+// The reporter PWA (PRD F-L2): one big microphone button, one text box, one Send button (m70). No login, no
+// install, no code, nothing to remember. The reply is a fixed sentence (never generated text); the case number is
+// shown after the server confirms, to show a rescuer if they like, never to type or remember. The call-back
+// number is optional and folded away.
 
-import { Keyboard, Phone } from "lucide-react";
+import { Phone } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { Mark } from "@/components/shell/Sidebar";
@@ -20,8 +22,7 @@ type State =
   | { kind: "processing"; reportId: number }
   | { kind: "empty" }
   | { kind: "not-sent"; retry: () => void }
-  | { kind: "busy" }
-  | { kind: "typing" };
+  | { kind: "busy" };
 
 export default function ReporterPage() {
   const [state, setState] = useState<State>({ kind: "idle" });
@@ -99,35 +100,29 @@ export default function ReporterPage() {
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col bg-canvas px-5 pb-8 pt-6">
-      <header className="mb-6">
+      <header className="mb-4">
         <p className="flex items-center gap-2 text-sm font-semibold text-ink"><Mark className="size-6" />RakshaSetu</p>
-        <h1 className="mt-5 text-[28px] font-semibold leading-tight tracking-tight">Tell us who needs help, and where</h1>
+        <h1 className="mt-4 text-[26px] font-semibold leading-tight tracking-tight">Tell us who needs help, and where</h1>
       </header>
 
-      <section aria-live="polite" className="flex flex-1 flex-col items-center justify-center rounded-[28px] bg-paper px-5 py-10 text-center shadow-[var(--shadow-card)]">
+      <section aria-live="polite" className="flex flex-1 flex-col items-center justify-center rounded-[28px] bg-paper px-5 py-8 text-center shadow-[var(--shadow-card)]">
         {state.kind === "registered" ? (
           <Registered publicId={state.publicId} reply={state.reply} onAgain={() => setState({ kind: "idle" })} />
-        ) : state.kind === "typing" ? (
-          <TypeInstead incident={incident} onSend={(t) => send(JSON.stringify({ device_id: deviceId(), session_id: newId(), incident, text: t }), "/v1/public/text-turns")} />
         ) : (
           <>
             <MicButton state={state} onTap={toggle} />
             <StatusLine state={state} />
+            <TypeIt disabled={state.kind === "sending" || state.kind === "processing" || state.kind === "listening"}
+                    onSend={(t) => send(JSON.stringify({ device_id: deviceId(), session_id: newId(), incident, text: t }), "/v1/public/text-turns")} />
           </>
         )}
       </section>
 
-      {state.kind !== "registered" && state.kind !== "typing" && (
-        <footer className="mt-4 flex flex-col gap-3 text-sm text-ink-2">
-          <button className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-line bg-paper font-medium text-ink shadow-[var(--shadow-card)]"
-                  onClick={() => setState({ kind: "typing" })}>
-            <Keyboard className="size-4" aria-hidden />Type instead
-          </button>
-          <p className="flex items-center gap-3 rounded-2xl bg-paper px-4 py-3 shadow-[var(--shadow-card)]">
-            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-wash"><Phone className="size-4" aria-hidden /></span>
-            <span>If someone is in danger right now, also call <b>112</b> or <b>1077</b>.</span>
-          </p>
-        </footer>
+      {state.kind !== "registered" && (
+        <p className="mt-4 flex items-center gap-3 rounded-2xl bg-paper px-4 py-3 text-sm text-ink-2 shadow-[var(--shadow-card)]">
+          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-wash"><Phone className="size-4" aria-hidden /></span>
+          <span>If someone is in danger right now, also call <b>112</b> or <b>1077</b>.</span>
+        </p>
       )}
     </main>
   );
@@ -142,7 +137,7 @@ function MicButton({ state, onTap }: { state: State; onTap: () => void }) {
       onClick={onTap}
       disabled={disabled}
       aria-label={listening ? "Stop" : "Tap to talk"}
-      className="relative grid size-48 place-items-center rounded-full bg-ink text-paper shadow-[0_8px_30px_rgba(21,21,21,0.25)] ring-8 ring-wash transition active:scale-95 disabled:bg-ink-3 disabled:shadow-none"
+      className="relative grid size-40 place-items-center rounded-full bg-ink text-paper shadow-[0_8px_30px_rgba(21,21,21,0.25)] ring-8 ring-wash transition active:scale-95 disabled:bg-ink-3 disabled:shadow-none"
     >
       {listening && (
         <span aria-hidden className="absolute inset-0 rounded-full border-4 border-ink"
@@ -161,10 +156,10 @@ function MicButton({ state, onTap }: { state: State; onTap: () => void }) {
 }
 
 function StatusLine({ state }: { state: State }) {
-  const big = "mt-6 text-xl font-medium";
+  const big = "mt-4 text-xl font-medium";
   switch (state.kind) {
     case "idle":
-      return <p className={big}>Tap once and speak</p>;
+      return <p className={big}>Tap and speak</p>;
     case "listening":
       return <p className={big}>Listening… <span className="tabular">{Math.floor(state.seconds)}s</span><span className="block text-base font-normal text-ink-2">Tap to stop, or just pause.</span></p>;
     case "sending":
@@ -182,7 +177,7 @@ function StatusLine({ state }: { state: State }) {
         </div>
       );
     case "no-mic":
-      return <p className={big}>This browser can&rsquo;t use the microphone. Open this page in Chrome, or type instead.</p>;
+      return <p className={big}>This browser can&rsquo;t use the microphone. Open this page in Chrome, or type below.</p>;
     default:
       return null;
   }
@@ -198,42 +193,45 @@ function Registered({ publicId, reply, onAgain }: { publicId: string; reply: Rep
     });
     setSaved(r.ok ? "yes" : "no");
   }
+  const [asking, setAsking] = useState(false);
   return (
     <div className="w-full">
-      <p className="text-sm font-medium uppercase tracking-wider text-ink-3">Registered</p>
-      <p className="tabular mt-2 text-6xl font-semibold tracking-tight">{publicId}</p>
-      <p className="mt-6 text-lg leading-relaxed">{reply.en}</p>
-      <a href={`/s/${publicId}`} className="mt-6 inline-block rounded-full bg-ink px-6 py-3 font-medium text-paper">See status</a>
-      <div className="mt-10 border-t border-line pt-6 text-left">
+      <p className="text-[28px] font-semibold leading-tight tracking-tight">We have your report.</p>
+      <p className="mt-3 text-lg leading-relaxed text-ink-2">{reply.en}</p>
+      <p className="mt-5 text-sm text-ink-3">Your case number is <span className="tabular font-semibold text-ink">{publicId}</span>, in case a rescuer asks. You don&rsquo;t need to remember it.</p>
+      <a href={`/s/${publicId}`} className="mt-5 inline-block rounded-full bg-ink px-6 py-3 font-medium text-paper">See what happens next</a>
+      <div className="mt-8 border-t border-line pt-5 text-left">
         {saved === "yes" ? (
-          <p className="text-ink-2">Thank you. We'll only use it to call you back.</p>
-        ) : saved === "skip" ? null : (
+          <p className="text-ink-2">Thank you. We&apos;ll only use it to call you back.</p>
+        ) : saved === "skip" || !asking ? (
+          <button onClick={() => setAsking(true)} className="text-sm text-ink-2 underline underline-offset-4">Want a call back? Add a number (optional)</button>
+        ) : (
           <>
-            <label className="block text-sm text-ink-2" htmlFor="cb">A number we can call back? <span className="text-ink-3">(optional)</span></label>
+            <label className="block text-sm text-ink-2" htmlFor="cb">A number we can call back <span className="text-ink-3">(optional)</span></label>
             <div className="mt-2 flex gap-2">
               <input id="cb" inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
                 className="tabular min-w-0 flex-1 rounded-xl border border-line px-4 py-3 text-lg" placeholder="98xxxxxxxx" />
               <button onClick={save} disabled={phone.length < 10} className="rounded-xl bg-ink px-4 font-medium text-paper disabled:bg-ink-3">Save</button>
             </div>
-            <button onClick={() => setSaved("skip")} className="mt-3 text-sm text-ink-3 underline underline-offset-4">Skip</button>
+            <button onClick={() => setSaved("skip")} className="mt-3 text-sm text-ink-3 underline underline-offset-4">No thanks</button>
           </>
         )}
       </div>
-      <button onClick={onAgain} className="mt-8 text-sm text-ink-2 underline underline-offset-4">Report another</button>
+      <button onClick={onAgain} className="mt-6 text-sm text-ink-2 underline underline-offset-4">Report another family</button>
     </div>
   );
 }
 
-function TypeInstead({ onSend }: { incident: string; onSend: (text: string) => void }) {
+// The text box is always there, under the microphone: no mode to switch, nothing to find.
+function TypeIt({ onSend, disabled }: { onSend: (text: string) => void; disabled: boolean }) {
   const [text, setText] = useState("");
   return (
-    <div className="w-full text-left">
-      <label htmlFor="t" className="block text-lg font-medium">Type it</label>
-      <p className="mt-1 text-sm text-ink-2">Who is stuck, how many people, the village, and anything nearby (a temple, a bridge, a school).</p>
-      <textarea id="t" value={text} onChange={(e) => setText(e.target.value)} rows={5}
-        className="mt-3 w-full rounded-2xl border border-line p-4 text-lg" />
-      <button onClick={() => onSend(text)} disabled={text.trim().length < 2}
-        className="mt-4 w-full rounded-full bg-ink py-4 text-lg font-medium text-paper disabled:bg-ink-3">Send</button>
+    <div className="mt-6 w-full text-left">
+      <label htmlFor="t" className="block text-sm text-ink-2">Or type: who is stuck, how many people, the village, anything nearby</label>
+      <textarea id="t" value={text} onChange={(e) => setText(e.target.value)} rows={3}
+        className="mt-2 w-full rounded-2xl border border-line p-3 text-lg" />
+      <button onClick={() => onSend(text)} disabled={disabled || text.trim().length < 2}
+        className="mt-3 w-full rounded-full bg-ink py-4 text-lg font-medium text-paper disabled:bg-ink-3">Send</button>
     </div>
   );
 }
