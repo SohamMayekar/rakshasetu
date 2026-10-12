@@ -7,6 +7,10 @@ it needs a location, it may be a duplicate, or it is a P1 nobody has checked. Ev
 ONE ordering rule: priority first; within a priority, broken promises before new work; then the P1 order
 (rules' p1_rank: infant or urgent medical → water rising → vulnerable → time waiting); then the longest wait.
 Each row carries at most ONE chip (ranked) and ONE suggested action, chosen for the viewer's role.
+
+A spreadsheet's new cases that only wait for a team (no other reason) arrive as ONE row per import, "188 new
+cases from relief.csv need a team (34 P1)", opening the list; its to-check rows (a likely duplicate, no place,
+an old report, "done" in the sheet but matched an open case) come in one by one (PRD F-D3 step 7, D13).
 """
 
 from datetime import UTC, datetime
@@ -53,12 +57,19 @@ def classify(c, now: datetime, unowned_after_s: float) -> dict:
         reasons.append((f"no owner {_minutes(waited_s)}", True))
     if needs_location:
         reasons.append(("needs location", False))
+    if "old_report" in flags:
+        reasons.append(("old report: confirm", False))
+    if "sheet_says_done" in flags:
+        reasons.append(("sheet says done", False))
     if unchecked and c.priority == "P1":
         reasons.append(("unchecked P1", False))
     if duplicate:
         reasons.append(("possible duplicate", False))
     attention = bool(reasons) or not owned or unchecked
+    # "Waiting for a team" only: nothing about it needs a person except assigning (and checking) it.
+    only_waiting = attention and all(r.startswith("no owner") or r == "unchecked P1" for r, _ in reasons)
     return {"attention": attention, "broken": any(b for _, b in reasons), "chip": reasons[0][0] if reasons else None,
+            "only_waiting": only_waiting,
             "owned": owned, "overdue": overdue, "needs_location": needs_location, "duplicate": duplicate,
             "unchecked": unchecked, "waited_s": waited_s}
 
@@ -91,7 +102,9 @@ def queue(conn: Connection, scope: Scope, incident_code: str) -> dict:
                c.version, a.state AS assignment_state, a.next_contact_due, a.phase, t.name AS team,
                (SELECT k.public_id FROM merge_suggestions s JOIN cases k ON k.id = s.candidate_case_id
                  WHERE s.case_id = c.id AND s.status = 'open' AND s.strength <> 'refused'
-                 ORDER BY s.score DESC LIMIT 1) AS open_match
+                 ORDER BY s.score DESC LIMIT 1) AS open_match,
+               (SELECT CASE WHEN bool_and(r.channel = 'spreadsheet') THEN min(r.source->>'ref') END
+                  FROM reports r WHERE r.case_id = c.id) AS sheet_ref
           FROM cases c JOIN incidents i ON i.id = c.incident_id
           LEFT JOIN assignments a ON a.case_id = c.id AND a.state IN ('open', 'overdue')
           LEFT JOIN teams t ON t.id = a.team_id
@@ -103,22 +116,52 @@ def queue(conn: Connection, scope: Scope, incident_code: str) -> dict:
         {**params, "code": incident_code}).one()
     now = datetime.now(UTC)
     unowned_after = parse_duration(get_config().escalation.get("p1_unowned_after", "5m")).total_seconds()
-    out, on_it = [], 0
+    out, on_it, groups = [], 0, {}
     for c in rows:
         k = classify(c, now, unowned_after)
         if not k["attention"]:
             on_it += 1
             continue
+        if k["only_waiting"] and c.sheet_ref and c.sheet_ref.startswith("import:"):
+            groups.setdefault(int(c.sheet_ref.split(":", 1)[1]), []).append((c, k))
+            continue
         where_line = c.location_text or "no location yet"
         owner = f" · {c.team}" if k["owned"] else ""
         out.append({
-            "id": c.id, "public_id": c.public_id, "priority": c.priority, "status": c.status, "version": c.version,
+            "id": c.id, "kind": "case", "public_id": c.public_id, "priority": c.priority, "status": c.status, "version": c.version,
             "line1": c.summary, "line2": f"{where_line}{owner} · waiting {_minutes(k['waited_s'])}",
             "because": " · ".join(c.priority_reasons or []), "chip": k["chip"], "broken": k["broken"],
             "action": action_for(c, k, scope),
             "sort": [PRIORITY_RANK[c.priority], 0 if k["broken"] else 1,
                      (c.p1_rank or 0) if c.priority == "P1" else 0, c.queue_since.isoformat()],
         })
+    out += _group_rows(conn, groups, now)
     out.sort(key=lambda r: r["sort"])
     return {"rows": out, "on_it": on_it, "rescued_closing": counts.rescued_closing, "closed": counts.closed,
             "open": len(rows)}
+
+
+def _group_rows(conn: Connection, groups: dict, now: datetime) -> list[dict]:
+    """One row per import for its cases that only wait for a team."""
+    if not groups:
+        return []
+    names = {r.id: r.file_name for r in conn.execute(text("SELECT id, file_name FROM imports WHERE id = ANY(:ids)"),
+                                                       {"ids": list(groups)})}
+    out = []
+    for iid, members in groups.items():
+        by = {p: sum(1 for c, _ in members if c.priority == p) for p in PRIORITY_RANK}
+        top = min((c.priority for c, _ in members), key=PRIORITY_RANK.get)
+        broken = any(k["broken"] for _, k in members)
+        oldest = min(c.queue_since for c, _ in members)
+        n = len(members)
+        out.append({
+            "id": -iid, "kind": "group", "public_id": names.get(iid, f"import {iid}"), "priority": top, "status": "group",
+            "version": 0, "members": [c.id for c, _ in members],
+            "line1": f"{n} new {'case' if n == 1 else 'cases'} from this sheet need a team",
+            "line2": " · ".join(f"{v} {p}" for p, v in by.items() if v) + f" · waiting {_minutes((now - oldest).total_seconds())}",
+            "because": "rows the import created; each has its own priority and reasons", "broken": broken,
+            "chip": f"{by['P1']} P1 without an owner" if broken and by["P1"] else None,
+            "action": {"kind": "import", "label": "Open the list", "target": str(iid)},
+            "sort": [PRIORITY_RANK[top], 0 if broken else 1, 0, oldest.isoformat()],
+        })
+    return out

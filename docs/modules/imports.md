@@ -14,3 +14,11 @@
 - **Sheet rows and auto-merge (D10):** a village-only row has a Low circle and no geo signal, so phone + village is a strong *suggestion*, not a merge; a row naming a mappable landmark gets a Medium pin and can auto-merge.
 - **The demo sheet (m31):** `data/scenarios/BR/sheet/` (300 rows + ground truth, `make demo-sheet`). Measured with `make sheet-eval`: 16.6 s, 300/300 outcomes as expected, merge precision 1.000, recall 0.965 (docs/MEASUREMENTS.md).
 - **Not yet:** the desk side sheet (m38); "only the to-check rows enter the queue" is a desk rule (m34).
+
+## On the desk (m38)
+
+- **Import sheet** (next to New report, `import.run`) opens a side sheet over the live desk: drop a CSV/XLSX → every column with its proposed field (change any) → **"How the first rows read"** with their flags ("phone damaged by Excel", "date read as the closest before the import") → **Confirm mapping and import** → a progress bar row by row (the desk keeps working) → the summary line and outcome filters ("188 waiting for a team · 90 merged · 14 to check · 8 closed history") → every row with its reason and a button to its case.
+- **In the queue (D13):** the sheet's plain new cases arrive as one row, "Sheet · volunteer_sheet.csv — 188 new cases from this sheet need a team", which opens the list filtered to "waiting for a team"; to-check rows arrive one by one. After the demo sheet: "▲ 15 new: show" (14 to check + 1 sheet row), not 200.
+- **Live voice first (PRD F-C5):** the import's model batches wait while live voice reports are queued (up to 30 s per batch, keeping the job's lease fresh), and its model calls leave `llm.live_reserve_tokens_per_min` (3,000) of the free tokens-per-minute cap for live reports (`RESERVE_TOKENS_PER_MIN`, tested).
+- **Row reasons** name what a person must look at first (no location, old report, a likely duplicate), then why it wasn't merged.
+- **Measured:** the demo sheet through the side sheet, live worker, Chromium: summary on screen **16.2 s** after Confirm (one run).

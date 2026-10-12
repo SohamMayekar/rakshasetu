@@ -34,3 +34,10 @@ Only numbers we measured go here, each with how and where it was measured. Nothi
 | The son's pasted forward → shown as "Likely same household as BR-199 (strong)" | **1.8 s** (one run) | — |
 
 - **How:** a throwaway Playwright script driving the real form in Chromium (Save → the column shows the case). Keyword path (no keys), local stack, same VM, 12 Oct 2026. The golden-path test (m55) will repeat these on every run.
+
+## The demo sheet through the desk's side sheet (m38)
+
+| What | Measured | Target |
+|---|---|---|
+| Confirm mapping → the 300-row summary on screen (live worker, Chromium) | **16.2 s** (one run) | ≤ 45 s |
+| "Needs you now" after the import | 40 → 55 rows (14 to check + 1 sheet row); the pill read "▲ 15 new: show" | — |

@@ -10,6 +10,7 @@ import { CaseMap } from "@/components/desk/CaseMap";
 import { Drawer, type Picked } from "@/components/desk/Drawer";
 import { Header } from "@/components/desk/Header";
 import { NeedsYouNow } from "@/components/desk/NeedsYouNow";
+import { ImportSheet } from "@/components/desk/ImportSheet";
 import { NewReport } from "@/components/desk/NewReport";
 import { Button } from "@/components/ui";
 import { api, ApiError, type Case, listCases, type Me, type Suggestion } from "@/lib/api";
@@ -38,6 +39,7 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
   const [queue, setQueue] = useState<Queue | null>(null);
   const [focus, setFocus] = useState<string | null>(null);
   const [composing, setComposing] = useState(false);
+  const [importing, setImporting] = useState<{ id: number | null; filter?: string } | null>(null);
   const [saved, setSaved] = useState<{ reportId: number; line: string; caseId?: number } | null>(null);
   const [picking, setPicking] = useState(false);
   const [picked, setPicked] = useState<Picked>(null);
@@ -93,7 +95,7 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
   const open = useMemo(() => [...cases.values()].filter((c) => !CLOSED.has(c.status) && c.status !== "closed"), [cases]);
   // The map shows the queue's cases (and the selected one) in colour; every other open case is grey.
   const dim = useMemo(() => {
-    const inQueue = new Set(queue?.rows.map((r) => r.id));
+    const inQueue = new Set(queue?.rows.flatMap((r) => r.members ?? [r.id]));
     return new Set(open.filter((c) => !inQueue.has(c.id) && c.id !== selected).map((c) => c.id));
   }, [open, queue, selected]);
   const current = selected != null ? cases.get(selected) ?? null : null;
@@ -104,7 +106,9 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
       loadQueue();
       return;
     }
+    if (row.action.kind === "import") { setImporting({ id: Number(row.action.target), filter: "waiting" }); setComposing(false); return; }
     setSelected(row.id);
+    setImporting(null);
     if (row.action.kind === "pin") { setPicking(true); setPicked(null); }
     setFocus({ pin: "Facts", match: "Timeline & evidence", radio: "Assignment", assign: "Assignment", open: null, check: null }[row.action.kind] ?? null);
   }, [loadQueue]);
@@ -116,19 +120,28 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
         <nav className="flex w-full shrink-0 flex-col border-r border-line md:w-[380px]" aria-label="Needs you now">
           {me?.permissions.includes("report.submit") && (
             <div className="flex items-center justify-between gap-2 border-b border-line px-4 py-2">
-              <Button size="sm" variant="primary" className="shrink-0 whitespace-nowrap" onClick={() => { setComposing(true); setSelected(null); }}>New report</Button>
+              <span className="flex shrink-0 gap-1.5">
+                <Button size="sm" variant="primary" className="whitespace-nowrap" onClick={() => { setComposing(true); setImporting(null); setSelected(null); }}>New report</Button>
+                {me?.permissions.includes("import.run") && (
+                  <Button size="sm" className="whitespace-nowrap" onClick={() => { setImporting({ id: null }); setComposing(false); setSelected(null); }}>Import sheet</Button>
+                )}
+              </span>
               {saved && <span className="truncate text-xs text-ink-2">Report saved {saved.line}</span>}
             </div>
           )}
-          <NeedsYouNow queue={queue} selected={selected} onSelect={(id) => { setSelected(id); setFocus(null); setComposing(false); }} onAction={onAction} />
+          <NeedsYouNow queue={queue} selected={selected} onSelect={(id) => { if (id < 0) { setImporting({ id: -id, filter: "waiting" }); return; } setSelected(id); setFocus(null); setComposing(false); setImporting(null); }} onAction={onAction} />
         </nav>
         <main className="relative hidden min-w-0 flex-1 md:block">
           <CaseMap cases={open} selected={selected} dim={dim} onSelect={(id) => { if (!picking) { setSelected(id); setComposing(false); } }}
                    picking={picking} picked={picked} onPick={setPicked} />
         </main>
+        {importing && !composing && (
+          <ImportSheet incident={incident} openId={importing.id} initialFilter={importing.filter}
+                       onOpenCase={(id) => { setImporting(null); setSelected(id); }} onClose={() => setImporting(null)} />
+        )}
         {composing && <NewReport incident={incident} onClose={() => setComposing(false)}
                                  onSaved={(id) => { setComposing(false); setSaved({ reportId: id, line: "· reading it…" }); }} />}
-        {!composing && current && <Drawer c={current} me={me} focus={focus} picking={picking} picked={picked}
+        {!composing && !importing && current && <Drawer c={current} me={me} focus={focus} picking={picking} picked={picked}
                             onPickStart={() => { setPicking(true); setPicked(null); }} onPickEnd={endPick}
                             onClose={() => { setSelected(null); endPick(); }}
                             suggestions={suggestions} lookup={(id) => cases.get(id)} onSelect={setSelected} onChanged={loadQueue} />}

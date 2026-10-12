@@ -63,7 +63,9 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction }: {
                    aria-current={selected === r.id}
                    className={`block w-full cursor-pointer px-4 py-2.5 text-left hover:bg-wash ${selected === r.id ? "bg-wash" : ""}`}>
                 <span className="flex items-center justify-between gap-2">
-                  <span className="flex items-baseline gap-2"><Priority level={r.priority} /><span className="tabular font-medium">{r.public_id}</span></span>
+                  <span className="flex min-w-0 items-baseline gap-2"><Priority level={r.priority} />
+                    {r.kind === "group" ? <span className="truncate font-medium">Sheet · {r.public_id}</span> : <span className="tabular font-medium">{r.public_id}</span>}
+                  </span>
                   {r.handled ? <span className="text-xs text-ink-3">handled</span> : r.chip && <Chip tone="attention">{r.chip}</Chip>}
                 </span>
                 <span className="mt-0.5 block truncate text-sm">{r.line1}</span>

@@ -1215,6 +1215,52 @@
       }
     },
     "/v1/imports": {
+      "get": {
+        "description": "This desk's imports for an incident, newest first.",
+        "operationId": "list_imports_v1_imports_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "incident",
+            "required": true,
+            "schema": {
+              "title": "Incident",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response List Imports V1 Imports Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Imports",
+        "tags": [
+          "imports"
+        ]
+      },
       "post": {
         "operationId": "upload_v1_imports_post",
         "requestBody": {

@@ -99,6 +99,17 @@ def upload(file: UploadFile = File(...), incident: str = Form(..., max_length=10
     return _view(r)
 
 
+@router.get("")
+def list_imports(incident: str, scope: Scope = Depends(require("import.run"))) -> list[dict]:
+    """This desk's imports for an incident, newest first."""
+    where, params = _where(scope)
+    with get_engine().connect() as conn:
+        rows = conn.execute(text(f"SELECT m.* FROM imports m JOIN incidents i ON i.id = m.incident_id"
+                                 f" WHERE i.code = :code AND {where} ORDER BY m.id DESC LIMIT 20"),
+                            {**params, "code": incident}).all()
+    return [_view(r) for r in rows]
+
+
 @router.get("/{iid}")
 def get_import(iid: int, scope: Scope = Depends(require("import.run"))) -> dict:
     where, params = _where(scope)
@@ -148,7 +159,8 @@ def import_rows(iid: int, outcome: str | None = None, limit: int = 500,
         if conn.execute(text(f"SELECT 1 FROM imports m WHERE m.id = :id AND {where}"), {**params, "id": iid}).first() is None:
             raise HTTPException(404, "No such import")
         rows = conn.execute(text(
-            "SELECT r.row_number, r.outcome, r.read_by, r.reason, r.flags, c.public_id, c.priority"
+            "SELECT r.row_number, r.outcome, r.read_by, r.reason, r.flags, r.case_id, c.public_id, c.priority, c.status,"
+            " EXISTS (SELECT 1 FROM assignments a WHERE a.case_id = c.id AND a.state IN ('open', 'overdue')) AS owned"
             " FROM import_rows r LEFT JOIN cases c ON c.id = r.case_id"
             " WHERE r.import_id = :id AND (CAST(:o AS text) IS NULL OR r.outcome = :o)"
             " ORDER BY r.row_number LIMIT :lim"), {"id": iid, "o": outcome, "lim": min(max(limit, 1), 5000)}).all()

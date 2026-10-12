@@ -17,6 +17,7 @@ from datetime import UTC
 
 from sqlalchemy import Engine, text
 
+from app.config import get_config
 from app.contracts import CanonicalReport, Content, PeopleCount, PersonName, Reporter, Source, Village
 from app.core.eventlog import WORKER, append_event
 from app.core.jobs import RetryLater, enqueue, handler
@@ -27,6 +28,7 @@ from app.modules.intake.service import accept
 from app.pipeline import llm_extract
 from app.pipeline.keywords import to_latin
 from app.pipeline.run import commit, load_report, prepare
+from app.providers.usage import RESERVE_TOKENS_PER_MIN
 
 LANE = "import"
 BATCH = 20
@@ -127,9 +129,19 @@ class Run:
                              f"{pid}: marked done in the sheet, kept as closed history", flags)
                 return
             to_check = outcome in ("suggested", "needs_review") or "needs_location" in flags or OLD in flags or n["done"]
-            why = line or (f"{pid}: no location, needs a person" if "needs_location" in flags else
-                           f"{pid}: {OLD}" if OLD in flags else f"{pid}: the sheet says done, but it matched an open case"
-                           if n["done"] else f"New case {pid}")
+            # The row's reason: what a person must look at first, then (if any) why it wasn't merged.
+            if outcome == "suggested":
+                why = line
+            elif "needs_location" in flags:
+                why = f"{pid}: no location, needs a person"
+            elif OLD in flags:
+                why = f"{pid}: {OLD}"
+            elif n["done"]:
+                why = f"{pid}: the sheet says done, but it matched an open case"
+            else:
+                why = line or f"New case {pid}"
+            if outcome == "refused" and line and why != line:
+                why += f" · {line}"
             self._record(conn, number, report.id, res["case_id"], "to_check" if to_check else "new", read_by, why, flags)
 
         try:
@@ -210,6 +222,19 @@ def summary_line(total: int, c: dict) -> str:
     return " · ".join(parts)
 
 
+def wait_for_live_voice(engine: Engine, run: "Run", max_s: float = 30) -> None:
+    """Live voice goes first: hold the next model batch while voice reports are waiting (up to 30 s)."""
+    deadline = time.monotonic() + max_s
+    while time.monotonic() < deadline:
+        with engine.connect() as c:
+            waiting = c.execute(text("SELECT count(*) FROM jobs WHERE lane = 'live_voice' AND done_at IS NULL"
+                                     " AND dead_at IS NULL AND run_at <= now()")).scalar()
+        if not waiting:
+            return
+        run.progress(force=True)          # keeps the lease fresh while it waits
+        time.sleep(1)
+
+
 @handler("import.run")
 def run_import(engine: Engine, payload: dict) -> None:
     iid = payload["import_id"]
@@ -250,12 +275,18 @@ def _run(engine: Engine, iid: int) -> None:
             else:
                 run.finish_row(number, n, report, p)
         run.progress()
-    # Step 4b: rows the rules couldn't read, to the language model in batches of 20, one batch at a time.
-    for start in range(0, len(deferred), BATCH):
-        for number, n, report_id in deferred[start:start + BATCH]:
-            report = load_report(engine, report_id)
-            if report.case_id is not None:
-                continue
-            run.finish_row(number, n, report, prepare(engine, report, allow_model=True, adjust=columns(n)))
-        run.progress(force=True)
+    # Step 4b: rows the rules couldn't read, to the language model in batches of 20, one batch at a time,
+    # pausing while live voice reports wait, and always leaving a token reserve for them (PRD F-C5).
+    reserve = RESERVE_TOKENS_PER_MIN.set(int(get_config().llm.get("live_reserve_tokens_per_min", 0)))
+    try:
+        for start in range(0, len(deferred), BATCH):
+            wait_for_live_voice(engine, run)
+            for number, n, report_id in deferred[start:start + BATCH]:
+                report = load_report(engine, report_id)
+                if report.case_id is not None:
+                    continue
+                run.finish_row(number, n, report, prepare(engine, report, allow_model=True, adjust=columns(n)))
+            run.progress(force=True)
+    finally:
+        RESERVE_TOKENS_PER_MIN.reset(reserve)
     run.progress(force=True, final=True)

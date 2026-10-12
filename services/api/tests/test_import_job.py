@@ -123,3 +123,25 @@ def test_only_rows_the_rules_cannot_read_go_to_the_language_model(seeded, client
     assert receipt[0] == {"step": "extract", "by": "AI", "detail": "1 fields · cached result of test-fixture/recorded"}
     assert one(app_db, "SELECT c.location_text FROM cases c JOIN reports r ON r.case_id = c.id WHERE r.idempotency_key = :k",
                k=f"{imp['file_sha256']}:3") == "Thawe"
+
+
+def test_model_batches_wait_while_live_voice_reports_are_queued(seeded, app_db):
+    import time as _t
+
+    from app.core.jobs import enqueue
+    from app.modules.imports.job import wait_for_live_voice
+
+    class FakeRun:
+        ticks = 0
+
+        def progress(self, force=False):
+            FakeRun.ticks += 1
+
+    t0 = _t.monotonic()
+    wait_for_live_voice(app_db, FakeRun(), max_s=2)
+    assert _t.monotonic() - t0 < 0.5                                   # nothing waiting: no delay
+    with app_db.begin() as c:
+        enqueue(c, "report.process", {"report_id": 0}, "live_voice")
+    t0 = _t.monotonic()
+    wait_for_live_voice(app_db, FakeRun(), max_s=1.5)
+    assert _t.monotonic() - t0 >= 1.4 and FakeRun.ticks >= 1          # held back, lease kept fresh

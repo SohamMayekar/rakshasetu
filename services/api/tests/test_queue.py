@@ -114,3 +114,32 @@ def test_the_queue_is_scoped_and_desk_only(seeded, client, public_client):
     assert client.get("/v1/queue?incident=BR").status_code == 403
     login(public_client, "priya", "rakshasetu")
     assert public_client.get("/v1/queue?incident=BR").status_code == 404
+
+
+def test_a_sheets_new_cases_wait_as_one_row_and_its_to_check_rows_come_in_one_by_one(seeded, client, app_db):
+    from app.core.jobs import drain
+    from app.pipeline import register_handlers
+    register_handlers()
+    login(client, "priya")
+    sheet = (b"Naam,Mob,Kitne log,Gaon,Location,Remarks\n"
+             b"Sita Devi,98765 65001,4,Katiya,,chhat par\n"
+             b"Gita Devi,98765 65002,3,Bhore,,paani ghus gaya\n"
+             b"Mohan Ram,98765 65003,5,Nautan,,rasta kat gaya\n"
+             b"Hari Ram,98765 65004,2,,,fase hain\n")            # no place: to check
+    imp = client.post("/v1/imports", files={"file": ("relief.csv", sheet, "text/csv")}, data={"incident": "BR"}).json()
+    client.post(f"/v1/imports/{imp['id']}/mapping", json={"mapping": imp["proposed"]})
+    drain(app_db)
+    rows = _q(client)["rows"]
+    group = [r for r in rows if r["kind"] == "group"]
+    assert len(group) == 1 and group[0]["public_id"] == "relief.csv" and len(group[0]["members"]) == 3
+    assert group[0]["line1"] == "3 new cases from this sheet need a team"
+    assert group[0]["action"] == {"kind": "import", "label": "Open the list", "target": str(imp["id"])}
+    no_place = one(app_db, "SELECT c.id FROM reports r JOIN cases c ON c.id = r.case_id WHERE r.idempotency_key = :k",
+                   k=f"{imp['file_sha256']}:5")
+    single = next(r for r in rows if r["id"] == no_place)
+    assert single["kind"] == "case" and single["chip"] == "needs location"
+    assert not set(group[0]["members"]) & {r["id"] for r in rows if r["kind"] == "case"}
+    listed = client.get("/v1/imports?incident=BR").json()
+    assert listed[0]["id"] == imp["id"]
+    detail = client.get(f"/v1/imports/{imp['id']}/rows").json()
+    assert all("owned" in r and "case_id" in r for r in detail)

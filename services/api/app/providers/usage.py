@@ -1,6 +1,7 @@
 """Free-tier caps (PRD §8.4): calls stop at 80% of a cap, tracked in `provider_usage`, then the next
 provider in the chain takes over (for the LLM the last resort is the keyword path)."""
 
+from contextvars import ContextVar
 from datetime import UTC, datetime
 
 from sqlalchemy import text
@@ -8,6 +9,10 @@ from sqlalchemy import text
 from app.config import get_config
 from app.db import get_engine
 from app.providers.base import ProviderUnavailable
+
+# Tokens per minute a background job must leave for live reports (PRD F-C5: imports keep a reserve for live
+# voice). Set by the import job around its language-model calls; 0 everywhere else.
+RESERVE_TOKENS_PER_MIN: ContextVar[int] = ContextVar("reserve_tokens_per_min", default=0)
 
 
 def _windows(now: datetime) -> dict[str, datetime]:
@@ -34,8 +39,10 @@ def check(provider: str, *, tokens: int = 0, audio_seconds: float = 0.0) -> None
         current = 0 if row is None else {"calls": row.calls, "tokens": row.tokens,
                                          "audio_seconds": float(row.audio_seconds)}[what]
         planned = {"calls": 1, "tokens": tokens, "audio_seconds": audio_seconds}[what]
-        if current + planned > frac * limit:
-            raise ProviderUnavailable(f"{int(frac * 100)}% of the free cap {cap_name}={limit} reached")
+        reserve = RESERVE_TOKENS_PER_MIN.get() if (what, window) == ("tokens", "minute") else 0
+        if current + planned > frac * limit - reserve:
+            why = f" (keeping {reserve} tokens/min for live reports)" if reserve else ""
+            raise ProviderUnavailable(f"{int(frac * 100)}% of the free cap {cap_name}={limit} reached{why}")
 
 
 def record(provider: str, *, tokens: int = 0, audio_seconds: float = 0.0) -> None:

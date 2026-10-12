@@ -146,3 +146,19 @@ def test_a_compose_comment_read_as_a_value_is_not_a_key(monkeypatch):
     assert api_key("groq_gpt_oss_120b") is None
     monkeypatch.setenv("GROQ_API_KEY", "   ")
     assert api_key("groq_gpt_oss_120b") is None
+
+
+def test_a_background_job_leaves_a_token_reserve_for_live_reports(seeded, app_db):
+    """PRD F-C5: an import's model calls stop earlier than a live report's, keeping tokens per minute free."""
+    from datetime import UTC, datetime
+    now = usage._windows(datetime.now(UTC))
+    with app_db.begin() as c:
+        c.execute(text("INSERT INTO provider_usage (provider, window_kind, window_start, calls, tokens, audio_seconds)"
+                       " VALUES ('groq_gpt_oss_120b', 'minute', :m, 1, 3000, 0)"), {"m": now["minute"]})
+    usage.check("groq_gpt_oss_120b", tokens=1000)                   # a live report: 4000 ≤ 0.8 × 8000
+    token = usage.RESERVE_TOKENS_PER_MIN.set(3000)
+    try:
+        with pytest.raises(ProviderUnavailable, match="keeping 3000 tokens/min for live reports"):
+            usage.check("groq_gpt_oss_120b", tokens=1000)           # an import: 4000 > 6400 − 3000
+    finally:
+        usage.RESERVE_TOKENS_PER_MIN.reset(token)
