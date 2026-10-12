@@ -55,7 +55,7 @@ export default function DemoPage() {
       <AppShell me={me}><Page>
         <PageHeader title="Demo" sub="Run it live: real phones, the real desk." />
         <Shows />
-        <Card className="mt-4 px-5 py-4 text-body">
+        <Card className="mt-3 px-5 py-4 text-body">
           <ol className="space-y-2">{SCRIPT.map((x, i) => <li key={x.id}><b className="tabular">{i + 1}. {x.title}</b> <span className="text-ink-2">· {x.do}</span></li>)}</ol>
           <p className="mt-3 text-ink-3">The reset buttons and QR codes are for the Demo admin: open <b>http://127.0.0.1/demo</b> and sign in as Demo admin
             there, so this desk on <b>http://localhost</b> stays signed in as {me.user.name}.</p>
@@ -76,7 +76,7 @@ export default function DemoPage() {
       <PageHeader title="Demo" sub="Run it live: real phones, the real desk." />
       {line && <p className="mt-4 rounded-xl bg-paper px-4 py-2.5 text-body shadow-[var(--shadow-card)]" role="status">{line}</p>}
 
-      <ol className="mt-5 grid grid-cols-3 gap-2 sm:grid-cols-6" aria-label="Scenes">
+      <ol className="mt-6 grid grid-cols-3 gap-2 sm:grid-cols-6" aria-label="Scenes">
         {SCRIPT.map((x, i) => (
           <li key={x.id}>
             <button onClick={() => go(i)} aria-current={i === at ? "step" : undefined}
@@ -91,7 +91,7 @@ export default function DemoPage() {
         <p className="text-body text-ink-3">Step {at + 1} of {SCRIPT.length}</p>
         <h2 className="mt-1 text-display font-semibold leading-tight tracking-tight">{scene.title}</h2>
         <p className="mt-2 text-lg leading-snug">{scene.do}</p>
-        <div className="mt-5 flex flex-wrap items-center gap-3">
+        <div className="mt-6 flex flex-wrap items-center gap-3">
           {at < SCRIPT.length - 1
             ? <Button variant="primary" className="!h-12 !px-7 !text-base" onClick={() => go(at + 1)}>Next step<ArrowRight className="size-4" aria-hidden /></Button>
             : <Button variant="primary" className="!h-12 !px-7 !text-base" onClick={() => go(0)}>Back to step 1</Button>}
@@ -215,7 +215,7 @@ const SCRIPT = [
 // The two pages that show the system under pressure and talking to another team's system (m69: out of the sidebar).
 function Shows() {
   return (
-    <div className="mt-5 grid gap-3 sm:grid-cols-2">
+    <div className="mt-6 grid gap-3 sm:grid-cols-2">
       <a href="/surge" className="rounded-2xl bg-paper px-5 py-4 shadow-[var(--shadow-card)] hover:bg-wash">
         <b>Show it under load</b><span className="block text-body text-ink-2">50 made-up reports a second: nothing lost, nothing doubled.</span></a>
       <a href="/partners" className="rounded-2xl bg-paper px-5 py-4 shadow-[var(--shadow-card)] hover:bg-wash">

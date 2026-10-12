@@ -112,3 +112,6 @@ After m78 the custom pixel sizes were gone but Tailwind's own 12 and 14 px sizes
 
 ### D38 · On the team's phone the next step never scrolls away
 A team member reads the caller's words and the place, then needs one tap, often with wet hands on a moving boat. On a 390 px screen the action sat under the map, the words and the summary, so it could scroll out of view. It now sits in a bar pinned to the bottom (clear of the home bar), with the "Sent" confirmation beside it; rarer actions (call, hand back) stay in the page. **Rejected:** pinning everything (a tall bar hides the caller's words); a floating round button (one target for three different steps hides which step it is).
+
+### D39 · Every page opens the same way
+Front door, sign-in, All incidents, History, the load screen and the partner page used different top spacing and header widths, so moving between them felt like different apps. They now share one frame: the same title size, a subtitle capped at 65 characters a line, the first block 24 px below and cards 12 px apart. History scrolls inside its own card so its column names stay in view. **Rejected:** a page-specific layout per screen (each one looked fine alone and odd together).

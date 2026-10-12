@@ -35,7 +35,7 @@ export default function PartnerLog() {
         {error && <p className="mt-4 rounded-xl bg-paper px-4 py-2 text-body">{error}</p>}
 
         {!!data?.anchors.length && (
-          <Card className="mt-5 space-y-2 px-5 py-4 text-body">
+          <Card className="mt-6 space-y-2 px-5 py-4 text-body">
             {data.anchors.map((a) => (
               <p key={a.annotation_id} className="flex items-center gap-2.5"><IconWell icon={Handshake} size="sm" />
                 <span>{a.matches ? "✓" : <b>✗</b>} <b>{a.team}</b> keeps a copy of our history up to entry <span className="tabular">#{a.seq.toLocaleString("en-IN")}</span>
@@ -45,7 +45,7 @@ export default function PartnerLog() {
           </Card>
         )}
 
-        <Card className="mt-5 overflow-x-auto text-body">
+        <Card className="mt-6 overflow-x-auto text-body">
           <table className="w-full">
             <thead><tr className="border-b border-line text-left text-small text-ink-3">
               <th className="py-3 pl-5 pr-3 font-medium">time</th><th className="pr-3 font-medium">who</th><th className="hidden pr-3 font-medium sm:table-cell">call</th>

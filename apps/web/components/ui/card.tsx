@@ -26,8 +26,8 @@ export function PageHeader({ title, sub, aside }: { title: ReactNode; sub?: Reac
   return (
     <header className="flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">
-        <h1 className="text-display font-semibold leading-tight tracking-tight">{title}</h1>
-        {sub && <p className="mt-1 text-body text-ink-2">{sub}</p>}
+        <h1 className="text-display font-semibold">{title}</h1>
+        {sub && <p className="mt-1.5 max-w-[65ch] text-body text-ink-2">{sub}</p>}
       </div>
       {aside && <div className="flex items-center gap-2">{aside}</div>}
     </header>
