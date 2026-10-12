@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m03 · Caddy two listeners
+**Current milestone:** m04 · base schema and DB roles
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -10,6 +10,7 @@
 | Milestone | What | The check that proved it |
 |---|---|---|
 | m02 | docker compose: db (PostGIS), api, worker, ticker, web; `make up/down/ps/logs` | `make up` → all 5 services healthy; /healthz reports db ok; `make test-api` passes in the container |
+| m03 | Caddy :80 local / :8080 public; X-RS-Listener stamping; demo guard (listener + CF-Connecting-IP); body caps | `make smoke`: 9/9 listener checks (incl. spoofed header → 404, 3 MB public body → 413); 4 guard tests in pytest |
 
 ## NOT DONE (engineering)
 

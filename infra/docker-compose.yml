@@ -40,8 +40,6 @@ services:
       - files:/files
     depends_on:
       db: { condition: service_healthy }
-    ports:
-      - "127.0.0.1:8000:8000"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/healthz').status==200 else 1)"]
       interval: 5s
@@ -85,10 +83,24 @@ services:
       API_ORIGIN: http://api:8000
     depends_on:
       api: { condition: service_started }
-    ports:
-      - "127.0.0.1:3000:3000"
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://localhost:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  caddy:
+    image: public.ecr.aws/docker/library/caddy:2-alpine
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+    ports:
+      - "127.0.0.1:${LOCAL_PORT:-80}:80"      # local listener: the desk on the projector
+      - "127.0.0.1:${PUBLIC_PORT:-8080}:8080" # public listener: point the tunnel here only
+    depends_on:
+      api: { condition: service_healthy }
+      web: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:80/healthz"]
       interval: 5s
       timeout: 3s
       retries: 20
