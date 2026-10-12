@@ -4,3 +4,18 @@
 .claude/settings.local.json
 # Secrets (never commit)
 .env
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+# Node / Next.js
+node_modules/
+.next/
+apps/web/next-env.d.ts
+*.tsbuildinfo
+# Runtime data (evidence files, test output)
+var/
+test-results/
+playwright-report/
