@@ -57,8 +57,9 @@ ENDPOINTS = [
      "priya", "seoc", None),
     # case.status_public: anyone with the case number, no login (tests/test_status_page.py).
     ("totals.view", "GET", "/v1/metrics/promises?incident=BR", None, "seoc", "boat5", "m47"),
-    ("case.check", "POST", "/v1/cases/BR-151/check", {}, "priya", "boat5", "m24"),
-    ("case.move_pin", "PATCH", "/v1/cases/BR-151/location", {}, "priya", "rdas_denied", "m24"),
+    ("case.check", "POST", "/v1/cases/BR-151/check", {}, "priya", "seoc", None),
+    ("case.move_pin", "PATCH", "/v1/cases/BR-151/location", {"lat": 26.44, "lng": 84.40, "reason": "caller confirmed"},
+     "priya", "seoc", None),
     ("merge.decide", "POST", "/v1/merges", {}, "priya", "boat5", "m28"),
     ("import.run", "POST", "/v1/imports", {}, "priya", "boat5", "m29"),
     ("assignment.create", "POST", "/v1/assignments", {}, "rdas", "priya", "m40"),
@@ -89,6 +90,6 @@ def test_each_row_through_its_endpoint(seeded, client, action, method, path, bod
 
 
 def test_every_action_in_the_matrix_has_an_endpoint_check():
-    checked = {e[0] for e in ENDPOINTS} | {"phone.view_masked", "case.edit",   # case detail / m24
+    checked = {e[0] for e in ENDPOINTS} | {"phone.view_masked", "case.edit",   # case detail / test_case_edits.py
                                            "case.status_public"}             # test_status_page.py
     assert checked == set(PRD_MATRIX)

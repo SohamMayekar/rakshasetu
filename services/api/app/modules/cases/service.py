@@ -4,6 +4,8 @@ import json
 
 from sqlalchemy import Connection, text
 
+from app.config import get_config
+from app.core.clock import hhmmss
 from app.core.eventlog import Actor, append_event
 
 
@@ -68,3 +70,124 @@ def link_report_evidence(conn: Connection, *, report_id: int, case_id: int, inci
         append_event(conn, actor=actor, action="evidence.added", entity_type="evidence", entity_id=ev.id,
                      incident_id=incident_id, district_id=district_id, case_id=case_id,
                      data={"evidence_id": ev.id, "type": ev.type, "sha256": ev.sha256, "uri": ev.uri, "report_id": report_id})
+
+
+# --- desk corrections (PRD F-L4 pin drag, §5.2 check, PATCH with If-Match) ---------------------------------
+
+class Conflict(Exception):
+    """409: someone else changed the case first. Carries who and when."""
+
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.message = message
+
+
+class NotAllowed(Exception):
+    def __init__(self, message: str):
+        super().__init__(message)
+        self.message = message
+
+
+def lock_case(conn: Connection, scope, ref: str):
+    """SELECT … FOR UPDATE inside the caller's Scope (rule R8). None if not visible."""
+    where, params = scope.case_where("c")
+    key = "c.id = :ref_id" if ref.isdigit() else "c.public_id = :ref"
+    return conn.execute(text(
+        f"SELECT c.*, ST_Y(c.geom::geometry) AS lat, ST_X(c.geom::geometry) AS lng FROM cases c"
+        f" WHERE {key} AND {where} FOR UPDATE"),
+        {**params, "ref": ref, "ref_id": int(ref) if ref.isdigit() else None}).one_or_none()
+
+
+def last_change(conn: Connection, case_id: int) -> str:
+    r = conn.execute(text("SELECT e.at, coalesce(u.name, e.actor_id) AS who FROM events e"
+                          " LEFT JOIN users u ON e.actor_type = 'user' AND u.id::text = e.actor_id"
+                          " WHERE e.case_id = :c ORDER BY e.seq DESC LIMIT 1"), {"c": case_id}).one_or_none()
+    return f"{r.who} at {hhmmss(r.at)}" if r else "someone"
+
+
+def _actor(scope) -> Actor:
+    return Actor("user", str(scope.user_id), scope.role)
+
+
+def move_pin(conn: Connection, scope, ref: str, lat: float, lng: float, reason: str) -> dict:
+    """A call-taker drags the pin: method = human, radius 50 m, audited with a reason. The case moves to
+    the desk of the district the new pin is in."""
+    case = lock_case(conn, scope, ref)
+    if case is None:
+        raise LookupError(ref)
+    radius = get_config().location.radius_m.human
+    district = conn.execute(text("SELECT id FROM districts WHERE incident_id = :i AND"
+                                 " ST_Covers(boundary, ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)::geography)"),
+                            {"i": case.incident_id, "lat": lat, "lng": lng}).scalar() or case.district_id
+    method = f"Human · {radius} m · pin placed by {scope.name}: {reason}"
+    flags = [f for f in case.flags if f not in ("needs_location", "district_guessed")]
+    conn.execute(text(
+        "UPDATE cases SET geom = ST_SetSRID(ST_MakePoint(:lng, :lat), 4326)::geography, radius_m = :r,"
+        " location_confidence = 'high', location_method = :m, location_source = 'human', district_id = :d,"
+        " flags = :f, version = version + 1, updated_at = now() WHERE id = :id"),
+        {"lng": lng, "lat": lat, "r": radius, "m": method, "d": district, "f": flags, "id": case.id})
+    append_event(conn, actor=_actor(scope), action="case.location_moved", entity_type="case", entity_id=case.id,
+                 incident_id=case.incident_id, district_id=district, case_id=case.id, reason=reason,
+                 data={"from": None if case.lat is None else {"lat": case.lat, "lng": case.lng, "radius_m": case.radius_m,
+                                                                "method": case.location_method},
+                       "to": {"lat": lat, "lng": lng, "radius_m": radius}, "district_changed": district != case.district_id})
+    return {"case_id": case.id, "district_id": district, "location_method": method}
+
+
+CHECKABLE = ("people_count", "hazards", "needs", "vulnerable", "place")
+
+
+def check_case(conn: Connection, scope, ref: str) -> dict:
+    """A person confirms the key fields: reported → checked ("Checked by Priya 02:05"). Guard: at least a
+    coarse location exists (PRD §5.2)."""
+    case = lock_case(conn, scope, ref)
+    if case is None:
+        raise LookupError(ref)
+    if case.geom is None:
+        raise NotAllowed("Needs at least a coarse location before it can be checked: place the pin first")
+    prov = dict(case.provenance or {})
+    for key in CHECKABLE:
+        items = prov.get(key)
+        for p in items if isinstance(items, list) else [items] if items else []:
+            p.update(checked=True, checked_by=scope.name)
+    status = "checked" if case.status == "reported" else case.status
+    flags = [f for f in case.flags if f != "unchecked"]
+    conn.execute(text("UPDATE cases SET status = :s, provenance = CAST(:p AS jsonb), checked_by = :u, checked_at = now(),"
+                      " last_confirmed_at = now(), flags = :f, version = version + 1, updated_at = now() WHERE id = :id"),
+                 {"s": status, "p": json.dumps(prov, ensure_ascii=False), "u": scope.user_id, "f": flags, "id": case.id})
+    append_event(conn, actor=_actor(scope), action="case.checked", entity_type="case", entity_id=case.id,
+                 incident_id=case.incident_id, district_id=case.district_id, case_id=case.id,
+                 data={"status": status, "checked_by": scope.name})
+    return {"case_id": case.id, "status": status}
+
+
+EDITABLE = {"people_count", "needs", "vulnerable", "hazards"}
+
+
+def edit_case(conn: Connection, scope, ref: str, changes: dict, reason: str, if_match: int | None) -> dict:
+    """Field edits by a person, with a reason, under optimistic locking (If-Match: version). A stale
+    version gets a 409 naming who changed the case and when."""
+    case = lock_case(conn, scope, ref)
+    if case is None:
+        raise LookupError(ref)
+    if if_match is None:
+        raise NotAllowed("Send If-Match with the version you are editing")
+    if if_match != case.version:
+        raise Conflict(f"Changed by {last_change(conn, case.id)} while you were editing. Reload to see it.")
+    unknown = set(changes) - EDITABLE
+    if unknown:
+        raise NotAllowed(f"Not editable here: {sorted(unknown)}")
+    prov = dict(case.provenance or {})
+    before = {k: getattr(case, k) for k in changes}
+    for k, v in changes.items():
+        entry = {"value": v, "method": "human", "quote": None, "report_id": None, "checked": True,
+                 "checked_by": scope.name, "reason": reason}
+        prov[k] = entry if k == "people_count" else [{**entry, "value": x} for x in v]
+    sets = ", ".join(f"{k} = :{k}" for k in changes)
+    conn.execute(text(f"UPDATE cases SET {sets}, provenance = CAST(:prov AS jsonb), version = version + 1,"
+                      " updated_at = now() WHERE id = :id"),
+                 {**changes, "prov": json.dumps(prov, ensure_ascii=False), "id": case.id})
+    append_event(conn, actor=_actor(scope), action="case.updated", entity_type="case", entity_id=case.id,
+                 incident_id=case.incident_id, district_id=case.district_id, case_id=case.id, reason=reason,
+                 data={"changed": {k: {"from": before[k], "to": v} for k, v in changes.items()}})
+    return {"case_id": case.id, "version": case.version + 1}

@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m24 · pin drag + needs-location + Low
+**Current milestone:** m25 · triage rules
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -31,6 +31,7 @@
 | m21 | Public status: GET /v1/public/cases/{id}/status (step + last step change only; merged → 'tracked as'; rate-limited per caller) and the /s/[id] page (3 s poll, bilingual stepper, 'last update … ago', offline note); copy-rules check (scripts/check_copy.py) in make test | pytest: body has exactly {public_id, tracked_as, other_reports, step, steps, last_update_at}, no phone/name/location/priority/ETA words; a status change shows on the next poll; 404 unknown; 61st lookup/min → 429, other callers unaffected. copy check fails on a planted 'Help is on the way' and passes on the real code. Live: /s/BR-160 at 390×844 checked |
 | m22 | OSM gazetteer: scripts/import_osm.py (extract mode used; Overpass query kept, untested here) → data/scenarios/BR/gazetteer (places.csv, landmarks.csv, districts.geojson, meta.json, ODbL attribution); long bridges sampled every 150 m; places/landmarks tables (trigram + gist); seed loads them and district boundaries; place-name normaliser across scripts | pytest (12): ≥70 places and >1,000 bridge points load; Thawe village 42 m from its temple, a bridge part within 200 m of the temple; district boundaries contain Thawe (Gopalganj) and Kanti (Muzaffarpur); 8 cross-script name pairs meet (≥ 85), 2 different villages stay apart |
 | m23 | Location ladder (steps 1–8) over the gazetteer: fuzzy village match + gazetteer scan, landmark candidates within 2 km, closest pair → midpoint 150 m, single landmark 300 m, tight cluster centroid ≤ 1 km (never averaging candidates > 500 m apart), village 1.5 km Low, district 15 km Very low, nothing → needs location; method sentence; case district = where the place is; wired into the pipeline with a receipt step | pytest (11): demo line (Latin and Devanagari) → step 3, radius ≤ 300 m containing the real temple, method names temple + bridge + Thawe; village-only → Low ≤ 2 km; station near Thawe → Medium 300 m; no location → no pin + needs_location; 'Gopalganj district' → Very low 15 km; 'I'm in London' → needs location; gazetteer scan finds Kuchaikote; Kanti typed at Gopalganj desk → Muzaffarpur; end-to-end desk report → 2 landmarks + receipt |
+| m24 | Desk corrections: PATCH /v1/cases/{id}/location (Human · 50 m, reason, re-districts by boundary, clears needs_location), POST /v1/cases/{id}/check (guard: a coarse location exists; marks provenance checked by name), PATCH /v1/cases/{id} with If-Match (409 names who changed it and when); IST time helper | pytest (6): pin drag → human 50 m + method sentence + audit event with reason; pin into Muzaffarpur → case moves desks (404 for Priya, 200 for M. Kumar); check refused without a location then works, provenance checked by 'Priya Kumari'; stale If-Match → 409 'Changed by Priya Kumari at …'; no If-Match or a non-editable field → 409; team lead 403, public listener 404. Permission rows case.check + case.move_pin now run |
 
 ## NOT DONE (engineering)
 
