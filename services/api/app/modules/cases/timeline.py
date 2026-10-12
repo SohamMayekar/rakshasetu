@@ -53,6 +53,16 @@ def line(action: str, d: dict, who: str | None) -> str:
             return f"Not the same household (decided{by})"
         case "evidence.added":
             return f"Evidence kept: {d.get('type', '?').replace('_', ' ')}" + (f" · sha256 {d['sha256'][:12]}…" if d.get("sha256") else "")
+        case "assignment.created":
+            return f"Assigned to {d.get('team')}{by}"
+        case "assignment.acknowledged":
+            via = f" · via {d['channel']}" if d.get("channel") not in (None, "app") else ""
+            return f"{d.get('team')} acknowledged · ETA {d.get('eta_minutes')} min{via}{by if via else ''}"
+        case "assignment.reached":
+            via = f" · via {d['channel']}" if d.get("channel") not in (None, "app") else ""
+            return f"{d.get('team')} reached the place" + (" · long operation" if d.get("long_operation") else "") + via
+        case "assignment.released":
+            return f"{d.get('team')} released the case{by}"
         case "report.callback_added":
             return "A callback number was added"
         case _:

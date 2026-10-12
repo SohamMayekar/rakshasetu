@@ -68,8 +68,10 @@ ENDPOINTS = [
     ("import.run", "POST", "/v1/imports",
      {"files": {"file": ("s.csv", b"Naam,Mob,Gaon\nSita,9876543210,Thawe\n", "text/csv")}, "data": {"incident": "BR"}},
      "priya", "boat5", None),
-    ("assignment.create", "POST", "/v1/assignments", {}, "rdas", "priya", "m40"),
-    ("assignment.team_action", "POST", "/v1/assignments/1/acknowledge", {}, "boat5", "priya", "m40"),
+    ("assignment.create", "POST", "/v1/assignments",
+     lambda db: {"case": _unowned_gopalganj_case(db), "team_id": _team(db, "Fire & Rescue Boat 5")}, "rdas", "priya", None),
+    ("assignment.team_action", "POST", lambda db: f"/v1/assignments/{_boat5_assignment(db)}/acknowledge", {"eta_minutes": 30},
+     "boat5", "priya", None),
     ("team.radio_contact", "POST", "/v1/teams/1/contact", {}, "rdas", "priya", "m42"),
     ("rescue.family_confirm", "POST", "/v1/public/cases/BR-151/confirm", {}, None, None, "m46"),
     ("case.decide", "POST", "/v1/cases/BR-151/close", {}, "rdas", "priya", "m45"),
@@ -81,12 +83,32 @@ ENDPOINTS = [
 ]
 
 
+def _unowned_gopalganj_case(db):
+    return rows(db, "SELECT c.public_id FROM cases c JOIN districts d ON d.id = c.district_id WHERE d.name = 'Gopalganj'"
+                    " AND c.status IN ('reported', 'checked') AND NOT EXISTS (SELECT 1 FROM assignments a"
+                    " WHERE a.case_id = c.id AND a.state IN ('open', 'overdue')) ORDER BY c.id LIMIT 1")[0][0]
+
+
+def _team(db, name):
+    return rows(db, "SELECT id FROM teams WHERE name = :n", n=name)[0][0]
+
+
+def _boat5_assignment(db):
+    from sqlalchemy import text
+    with db.begin() as c:
+        cid = c.execute(text("SELECT id FROM cases WHERE public_id = :p"), {"p": _unowned_gopalganj_case(db)}).scalar()
+        return c.execute(text("INSERT INTO assignments (case_id, team_id, next_contact_due) VALUES (:c, :t, now() + interval"
+                              " '5 minutes') RETURNING id"), {"c": cid, "t": _team(db, "Fire & Rescue Boat 5")}).scalar()
+
+
 PARAMS = [pytest.param(*e, id=e[0], marks=pytest.mark.skip(reason=f"endpoint arrives in {e[6]}") if e[6] else ())
           for e in ENDPOINTS]
 
 
 @pytest.mark.parametrize("action,method,path,body,allowed,denied,built_in", PARAMS)
 def test_each_row_through_its_endpoint(seeded, client, app_db, action, method, path, body, allowed, denied, built_in):
+    if callable(path):
+        path = path(app_db)
     if callable(body):
         body = body(app_db)
     send = ({"files": body["files"], "data": body["data"]} if isinstance(body, dict) and "files" in body

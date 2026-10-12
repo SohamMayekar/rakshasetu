@@ -8,6 +8,7 @@ from sqlalchemy import text
 
 from app.config import get_bundle
 from app.db import get_engine
+from app.modules.assignments.router import router as assignments_router
 from app.modules.audit.router import router as audit_router
 from app.modules.auth.router import router as auth_router
 from app.modules.cases.router import router as cases_router
@@ -49,6 +50,7 @@ def create_app() -> FastAPI:
         return {"ok": db_ok, "service": "api", "db": "ok" if db_ok else "down"}
 
     app.include_router(auth_router)
+    app.include_router(assignments_router)
     app.include_router(audit_router)
     app.include_router(dispatch_router)
     app.include_router(cases_router)

@@ -4,7 +4,7 @@ teams:
   - {name: "SDRF Boat 2", agency: SDRF, district: Gopalganj, capabilities: [boat, rope], has_app: false, radio_channel: VHF,
      base: [26.4251, 84.3780], position_age_min: 20, max_active: 2}
   - {name: "Fire & Rescue Boat 5", agency: "Fire & Rescue", district: Gopalganj, capabilities: [boat, medical], has_app: true, radio_channel: VHF,
-     base: [26.4530, 84.4140], position_age_min: 6, max_active: 2}
+     base: [26.4530, 84.4140], position_age_min: 6, max_active: 2, reserved_for_demo: true}   # the demo phone's team: free at reset
   - {name: "NDRF T-03 (deployed)", agency: NDRF, district: Gopalganj, capabilities: [boat, medical, rope], has_app: true, radio_channel: satellite,
      base: [26.3660, 84.3374], position_age_min: 35, max_active: 3}
   - {name: "Fishermen boat · Ramesh Sahni (radio only)", agency: Fishermen, district: Gopalganj, capabilities: [boat], has_app: false, radio_channel: phone,
@@ -19,3 +19,22 @@ teams:
      base: [26.1745, 85.3181], position_age_min: 25, max_active: 2}
   - {name: "Fire & Rescue Boat 3 (Muzaffarpur)", agency: "Fire & Rescue", district: Muzaffarpur, capabilities: [boat, medical], has_app: false, radio_channel: VHF,
      base: [26.2146, 85.2982], position_age_min: 40, max_active: 2}
+  # More of the district's deployed boats (a real flood district fields dozens). Synthetic names, real places.
+  - {name: "SDRF Boat 6", agency: SDRF, district: Gopalganj, capabilities: [boat], has_app: true, radio_channel: VHF,
+     base: [26.3631, 84.2976], position_age_min: 10, max_active: 2}
+  - {name: "SDRF Boat 7", agency: SDRF, district: Gopalganj, capabilities: [boat, rope], has_app: true, radio_channel: VHF,
+     base: [26.3826, 84.5867], position_age_min: 18, max_active: 2}
+  - {name: "NDRF T-05 (deployed)", agency: NDRF, district: Gopalganj, capabilities: [boat, medical, rope], has_app: true, radio_channel: satellite,
+     base: [26.5586, 84.3286], position_age_min: 25, max_active: 3}
+  - {name: "NDRF T-07 (deployed)", agency: NDRF, district: Gopalganj, capabilities: [boat, medical, rope], has_app: true, radio_channel: satellite,
+     base: [26.3317, 84.6654], position_age_min: 30, max_active: 3}
+  - {name: "Fire & Rescue Boat 8", agency: "Fire & Rescue", district: Gopalganj, capabilities: [boat], has_app: false, radio_channel: VHF,
+     base: [26.4043, 84.4957], position_age_min: 40, max_active: 2}
+  - {name: "SDRF Boat 9", agency: SDRF, district: Gopalganj, capabilities: [boat], has_app: true, radio_channel: VHF,
+     base: [26.2770, 84.7845], position_age_min: 15, max_active: 2}
+  - {name: "Fishermen boat · Jose (radio only)", agency: Fishermen, district: Gopalganj, capabilities: [boat], has_app: false, radio_channel: phone,
+     base: [26.4513, 84.2856], position_age_min: 55, max_active: 1}
+  - {name: "Aapda Mitra team, Hathua block", agency: "Aapda Mitra", district: Gopalganj, capabilities: [rope, medical], has_app: true, radio_channel: phone,
+     base: [26.3631, 84.2976], position_age_min: 20, max_active: 2}
+  - {name: "NDRF T-09 (deployed)", agency: NDRF, district: Muzaffarpur, capabilities: [boat, medical, rope], has_app: true, radio_channel: satellite,
+     base: [26.2788, 85.3320], position_age_min: 20, max_active: 3}

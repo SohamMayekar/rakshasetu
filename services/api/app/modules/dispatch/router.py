@@ -11,7 +11,7 @@ from app.modules.dispatch.service import rank, teams_for
 router = APIRouter(tags=["dispatch"], dependencies=[Depends(require_local)])
 
 
-@router.get("/v1/cases/{ref}/dispatch")
+@router.get("/v1/cases/{ref}/dispatch-suggestions")
 def dispatch(ref: str, scope: Scope = Depends(require("queue.view"))) -> dict:
     with get_engine().connect() as conn:
         case = repo.get_case(conn, scope, ref)

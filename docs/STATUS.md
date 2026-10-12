@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m40 assignments with check-in deadlines (T7)
+**Current milestone:** m41 the ticker: contact overdue → one team escalation (T6)
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -40,6 +40,7 @@
 | m30 | Import job: rules first, mapped columns as data, per-row commits with the row's outcome in the same transaction, in-file clustering, LLM for leftover rows (20 at a time, one row per call), progress + completed events, summary = DB counts, resumable, closed history, old-report flag | tests/test_import_job.py (spreadsheet channel integration, summary = DB, evidence, re-import doubles nothing, resume, AI path via cache); T5 tests/scenarios/test_t5_excel_damage.py |
 | m31 | Demo volunteer sheet: 300 synthetic rows + ground truth (repeats, relay phone, 14 Excel-damaged phones, Das pair, seeded duplicates, no-location, old, needs-AI, done); make demo-sheet / make sheet-eval | tests/scenarios/test_demo_sheet.py: 16.6 s, 300/300 outcomes, precision 1.000, recall 0.965 (docs/MEASUREMENTS.md) |
 | m39 | Dispatch suggestions: capability → straight-line distance → load, deterministic, reasons per line incl. position age and radio-only, overdue/out-of-service/full teams greyed with why; officer's queue button names the best team | tests/test_dispatch.py (5: capability rules, ranking + reasons + greyed + deterministic, overdue/full never suggested, queue button, scope) |
+| m40 | Assignments: officer assigns (one live per case, 409 naming who + DB index), acknowledge with ETA chip / reached (long operation) / release with reason, team lead own-team only, officer on behalf with channel, Idempotency-Key replay, DB-clock deadlines, demo clock ×60 for live demo cases only, case + team status, timeline lines; seeded P1s start owned (E22), Boat 5 free; BR pack capacity; dispatch path /dispatch-suggestions | tests/test_assignments.py (7 incl. T7), permission rows assignment.create + assignment.team_action, dispatch tests adapted |
 
 ## NOT DONE (engineering)
 

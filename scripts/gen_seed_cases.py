@@ -142,9 +142,9 @@ def main():
                             "needs": ["food"], "vulnerable": [], "note": "village only: expect a Low 1.5 km circle"}})
     cases.append({"key": "br-noloc", "district": "Gopalganj", "minutes_ago": 0, "channel": "web_form", "relation": "family",
                   "phone": "+91 98765 29002", "status": "reported",
-                  "text": "Hum log fase hain, 3 log, ek buzurg, jaldi aaiye",
+                  "text": "Hum log fase hain, 3 log hain, jaldi aaiye",
                   "truth": {"village": None, "village_point": None, "household": None, "people_count": 3, "hazards": ["trapped_inside"],
-                            "needs": [], "vulnerable": ["elderly"], "note": "no location: expect a Needs location row"}})
+                            "needs": [], "vulnerable": [], "note": "no location: expect a Needs location row (P2, so a reset starts with no broken P1 promise)"}})
     # Spread report times over the last ten hours, oldest first (timestamps are relative to the seed moment).
     ages = sorted((rng.randint(8, 600) for _ in cases), reverse=True)
     for c, age in zip(cases, ages):

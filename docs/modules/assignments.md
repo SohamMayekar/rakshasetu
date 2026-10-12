@@ -1,0 +1,9 @@
+# assignments · one owner, and a check-in clock that only real contact resets
+
+- **What it does:** an officer assigns a team (`POST /v1/assignments`, `assignment.create`, local). **One live assignment per case**, enforced by a partial unique index (rule R7): a second attempt gets **409 "Already assigned to Fire & Rescue Boat 5 by R. Das at 14:02:11"**, and a raw second insert fails in the database itself (T7, tested).
+- **The clock (database time, rule R6):** acknowledge within (P1 5 min · P2 10 · P3/P4 30) → after **Acknowledge** with an ETA chip (15 / 30 / 60 min) the deadline is ETA + 10 min grace → after **Reached**, the on-scene window (30 min, or 120 min for a long operation). The phone's own `happened_at` is stored as provenance but never moves a deadline.
+- **Who acts:** the team lead in the app (only for its own team's assignments: anything else is 403), or an officer **on the team's behalf with the channel it was heard on** (VHF · HAM · satellite · phone): "SDRF Boat 2 acknowledged · ETA 15 min · via VHF by R. Das". **Release** always needs a reason and returns the case to the queue.
+- **Retries:** team actions take `Idempotency-Key`; a retried tap returns the first answer (`Idempotent-Replay: true`) and acts once (tested).
+- **Demo clock:** in DEMO_MODE, cases created after the reset run ×60 (a P1's 5 minutes become 5 seconds); **seeded cases keep real timers**.
+- **Seeded owners (PRD E22):** after a reset every seeded P1 with a place already has its best-ranked team, acknowledged, check-in due 15–45 min later, so the demo starts with no broken promise; the demo phone's team (Fire & Rescue Boat 5) starts free. The BR pack gained the district's other deployed boats to make that possible (synthetic names, real places).
+- **Not yet:** the ticker's overdue/escalation (m41), the team-level radio log (m42), the desk and responder screens for all this (m43–m44).

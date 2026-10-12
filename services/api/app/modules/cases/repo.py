@@ -44,12 +44,31 @@ def list_cases(conn: Connection, scope: Scope, incident_code: str | None = None,
 
 
 def get_case(conn: Connection, scope: Scope, ref: str) -> dict | None:
-    """`ref` is a public id (BR-214) or a numeric id."""
+    """`ref` is a public id (BR-214) or a numeric id. Includes the live assignment, if any."""
     where, params = scope.case_where("c")
     key = "c.public_id = :ref" if not ref.isdigit() else "c.id = :ref_id"
     params.update(ref=ref, ref_id=int(ref) if ref.isdigit() else None)
     r = conn.execute(text(f"SELECT {CASE_COLUMNS} {FROM} WHERE {key} AND {where}"), params).one_or_none()
-    return _row(r) if r else None
+    if r is None:
+        return None
+    case = _row(r)
+    case["assignment"] = assignment_for(conn, case["id"])
+    return case
+
+
+def assignment_for(conn: Connection, case_id: int) -> dict | None:
+    """The live assignment, as the drawer and the responder app show it."""
+    a = conn.execute(text(
+        "SELECT a.id, a.team_id, t.name AS team, t.has_app, t.radio_channel, a.phase, a.state, a.eta_minutes,"
+        " a.long_operation, a.next_contact_due, a.demo_clock, a.created_at, t.last_contact_at, t.last_seen_at,"
+        " u.name AS assigned_by FROM assignments a JOIN teams t ON t.id = a.team_id LEFT JOIN users u ON u.id = a.assigned_by"
+        " WHERE a.case_id = :c AND a.state IN ('open', 'overdue')"), {"c": case_id}).one_or_none()
+    if a is None:
+        return None
+    d = dict(a._mapping)
+    for k in ("next_contact_due", "created_at", "last_contact_at", "last_seen_at"):
+        d[k] = d[k].isoformat() if d[k] else None
+    return d
 
 
 def case_exists(conn: Connection, ref: str) -> bool:

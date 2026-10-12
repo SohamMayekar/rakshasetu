@@ -1079,7 +1079,7 @@ cases:
   relation: family
   phone: +91 98765 29002
   status: reported
-  text: Hum log fase hain, 3 log, ek buzurg, jaldi aaiye
+  text: Hum log fase hain, 3 log hain, jaldi aaiye
   truth:
     village: null
     village_point: null
@@ -1088,6 +1088,5 @@ cases:
     hazards:
     - trapped_inside
     needs: []
-    vulnerable:
-    - elderly
-    note: 'no location: expect a Needs location row'
+    vulnerable: []
+    note: 'no location: expect a Needs location row (P2, so a reset starts with no broken P1 promise)'

@@ -185,6 +185,36 @@ def seed_cases(owner_url: str, root: Path, loaded: dict, now) -> int:
     return n
 
 
+def seed_owners(conn: Connection, root: Path, loaded: dict) -> int:
+    """Seeded P1s start with an owner (PRD E22: after a reset no seeded case is stale or escalates): each gets the
+    best-ranked team with room, already acknowledged, with a realistic check-in due 15-45 min after the reset.
+    The demo phone's team is left free for the live case. P2-P4 seeded cases stay in the queue as the backlog;
+    no team is sent to a case with no place (it needs a person to find the place first)."""
+    import random
+
+    from app.modules.assignments.service import create
+    from app.modules.dispatch.service import rank, teams_for
+    rng = random.Random(7)
+    owned = 0
+    for code, pack in loaded.items():
+        reserved = {pack["teams"][t["name"]] for t in _yaml(root / code / "teams.yaml").get("teams", [])
+                    if t.get("reserved_for_demo")}
+        cases = conn.execute(text(
+            "SELECT c.*, ST_Y(c.geom::geometry) AS lat, ST_X(c.geom::geometry) AS lng FROM cases c"
+            " WHERE c.incident_id = :i AND c.priority = 'P1' AND c.status IN ('reported', 'checked') AND c.geom IS NOT NULL"
+            " ORDER BY c.p1_rank, c.queue_since"), {"i": pack["incident_id"]}).all()
+        for c in cases:
+            ranked = rank(dict(c._mapping), teams_for(conn, c.incident_id, c.district_id))
+            options = [t for t in ranked["suggestions"] + ranked["more"] if t["team_id"] not in reserved]
+            if not options:
+                continue
+            team = conn.execute(text("SELECT * FROM teams WHERE id = :t"), {"t": options[0]["team_id"]}).one()
+            create(conn, case=c, team=team, actor=SYSTEM, phase="acknowledged", eta_minutes=30,
+                   due_s=rng.randint(15, 45) * 60)
+            owned += 1
+    return owned
+
+
 def _json_dumps(obj) -> str:
     import json
     return json.dumps(obj, ensure_ascii=False)
@@ -237,7 +267,9 @@ def seed(owner_url: str, packs=PACKS, root: Path | None = None) -> dict:
                 "SELECT id FROM users WHERE role = 'call_taker' AND :i = ANY(incident_ids) ORDER BY id LIMIT 1"),
                 {"i": pack["incident_id"]}).scalar()
     cases = seed_cases(owner_url, root, loaded, now)
-    return {"incidents": len(loaded), "cases": cases, "teams": sum(len(p["teams"]) for p in loaded.values()),
+    with engine_for(owner_url).begin() as conn:
+        owned = seed_owners(conn, root, loaded)
+    return {"owned_p1": owned, "incidents": len(loaded), "cases": cases, "teams": sum(len(p["teams"]) for p in loaded.values()),
             "users": users}
 
 
