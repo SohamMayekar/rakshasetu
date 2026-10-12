@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m22 · OSM gazetteer import
+**Current milestone:** m23 · landmark ladder + circle
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
@@ -29,6 +29,7 @@
 | m19 | LLM extraction: closed contract, Pydantic + one retry, fixed system prompt with the report as delimited data, quote check (amber), keyword cross-check (dropped facts kept, amber), extraction cache, back-fill job when the model was down (RetryLater while switched off); receipts per step | pytest with a stand-in model (test double): AI chips + 'quotes ✓'; invented quote → amber; dropped 'dawai' kept as Rule + amber; priority field → retried once → rules; outage → rule-made case now, AI back-fill later (+ case.updated); no keys → no back-fill; cache avoids a second call; back-fill waits while LM is off without using attempts. T10: LLM error → case < 5 s. NOT verified: a live model call (no keys) |
 | m20 | Reporter PWA /r: tap-to-talk (MediaRecorder, auto-stop after 2 s silence, 30 s cap), device id, type-instead, 'Not sent yet, call 112/1077' state, registered view with the fixed reply + optional callback; backend: content-addressed upload, ffmpeg 16 kHz WAV (-t 30, 10 s timeout), empty/short/broken clip → 422 + no case, voice caps 5/device/min + 20/min, STT stage (Sarvam → Groq → recorded fixture), audio-only case on total STT failure, evidence linked with sha256 in the chain | pytest (9): clip → case with audio evidence whose sha256 = upload and an evidence.added event; STT failure → 'audio only: listen'; silence / 0.4 s / non-audio → 422 and no report; 6th clip in a minute → 429; retry = one report; only the sending device can poll; typed text → case. Live: headless Chromium with a fake mic on :8080/r → BR-200 registered (audio-only: no STT keys); screenshots checked at 390×844 |
 | m21 | Public status: GET /v1/public/cases/{id}/status (step + last step change only; merged → 'tracked as'; rate-limited per caller) and the /s/[id] page (3 s poll, bilingual stepper, 'last update … ago', offline note); copy-rules check (scripts/check_copy.py) in make test | pytest: body has exactly {public_id, tracked_as, other_reports, step, steps, last_update_at}, no phone/name/location/priority/ETA words; a status change shows on the next poll; 404 unknown; 61st lookup/min → 429, other callers unaffected. copy check fails on a planted 'Help is on the way' and passes on the real code. Live: /s/BR-160 at 390×844 checked |
+| m22 | OSM gazetteer: scripts/import_osm.py (extract mode used; Overpass query kept, untested here) → data/scenarios/BR/gazetteer (places.csv, landmarks.csv, districts.geojson, meta.json, ODbL attribution); long bridges sampled every 150 m; places/landmarks tables (trigram + gist); seed loads them and district boundaries; place-name normaliser across scripts | pytest (12): ≥70 places and >1,000 bridge points load; Thawe village 42 m from its temple, a bridge part within 200 m of the temple; district boundaries contain Thawe (Gopalganj) and Kanti (Muzaffarpur); 8 cross-script name pairs meet (≥ 85), 2 different villages stay apart |
 
 ## NOT DONE (engineering)
 

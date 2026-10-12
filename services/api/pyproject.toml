@@ -17,6 +17,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+osm = ["osmium>=4", "shapely>=2"]   # scripts/import_osm.py only (dev); not in the API image
 dev = ["pytest>=8", "httpx>=0.27", "ruff>=0.6", "jsonschema>=4.23", "pytest-timeout>=2.3"]
 
 [tool.setuptools.packages.find]

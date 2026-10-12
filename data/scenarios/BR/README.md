@@ -20,7 +20,9 @@ Gopalganj sits on the Gandak in the North Bihar flood belt. The incident keeps *
 - `incident.yaml`: the incident and its two districts (district centroids from the OSM boundaries).
 - `teams.yaml`: 9 teams with capabilities, `has_app`, positions near real places and position ages; one radio-only SDRF boat, one out of service.
 - `cases.yaml`: **generated** by `scripts/gen_seed_cases.py` (deterministic): 48 synthetic household reports at real OSM village points, in Hinglish, English and Devanagari, plus a village-only Low case and a no-location case. Each text has its `truth` next to it.
-- Gazetteer extract (places and landmarks): arrives with m22.
+- `gazetteer/`: the OSM extract for Gopalganj and Muzaffarpur (+2 km): 72 named places, 22 temples, 2,800 bridge
+  points (long bridges sampled every 150 m), schools, hospitals, stations, water towers; district boundaries.
+  Built by `scripts/import_osm.py --pbf <extract>`; the ladder reads only these committed rows.
 
 **Source and licence:** OpenStreetMap data © OpenStreetMap contributors, available under the Open Database License (ODbL). Extract: `https://download.openstreetmap.fr/extracts/asia/india/bihar.osm.pbf` (md5 `b0fb84e0ee39d8befa7f7d0985500ef1`, state timestamp 2026-10-12T16:25:00Z). The Overpass API was unreachable from the build sandbox (see `docs/STATUS.md`, BLOCKED).
 

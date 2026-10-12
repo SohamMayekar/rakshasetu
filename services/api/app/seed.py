@@ -75,10 +75,48 @@ def load_pack(conn: Connection, root: Path, code: str, now) -> dict:
                      incident_id=incident_id, district_id=districts[t["district"]], team_id=teams[t["name"]],
                      data={"name": t["name"], "has_app": t.get("has_app", True), "status": t.get("status", "available")})
 
+    gazetteer = load_gazetteer(conn, root / code / "gazetteer", incident_id, districts)
+
     cases = sorted(_yaml(root / code / "cases.yaml").get("cases", []), key=lambda c: -c["minutes_ago"])
     for c in cases:
         _insert_case(conn, incident_id, inc["code"], districts, c, now)
-    return {"incident_id": incident_id, "districts": districts, "teams": teams, "cases": len(cases)}
+    return {"incident_id": incident_id, "districts": districts, "teams": teams, "cases": len(cases), **gazetteer}
+
+
+def load_gazetteer(conn: Connection, folder: Path, incident_id: int, districts: dict) -> dict:
+    """The committed OSM extract (scripts/import_osm.py) → places, landmarks, district boundaries."""
+    import csv
+    import json as _json
+
+    from app.modules.location.names import norm
+    if not (folder / "places.csv").exists():
+        return {"places": 0, "landmarks": 0}
+    radius = {"village": 1500, "hamlet": 800, "town": 3000, "city": 6000, "suburb": 1500, "locality": 800,
+              "neighbourhood": 800, "isolated_dwelling": 300}
+    places = list(csv.DictReader((folder / "places.csv").open()))
+    conn.execute(text(
+        "INSERT INTO places (incident_id, district_id, name, name_hi, alt_names, name_norm, type, geom, radius_m,"
+        " osm_type, osm_id) VALUES (:i, :d, :name, NULLIF(:hi, ''), :alts, :norm, :type,"
+        " ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography, :radius, :ot, :oid)"),
+        [dict(i=incident_id, d=districts.get(p["district"]), name=p["name"], hi=p["name_hi"],
+              alts=[a for a in p["alt_names"].split(";") if a], norm=norm(p["name"]), type=p["type"],
+              lon=float(p["lon"]), lat=float(p["lat"]), radius=radius.get(p["type"], 1500), ot=p["osm_type"],
+              oid=int(p["osm_id"])) for p in places])
+    lms = list(csv.DictReader((folder / "landmarks.csv").open()))
+    conn.execute(text(
+        "INSERT INTO landmarks (incident_id, district_id, name, name_norm, type, religion, detail, geom, osm_type,"
+        " osm_id, part) VALUES (:i, :d, NULLIF(:name, ''), :norm, :type, NULLIF(:rel, ''), NULLIF(:detail, ''),"
+        " ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography, :ot, :oid, :part)"),
+        [dict(i=incident_id, d=districts.get(x["district"]), name=x["name"], norm=norm(x["name"]), type=x["type"],
+              rel=x["religion"], detail=x["detail"], lon=float(x["lon"]), lat=float(x["lat"]), ot=x["osm_type"],
+              oid=int(x["osm_id"]), part=int(x.get("part") or 0)) for x in lms])
+    geo = folder / "districts.geojson"
+    if geo.exists():
+        for f in _json.loads(geo.read_text())["features"]:
+            if f["properties"]["name"] in districts:
+                conn.execute(text("UPDATE districts SET boundary = ST_Multi(ST_GeomFromGeoJSON(:g))::geography"
+                                  " WHERE id = :d"), {"g": _json.dumps(f["geometry"]), "d": districts[f["properties"]["name"]]})
+    return {"places": len(places), "landmarks": len(lms)}
 
 
 def _case_fields(c: dict) -> dict:

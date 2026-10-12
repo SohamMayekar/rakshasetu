@@ -1,0 +1,73 @@
+osm_type,osm_id,name,name_hi,alt_names,type,district,lat,lon
+way,1246268717,Ansari Dumri,अंसारी डुमरी,,village,Gopalganj,26.284988,84.611063
+node,245748039,Babutola,,,village,Gopalganj,26.423275,84.522312
+node,6942842785,Baikunthpur,,,village,Gopalganj,26.277043,84.784509
+node,3596026009,Barasra,,,village,Gopalganj,26.333527,84.452096
+node,6942842805,Barauli,,,village,Gopalganj,26.382605,84.586701
+node,6942678934,Bhore,,,village,Gopalganj,26.448001,84.103517
+node,245748480,Bijaipur,,,village,Gopalganj,26.460757,83.984508
+node,245747803,Dewapur,,,village,Gopalganj,26.414064,84.56077
+node,1349713130,Gopalganj,गोपालगंज,,town,Gopalganj,26.460969,84.439829
+node,10239745692,Harpur,,,village,Gopalganj,26.468113,83.942599
+node,9131006758,Harpur Bazar,,,village,Gopalganj,26.65468,84.15226
+node,1348605608,Hathua,,,suburb,Gopalganj,26.363101,84.297561
+node,3596021234,Kalu Chhapra,,,hamlet,Gopalganj,26.342855,84.455218
+node,6942693210,Katiya,,,village,Gopalganj,26.56668,84.084846
+node,3595995468,Khanpur,,,village,Gopalganj,26.327922,84.454672
+node,6942768385,Kuchaikote,,,village,Gopalganj,26.558647,84.328566
+node,6943359195,Lakri Nabiganj,,,village,Gopalganj,26.232262,84.693861
+node,3597809002,Madhopur,,,village,Gopalganj,26.34395,84.45109
+way,316392804,Madhopur,,,village,Gopalganj,26.344123,84.452783
+node,6942843103,Manjha,,,village,Gopalganj,26.404305,84.495721
+node,3596020503,Meera Chhapra,,,hamlet,Gopalganj,26.335833,84.454421
+node,1348203472,Mirganj,,,town,Gopalganj,26.365964,84.337362
+node,6943213685,Nautan,,,village,Gopalganj,26.326384,84.213896
+node,13251130411,Nawadah,नवादा,,village,Gopalganj,26.385915,84.54238
+node,3596006095,New Basti ,,,hamlet,Gopalganj,26.340129,84.451989
+node,3596020631,Nirkhi Chhapra,,,village,Gopalganj,26.336425,84.454739
+node,6942678887,Panchdeuri,,Panchdewari,village,Gopalganj,26.581466,84.168899
+way,1246265687,Panditpur,,,village,Gopalganj,26.322922,84.607888
+node,6942719486,Phulwaria,,,village,Gopalganj,26.45924,84.250717
+node,6942768386,Sidhwalia,,,village,Gopalganj,26.331672,84.665397
+way,1246273090,Taiya Dumri,तैया डुमरी,,village,Gopalganj,26.291386,84.613631
+node,6942768436,Thawe,,,village,Gopalganj,26.437367,84.394655
+node,6942768602,Uchkagaon,,,village,Gopalganj,26.451277,84.285564
+node,12277680270,Amnuar,,,village,Muzaffarpur,26.275259,85.549434
+node,245747119,Aurai,,,village,Muzaffarpur,26.317269,85.563623
+node,6945588275,Bandra,,,village,Muzaffarpur,26.067539,85.632065
+node,5987281212,Bariarpur,बरिआरपुर,Bariarpur,village,Muzaffarpur,26.188504,85.317151
+node,14115115102,Barji,,,village,Muzaffarpur,26.310602,85.142805
+node,6945382481,Baruraj (Motipur),,,village,Muzaffarpur,26.261967,85.116148
+node,13992666778,Chaknagri Chowk,,,locality,Muzaffarpur,26.346707,85.163748
+node,5977591387,Chapra Dharampur Jaddu,छपरा धरमपुर जड्डू,,village,Muzaffarpur,26.172971,85.33065
+node,5987323064,Dhamauli Ramnath,धमौली रामनाथ,,village,Muzaffarpur,26.196504,85.339078
+node,6945588096,Dholi,ढोली,,village,Muzaffarpur,25.997113,85.60522
+node,6945594211,Gaighat,,,village,Muzaffarpur,26.133787,85.654135
+node,245740807,Goraul,,,village,Muzaffarpur,25.937632,85.330947
+node,2506054865,Jajuara,,Yajuar,village,Muzaffarpur,26.304626,85.66877
+node,8936320219,Kabauli,,,village,Muzaffarpur,26.033271,85.000837
+node,245745092,Kanti,,,village,Muzaffarpur,26.214545,85.298179
+node,9067323215,Katasa,,,village,Muzaffarpur,26.206525,85.736119
+node,245746310,Katra,,,village,Muzaffarpur,26.217293,85.639862
+node,3906528288,Kurhani,कुढ़नी,,town,Muzaffarpur,25.98062,85.337448
+node,5987372847,Lashkaripur,लाश्कारिपुर,,village,Muzaffarpur,26.178482,85.344154
+node,245739868,Mahuwa,,,village,Muzaffarpur,25.8989,85.5056
+node,1848872032,Majhauli,,,village,Muzaffarpur,26.162153,85.478589
+node,13994957288,Mangrahi Bazar,,,locality,Muzaffarpur,26.310988,85.129489
+node,6945314489,Marwan,,,village,Muzaffarpur,26.107065,85.258219
+node,245746242,Minapur,,,village,Muzaffarpur,26.278771,85.332022
+node,566622644,Muzaffarpur,मुज़फ़्फ़रपुर,Muzaffarpur,city,Muzaffarpur,26.11829,85.385789
+node,5987298666,Narsanda,नरसंदा,,village,Muzaffarpur,26.193135,85.317931
+node,6945382437,Paroo,,,village,Muzaffarpur,26.091322,85.070786
+node,6948197107,Paterhi Belsar,,,village,Muzaffarpur,25.984203,85.226827
+node,245747069,Raj Khand,,,village,Muzaffarpur,26.357407,85.558642
+node,1077580245,Rajepur Chowk,,,locality,Muzaffarpur,26.365575,85.214333
+node,6945038585,Runisaidpur,,,village,Muzaffarpur,26.391716,85.505669
+node,6624378225,Sahebganj,,,village,Muzaffarpur,26.297936,84.928007
+node,566622645,Sakra,,,village,Muzaffarpur,25.977178,85.566942
+node,6945374410,Saraiya,,,village,Muzaffarpur,26.035104,85.149332
+node,5987260107,Shahbazpur,शहबाज़पुर,,village,Muzaffarpur,26.164227,85.320891
+node,9061650501,Simri,,,village,Muzaffarpur,26.16422,85.761407
+node,6967295438,Singhwara,,,village,Muzaffarpur,26.193144,85.734601
+node,5987260184,Sirsian,सिर्सियन,,village,Muzaffarpur,26.174226,85.318065
+node,2661513160,Vaishali,,,village,Muzaffarpur,25.979243,85.126292

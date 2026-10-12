@@ -1,0 +1,25 @@
+{
+  "source": "https://download.openstreetmap.fr/extracts/asia/india/bihar.osm.pbf",
+  "md5": "b0fb84e0ee39d8befa7f7d0985500ef1",
+  "districts": [
+    "Gopalganj",
+    "Muzaffarpur"
+  ],
+  "built_at": "2026-10-12T16:25:00+00:00",
+  "counts": {
+    "places": 72,
+    "landmarks": {
+      "railway_station": 43,
+      "mosque": 7,
+      "school": 30,
+      "hospital": 102,
+      "temple": 22,
+      "market": 11,
+      "water_tower": 8,
+      "tower": 4,
+      "place_of_worship": 11,
+      "bridge": 2800
+    }
+  },
+  "licence": "ODbL, \u00a9 OpenStreetMap contributors"
+}
