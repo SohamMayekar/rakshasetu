@@ -10,7 +10,7 @@ export const viewport: Viewport = { width: "device-width", initialScale: 1, them
 
 export const metadata: Metadata = {
   title: "RakshaSetu",
-  description: "Never lost. Never doubled. Never stale.",
+  description: "Get every family in a flood to safety: one case, one rescue team, until they are safe.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

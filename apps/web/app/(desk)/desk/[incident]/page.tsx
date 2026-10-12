@@ -9,7 +9,7 @@ import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CaseMap } from "@/components/desk/CaseMap";
 import { Drawer, type Picked } from "@/components/desk/Drawer";
 import { Header } from "@/components/desk/Header";
-import { PromiseBar, type QueueFilter } from "@/components/desk/PromiseBar";
+import { Today } from "@/components/desk/Today";
 import { NeedsYouNow } from "@/components/desk/NeedsYouNow";
 import { ImportSheet } from "@/components/desk/ImportSheet";
 import { NewReport } from "@/components/desk/NewReport";
@@ -24,13 +24,6 @@ import { type Envelope, useLive } from "@/lib/live";
 import type { Queue, QueueRow } from "@/lib/queue";
 
 const CLOSED = new Set(["merged", "cancelled"]);
-
-function matches(r: QueueRow, f: QueueFilter): boolean {
-  if (f === "p1_unowned") return r.priority === "P1" && !!r.chip && (r.chip.startsWith("no owner") || r.chip.includes("P1 without an owner"));   // copy-ok: the API's chip codes
-  if (f === "overdue") return !!r.chip?.startsWith("contact overdue");
-  if (f === "duplicates") return r.action.kind === "match";
-  return true;
-}
 
 function caseIds(events: Envelope[]): number[] {
   const ids = new Set<number>();
@@ -60,7 +53,6 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [escalations, setEscalations] = useState<Escalation[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [filter, setFilter] = useState<QueueFilter>(null);
   // One queue read at a time: in a surge, frames arrive every second and a read of 2,000+ rows mustn't pile up
   // behind itself. Asks that come in meanwhile collapse into one more read, 2 s after this one lands.
   const queueBusy = useRef(false);
@@ -177,20 +169,14 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
       <Sidebar me={me} compact />
       <div className="flex min-w-0 flex-1 flex-col gap-2.5 p-3 md:pl-0">
       <Header me={me} incident={incident} live={live} />
-      {me?.permissions.includes("totals.view") && <PromiseBar incident={incident} onFilter={setFilter} />}
+      {me?.permissions.includes("totals.view") && <Today incident={incident} queue={queue} />}
       <div className="flex min-h-0 flex-1 gap-2.5">
         <nav className={`flex w-full shrink-0 flex-col overflow-hidden md:w-[356px] ${card}`} aria-label="Needs you now">
           {saved && <p className="truncate px-4 pt-3 text-xs text-ink-2">Report saved {saved.line}</p>}
           <Escalations items={escalations} publicIds={(id) => cases.get(id)?.public_id}
                        onOpenCase={(id) => { setSelected(id); setFocus("Assignment"); setComposing(false); setImporting(null); }}
                        onChanged={loadQueue} />
-          {filter && (
-            <p className="mx-3 mt-2 flex items-center justify-between rounded-xl bg-wash px-3 py-1.5 text-xs">
-              <span>Showing {{ p1_unowned: "urgent families without a team", overdue: "contact overdue", duplicates: "maybe repeats" }[filter]}</span>
-              <button className="underline underline-offset-2" onClick={() => setFilter(null)}>Show all</button>
-            </p>
-          )}
-          <NeedsYouNow key={filter ?? "all"} queue={queue && filter ? { ...queue, rows: queue.rows.filter((r) => matches(r, filter)) } : queue} selected={selected} onSelect={(id) => { if (id < 0) { setImporting({ id: -id, filter: "waiting" }); return; } setSelected(id); setFocus(null); setComposing(false); setImporting(null); }} onAction={onAction}
+          <NeedsYouNow queue={queue} selected={selected} onSelect={(id) => { if (id < 0) { setImporting({ id: -id, filter: "waiting" }); return; } setSelected(id); setFocus(null); setComposing(false); setImporting(null); }} onAction={onAction}
                        tools={me?.permissions.includes("report.submit") && (   // the two ways in for the desk itself: quiet, the rows' buttons come first
                          <span className="flex shrink-0 gap-1">
                            <Button size="sm" className="whitespace-nowrap" onClick={() => { setComposing(true); setImporting(null); setSelected(null); }}>

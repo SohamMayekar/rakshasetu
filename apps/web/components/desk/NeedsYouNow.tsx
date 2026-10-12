@@ -57,7 +57,7 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction, tools }: {
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex items-center justify-between gap-2 px-4 pt-4 pb-2">
         <h2 className="flex items-center gap-2 whitespace-nowrap text-[17px] font-semibold tracking-tight">
-          Needs you now <span className="tabular rounded-full bg-wash px-2 py-0.5 text-xs font-semibold text-ink-2">{queue.rows.length}</span>
+          Needs you now
         </h2>
         {tools}
       </div>
@@ -113,12 +113,6 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction, tools }: {
           )}
         </ol>
       )}
-      <details className="border-t border-line px-4 py-2.5 text-sm text-ink-2">
-        <summary className="cursor-pointer select-none">
-          {`A team is on it: ${queue.on_it} · rescued, closing: ${queue.rescued_closing} · closed: ${queue.closed}`}
-        </summary>
-        <p className="mt-1 text-xs text-ink-3">A family whose team has checked in on time leaves this list. It comes back the moment a promise breaks.</p>
-      </details>
     </div>
   );
 }

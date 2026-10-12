@@ -89,3 +89,10 @@ export type PartnerNote = {
   confidence: number | null; explanation: string | null; evidence_id: number | null; decision: "accepted" | "ignored" | null;
   received_at: string;
 };
+
+// The three promises' numbers (GET /v1/metrics/promises): each its own database query.
+export type Promises = {
+  lost: { reports: number; cases: number; merged: number; to_check: number; without_home: number; oldest_waiting_s: number | null; adds_up: boolean; broken: boolean };
+  doubled: { merged: number; to_check: number; refused: number; broken: boolean };
+  stale: { p1_unowned: number; overdue: number; owned: number; broken: boolean };
+};

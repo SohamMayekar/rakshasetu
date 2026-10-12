@@ -4,16 +4,18 @@
 // Signed out: two big choices only, "I need help" (the reporter page) and "Control room dashboard" (sign in), with
 // the rescue team's app as a small link (m64). Signed in: each person goes to their own screen (the duty officer
 // to their desk, a team to its app); whoever sees several incidents gets this screen, one card per incident with
-// its own promise bar and a map of India: "a national layer of district desks".
+// its three numbers (families waiting, with a team, rescued) and a map of India: a national layer of district desks.
 
-import { ArrowRight, CalendarDays, CopyCheck, Inbox, LayoutDashboard, type LucideIcon, Mic, Mountain, Timer, Waves, Wind } from "lucide-react";
+import { ArrowRight, LayoutDashboard, type LucideIcon, Mic, Mountain, Waves, Wind } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { IncidentsMap } from "@/components/IncidentsMap";
 import { AppShell, Page } from "@/components/shell/AppShell";
 import { Mark } from "@/components/shell/Sidebar";
-import { Card, Chip, IconWell, PageHeader, Pill } from "@/components/ui";
-import type { Promises } from "@/components/desk/PromiseBar";
+import { waitingFamilies } from "@/components/desk/Today";
+import { Card, Chip, IconWell, PageHeader } from "@/components/ui";
+import type { Queue } from "@/lib/queue";
+import type { Promises } from "@/lib/api";
 import { api, ApiError, type Me } from "@/lib/api";
 
 type Incident = { id: number; code: string; name: string; type: string; states: string[]; status: string; lat: number; lng: number;
@@ -23,22 +25,22 @@ const STATUS: Record<string, string> = { active: "Active", draft: "Draft", stand
 
 const KIND_ICON: Record<string, LucideIcon> = { flood: Waves, cyclone: Wind, landslide: Mountain };
 
-function Line({ icon: Icon, name, children }: { icon: LucideIcon; name: string; children: React.ReactNode }) {
-  return (
-    <div className="flex items-start gap-2.5">
-      <Icon className="mt-0.5 size-4 shrink-0 text-ink-3" strokeWidth={1.8} aria-hidden />
-      <p className="min-w-0"><span className="text-ink-3">{name} · </span>{children}</p>
+// One incident's three numbers, in the desk's words: families waiting for a person, with a team, rescued or closed.
+// Ink only when lives are at risk (an urgent family without a team, a team not heard from).
+function Numbers({ q, p }: { q: Queue | null; p: Promises | null }) {
+  const cell = (label: string, value: number | null, warn?: string | false) => (
+    <div className="min-w-0 rounded-2xl bg-wash px-3 py-2.5">
+      <p className="text-xs text-ink-2">{label}</p>
+      <p className="tabular text-xl font-semibold">{value ?? "–"}</p>
+      {warn && <p className="mt-0.5 inline-block rounded-md bg-ink px-1.5 text-xs font-medium text-paper">{warn}</p>}
     </div>
   );
-}
-
-function Bar({ p }: { p: Promises }) {
-  const n = (v: number, broken = false) => <b className={`tabular ${broken ? "rounded-md bg-ink px-1.5 text-paper" : ""}`}>{v}</b>;
+  const unowned = p?.stale.p1_unowned ?? 0, quiet = p?.stale.overdue ?? 0;
   return (
-    <div className="mt-4 space-y-2 rounded-2xl bg-wash px-4 py-3 text-sm">
-      <Line icon={Inbox} name="Never lost">{n(p.lost.reports)} reports = {n(p.lost.cases)} cases + {n(p.lost.merged)} merged + {n(p.lost.to_check)} to check + {n(p.lost.without_home, p.lost.broken)} not yet read</Line>
-      <Line icon={CopyCheck} name="Never doubled">{n(p.doubled.merged)} merged · {n(p.doubled.to_check, p.doubled.broken)} to check · {n(p.doubled.refused)} kept apart</Line>
-      <Line icon={Timer} name="Never stale">{n(p.stale.p1_unowned, p.stale.p1_unowned > 0)} urgent without a team &gt; 5 min · {n(p.stale.overdue, p.stale.overdue > 0)} contact overdue</Line>
+    <div className="mt-4 grid grid-cols-3 gap-2">
+      {cell("Need help now", q ? waitingFamilies(q) : null, unowned > 0 && `${unowned} urgent without a team`)}
+      {cell("Team on it", q?.on_it ?? null, quiet > 0 && `${quiet} not heard from`)}
+      {cell("Rescued or closed", q ? q.rescued_closing + q.closed : null)}
     </div>
   );
 }
@@ -52,8 +54,8 @@ function FrontDoor() {
     <main className="flex min-h-dvh flex-col items-center justify-center bg-canvas px-4 py-10">
       <div className="w-full max-w-3xl">
         <p className="flex items-center justify-center gap-2.5 text-ink"><Mark className="size-9" /><span className="text-2xl font-semibold tracking-tight">RakshaSetu</span></p>
-        <h1 className="mt-4 text-center text-[26px] font-semibold leading-tight tracking-tight md:text-[32px]">Never lost. Never doubled. Never stale.</h1>
-        <p className="mx-auto mt-2 max-w-xl text-center text-ink-2">Rescue requests in a flood: every family becomes one case with one rescue team, until they are safe.</p>
+        <h1 className="mt-4 text-center text-[26px] font-semibold leading-tight tracking-tight md:text-[32px]">Get every family to safety.</h1>
+        <p className="mx-auto mt-2 max-w-xl text-center text-ink-2">In a flood, every call for help reaches the control room once, gets one rescue team, and is followed until the family is safe.</p>
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           <a href="/r" className={choice}>
             <IconWell icon={Mic} size="lg" tone="ink" />
@@ -79,21 +81,19 @@ function FrontDoor() {
   );
 }
 
-function greeting(now: Date) {
-  const h = Number(now.toLocaleString("en-IN", { hour: "numeric", hour12: false, timeZone: "Asia/Kolkata" }));
-  return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
-}
 
 export default function Incidents() {
   const [me, setMe] = useState<Me | null>(null);
   const [list, setList] = useState<Incident[] | null>(null);
   const [out, setOut] = useState(false);
-  const [now, setNow] = useState<Date | null>(null);
+  const [queues, setQueues] = useState<Record<string, Queue>>({});
 
   useEffect(() => {
-    setNow(new Date());
     api<Me>("/v1/me").then(setMe).catch((e) => { if (e instanceof ApiError && e.status === 401) setOut(true); });
-    const load = () => api<Incident[]>("/v1/incidents").then(setList).catch(() => {});
+    const load = () => api<Incident[]>("/v1/incidents").then((l) => {
+      setList(l);
+      for (const i of l) api<Queue>(`/v1/queue?incident=${i.code}`).then((q) => setQueues((m) => ({ ...m, [i.code]: q }))).catch(() => {});
+    }).catch(() => {});
     load();
     const t = setInterval(load, 5000);
     return () => clearInterval(t);
@@ -107,14 +107,10 @@ export default function Incidents() {
   if (home) return null;
   const desk = me && DESK_ROLES.includes(me.user.role);
   const go = (code: string) => { if (desk) location.href = `/desk/${code}`; };
-  const live = (list ?? []).filter((i) => i.status === "active").length;
   return (
     <AppShell me={me}>
       <Page wide>
-        <PageHeader
-          title={me && now ? `${greeting(now)}, ${me.user.name}` : "Incidents"}
-          sub={list ? `${live} live disaster${live === 1 ? "" : "s"}, each with its own district control room and its own three promises.` : " "}
-          aside={now && <Pill icon={CalendarDays}><span className="tabular">{now.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}</span></Pill>} />
+        <PageHeader title="All incidents" sub="Each disaster has its own control room. Open one to start helping." />
         <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
           <section className="space-y-4" aria-label="Incidents">
             {(list ?? []).map((i) => {
@@ -125,26 +121,25 @@ export default function Incidents() {
                     <IconWell icon={Icon} size="lg" />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-start justify-between gap-3">
-                        <h2 className="text-lg font-semibold leading-snug tracking-tight">{i.name} <span className="tabular font-normal text-ink-3">{i.code}</span></h2>
-                        <Chip tone="neutral">{STATUS[i.status] ?? i.status}</Chip>
+                        <h2 className="text-lg font-semibold leading-snug tracking-tight">{i.name}</h2>
+                        {i.status !== "active" && <Chip tone="neutral">{STATUS[i.status] ?? i.status}</Chip>}
                       </div>
                       <p className="text-sm text-ink-2">{i.states.join(", ")} · {i.districts.join(" · ")}</p>
                     </div>
                   </div>
-                  {i.promises && <Bar p={i.promises} />}
+                  <Numbers q={queues[i.code] ?? null} p={i.promises} />
                   {desk && (
                     <a href={`/desk/${i.code}`} className="mt-4 inline-flex h-9 items-center gap-1.5 rounded-full bg-ink px-4 text-sm font-medium text-paper hover:bg-[#2b2b2b]">
-                      Open the desk<ArrowRight className="size-4" aria-hidden />
+                      Open the control room<ArrowRight className="size-4" aria-hidden />
                     </a>
                   )}
                 </Card>
               );
             })}
-            {me?.user.role === "seoc_viewer" && <p className="px-1 text-xs text-ink-3">The state control room sees totals and requests for more boats; the district desks act.</p>}
           </section>
           <Card className="min-h-80 overflow-hidden lg:sticky lg:top-6 lg:h-[calc(100vh-9rem)]">
             {list && <IncidentsMap pins={list.filter((i) => i.lat != null).map((i) => ({ code: i.code, name: i.name, lat: i.lat, lng: i.lng,
-                                                                                           broken: !!i.promises && (i.promises.stale.broken || i.promises.lost.broken || i.promises.doubled.broken) }))}
+                                                                                           broken: !!i.promises && (i.promises.stale.p1_unowned > 0 || i.promises.stale.overdue > 0) }))}
                                    onOpen={go} />}
           </Card>
         </div>

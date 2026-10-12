@@ -30,20 +30,23 @@ def beat() -> None:
 
 
 def worker_thread(n: int) -> None:
+    """Claim and run jobs until stopped. If Postgres is away (starting up, restarting), wait and connect again:
+    a thread that gave up would leave reports unread until someone restarted the worker."""
     worker_id = f"{socket.gethostname()}:{os.getpid()}:{n}"
     engine = get_engine()
-    with psycopg.connect(to_conninfo(get_settings().database_url), autocommit=True) as listen:
-        listen.execute("LISTEN jobs")
-        while not STOP.is_set():
-            try:
-                while not STOP.is_set() and run_one(engine, worker_id):
-                    beat()            # a long backlog (a surge) is work, not a hang: beat after every job
-                beat()
-                for _ in listen.notifies(timeout=1.0, stop_after=1):
-                    pass
-            except Exception:
-                log.exception("worker loop error")
-                STOP.wait(1.0)
+    while not STOP.is_set():
+        try:
+            with psycopg.connect(to_conninfo(get_settings().database_url), autocommit=True) as listen:
+                listen.execute("LISTEN jobs")
+                while not STOP.is_set():
+                    while not STOP.is_set() and run_one(engine, worker_id):
+                        beat()            # a long backlog (a surge) is work, not a hang: beat after every job
+                    beat()
+                    for _ in listen.notifies(timeout=1.0, stop_after=1):
+                        pass
+        except Exception:
+            log.exception("worker loop error; connecting again in 1 s")
+            STOP.wait(1.0)
 
 
 def main() -> None:
