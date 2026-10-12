@@ -110,6 +110,27 @@
         "title": "Callback",
         "type": "object"
       },
+      "Confirm": {
+        "properties": {
+          "answer": {
+            "pattern": "^(yes|no)$",
+            "title": "Answer",
+            "type": "string"
+          },
+          "device_id": {
+            "maxLength": 100,
+            "minLength": 8,
+            "title": "Device Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "device_id",
+          "answer"
+        ],
+        "title": "Confirm",
+        "type": "object"
+      },
       "Contact": {
         "properties": {
           "channel": {
@@ -3322,6 +3343,61 @@
         ]
       }
     },
+    "/v1/public/cases/{public_id}/confirm": {
+      "post": {
+        "description": "Yes → \"confirmed by family\". No from the person who was there → the case reopens at once as P1 with its\noriginal time. No from a relative far away (who may simply not have heard yet) → \"disputed\": it can't\nauto-close and becomes an urgent officer task. A device that didn't report this case can't answer.",
+        "operationId": "confirm_v1_public_cases__public_id__confirm_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "public_id",
+            "required": true,
+            "schema": {
+              "title": "Public Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Confirm"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Confirm V1 Public Cases  Public Id  Confirm Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Confirm",
+        "tags": [
+          "public"
+        ]
+      }
+    },
     "/v1/public/cases/{public_id}/status": {
       "get": {
         "operationId": "case_status_v1_public_cases__public_id__status_get",
@@ -3333,6 +3409,22 @@
             "schema": {
               "title": "Public Id",
               "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "device",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Device"
             }
           }
         ],

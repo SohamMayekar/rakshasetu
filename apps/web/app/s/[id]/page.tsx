@@ -6,7 +6,10 @@
 
 import { use, useEffect, useState } from "react";
 
-type Status = { public_id: string; tracked_as: string | null; other_reports: number | null; step: string; steps: string[]; last_update_at: string };
+import { deviceId } from "@/lib/device";
+
+type Status = { public_id: string; tracked_as: string | null; other_reports: number | null; step: string; steps: string[]; last_update_at: string;
+                check?: { people_taken: number | null; answered: string | null } | null };
 
 const LABEL: Record<string, { hi: string; en: string }> = {
   registered: { hi: "दर्ज", en: "Registered" },
@@ -35,7 +38,7 @@ export default function StatusPage({ params }: { params: Promise<{ id: string }>
     let alive = true;
     const load = async () => {
       try {
-        const r = await fetch(`/v1/public/cases/${encodeURIComponent(id)}/status`, { cache: "no-store" });
+        const r = await fetch(`/v1/public/cases/${encodeURIComponent(id)}/status?device=${encodeURIComponent(deviceId())}`, { cache: "no-store" });
         if (!alive) return;
         if (r.status === 404) return setMissing(true);
         if (r.ok) { setSt(await r.json()); setOffline(false); }
@@ -89,11 +92,45 @@ export default function StatusPage({ params }: { params: Promise<{ id: string }>
         </ol>
       )}
 
+      {st.check && <FamilyCheck id={st.tracked_as ?? st.public_id} check={st.check} />}
+
       <p className="tabular mt-10 text-neutral-600" lang="en">
         Last update {new Date(st.last_update_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })} · {ago(st.last_update_at, now)}
-        {offline && <span className="block text-amber-700">Can't reach the server right now; showing the last known step.</span>}
+        {offline && <span className="block text-neutral-950">Can't reach the server right now; showing the last known step.</span>}
       </p>
     </Shell>
+  );
+}
+
+// The family's optional check (PRD F-S3): shown only to the device that reported this case, after "rescued".
+// One question, two answers, and it says plainly that nobody has to answer.
+function FamilyCheck({ id, check }: { id: string; check: { people_taken: number | null; answered: string | null } }) {
+  const [answer, setAnswer] = useState<string | null>(check.answered);
+  const [busy, setBusy] = useState(false);
+  const send = async (a: "yes" | "no") => {
+    setBusy(true);
+    const r = await fetch(`/v1/public/cases/${encodeURIComponent(id)}/confirm`, {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ device_id: deviceId(), answer: a }) });
+    if (r.ok || r.status === 409) setAnswer(a);
+    setBusy(false);
+  };
+  if (answer) {
+    return (
+      <p className="mt-8 rounded-xl bg-neutral-100 px-4 py-3 text-lg">
+        धन्यवाद · Thank you.{answer === "no" && <span className="block text-base text-neutral-700" lang="en">An officer will check with the team.</span>}
+      </p>
+    );
+  }
+  return (
+    <section className="mt-8 rounded-2xl border border-neutral-300 p-5">
+      <p className="text-xl leading-snug">टीम के अनुसार {check.people_taken ?? ""} लोगों को बचा लिया गया। क्या यह सही है?</p>
+      <p className="mt-1 text-neutral-700" lang="en">Team says {check.people_taken ?? ""} people were rescued. Is that right?</p>
+      <div className="mt-4 grid grid-cols-2 gap-3">
+        <button disabled={busy} onClick={() => send("yes")} className="min-h-16 rounded-2xl bg-neutral-950 text-lg font-semibold text-white">हाँ · Yes</button>
+        <button disabled={busy} onClick={() => send("no")} className="min-h-16 rounded-2xl border-2 border-neutral-950 text-lg font-semibold">नहीं · No</button>
+      </div>
+      <p className="mt-3 text-sm text-neutral-600">आपको जवाब देने की ज़रूरत नहीं · You don&rsquo;t have to answer.</p>
+    </section>
   );
 }
 

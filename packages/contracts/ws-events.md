@@ -17,9 +17,9 @@ Phone numbers are always masked (`98xxxxxx21`). Events are filtered per subscrib
 | Area | Types |
 |---|---|
 | Reports | `report.received` · `report.needs_review` |
-| Cases | `case.created` · `case.updated` · `case.merged` · `case.unmerged` · `merge.suggested` · `merge.refused` |
-| Assignments | `assignment.created` · `assignment.acknowledged` · `assignment.contact` · `assignment.overdue` · `assignment.reassigned` · `assignment.released` · `team.status` |
-| Escalation and rescues | `escalation.raised` · `escalation.acked` · `rescue.recorded` · `rescue.partial` · `rescue.confirmed` · `rescue.disputed` |
+| Cases | `case.created` · `case.updated` · `case.checked` · `case.location_moved` · `case.priority_changed` · `case.merged` · `case.absorbed` · `case.unmerged` · `merge.suggested` · `merge.refused` · `merge.rejected` · `case.closed` · `case.cancelled` · `case.reopened` · `contact.revealed` |
+| Assignments | `assignment.created` · `assignment.acknowledged` · `assignment.reached` · `assignment.contact` · `assignment.overdue` · `assignment.reassigned` · `assignment.released` · `team.contact` |
+| Escalation and rescues | `escalation.raised` · `escalation.acked` · `escalation.resolved` · `rescue.recorded` · `rescue.partial` · `rescue.nobody_here` · `rescue.couldnt_reach` · `rescue.other` · `rescue.corroborated` · `rescue.confirmed` · `rescue.disputed` |
 | Imports | `import.uploaded` · `import.mapped` · `import.progress` (about once a second, with the counts) · `import.completed` (with the summary line) |
 | Chain | `chain.genesis` (a demo reset starts a new chain) |
 | Computed (not stored) | `metrics.promises` every 2 s |

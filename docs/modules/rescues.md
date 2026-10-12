@@ -5,3 +5,11 @@
 - **By radio:** an officer records the same sheet on the team's behalf ("Log radio report", with the channel): "Fire & Rescue Boat 5: 6 of 6 rescued, nobody left · via VHF by R. Das". The app's later sync of the same trip lands as **corroboration** (one rescue per assignment, enforced by the database).
 - **Location check (P1 #3):** a record made more than the circle's radius + 1 km from the pin is flagged "recorded away from the reported location" and never auto-closes; an officer closes it with a reason. GPS can be spoofed: this raises the bar; it proves nothing.
 - **Officer decisions:** Close · Cancel · Reopen, each with a reason (`case.decide`); a case a team still holds can't be closed.
+
+## The family's optional check (m46, T9)
+
+- **Who is asked:** only the device that reported the case (or a case folded into it), and only after "rescued". The status page asks once: "टीम के अनुसार 4 लोगों को बचा लिया गया। क्या यह सही है? · Team says 4 people were rescued. Is that right? **Yes · No** · You don't have to answer." Anyone else with the case number sees only the step; a stranger's answer is refused (403).
+- **Yes** → "confirmed by family" on the closed case ("Rescued 4 of 4 · Fire & Rescue Boat 5 · 14:32 · confirmed by family").
+- **No from the person who was there** (relation "self", or they said "hum log chhat par…") → the case **reopens at once as P1 with its original time** ("reopened", a broken promise at the top of the queue): the team may have reached the wrong house.
+- **No from a relative far away** (who may not have heard yet) → **disputed**: it can't auto-close, and it sits in the queue as "disputed: radio the team" until an officer radios the team and closes it with a reason.
+- **Silence** → nothing happens; the case closes after the review window. Silence never blocks a closure and never counts against anyone. One answer per device.

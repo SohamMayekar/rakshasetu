@@ -225,9 +225,99 @@ def public_status(public_id: str) -> dict | None:
 
 
 @router.get("/cases/{public_id}/status")
-def case_status(public_id: str, request: Request) -> dict:
+def case_status(public_id: str, request: Request, device: str | None = None) -> dict:
     _rate_limit(request)
     st = public_status(public_id)
     if st is None:
         raise HTTPException(404, "No case with that number")
+    if device:   # only the device that reported this case may be asked; anyone else sees just the step
+        st["check"] = family_question(st["tracked_as"] or public_id, device)
     return st
+
+
+# --- the family's optional check (PRD F-S3, T9) ---------------------------------------------------------------
+# After "rescued", the device that reported the case sees one question: "Team says 6 people were rescued. Is that
+# right? Yes / No · You don't have to answer." Silence never blocks a closure and never counts against anyone.
+
+def _linked(c, case_id: int, device_id: str):
+    """(report, on_site) if this device reported this case (or a case folded into it), else None. On site = the
+    person in danger themself, by relation or by what they said ("hum chhat par hain")."""
+    return c.execute(text(
+        "WITH RECURSIVE fam(id) AS (SELECT CAST(:c AS bigint) UNION SELECT k.id FROM cases k JOIN fam ON k.parent_case_id = fam.id)"
+        " SELECT r.id, (r.reporter_relation = 'self' OR coalesce((r.extraction->>'reporter_on_site')::boolean, false)) AS on_site"
+        " FROM reports r WHERE r.case_id IN (SELECT id FROM fam) AND r.device_hash = :d ORDER BY on_site DESC, r.id LIMIT 1"),
+        {"c": case_id, "d": device_hash(device_id)}).one_or_none()
+
+
+def _rescue(c, case_id: int):
+    return c.execute(text("SELECT id, people_taken FROM rescues WHERE case_id = :c AND corroborates IS NULL"
+                          " AND outcome = 'rescued' ORDER BY id DESC LIMIT 1"), {"c": case_id}).one_or_none()
+
+
+def family_question(public_id: str, device_id: str) -> dict | None:
+    with get_engine().connect() as c:
+        case = c.execute(text("SELECT id, status FROM cases WHERE public_id = :p"), {"p": public_id}).one_or_none()
+        if case is None or case.status not in ("rescued", "closed"):
+            return None
+        link, rescue = _linked(c, case.id, device_id), _rescue(c, case.id)
+        if link is None or rescue is None:
+            return None
+        answered = c.execute(text("SELECT answer FROM family_checks WHERE case_id = :c AND device_hash = :d"),
+                             {"c": case.id, "d": device_hash(device_id)}).scalar()
+    return {"people_taken": rescue.people_taken, "answered": answered}
+
+
+class Confirm(BaseModel):
+    device_id: str = Field(min_length=8, max_length=100)
+    answer: str = Field(pattern="^(yes|no)$")
+
+
+@router.post("/cases/{public_id}/confirm")
+def confirm(public_id: str, body: Confirm) -> dict:
+    """Yes → "confirmed by family". No from the person who was there → the case reopens at once as P1 with its
+    original time. No from a relative far away (who may simply not have heard yet) → "disputed": it can't
+    auto-close and becomes an urgent officer task. A device that didn't report this case can't answer."""
+    from app.core.eventlog import append_event
+    with get_engine().begin() as c:
+        case = c.execute(text("SELECT * FROM cases WHERE public_id = :p FOR UPDATE"), {"p": public_id}).one_or_none()
+        if case is None:
+            raise HTTPException(404, "No case with that number")
+        if case.status == "merged" and case.parent_case_id:
+            case = c.execute(text("SELECT * FROM cases WHERE id = :i FOR UPDATE"), {"i": case.parent_case_id}).one()
+        link = _linked(c, case.id, body.device_id)
+        if link is None:
+            raise HTTPException(403, "Only the phone or device that reported this case can answer")
+        rescue = _rescue(c, case.id)
+        if rescue is None or case.status not in ("rescued", "closed"):
+            raise HTTPException(409, "Nothing to confirm yet")
+        dh = device_hash(body.device_id)
+        done = c.execute(text("INSERT INTO family_checks (case_id, rescue_id, device_hash, on_site, answer)"
+                              " VALUES (:c, :r, :d, :o, :a) ON CONFLICT (case_id, device_hash) DO NOTHING RETURNING id"),
+                         {"c": case.id, "r": rescue.id, "d": dh, "o": link.on_site, "a": body.answer}).scalar()
+        if done is None:
+            raise HTTPException(409, "You already answered. Thank you.")
+        actor = Actor("reporter", dh[:12], "reporter")
+        base = dict(entity_type="case", entity_id=case.id, incident_id=case.incident_id, district_id=case.district_id,
+                    case_id=case.id)
+        if body.answer == "yes":
+            c.execute(text("UPDATE cases SET flags = array_append(array_remove(flags, 'family_confirmed'), 'family_confirmed'),"
+                           " version = version + 1, updated_at = now() WHERE id = :c"), {"c": case.id})
+            append_event(c, actor=actor, action="rescue.confirmed", **base,
+                         data={"rescue_id": rescue.id, "on_site": link.on_site, "people_taken": rescue.people_taken})
+            return {"recorded": "yes"}
+        if link.on_site:   # the person who was there says no: the team may have reached the wrong house
+            status = "checked" if case.checked_at else "reported"
+            c.execute(text("UPDATE cases SET status = :s, priority = 'P1', p1_rank = coalesce(p1_rank, 4),"
+                           " flags = array_append(array_remove(array_remove(flags, 'reopened'), 'family_confirmed'), 'reopened'),"
+                           " resolution = NULL, version = version + 1, updated_at = now() WHERE id = :c"),
+                           {"s": status, "c": case.id})
+            append_event(c, actor=actor, action="case.reopened", **base, reason="the person on site says they were not rescued",
+                         data={"rescue_id": rescue.id, "by": "the family (on site)", "status": status, "priority": "P1"})
+            return {"recorded": "no", "result": "reopened"}
+        c.execute(text("UPDATE cases SET status = CASE WHEN status = 'closed' THEN 'rescued' ELSE status END,"
+                       " flags = array_append(array_remove(flags, 'disputed'), 'disputed'), version = version + 1,"
+                       " updated_at = now() WHERE id = :c"), {"c": case.id})
+        append_event(c, actor=actor, action="rescue.disputed", **base,
+                     data={"rescue_id": rescue.id, "on_site": False,
+                           "line": "A relative far away says No: it can't close until an officer radios the team"})
+        return {"recorded": "no", "result": "disputed"}

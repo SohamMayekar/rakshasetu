@@ -74,7 +74,6 @@ ENDPOINTS = [
      "boat5", "priya", None),
     ("team.radio_contact", "POST", lambda db: f"/v1/teams/{_team(db, 'SDRF Boat 2')}/contact", {"channel": "VHF"},
      "rdas", "priya", None),
-    ("rescue.family_confirm", "POST", "/v1/public/cases/BR-151/confirm", {}, None, None, "m46"),
     ("case.decide", "POST", lambda db: f"/v1/cases/{_unowned_gopalganj_case(db)}/close", {"reason": "duplicate call, verified"},
      "rdas", "priya", None),
     ("escalation.ack", "POST", lambda db: f"/v1/escalations/{_escalation(db)}/ack", {}, "rdas", "priya", None),
@@ -139,5 +138,6 @@ def test_each_row_through_its_endpoint(seeded, client, app_db, action, method, p
 
 def test_every_action_in_the_matrix_has_an_endpoint_check():
     checked = {e[0] for e in ENDPOINTS} | {"phone.view_masked", "case.edit",   # case detail / test_case_edits.py
-                                           "case.status_public"}             # test_status_page.py
+                                           "case.status_public",             # test_status_page.py
+                                           "rescue.family_confirm"}          # linked device only: scenarios/test_t9
     assert checked == set(PRD_MATRIX)

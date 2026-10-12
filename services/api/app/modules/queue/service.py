@@ -51,7 +51,7 @@ def classify(c, now: datetime, unowned_after_s: float) -> dict:
     if overdue:
         reasons.append(("contact overdue " + _mmss(max(overdue_s, 0)), True))
     if disputed:
-        reasons.append(("disputed", True))
+        reasons.append(("disputed: radio the team", True))
     if reopened:
         reasons.append(("reopened", True))
     if "other_tell_officer" in flags:
@@ -75,7 +75,7 @@ def classify(c, now: datetime, unowned_after_s: float) -> dict:
         reasons.append(("unchecked P1", False))
     if duplicate:
         reasons.append(("possible duplicate", False))
-    attention = bool(reasons) or not owned or unchecked
+    attention = bool(reasons) or (not owned and c.status != "rescued") or unchecked
     # "Waiting for a team" only: nothing about it needs a person except assigning (and checking) it.
     only_waiting = attention and all(r.startswith("no owner") or r == "unchecked P1" for r, _ in reasons)
     return {"attention": attention, "broken": any(b for _, b in reasons), "chip": reasons[0][0] if reasons else None,
@@ -100,6 +100,8 @@ def _assign(k: dict) -> dict:
 def action_for(c, k: dict, scope: Scope) -> dict:
     """The one suggested action, for this viewer's role. The desk renders it as the row's button."""
     can = scope.can
+    if "disputed" in (c.flags or []):
+        return {"kind": "open", "label": "Radio the team, then decide"}
     if k["overdue"] and can("team.radio_contact"):
         return {"kind": "radio", "label": "Heard on radio"}
     if k["needs_location"] and can("case.move_pin"):
@@ -133,7 +135,8 @@ def queue(conn: Connection, scope: Scope, incident_code: str) -> dict:
           FROM cases c JOIN incidents i ON i.id = c.incident_id
           LEFT JOIN assignments a ON a.case_id = c.id AND a.state IN ('open', 'overdue')
           LEFT JOIN teams t ON t.id = a.team_id
-         WHERE i.code = :code AND c.status IN {OPEN} AND {where}"""), {**params, "code": incident_code}).all()
+         WHERE i.code = :code AND (c.status IN {OPEN} OR (c.status = 'rescued' AND 'disputed' = ANY(c.flags)))
+           AND {where}"""), {**params, "code": incident_code}).all()
     counts = conn.execute(text(f"""
         SELECT count(*) FILTER (WHERE c.status = 'rescued') AS rescued_closing,
                count(*) FILTER (WHERE c.status = 'closed') AS closed

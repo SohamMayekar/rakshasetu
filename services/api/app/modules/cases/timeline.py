@@ -90,7 +90,11 @@ def line(action: str, d: dict, who: str | None) -> str:
         case "case.cancelled":
             return f"Cancelled{by}"
         case "case.reopened":
-            return f"Reopened{by}"
+            return f"Reopened{by}" if who else f"Reopened as P1: {d.get('by', 'the family')} says No"
+        case "rescue.confirmed":
+            return f"The family confirmed: {d.get('people_taken')} rescued" + (" (on site)" if d.get("on_site") else "")
+        case "rescue.disputed":
+            return d.get("line") or "Disputed by the family"
         case "contact.revealed":
             return f"Phone number shown to {d.get('by') or who}{'' if not d.get('masked') else ' (' + d['masked'] + ')'}"
         case "report.callback_added":
