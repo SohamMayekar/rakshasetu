@@ -6,7 +6,7 @@
 import { Because, Button, Estimate, Priority, Section } from "@/components/ui";
 import type { Case } from "@/lib/api";
 
-export function Drawer({ c, onClose }: { c: Case; onClose: () => void }) {
+export function Drawer({ c, focus, onClose }: { c: Case; focus?: string | null; onClose: () => void }) {
   return (
     <aside className="fixed inset-0 z-40 flex flex-col bg-paper md:static md:h-full md:w-[440px] md:shrink-0 md:border-l md:border-line" aria-label={`Case ${c.public_id}`}>
       <div className="flex items-start justify-between border-b border-line px-5 py-4">

@@ -6,3 +6,13 @@
 - **Deep link:** `/desk/BR?case=BR-214` opens a case's drawer (used by the Audit screen and screenshots).
 - **Phone width:** the list fills the screen and the drawer opens full screen; the map is for the projector.
 - **How to show it:** `make up && make seed`, open `http://localhost/login`, pick Priya Kumari (call-taker). Measured: a report typed through the API appeared on an open desk **0.84 s** after the POST (one run, local stack, keyword path).
+
+## Needs you now (m34)
+
+- **What it does:** `GET /v1/queue?incident=` (`app/modules/queue/`) returns only the cases that need a person, already ordered, each with **one chip**, a **two-line summary**, and **one suggested action for the viewer's role**. Healthy cases (a live owner whose check-in isn't due) leave the list and are counted under "On it · rescued, closing · closed".
+- **Attention:** no live owner · contact overdue · disputed · reopened · needs location · possible duplicate · an unchecked case (the PRD's "unchecked P1" is the chip; any unchecked case still needs its check).
+- **One ordering rule:** priority → broken promises before new work (contact overdue, disputed, reopened, a P1 with no owner after 5 min) → the P1 order (`p1_rank`) → longest wait.
+- **One chip, ranked:** contact overdue / disputed / reopened / "no owner 12 min" > needs location > unchecked P1 > possible duplicate. ("No owner" isn't in the PRD's chip list; it's the P1-unowned broken promise, so it ranks with the other broken promises.)
+- **The action:** Heard on radio (officer, overdue) · Fix pin · Review match → BR-xxx · **Assign a team** (officer, any unowned P1, even unchecked: nobody on a roof waits for paperwork) · Check (call-taker) · Open. "Check" runs straight from the row; the others open the drawer at the right section.
+- **Nothing moves under the cursor:** rows already on screen keep their place and update in place; new rows wait behind "▲ 3 new: show"; rows that no longer need anyone fade where they are ("handled") until the person clicks the pill. The map colours the queue's cases and greys the rest.
+- **Empty state:** "Nothing needs you. 124 households have a live owner."

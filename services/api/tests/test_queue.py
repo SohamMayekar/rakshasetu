@@ -1,0 +1,116 @@
+""""Needs you now" (PRD F-C2): attention rows only, one ordering rule, one chip, one action per role."""
+
+from sqlalchemy import text
+
+from tests.conftest import login, needs_db, one
+
+pytestmark = [needs_db]
+
+
+def _q(client, who="priya"):
+    login(client, who)
+    r = client.get("/v1/queue?incident=BR")
+    assert r.status_code == 200, r.text
+    return r.json()
+
+
+def _sql(db, sql, **p):
+    with db.begin() as c:
+        c.execute(text(sql), p)
+
+
+def _gopalganj_case(db, where="TRUE"):
+    return one(db, "SELECT c.id FROM cases c JOIN districts d ON d.id = c.district_id WHERE d.name = 'Gopalganj'"
+                   f" AND c.status IN ('reported', 'checked') AND {where} ORDER BY c.id LIMIT 1")
+
+
+def _team(db):
+    return one(db, "SELECT t.id FROM teams t JOIN districts d ON d.id = t.district_id WHERE d.name = 'Gopalganj' LIMIT 1")
+
+
+def test_the_queue_is_ordered_by_priority_then_broken_promises_then_the_p1_order(seeded, client):
+    q = _q(client)
+    keys = [r["sort"] for r in q["rows"]]
+    assert keys == sorted(keys) and q["rows"]
+    pri = [r["priority"] for r in q["rows"]]
+    assert pri == sorted(pri)                                       # P1 rows first
+    p1 = [r for r in q["rows"] if r["priority"] == "P1"]
+    broken = [r["broken"] for r in p1]
+    assert broken == sorted(broken, reverse=True)                   # broken promises before new work
+    assert all(r["line1"] and r["line2"] for r in q["rows"])        # a two-line summary on every row
+
+
+def test_a_healthy_owned_case_leaves_the_queue_and_counts_as_on_it(seeded, client, app_db):
+    cid = _gopalganj_case(app_db, "c.status = 'checked' AND 'needs_location' <> ALL(c.flags)")
+    before = _q(client)
+    assert cid in [r["id"] for r in before["rows"]]
+    _sql(app_db, "UPDATE cases SET status = 'assigned' WHERE id = :c", c=cid)
+    _sql(app_db, "INSERT INTO assignments (case_id, team_id, next_contact_due) VALUES (:c, :t, now() + interval '20 minutes')",
+         c=cid, t=_team(app_db))
+    after = _q(client)
+    assert cid not in [r["id"] for r in after["rows"]]
+    assert after["on_it"] == before["on_it"] + 1
+
+
+def test_contact_overdue_is_the_chip_and_puts_the_row_first_in_its_priority(seeded, client, app_db):
+    cid = _gopalganj_case(app_db, "c.status = 'checked'")
+    _sql(app_db, "UPDATE cases SET status = 'acknowledged' WHERE id = :c", c=cid)
+    _sql(app_db, "INSERT INTO assignments (case_id, team_id, phase, next_contact_due) VALUES (:c, :t, 'acknowledged',"
+                 " now() - interval '190 seconds')", c=cid, t=_team(app_db))
+    rows = _q(client, "rdas")["rows"]
+    row = next(r for r in rows if r["id"] == cid)
+    assert row["chip"].startswith("contact overdue 3:1") and row["broken"]
+    assert row["action"] == {"kind": "radio", "label": "Heard on radio"}       # an officer's action
+    same = [r for r in rows if r["priority"] == row["priority"]]
+    assert same.index(row) < len([r for r in same if r["broken"]])           # among the broken, before new work
+    assert next(r for r in _q(client, "priya")["rows"] if r["id"] == cid)["action"]["kind"] != "radio"   # call-taker can't
+
+
+def test_one_chip_ranked_needs_location_over_unchecked_p1(seeded, client, app_db):
+    cid = _gopalganj_case(app_db, "c.status = 'reported'")
+    _sql(app_db, "UPDATE cases SET priority = 'P1', queue_since = now(), flags = array_append(flags, 'needs_location')"
+                 " WHERE id = :c", c=cid)
+    row = next(r for r in _q(client)["rows"] if r["id"] == cid)
+    assert row["chip"] == "needs location"
+    assert row["action"]["kind"] == "pin"
+    _sql(app_db, "UPDATE cases SET flags = array_remove(flags, 'needs_location') WHERE id = :c", c=cid)
+    row = next(r for r in _q(client)["rows"] if r["id"] == cid)
+    assert row["chip"] == "unchecked P1"
+    assert row["action"] == {"kind": "check", "label": "Check"}                # the call-taker's next step
+    row = next(r for r in _q(client, "rdas")["rows"] if r["id"] == cid)
+    assert row["action"]["kind"] == "assign"                                  # the officer's: P1 is assigned before the check
+
+
+def test_a_p1_without_an_owner_past_5_minutes_is_a_broken_promise(seeded, client, app_db):
+    cid = _gopalganj_case(app_db, "c.status = 'checked'")
+    _sql(app_db, "UPDATE cases SET priority = 'P1', p1_rank = 4, queue_since = now() - interval '12 minutes' WHERE id = :c", c=cid)
+    row = next(r for r in _q(client, "rdas")["rows"] if r["id"] == cid)
+    assert row["chip"] == "no owner 12 min" and row["broken"]
+    assert row["action"] == {"kind": "assign", "label": "Assign a team"}
+    _sql(app_db, "UPDATE cases SET queue_since = now() - interval '2 minutes' WHERE id = :c", c=cid)
+    row = next(r for r in _q(client, "rdas")["rows"] if r["id"] == cid)
+    assert not row["broken"]                                                  # new work, not yet a broken promise
+
+
+def test_a_possible_duplicate_offers_the_match(seeded, client, app_db):
+    a, b = (one(app_db, "SELECT c.id FROM cases c JOIN districts d ON d.id = c.district_id WHERE d.name = 'Gopalganj'"
+                        f" AND c.status = 'checked' AND 'needs_location' <> ALL(c.flags) ORDER BY c.id {o} LIMIT 1")
+            for o in ("ASC", "DESC"))
+    pid_b = one(app_db, "SELECT public_id FROM cases WHERE id = :b", b=b)
+    _sql(app_db, "INSERT INTO merge_suggestions (incident_id, case_id, candidate_case_id, score, strength, reasons, conflicts,"
+                 " signals) SELECT incident_id, :a, :b, 0.7, 'strong', '{same village}', '{}', '{}' FROM cases WHERE id = :a", a=a, b=b)
+    row = next(r for r in _q(client)["rows"] if r["id"] == a)
+    assert row["action"] == {"kind": "match", "label": f"Review match → {pid_b}", "target": pid_b}
+
+
+def test_the_queue_is_scoped_and_desk_only(seeded, client, public_client):
+    rows = _q(client, "mkumar")["rows"]                                       # BR, Muzaffarpur only
+    assert rows and all(r["line2"] for r in rows)
+    gopalganj = set(r["id"] for r in _q(client, "priya")["rows"])
+    assert not gopalganj & {r["id"] for r in rows}
+    login(client, "boat5")                                                    # a team lead: its live cases only
+    assert client.get("/v1/queue?incident=BR").json()["rows"] == []
+    login(client, "seoc")                                                     # totals only
+    assert client.get("/v1/queue?incident=BR").status_code == 403
+    login(public_client, "priya", "rakshasetu")
+    assert public_client.get("/v1/queue?incident=BR").status_code == 404

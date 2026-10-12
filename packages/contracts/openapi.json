@@ -2260,6 +2260,50 @@
           "public"
         ]
       }
+    },
+    "/v1/queue": {
+      "get": {
+        "operationId": "needs_you_now_v1_queue_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "incident",
+            "required": true,
+            "schema": {
+              "title": "Incident",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Needs You Now V1 Queue Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Needs You Now",
+        "tags": [
+          "queue"
+        ]
+      }
     }
   }
 }

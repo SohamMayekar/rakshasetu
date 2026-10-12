@@ -2,7 +2,7 @@
 
 *Updated at every milestone merge. Three lists, never blurred together.*
 
-**Current milestone:** m34 Needs you now (attention rows, one chip, suggested action, no re-sort)
+**Current milestone:** m35 the drawer: receipts, timeline & evidence, actions
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
 ## DONE (verified)
