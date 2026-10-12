@@ -1,28 +1,18 @@
 """F-C12 / S1-02: the seed loads 3 incidents, BR teams (one radio-only, one out of service), 40+ cases,
 with timestamps relative to the moment of seeding."""
 
-import os
-
 import pytest
-from sqlalchemy import create_engine, text
 
 from app.seed import seed
+from tests.conftest import TEST_OWNER_DB, needs_db
+from tests.conftest import rows as q
 
-OWNER = os.environ.get("TEST_OWNER_DATABASE_URL")
-pytestmark = pytest.mark.skipif(not OWNER, reason="needs TEST_OWNER_DATABASE_URL")
+pytestmark = needs_db
 
 
 @pytest.fixture(scope="module")
-def seeded():
-    summary = seed(OWNER)
-    eng = create_engine(OWNER)
-    yield summary, eng
-    eng.dispose()
-
-
-def q(eng, sql, **kw):
-    with eng.connect() as c:
-        return c.execute(text(sql), kw).all()
+def seeded(owner_db):
+    return seed(TEST_OWNER_DB), owner_db
 
 
 def test_three_incidents_and_their_districts(seeded):

@@ -21,6 +21,11 @@ include = ["app*"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-q"
+filterwarnings = ["ignore:Using `httpx` with `starlette.testclient` is deprecated"]
+markers = [
+  "scenario: the PRD §13.6 field-reality scenario tests T1-T10",
+  "slow: tests that start processes or run for seconds",
+]
 
 [tool.ruff]
 line-length = 110

@@ -46,10 +46,10 @@ dev-api: ## Run the API natively on :8000 (needs services/api/.venv)
 dev-web: ## Run the web app natively on :3000
 	cd $(WEB) && npm run dev
 
-test: test-api test-web ## Run every test
+test: test-api ## Run every test (the web app is type-checked by its own build in `make up`)
 
-test-api: ## API tests, run inside the api container against the db service
-	$(COMPOSE) exec -T api pytest
+test-api: ## Lint + API tests, inside the api container, against the rakshasetu_test database
+	$(COMPOSE) exec -T api sh -c "ruff check app tests && pytest"
 
 test-web: ## Web typecheck
 	cd $(WEB) && npx tsc --noEmit

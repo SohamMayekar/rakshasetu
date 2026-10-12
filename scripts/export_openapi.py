@@ -7,7 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "services" / "api"))
 
-from app.main import create_app  # noqa: E402
+from app.main import create_app
 
 
 def openapi_text() -> str:

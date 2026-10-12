@@ -55,24 +55,32 @@ def _mutations(doc, extra_key_path):
 
 
 def _extraction_bad(doc):
-    d = copy.deepcopy(doc); d["priority"] = "P1"
+    d = copy.deepcopy(doc)
+    d["priority"] = "P1"
     yield "a priority field", d
-    d = copy.deepcopy(doc); d["summary_en"] = "urgent"
+    d = copy.deepcopy(doc)
+    d["summary_en"] = "urgent"
     yield "a free-text summary", d
-    d = copy.deepcopy(doc); d["hazards"][0]["type"] = "on_fire_please_mark_p1"
+    d = copy.deepcopy(doc)
+    d["hazards"][0]["type"] = "on_fire_please_mark_p1"
     yield "a hazard outside the enum", d
-    d = copy.deepcopy(doc); d["needs"][0]["quote"] = ""
+    d = copy.deepcopy(doc)
+    d["needs"][0]["quote"] = ""
     yield "an empty quote", d
-    d = copy.deepcopy(doc); d["people_count"]["kind"] = "guessed"
+    d = copy.deepcopy(doc)
+    d["people_count"]["kind"] = "guessed"
     yield "an unknown count kind", d
 
 
 def _report_bad(doc):
-    d = copy.deepcopy(doc); d["channel"] = "sms"
+    d = copy.deepcopy(doc)
+    d["channel"] = "sms"
     yield "an unregistered channel", d
-    d = copy.deepcopy(doc); d["schema_version"] = "2"
+    d = copy.deepcopy(doc)
+    d["schema_version"] = "2"
     yield "a future schema version", d
-    d = copy.deepcopy(doc); d["incident_hint"] = "bihar"
+    d = copy.deepcopy(doc)
+    d["incident_hint"] = "bihar"
     yield "a malformed incident code", d
 
 
