@@ -62,8 +62,7 @@ export default function SurgePage() {
     <AppShell>
       <Page>
       <PageHeader title="Under load · the last 60 seconds"
-                  sub={<>A rush of made-up reports that arrive already sorted into fields (<code className="text-xs">make surge</code>), so no AI is called,
-                    and every person and phone number is made up. They wait behind live calls, partners and sheet imports.</>} />
+                  sub="Made-up reports arriving fast. Watch that none is lost." />
       {down && <p className="mt-4 rounded-xl bg-ink px-4 py-2 text-sm text-paper">Can&apos;t reach the server. Retrying every second.</p>}
 
       <Card as="dl" className="mt-6 divide-y divide-line px-5 text-sm">
@@ -75,7 +74,6 @@ export default function SurgePage() {
         <Row k="What they became">
           <span className="tabular"><b>{n(s?.last_minute.reports ?? 0)}</b> reports read · <b>{n(s?.last_minute.cases ?? 0)}</b> new cases ·{" "}
             <b>{n(s?.last_minute.merges ?? 0)}</b> merged into an existing case</span>
-          <span className="block text-ink-3">in the last minute, all incidents</span>
         </Row>
         <Row k="Never lost">
           <ul className="space-y-0.5">
@@ -88,19 +86,16 @@ export default function SurgePage() {
               </li>
             ))}
           </ul>
-          <span className="block text-ink-3">“not yet read” is the backlog: stored with a receipt, waiting its turn. It returns to 0 as the backlog clears.</span>
         </Row>
         <Row k="Integrity">
           {integ ? (integ.problems === 0
             ? <span className="tabular">✓ 0 problems · {n(integ.events_verified)} events verified</span>
             : <span className="rounded-md bg-ink px-1.5 text-paper">{integ.problems} problems: see /v1/integrity</span>) : "–"}{" "}
           <Button size="sm" onClick={check} disabled={checking}>{checking ? "Checking…" : "Check again"}</Button>
-          <span className="block text-ink-3">every rule that must always hold, and every history entry re-checked: run it after the rush</span>
         </Row>
         {details && (<>
         <Row k="Time to say “received”">
             <span className="tabular">half within <b>{ms(i?.p50_ms ?? null)}</b> · 95 % within <b>{ms(i?.p95_ms ?? null)}</b> · 99 % within <b>{ms(i?.p99_ms ?? null)}</b></span>
-            <span className="block text-ink-3">measured inside the server, from the request arriving to the receipt</span>
           </Row>
           <Row k="Waiting to be read">
             <ul className="space-y-0.5">

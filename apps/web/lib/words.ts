@@ -47,7 +47,7 @@ export function plainAction(label: string): string {
 
 /** The place's method sentence: "High · 150 m · matched …" → "within 150 m: matched …". */
 export function plainPlace(method: string): string {
-  return method.replace(/^(High|Medium|Low) · ([\d.,]+ k?m) · /, "within $2: ");
+  return method.replace(/^(High|Medium|Low) · ([\d.,]+ k?m) · /, "within $2: ").replace(/ \([a-z_ ]*road\)/g, "");
 }
 
 /** The pipeline receipt's step names. */

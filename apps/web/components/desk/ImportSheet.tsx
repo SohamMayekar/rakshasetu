@@ -92,7 +92,7 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
             <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border border-dashed border-ink-3 px-4 py-10 text-center hover:bg-wash"
                    onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) upload(f); }}>
               <span className="font-medium">{busy ? "Reading…" : "Drop a CSV or XLSX here, or choose a file"}</span>
-              <span className="text-xs text-ink-3">Up to 5 MB, 5,000 rows, 40 columns. Cell values only: formulas are never run.</span>
+              <span className="text-xs text-ink-3">Excel or CSV, up to 5,000 rows.</span>
               <input type="file" accept=".csv,.xlsx" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f); }} />
             </label>
             {recent.length > 0 && (
@@ -122,7 +122,7 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
                               className="h-8 rounded-lg border border-line bg-paper px-2">
                         {FIELDS.map((f) => <option key={f} value={f}>{f}</option>)}
                       </select>
-                      {imp.proposed[h] === "unknown" && <span className="ml-2 text-xs text-ink-3">not recognised: ignored unless you choose</span>}
+                      {imp.proposed[h] === "unknown" && <span className="ml-2 text-xs text-ink-3">not used</span>}
                     </td>
                   </tr>
                 ))}
@@ -152,7 +152,6 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
               <div className="h-full bg-ink transition-all" style={{ width: `${imp.rows_total ? (100 * imp.rows_done) / imp.rows_total : 0}%` }} />
             </div>
             <p className="mt-2 tabular text-ink-2">{imp.rows_done} of {imp.rows_total} · {imp.new_cases} new · {imp.merged} merged · {imp.to_check} to check · rules read {imp.rules_read}, AI asked about {imp.ai_asked}</p>
-            <p className="mt-1 text-xs text-ink-3">Each row commits on its own; the desk keeps working.</p>
           </div>
         )}
 

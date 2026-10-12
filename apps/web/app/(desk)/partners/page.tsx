@@ -31,7 +31,7 @@ export default function PartnerLog() {
     <AppShell>
       <Page wide>
         <PageHeader title="A partner system"
-                    sub="Another team's app can send us notes about a case, signed so we know it's them; our rules decide what a note may do (a priority is only a suggestion an officer accepts or ignores). We send them facts, never names or phone numbers. The demo partner is simulated by us. Every call, both ways:" />
+                    sub="Another team's system can send us notes about a case. This one is our own, simulated. Every call, both ways:" />
         {error && <p className="mt-4 rounded-xl bg-paper px-4 py-2 text-sm">{error}</p>}
 
         {!!data?.anchors.length && (

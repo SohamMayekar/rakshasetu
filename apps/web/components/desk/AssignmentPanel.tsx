@@ -34,7 +34,6 @@ function Radio({ a, onDone }: { a: Assignment; onDone: () => void }) {
       <div className="flex flex-wrap items-center gap-1.5 text-xs text-ink-2">They will be there in (optional):
         {[15, 30, 60].map((m) => <button key={m} onClick={() => setEta(eta === m ? null : m)} className={`rounded-full px-2.5 py-1 ${eta === m ? "bg-ink text-paper" : "border border-line"}`}>{m} min</button>)}
       </div>
-      <p className="text-xs text-ink-3">One log refreshes every case this team holds.</p>
       <div className="flex gap-2"><Button size="sm" variant="primary" onClick={send}>Log contact</Button></div>
       {error && <p className="text-xs">{error}</p>}
     </div>
@@ -70,8 +69,8 @@ export function AssignmentPanel({ c, assignment, escalation, can, onChanged }: {
         <p className="text-ink-2">{PHASE[a.phase]}{a.eta_minutes ? ` · ETA ${a.eta_minutes} min` : ""}{a.assigned_by ? ` · by ${a.assigned_by}` : ""}</p>
         <Ring due={a.next_contact_due} windowMs={windowMs(a)} overdue={a.state === "overdue"} demo={a.demo_clock}
               label={a.has_app ? "check-in due" : "radio check due"} />
-        {a.state === "overdue" && <Because>no contact since {a.last_contact_at ? new Date(a.last_contact_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false }) : "it was assigned"}. The case stays with the team until you act.</Because>}
-        {a.last_seen_at && <p className="text-xs text-ink-3">App last open {new Date(a.last_seen_at).toLocaleTimeString("en-IN", { hour12: false })} (only a real tap or radio call counts as a check-in)</p>}
+        {a.state === "overdue" && <Because>no contact since {a.last_contact_at ? new Date(a.last_contact_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false }) : "it was assigned"}</Because>}
+        {a.last_seen_at && <p className="text-xs text-ink-3">App last open {new Date(a.last_seen_at).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false })}</p>}
         <div className="flex flex-wrap gap-2 pt-1">
           {can("team.radio_contact") && <Button size="sm" variant={a.state === "overdue" ? "primary" : "secondary"} onClick={() => setMode(mode === "radio" ? null : "radio")}>Heard on radio</Button>}
           {can("assignment.team_action") && a.phase === "offered" && (
@@ -104,7 +103,7 @@ export function AssignmentPanel({ c, assignment, escalation, can, onChanged }: {
                 <Button size="sm" className="shrink-0" onClick={() => run(() => api(`/v1/escalations/${escalation.id}/reassign`, { method: "POST", json: { case: c.public_id, team_id: t.team_id } }))}>Send this team</Button>
               </li>
             ))}
-            <li className="text-xs text-ink-3">{a.team} stays greyed out until it is next heard from, so it is told to stand down.</li>
+            <li className="text-xs text-ink-3">{a.team} is told to stand down when next heard from.</li>
           </ol>
         )}
         {mode === "radio" && <Radio a={a} onDone={() => { setMode(null); onChanged(); }} />}

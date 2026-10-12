@@ -49,7 +49,7 @@ export default function Audit() {
     <AppShell>
       <Page wide>
         <PageHeader title={<>History{caseId ? <span className="text-ink-3"> · case #{caseId}</span> : ""}</>}
-                    sub="The audit trail: every change is written down in order, and each entry is locked to the one before, so editing the past is caught (tamper-evident)."
+                    sub="Every change, in order. If anyone edits the past, the check finds it."
                     aside={<Button variant="primary" onClick={run} disabled={busy}><ShieldCheck className="size-4" aria-hidden />{busy ? "Checking…" : "Check nothing was changed"}</Button>} />
         {(verify || anchors.length > 0) && (
           <Card className="mt-5 flex flex-col gap-2 px-5 py-4 text-sm">
@@ -64,7 +64,7 @@ export default function Audit() {
           </Card>
         )}
         <p className="mt-5 flex justify-end"><Button size="sm" variant="quiet" onClick={() => setDetails(!details)} aria-expanded={details}>
-          {details ? "Hide details" : "Show details (entry numbers, fingerprints)"}</Button></p>
+          {details ? "Hide details" : "Show details"}</Button></p>
         <Card className="mt-1 overflow-x-auto">
           <table className="w-full text-sm">
             <thead><tr className="border-b border-line text-left text-xs text-ink-3">

@@ -40,10 +40,11 @@ export function Escalations({ items, publicIds, onOpenCase, onChanged }: {
       {items.map((e) => (
         <div key={e.id} className="rounded-xl bg-paper p-3 shadow-[var(--shadow-card)] ring-1 ring-ink">
           <p className="text-sm font-medium leading-snug">{withWords(e.line)}</p>
-          <p className="mt-0.5 text-xs text-ink-3">
-            For the {e.role === "incharge" ? "senior officer (nobody answered in time)" : "duty officer"}
-            {e.status === "acked" && e.acked_by_name ? ` · ${e.acked_by_name} is on it` : ""}
-          </p>
+          {(e.role === "incharge" || (e.status === "acked" && e.acked_by_name)) && (
+            <p className="mt-0.5 text-xs text-ink-3">
+              {e.role === "incharge" ? "Sent up to the senior officer" : ""}{e.status === "acked" && e.acked_by_name ? `${e.role === "incharge" ? " · " : ""}${e.acked_by_name} is on it` : ""}
+            </p>
+          )}
           <div className="mt-2 flex flex-wrap items-center gap-2">
             {e.case_ids.slice(0, 1).map((id) => (
               <Button key={id} size="sm" variant="primary" onClick={() => onOpenCase(id)}>Open {publicIds(id) ?? `#${id}`}</Button>

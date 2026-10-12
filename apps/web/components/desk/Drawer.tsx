@@ -56,7 +56,7 @@ function statusLine(c: Case, a: Assignment | null): string {
     const phase = { offered: "sent, not accepted yet", acknowledged: `accepted${a.eta_minutes ? `, there in about ${a.eta_minutes} min` : ""}`,
                     reached: "reached the family" }[a.phase];
     return a.state === "overdue" ? `${a.team}: contact overdue (not heard from since ${hhmm(a.last_contact_at ?? a.created_at)})`
-      : `${a.team} has it: ${phase} · check-in due ${hhmm(a.next_contact_due)}`;
+      : `${a.team} has it: ${phase}`;
   }
   const left = c.people_remaining != null && c.people_count ? `${c.people_remaining} of ${c.people_count} still there · ` : "";
   return `${left}Waiting for a team · ${waited(c.queue_since)}`;
@@ -283,14 +283,14 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
       </div>
       <div className="px-5 pt-1">
         <Fold title="Assignment" icon={Users} open={opened.has("Assignment")} onToggle={() => toggle("Assignment")}
-              hint={a ? `${a.team}` : "who will go, and the nearest teams"}>
+              hint={a ? `${a.team}` : "no team yet"}>
           {detail ? <AssignmentPanel c={c} assignment={detail.assignment}
                                      escalation={escalations.find((e) => e.kind === "team_overdue" && e.case_ids.includes(c.id))}
                                      can={can} onChanged={() => { onChanged(); load(); }} />
                   : <p className="text-sm text-ink-3">Loading…</p>}
         </Fold>
         <Fold title="Facts" icon={ClipboardCheck} open={opened.has("Facts")} onToggle={() => toggle("Facts")}
-              hint="each with the exact words it came from">
+              hint="with the caller's own words">
           <Facts c={c} canEdit={can("case.edit")} onQuote={setQuote} onChanged={load} />
           {detail?.reports[0]?.reporter_phone_masked && (
             <p className="mt-2 text-sm"><span className="text-ink-3">Contact</span> <span className="tabular">{detail.reports[0].reporter_phone_masked}</span>
@@ -306,9 +306,8 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
                         : <p className="text-sm text-ink-3">Loading…</p>}
           {can("merge.decide") && <ManualMerge c={c} onDone={(kept) => { onChanged(); load(); if (kept !== c.id) onSelect(kept); }} />}
         </Fold>
-        <Fold title="Audit" icon={ShieldCheck} open={opened.has("Audit")} onToggle={() => toggle("Audit")} hint="every change, in order">
-          <p className="text-sm text-ink-2">Every change to this case is written down in order, and nobody can edit the past unnoticed.</p>
-          <a className="mt-1 inline-block text-sm underline underline-offset-2" href={`/audit?case=${c.id}`}>See this case&rsquo;s full history</a>
+        <Fold title="Audit" icon={ShieldCheck} open={opened.has("Audit")} onToggle={() => toggle("Audit")} hint="every change to this case">
+          <a className="inline-block text-sm underline underline-offset-2" href={`/audit?case=${c.id}`}>See this case&rsquo;s full history</a>
         </Fold>
       </div>
       </div>
