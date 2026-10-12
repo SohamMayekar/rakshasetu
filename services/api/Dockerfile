@@ -19,7 +19,7 @@ RUN python -c "import tomllib; p=tomllib.load(open('pyproject.toml','rb'))['proj
 open('/tmp/req.txt','w').write('\n'.join(p['dependencies'] + p['optional-dependencies']['dev']))" \
     && pip install --no-cache-dir -r /tmp/req.txt
 COPY . .
-RUN pip install --no-cache-dir --no-deps -e .
+ENV PYTHONPATH=/srv
 
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

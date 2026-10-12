@@ -3,7 +3,11 @@
 name: rakshasetu
 
 x-api-env: &api-env
-  DATABASE_URL: postgresql+psycopg://postgres:${POSTGRES_PASSWORD}@db:5432/rakshasetu
+  # api, worker and ticker connect as rakshasetu_app (owns nothing; INSERT+SELECT on events).
+  DATABASE_URL: postgresql+psycopg://rakshasetu_app:${APP_DB_PASSWORD}@db:5432/rakshasetu
+  # The test harness uses its own database, never the demo one.
+  TEST_DATABASE_URL: postgresql+psycopg://rakshasetu_app:${APP_DB_PASSWORD}@db:5432/rakshasetu_test
+  TEST_OWNER_DATABASE_URL: postgresql+psycopg://rakshasetu_owner:${OWNER_DB_PASSWORD}@db:5432/rakshasetu_test
   DEMO_MODE: ${DEMO_MODE:-true}
   PUBLIC_URL: ${PUBLIC_URL:-}
   SECRET_KEY: ${SECRET_KEY}
@@ -20,6 +24,8 @@ services:
     image: postgis/postgis:16-3.4-alpine
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      OWNER_DB_PASSWORD: ${OWNER_DB_PASSWORD}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db/init:/docker-entrypoint-initdb.d:ro
@@ -31,15 +37,24 @@ services:
       timeout: 3s
       retries: 30
 
-  api:
+  migrate:
+    # One-shot: applies migrations as rakshasetu_owner, then exits.
     build: *api-build
+    image: rakshasetu-api
+    command: ["python", "-m", "app.migrate"]
+    environment:
+      OWNER_DATABASE_URL: postgresql+psycopg://rakshasetu_owner:${OWNER_DB_PASSWORD}@db:5432/rakshasetu
+    depends_on:
+      db: { condition: service_healthy }
+
+  api:
     image: rakshasetu-api
     environment: *api-env
     volumes:
       - ../data:/data:ro
       - files:/files
     depends_on:
-      db: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/healthz').status==200 else 1)"]
       interval: 5s
