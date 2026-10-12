@@ -1,7 +1,10 @@
 "use client";
 
-// The case drawer (PRD F-C2), titled with the PS's words: Assignment · Facts · Timeline & evidence · Audit.
-// It re-reads the case whenever a live update changes it, and offers only the actions this role may take.
+// The case panel (PRD F-C2). It opens on a summary (m68): who and how many, where (with the honest circle), the
+// status in plain words, and ONE next-step button chosen by the same rule as the queue's action. Below it, the
+// PS's sections, collapsed: Assignment · Facts · Timeline & evidence · Audit (one click each; a queue action opens
+// the one it needs). Moving the place, the priority call, close/cancel are under More. It re-reads the case
+// whenever a live update changes it, and offers only the actions this role may take.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -9,16 +12,56 @@ import { AssignmentPanel } from "@/components/desk/AssignmentPanel";
 import { Facts } from "@/components/desk/Facts";
 import { Matches } from "@/components/desk/Matches";
 import { Timeline } from "@/components/desk/Timeline";
-import { ArrowUpDown, ClipboardCheck, History, MapPin, ShieldCheck, Users, X } from "lucide-react";
+import { ArrowUpDown, ChevronDown, ClipboardCheck, History, type LucideIcon, MapPin, ShieldCheck, Users, X } from "lucide-react";
+import type { ReactNode } from "react";
 
-import { Because, Button, Chip, Priority, PriorityWell, Section } from "@/components/ui";
-import { priorityWord, withWords } from "@/lib/words";
-import { api, type Case, type CaseDetail, type Escalation, type Evidence, type Me, type PartnerNote, type Suggestion, type TimelineEvent } from "@/lib/api";
+import { Because, Button, Chip, Priority, PriorityWell } from "@/components/ui";
+import { plainPlace, priorityWord, withWords } from "@/lib/words";
+import { api, type Assignment, type Case, type CaseDetail, type Dispatch, type Escalation, type Evidence, type Me, type PartnerNote,
+         type Suggestion, type TimelineEvent } from "@/lib/api";
 
 export type Picked = { lat: number; lng: number } | null;
 
-const STATUS_WORD: Record<string, string> = { checked: "checked", assigned: "a team has it", reached: "team reached", partial: "some still there",
-  rescued: "rescued", closed: "closed", cancelled: "cancelled", merged: "added to another case", acknowledged: "team accepted" };
+// A section in the PS's words that opens and closes; the header says what is inside in a few words.
+function Fold({ title, icon: Icon, hint, open, onToggle, children }: {
+  title: string; icon: LucideIcon; hint?: string; open: boolean; onToggle: () => void; children: ReactNode;
+}) {
+  return (
+    <section data-section={title} className="border-t border-line first:border-t-0">
+      <button onClick={onToggle} aria-expanded={open} className="flex w-full items-center gap-2 py-3.5 text-left">
+        <Icon className="size-4 shrink-0 text-ink-3" strokeWidth={1.9} aria-hidden />
+        <span className="text-[15px] font-semibold tracking-tight">{title}</span>
+        {hint && !open && <span className="min-w-0 flex-1 truncate text-sm text-ink-3">· {hint}</span>}
+        <ChevronDown className={`ml-auto size-4 shrink-0 text-ink-3 transition-transform ${open ? "rotate-180" : ""}`} aria-hidden />
+      </button>
+      {open && <div className="pb-5">{children}</div>}
+    </section>
+  );
+}
+
+const hhmm = (iso: string) => new Date(iso).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: false });
+const within = (m: number | null) => (m == null ? "" : m >= 1000 ? `within ${m / 1000} km` : `within ${m} m`);
+function waited(iso: string) {
+  const min = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+  return min < 60 ? `${min} min` : `${Math.floor(min / 60)} h ${min % 60} min`;
+}
+
+// The status in one plain line.
+function statusLine(c: Case, a: Assignment | null): string {
+  if (c.status === "merged") return "Added to another case (the same family)";
+  if (c.status === "cancelled") return "Cancelled";
+  if (c.status === "closed") return "Closed";
+  if (c.status === "rescued") return c.people_count ? `Rescued ${c.people_count} of ${c.people_count}` : "Rescued";
+  if (a) {
+    const phase = { offered: "sent, not accepted yet", acknowledged: `accepted${a.eta_minutes ? `, there in about ${a.eta_minutes} min` : ""}`,
+                    reached: "reached the family" }[a.phase];
+    return a.state === "overdue" ? `${a.team}: contact overdue (not heard from since ${hhmm(a.last_contact_at ?? a.created_at)})`
+      : `${a.team} has it: ${phase} · check-in due ${hhmm(a.next_contact_due)}`;
+  }
+  const left = c.people_remaining != null && c.people_count ? `${c.people_remaining} of ${c.people_count} still there · ` : "";
+  return `${left}Waiting for a team · ${waited(c.queue_since)}`;
+}
+
 
 // An officer's decisions on a case, each with a reason (PRD §5.2): close, cancel, reopen.
 function Decide({ c, onDone }: { c: Case; onDone: () => void }) {
@@ -117,10 +160,25 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
   useEffect(load, [load, c.version, c.updated_at, refreshKey]);   // refreshKey: a live event about this case
   useEffect(() => { setError(null); }, [c.id]);
 
-  useEffect(() => {   // open at the section the queue's action asked for
-    if (!focus || !body.current) return;
-    body.current.querySelector(`[data-section="${focus}"]`)?.scrollIntoView({ block: "start" });
-  }, [focus, c.id, tl]);
+  // The sections start closed; the queue's action opens the one it needs, and scrolls to it.
+  const [opened, setOpened] = useState<Set<string>>(new Set(focus ? [focus] : []));
+  const [more, setMore] = useState(false);
+  const toggle = (name: string) => setOpened((o) => { const n = new Set(o); if (n.has(name)) n.delete(name); else n.add(name); return n; });
+  const show = useCallback((name: string) => {
+    setOpened((o) => new Set(o).add(name));
+    setTimeout(() => body.current?.querySelector(`[data-section="${name}"]`)?.scrollIntoView({ block: "start" }), 50);
+  }, []);
+  useEffect(() => { setOpened(new Set(focus ? [focus] : [])); setMore(false); }, [c.id]);   // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (focus) show(focus); }, [focus, c.id, show]);
+
+  // The best team, for the summary's one button when nobody has the case yet (the same list as Assignment's).
+  const [best, setBest] = useState<Dispatch["suggestions"][number] | null>(null);
+  const owned = !!detail?.assignment;
+  useEffect(() => {
+    setBest(null);
+    if (owned || !can("assignment.create") || ["merged", "closed", "cancelled", "rescued"].includes(c.status)) return;
+    api<Dispatch>(`/v1/cases/${c.id}/dispatch-suggestions`).then((d) => setBest(d.suggestions[0] ?? null)).catch(() => {});
+  }, [c.id, c.version, owned]);   // eslint-disable-line react-hooks/exhaustive-deps
 
   const act = async (fn: () => Promise<unknown>) => {
     setError(null);
@@ -132,31 +190,52 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
     onPickEnd();
   });
 
+  // ONE next step, by the queue's rule: an answer owed, a silent team, the place, a possible repeat, a team, the check.
+  const a = detail?.assignment ?? null;
+  const open = !["merged", "closed", "cancelled", "rescued"].includes(c.status);
+  const repeat = suggestions.find((x) => x.strength !== "refused" && (x.case_id === c.id || x.candidate_case_id === c.id));
+  const unchecked = !c.checked_at && can("case.check");
+  const check = () => act(() => api(`/v1/cases/${c.id}/check`, { method: "POST", json: {} }));
+  const next: { label: string; run: () => void } | null =
+    !open ? null
+    : c.flags.includes("disputed") ? { label: "Radio the team", run: () => show("Assignment") }
+    : a?.state === "overdue" && can("team.radio_contact") ? { label: "Heard from them?", run: () => show("Assignment") }
+    : c.lat == null && can("case.move_pin") ? { label: "Fix the place", run: onPickStart }
+    : repeat && can("merge.decide") ? { label: `Same family as ${repeat.case_id === c.id ? repeat.candidate : repeat.public_id}?`, run: () => show("Timeline & evidence") }
+    : !a && c.priority === "P1" && best ? { label: `Send ${best.name}`, run: () => act(async () => {
+        await api("/v1/assignments", { method: "POST", json: { case: c.public_id, team_id: best.team_id, suggested_rank: 1 } }); onChanged(); }) }
+    : unchecked ? { label: "Mark checked", run: check }
+    : !a && best ? { label: `Send ${best.name}`, run: () => act(async () => {
+        await api("/v1/assignments", { method: "POST", json: { case: c.public_id, team_id: best.team_id, suggested_rank: 1 } }); onChanged(); }) }
+    : !a && can("assignment.create") ? { label: "Choose a team", run: () => show("Assignment") }
+    : null;
+  const evidenceCount = tl?.evidence.length ?? 0;
+
   return (
     <aside className="fixed inset-0 z-40 flex flex-col overflow-hidden bg-paper md:static md:h-full md:w-[440px] md:shrink-0 md:rounded-[20px] md:border md:border-line/80 md:shadow-[var(--shadow-card)]" aria-label={`Case ${c.public_id}`}>
+      <div ref={body} className="scroll-quiet flex-1 overflow-y-auto">
       <div className="m-3 mb-0 rounded-2xl bg-wash px-4 py-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
             <PriorityWell level={c.priority} size="lg" />
-            <div className="min-w-0">
-              <p className="flex flex-wrap items-baseline gap-2">
-                <Priority level={c.priority} shape={false} />
-                <span className="tabular text-xl font-semibold tracking-tight">{c.public_id}</span>
-              </p>
-              <p className="mt-0.5 flex flex-wrap gap-1.5">
-                <Chip tone="neutral">{c.status === "reported" ? "not checked yet" : STATUS_WORD[c.status] ?? c.status}</Chip>
-                {c.status !== "reported" && !c.checked_at && <Chip tone="neutral">not checked yet</Chip>}
-                {c.flags.includes("instruction_like_text") && <Chip tone="attention">words that look like orders: read them</Chip>}
-              </p>
-            </div>
+            <p className="flex min-w-0 flex-wrap items-baseline gap-2">
+              <Priority level={c.priority} shape={false} />
+              <span className="tabular text-xl font-semibold tracking-tight">{c.public_id}</span>
+            </p>
           </div>
           <Button variant="quiet" size="sm" onClick={onClose} aria-label="Close" title="Close"><X className="size-4" aria-hidden />Close</Button>
         </div>
-        <p className="mt-3 text-[15px] font-medium">{c.summary}</p>
-        {(c.priority_override as Override)
-          ? <Because>{c.priority} · {(() => { const o = c.priority_override as NonNullable<Override>;
-              return `${o.level < o.from ? "raised" : o.level > o.from ? "lowered" : "kept"} by ${o.by}: “${o.reason}” · the rules said ${priorityWord(o.rules_said)}`; })()}</Because>
-          : c.priority_reasons.length > 0 && <Because>{priorityWord(c.priority)} · {c.priority_reasons.join(" · ")}</Because>}
+        <p className="mt-3 text-[17px] font-semibold leading-snug">{c.summary}</p>
+        <p className="mt-1.5 flex items-start gap-1.5 text-sm">
+          <MapPin className="mt-0.5 size-4 shrink-0 text-ink-3" aria-hidden />
+          <span>{c.location_text ?? "Place not known yet"}{c.radius_m ? <span className="text-ink-2"> · {within(c.radius_m)}</span> : null}
+            {c.location_method && <span className="block text-xs text-ink-3">{plainPlace(c.location_method).replace(/^within [^:]+: /, "")}</span>}</span>
+        </p>
+        <p className="mt-1.5 text-sm">
+          <span className={a?.state === "overdue" ? "rounded-md bg-ink px-1.5 text-paper" : "text-ink-2"}>{statusLine(c, a)}</span>
+          {!c.checked_at && open && <span className="text-ink-3"> · not checked yet</span>}
+        </p>
+        {c.flags.includes("instruction_like_text") && <p className="mt-2"><Chip tone="attention">words that look like orders: read them</Chip></p>}
         {notes.filter((n) => n.kind === "priority").map((n) => (   // a partner suggests; an officer decides
           <div key={n.id} className="mt-3 rounded-xl border border-line bg-paper px-3 py-2.5 text-sm">
             <p><b>{n.team}</b> suggests <b>{withWords(String(n.value))}</b>{n.confidence != null ? ` · ${n.confidence.toFixed(2)}` : ""}{n.explanation ? ` · ${n.explanation}` : ""}</p>
@@ -169,19 +248,30 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
               )}
           </div>
         ))}
-        <div className="mt-3 flex flex-wrap gap-2">
-          {!c.checked_at && can("case.check") && (
-            <Button size="sm" variant="primary" onClick={() => act(() => api(`/v1/cases/${c.id}/check`, { method: "POST", json: {} }))}>
-              <ClipboardCheck className="size-3.5" aria-hidden />Mark checked</Button>
-          )}
-          {can("case.move_pin") && !picking && <Button size="sm" onClick={onPickStart}><MapPin className="size-3.5" aria-hidden />Move the place</Button>}
-          {can("priority.override") && !["merged", "closed", "cancelled"].includes(c.status) && <PriorityCall c={c} onDone={() => { onChanged(); load(); }} />}
-          {can("case.decide") && <Decide c={c} onDone={() => { onChanged(); load(); }} />}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {next && <Button variant="primary" onClick={next.run}>{next.label}</Button>}
+          <Button size="sm" variant="quiet" onClick={() => setMore(!more)} aria-expanded={more}>{more ? "Less" : "More"}</Button>
         </div>
+        {more && (
+          <div className="mt-2 space-y-2 border-t border-line pt-3">
+            {(c.priority_override as Override)
+              ? <Because>{priorityWord(c.priority)} · {(() => { const o = c.priority_override as NonNullable<Override>;
+                  return `${o.level < o.from ? "raised" : o.level > o.from ? "lowered" : "kept"} by ${o.by}: “${o.reason}” · the rules said ${priorityWord(o.rules_said)}`; })()}</Because>
+              : c.priority_reasons.length > 0 && <Because>{priorityWord(c.priority)} · {c.priority_reasons.join(" · ")}</Because>}
+            <div className="flex flex-wrap gap-2">
+              {unchecked && next?.label !== "Mark checked" && (
+                <Button size="sm" onClick={check}><ClipboardCheck className="size-3.5" aria-hidden />Mark checked</Button>
+              )}
+              {can("case.move_pin") && !picking && <Button size="sm" onClick={onPickStart}><MapPin className="size-3.5" aria-hidden />Move the place</Button>}
+              {can("priority.override") && open && <PriorityCall c={c} onDone={() => { onChanged(); load(); }} />}
+              {can("case.decide") && <Decide c={c} onDone={() => { onChanged(); load(); }} />}
+            </div>
+          </div>
+        )}
         {picking && (
           <form className="mt-3 space-y-2 rounded-xl border border-line bg-paper p-3 text-sm" onSubmit={(e) => { e.preventDefault(); savePin(new FormData(e.currentTarget)); }}>
             <p>{picked ? <>New place at <span className="tabular">{picked.lat.toFixed(5)}, {picked.lng.toFixed(5)}</span> · a person placed it, so its circle is 50 m.</>
-                       : "Click the map where the household is."}</p>
+                       : "Click the map where the family is."}</p>
             {picked && <input name="reason" required minLength={3} placeholder="Why (logged), e.g. caller confirmed on phone" className="h-8 w-full rounded-lg border border-line px-2" autoFocus />}
             <div className="flex gap-2">
               {picked && <Button size="sm" variant="primary" type="submit">Save the place</Button>}
@@ -191,40 +281,36 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
         )}
         {error && <p className="mt-2 rounded-lg bg-paper px-2 py-1 text-xs">{error}</p>}
       </div>
-      <div ref={body} className="scroll-quiet flex-1 overflow-y-auto px-5">
-        <div data-section="Assignment">
-          <Section title="Assignment" icon={Users}>
-            {detail ? <AssignmentPanel c={c} assignment={detail.assignment}
-                                       escalation={escalations.find((e) => e.kind === "team_overdue" && e.case_ids.includes(c.id))}
-                                       can={can} onChanged={() => { onChanged(); load(); }} />
-                    : <p className="text-sm text-ink-3">Loading…</p>}
-          </Section>
-        </div>
-        <div data-section="Facts">
-          <Section title="Facts" icon={ClipboardCheck}>
-            <Facts c={c} canEdit={can("case.edit")} onQuote={setQuote} onChanged={load} />
-            {detail?.reports[0]?.reporter_phone_masked && (
-              <p className="mt-2 text-sm"><span className="text-ink-3">Contact</span> <span className="tabular">{detail.reports[0].reporter_phone_masked}</span>
-                {detail.reports[0].reporter_relation && detail.reports[0].reporter_relation !== "unknown" && <span className="text-ink-3"> · {detail.reports[0].reporter_relation}</span>}</p>
-            )}
-          </Section>
-        </div>
-        <div data-section="Timeline & evidence">
-          <Section title="Timeline & evidence" icon={History}>
-            <Matches c={c} suggestions={suggestions} lookup={lookup} canDecide={can("merge.decide")}
-                     onDone={(kept) => { onChanged(); load(); if (kept && kept !== c.id) onSelect(kept); }} />
-            {tl && detail ? <Timeline events={tl.events} evidence={tl.evidence} reports={detail.reports} quote={quote} notes={notes}
-                                      canUndo={can("merge.decide")} onChanged={() => { onChanged(); load(); }} />
-                          : <p className="text-sm text-ink-3">Loading…</p>}
-            {can("merge.decide") && <ManualMerge c={c} onDone={(kept) => { onChanged(); load(); if (kept !== c.id) onSelect(kept); }} />}
-          </Section>
-        </div>
-        <div data-section="Audit">
-          <Section title="Audit" icon={ShieldCheck}>
-            <p className="text-sm text-ink-2">Every change to this case is written down in order, and nobody can edit the past unnoticed.</p>
-            <a className="mt-1 inline-block text-sm underline underline-offset-2" href={`/audit?case=${c.id}`}>See this case&rsquo;s full history</a>
-          </Section>
-        </div>
+      <div className="px-5 pt-1">
+        <Fold title="Assignment" icon={Users} open={opened.has("Assignment")} onToggle={() => toggle("Assignment")}
+              hint={a ? `${a.team}` : "who will go, and the nearest teams"}>
+          {detail ? <AssignmentPanel c={c} assignment={detail.assignment}
+                                     escalation={escalations.find((e) => e.kind === "team_overdue" && e.case_ids.includes(c.id))}
+                                     can={can} onChanged={() => { onChanged(); load(); }} />
+                  : <p className="text-sm text-ink-3">Loading…</p>}
+        </Fold>
+        <Fold title="Facts" icon={ClipboardCheck} open={opened.has("Facts")} onToggle={() => toggle("Facts")}
+              hint="each with the exact words it came from">
+          <Facts c={c} canEdit={can("case.edit")} onQuote={setQuote} onChanged={load} />
+          {detail?.reports[0]?.reporter_phone_masked && (
+            <p className="mt-2 text-sm"><span className="text-ink-3">Contact</span> <span className="tabular">{detail.reports[0].reporter_phone_masked}</span>
+              {detail.reports[0].reporter_relation && detail.reports[0].reporter_relation !== "unknown" && <span className="text-ink-3"> · {detail.reports[0].reporter_relation}</span>}</p>
+          )}
+        </Fold>
+        <Fold title="Timeline & evidence" icon={History} open={opened.has("Timeline & evidence")} onToggle={() => toggle("Timeline & evidence")}
+              hint={tl ? `${tl.events.length} events · ${evidenceCount} evidence ${evidenceCount === 1 ? "item" : "items"}` : undefined}>
+          <Matches c={c} suggestions={suggestions} lookup={lookup} canDecide={can("merge.decide")}
+                   onDone={(kept) => { onChanged(); load(); if (kept && kept !== c.id) onSelect(kept); }} />
+          {tl && detail ? <Timeline events={tl.events} evidence={tl.evidence} reports={detail.reports} quote={quote} notes={notes}
+                                    canUndo={can("merge.decide")} onChanged={() => { onChanged(); load(); }} />
+                        : <p className="text-sm text-ink-3">Loading…</p>}
+          {can("merge.decide") && <ManualMerge c={c} onDone={(kept) => { onChanged(); load(); if (kept !== c.id) onSelect(kept); }} />}
+        </Fold>
+        <Fold title="Audit" icon={ShieldCheck} open={opened.has("Audit")} onToggle={() => toggle("Audit")} hint="every change, in order">
+          <p className="text-sm text-ink-2">Every change to this case is written down in order, and nobody can edit the past unnoticed.</p>
+          <a className="mt-1 inline-block text-sm underline underline-offset-2" href={`/audit?case=${c.id}`}>See this case&rsquo;s full history</a>
+        </Fold>
+      </div>
       </div>
     </aside>
   );

@@ -65,6 +65,18 @@ async function open(pid) {
     await O.goto(`${DESK}/desk/BR?case=${pid}`);
   }
   await until(async () => (await drawer().getAttribute("aria-label", { timeout: 300 }))?.includes(pid), 15000);
+  for (const name of ["Assignment", "Facts", "Timeline & evidence"]) await expand(name);   // the panel opens on its summary
+}
+// The case panel's sections start collapsed (m68): open one by its header, once.
+async function expand(name) {
+  const header = O.locator(`[data-section="${name}"] > button[aria-expanded="false"]`);
+  if (await header.count()) await header.first().click();
+}
+// A button in the panel's summary, or under its "More" when it isn't the one next step.
+async function drawerButton(name) {
+  const b = drawer().getByRole("button", { name, exact: true });
+  if (!(await b.isVisible().catch(() => false))) await drawer().getByRole("button", { name: "More", exact: true }).click();
+  return b;
 }
 
 try {
@@ -136,7 +148,7 @@ try {
   const merged = await until(async () => (await caption()).startsWith(`A person merged ${fwd[1]} into ${pid}`) && (await caption()), 15000);
   check(!!merged, `merged by a person: “${merged.slice(0, 80)}…”`);
   await open(pid);
-  await drawer().getByRole("button", { name: "Mark checked", exact: true }).click();
+  await (await drawerButton("Mark checked")).click();
   await until(async () => !(await drawer().innerText({ timeout: 300 })).includes("not checked yet"), 10000);
   check(true, `${pid} checked by R. Das`);
   await O.getByRole("button", { name: "New report" }).click();
@@ -248,6 +260,7 @@ try {
   // ---- 3:05 the receipts ---------------------------------------------------------------------------------------
   await O.goto(`${DESK}/desk/BR?case=${pid}`);
   await drawer().waitFor();
+  await expand("Timeline & evidence");
   const timeline = O.locator('[data-section="Timeline & evidence"]');
   await until(async () => (await timeline.innerText({ timeout: 300 })).includes("Rescue record"), 10000);
   const tl = await timeline.innerText();
