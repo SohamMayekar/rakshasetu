@@ -5,7 +5,6 @@ import type { NextConfig } from "next";
 const apiOrigin = process.env.API_ORIGIN ?? "http://localhost:8000";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
   poweredByHeader: false,
   async rewrites() {
     return [{ source: "/v1/:path*", destination: `${apiOrigin}/v1/:path*` }];
