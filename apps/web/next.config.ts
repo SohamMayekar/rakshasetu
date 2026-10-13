@@ -1,14 +1,10 @@
 import type { NextConfig } from "next";
 
-// In docker compose, Caddy routes /v1/* to the API before requests reach Next.
-// The rewrite below only matters when the web app runs alone (`npm run dev`).
-const apiOrigin = process.env.API_ORIGIN ?? "http://localhost:8000";
-
+// /v1/* is proxied to the API by the middleware (apps/web/middleware.ts), not from here: a rewrite in
+// this file becomes an edge route on Vercel and would run before the middleware, which is what sets
+// `x-rs-listener`. Caddy does the same job in the compose stack, where Next never sees /v1/*.
 const nextConfig: NextConfig = {
   poweredByHeader: false,
-  async rewrites() {
-    return [{ source: "/v1/:path*", destination: `${apiOrigin}/v1/:path*` }];
-  },
 };
 
 export default nextConfig;
