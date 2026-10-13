@@ -19,3 +19,13 @@ There is no agent, no agent framework and no model that decides, ranks, writes t
 
 - **What a person still has to do** before the demo (record real voices, add keys, run on a real phone, measure on the demo laptop) is listed in `docs/VERIFICATION.md` and `docs/STATUS.md`. Every team member should be able to explain every module: `docs/TEACHBACK.md` has 20 questions to practise on, and `docs/modules/` has a short explainer per module.
 - No other AI or idea tool was used for the product's design (per `CLAUDE.md`).
+
+
+## Languages and the AI (13 Oct 2026)
+- **Speech to text:** Sarvam Saaras is the primary and detects the language itself (`language_code: unknown`); Groq
+  Whisper is the fallback and is given a short vocabulary hint. Output that is only noise or our own hint is discarded,
+  and the clip still becomes an "audio only" case, so nothing is lost.
+- **Reading facts:** the model sees any Indian language or English and must return the closed schema with an exact
+  quote for every value, which is then checked against the words. The word rules cross-check it.
+- **What AI still never does:** rank, join families, choose or reassign a team, close a case, or write text a user
+  reads. See `docs/LANGUAGES.md`.

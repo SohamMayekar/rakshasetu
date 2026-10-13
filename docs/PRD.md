@@ -1,3 +1,7 @@
+> **Note (13 Oct 2026):** this is the original specification (v1.1). The product has since grown from a district
+> rescue desk into a national incident command layer for any disaster and any team. For what exists today read
+> [`BRIEF.md`](BRIEF.md), [`STATUS.md`](STATUS.md) and [`DECISIONS.md`](DECISIONS.md) (D45 onward).
+
 # RakshaSetu: Product Requirements Document
 
 > **Never lost. Never doubled. Never stale.**

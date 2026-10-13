@@ -5,6 +5,32 @@
 **Current milestone:** m88 IN PROGRESS on branch `m88-mumbai-demo` (not merged: e2e and DEMO.md still on Bihar) (Mumbai floods is a full pack; the demo moves to it in m88) (reading measured: 88% of facts found on held-out reports, 98% right) (the desk's tabs: Cases, Teams, Alerts, Sheets) (the design run, m78–m82: docs/DESIGN_AUDIT.md) (the focus run, m73–m77: about families, teams and rescues) (the simplify run, m63–m72: docs/SIMPLIFY_PLAN.md); last release m62: see docs/VERIFICATION.md
 **Started:** H0 = 12 Oct 2026, 16:26 IST (the first product-code commit follows the planning-only commit `246a19e`).
 
+## Latest run: from a district desk to a national command layer (13 Oct 2026)
+
+*This run changed what the product is. Items are listed by what a user sees. Checks run in this build environment:
+type-check, production build, ruff, the database-free tests (including `tests/test_other_disasters.py`,
+`tests/test_capabilities.py`), the copy rules, and server rendering of every page. **Not run here: the tests that
+need Postgres** (`tests/test_telemetry.py`, `tests/test_team_management.py` and the existing database suites): run
+`make test` once.*
+
+| Area | What changed |
+|---|---|
+| **Identity** | "One command layer for every emergency": a national incident command platform, not a district flood desk. README, PRODUCT.md, site metadata and the landing page say so. |
+| **One national desk** | `/desk` replaces the per-incident desks; Cases, Teams, Alerts, Sheets, Sensors, Incidents are national. Old `/desk/BR…` addresses redirect. The queue, escalations, teams, imports and the promise bar take an optional incident. |
+| **Incident lifecycle UI** | Incidents page: start, stand down, reopen, close, each with a reason; *New incident* form. |
+| **Any team, any capability** | `app/capabilities.py`: 24 capabilities, 20 agencies. Teams → *Add a team* (admin), with the lead's sign-in; `POST/PATCH /v1/teams`; migration 021 opens the agency list. Dispatch: a boat only for water; fire, gas, accident, earthquake, storm and supplies set *preferred* capabilities; ranking counts how many help. |
+| **Any disaster** | Hazards `fire`, `smoke_gas`, `road_accident`, `earthquake`, `wind_damage` (contract, schema, rules, words in Hindi, Hinglish, Marathi, English); needs `shelter`, `rescue`; P1/P2 rules for them. |
+| **Telemetry** | `POST /v1/ingest/telemetry` (signed), sensors read against two lines, state changes on the audit chain; Sensors page; `make telemetry-demo` (simulated, labelled). Migration 020. |
+| **Voice and reporting** | Adaptive silence detection, mic-permission states, noise and hallucination filter on transcripts, a retry on transient provider errors, spoken Devanagari digits, an optional call-back number carried with the report, "written at" kept, a clear error for each failure. |
+| **No signal** | Reports are saved on the phone (IndexedDB) and sent by itself; "Pass it on" share; `/mesh` explains and simulates the relay (labelled). WhatsApp is documented as an option (`docs/WHATSAPP.md`). |
+| **Clean start** | `make seed` creates an empty platform with one admin; `make seed-demo` loads the sample packs. Admin scope covers incidents created later. Public reports find the open incident dynamically. |
+| **Web** | New landing page and a rebuilt no-signal page; grouped, fluid sidebar with badges; one form-control family; one sign-out for every account; `/login` knows who is signed in. |
+| **Docs** | `docs/BRIEF.md`, `docs/PITCH.md`, `docs/LANGUAGES.md`, `docs/WHATSAPP.md`, `docs/HERO_IMAGE.md`; README and PRODUCT.md rewritten. |
+
+**NOT DONE (this run):** the live WhatsApp number; the native Bluetooth relay; real instruments; screens in other
+languages; per-language word lists beyond Hindi, Hinglish, Marathi and English; a photograph for the landing hero
+(`docs/HERO_IMAGE.md` has the prompt); gazetteers beyond Mumbai and Bihar; demo packs for fire, collapse and accident.
+
 ## DONE (verified)
 
 | Milestone | What | The check that proved it |

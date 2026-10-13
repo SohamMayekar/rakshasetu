@@ -1,5 +1,7 @@
 # How to demo RakshaSetu to the judges
 
+> **Newer and shorter:** [`PITCH.md`](PITCH.md) has the current 3- and 5-minute scripts and the answers. This file is the detailed, step-by-step performance on the sample packs (`make seed-demo`). On a clean platform (`make seed`) you start an incident and add a team first (Incidents, Teams) and then follow the same steps.
+
 Four of us perform a real rescue in about four minutes. The judges only watch. Everything on screen is the real
 app doing real work; only the people, phone numbers and the fast clock are demo values, and we say so once.
 
@@ -17,7 +19,7 @@ address.
 
 ## Before going on stage (10 minutes earlier)
 
-1. `make up` and `make seed` on the laptop. Then `make demo-reset SCENE=son`. Read the output: it must end without
+1. `make up` and `make seed-demo` on the laptop (`make seed` is an empty platform). Then `make demo-reset SCENE=son`. Read the output: it must end without
    an error.
 2. Start the tunnel: `cloudflared tunnel --url http://localhost:8080`. Write its `https://….trycloudflare.com`
    address in `.env` as `PUBLIC_URL`, then run `make up` again.

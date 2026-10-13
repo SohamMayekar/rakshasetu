@@ -130,3 +130,33 @@ The team asked (12 Oct 2026) for more than Desk and History, but only places a r
 
 ### D44 · Mumbai is the live incident; Bihar stays for the tests
 The team and the judges live in Mumbai (team, 12 Oct 2026), and a desk they can picture (Kurla, the Mithi, the local trains) lands better than villages in Gopalganj. Mumbai floods (MH) is now a full pack built the same honest way as Bihar: real OpenStreetMap places and landmarks for Mumbai City and Mumbai Suburban (935 places, 4,398 bridge points, 163 stations), real kinds of teams with synthetic names, synthetic people and phones. Bihar (BR) stays as the pack the 400+ API tests run against, so no rule test was rewritten. Mumbai's names exposed three place bugs that Bihar's village names hid: the place scan let whichever place came first in the list win (now the longest name said wins: "Sion Koliwada", not one of Mumbai's many "Koliwada"s), Marathi case endings hid the name ("चेंबूरला"), and the nasal before b/p/m transliterated as "n" ("Cenbur"). Mumbai maps neighbourhoods as East and West halves, so a caller's "Kurla" matches a derived place joining the two, marked `derived` and never shown as an OSM feature. Marathi words (अडकलो, शिरले, दरड कोसळली, आजी, औषध…) and Mumbai situations (terrace, chawl, flooded subway, stalled train) joined the one word list. Schema untouched: the fire brigade uses the existing agency "Fire & Rescue". **Rejected:** rewriting the tests onto Mumbai (hundreds of pinned checks for no change in what they protect); a separate Marathi dictionary (callers mix Marathi, Hindi and English in one message, and the incident's language isn't used to pick a list).
+
+
+## 13 Oct 2026: from a district desk to a national command layer
+
+**D45 · One national desk.** There is no per-incident desk. `/desk` shows every incident the person may see, scoped
+in SQL; the old addresses redirect. *Why:* the brief asks for a national-scale layer and "avoid hard-coding the demo
+around one incident".
+
+**D46 · A capability catalog, and "required" only where the job cannot be done without it.** Twenty-four
+capabilities, twenty agencies, one file. A boat is required only for water, heavy lift for a collapse; everything
+else is preferred, so a team that lacks it is still offered and the officer decides. *Why:* "trapped" used to demand a
+boat, which left a fire or a collapse with no suggested team.
+
+**D47 · New hazards through the closed contract, not around it.** `fire`, `smoke_gas`, `road_accident`,
+`earthquake`, `wind_damage` are added to the schema, the rules and the words, with matching priority rules. *Why:* the
+AI cannot return a value outside the closed list, so the list must cover the disasters we claim.
+
+**D48 · Sensors are context, never priority, and always labelled.** A signed telemetry interface exists; only a
+state change goes on the chain; the demo's sensors say *Simulated*. *Why:* the brief's "IoT supplies live telemetry",
+without pretending a script is an instrument.
+
+**D49 · Save on the phone first.** A report is kept on the device and sent when there is signal; the relay between
+phones is *designed* and shown as a simulation. *Why:* no network should be needed to save a request; a Bluetooth relay
+needs a native app and we will not claim it.
+
+**D50 · A clean start.** `make seed` is an empty platform with one admin; the sample packs are opt-in. *Why:* no city,
+district or disaster is assumed; a deployment creates its own.
+
+**D51 · Languages: transcribe broadly, read honestly.** Sarvam transcribes Indian languages; word rules read Hindi,
+Hinglish, Marathi and English; the AI path reads the rest; a case is always created. No language count is claimed.

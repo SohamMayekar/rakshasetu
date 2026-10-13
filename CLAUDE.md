@@ -2,7 +2,7 @@
 
 *Copy this file to the root of the event repo at H0. Every build session reads it first. The full spec is `docs/PRD.md` (copy PRD v1.1 into the repo at H0). When this file and the PRD disagree, the PRD wins. Raise it with the humans.*
 
-**RakshaSetu** ("bridge of protection") is the district control room's rescue-request desk for the first two weeks of a disaster. Every plea from calls, voice, WhatsApp forwards, volunteer spreadsheets and partner systems becomes **one household case with one owner**, until the rescue team reports back.
+**RakshaSetu** ("bridge of protection") is a national incident command layer for any disaster and any team. Every report from calls, voice, WhatsApp forwards, volunteer spreadsheets, partner systems and sensors becomes **one case with one owner**, until the people are confirmed safe. A clean start has no demo data; incidents and teams are created in the app.
 
 Tagline: **Never lost. Never doubled. Never stale.**
 
