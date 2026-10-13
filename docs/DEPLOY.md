@@ -8,9 +8,9 @@ The platform runs on three free services. Nothing here changes how the code runs
         │
         ▼
  myrakshasetu.vercel.app          Vercel · Next.js (apps/web)
-        │   /v1/* is rewritten to the API from next.config.ts,
-        │   so the session cookie stays on one origin and the
-        │   middleware can stamp x-rs-listener (rule R18)
+        │   /v1/* is proxied by app/v1/[...path]/route.ts, which stamps
+        │   x-rs-listener: local (rule R18) and keeps the session cookie
+        │   on one origin
         ▼
  rakshasetu-api-vmc1.onrender.com   Render · the API image (Dockerfile.render)
         │   api + worker + ticker in one container
@@ -58,9 +58,16 @@ something on the deployed database too.
 ## Deploying a change
 
 - **Front end**: push to `main`; Vercel builds `apps/web` automatically.
-- **Back end**: push to `main`; Render rebuilds the image and runs migrations at boot
-  (`render_start.sh` calls `python -m app.migrate` before uvicorn). A manual deploy:
-  `render deploys create srv-db6rbb8u01pc73b9pbq0 --wait`.
+- **Back end**: Render does **not** auto-deploy this service. It was created from the public repository
+  URL, without Render's GitHub App, so a push is not a deploy. Either press **Deploy latest commit** in
+  the dashboard or run:
+
+  ```bash
+  render deploys create srv-db6rbb8u01pc73b9pbq0 --wait
+  ```
+
+  (Installing the Render GitHub App for the repository is what turns auto-deploy on.)
+  Migrations run at boot: `render_start.sh` calls `python -m app.migrate` before uvicorn.
 
 ## Seeding
 
@@ -73,19 +80,33 @@ python -m app.seed --demo     # the four sample packs, synthetic people
 ```
 
 `DEMO_OWNER_DATABASE_URL` must be set for either (it is), and `DEMO_MODE=true`.
-The deployed database currently holds just the admin: 34 tables, no incidents, no cases, no teams.
+
+**Start an incident before phoning in.** A public report goes to the live incident — the newest one that
+is open — and with no incident at all it is deliberately kept for review instead of being lost
+(`live_incident()` in `app/modules/public/router.py`). On an empty platform a voice message is therefore
+transcribed and extracted, then parked as `needs_review · unknown incident`, and the desk stays empty.
+Start an incident on the desk (Incidents) first: the next report becomes its first case.
+
+## Signing in on the deployed site
+
+`admin` / `rakshasetu` at `/login`, typed. The one-tap picker on the front door and `/v1/demo/*` are both
+refused here, because Render serves every service through Cloudflare: those endpoints refuse any request
+carrying `cf-connecting-ip` (rule R18 — demo controls exist only on a local listener, never through a
+tunnel). Nothing else on the desk is affected: `require_local` endpoints check only the listener header,
+which the proxy sets.
 
 ## What is honest about this deployment
 
 - **The free Render instance sleeps** after 15 minutes without traffic and takes ~30–60 s to wake.
   `.github/workflows/keepalive.yml` pings `/healthz` every 10 minutes to keep it awake; GitHub pauses
   scheduled workflows after 60 days without a commit.
-- **The desk's live updates poll instead of using a WebSocket.** A WebSocket cannot be proxied through
-  Vercel's rewrite, so `apps/web/lib/live.ts` falls back to `GET /v1/events?since=` every 2.5 s — the same
-  scoped envelopes. Locally, the socket is still used.
+- **The desk's live updates poll instead of using a WebSocket.** A socket cannot be held open through
+  Vercel's serverless front end, so `apps/web/lib/live.ts` falls back to `GET /v1/events?since=` every
+  2.5 s — the same scoped envelopes. Locally, the socket is still used.
 - **Evidence files are ephemeral.** `/files` in the container is cleared on every deploy and restart.
   The database is not: Neon keeps everything.
-- **`DEMO_MODE=true` on a public address** means the password-less sign-in picker and `/v1/demo/*` are
-  reachable by anyone who finds the URL, including the demo reset. That is deliberate for a public demo;
-  set `DEMO_MODE=false` for anything real.
+- **`DEMO_MODE=true` on a public address**, but the password-less picker and `/v1/demo/*` still refuse
+  requests that carry `cf-connecting-ip`, and Render's front door is Cloudflare — so the demo controls
+  are not reachable from the internet even though the flag is on. Sign in by typing `admin` with the
+  password. (Locally, on the tunnel-less listener, the picker works as designed.)
 - **Free tiers**: Render free (512 MB, 0.1 CPU), Neon free (0.5 GB), Vercel Hobby.
