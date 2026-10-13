@@ -175,9 +175,10 @@ export function Watch() {
         <H2><span id="watch-h">The whole product in 20 seconds.</span> <Em>One family, start to safe.</Em></H2>
       </div>
 
-      <div className="mt-10 grid gap-6 lg:grid-cols-[0.82fr_1.18fr] lg:items-start lg:gap-12" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
-        {/* the stage: first on a phone, so the picture is the first thing you see */}
-        <div className={`rv relative order-1 overflow-hidden lg:order-2 ${panel} bg-gradient-to-b from-[#dbe8f3] via-[#e9eef0] to-[#f2e8d9] p-4 sm:p-6`}>
+      <div className="mt-10 grid gap-6 lg:grid-cols-2 lg:items-start lg:gap-10" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}>
+        {/* the list: first in DOM = left on desktop */}
+        {/* the stage: second in DOM = right on desktop */}
+        <div className={`rv relative overflow-hidden lg:order-2 ${panel} bg-gradient-to-b from-[#dbe8f3] via-[#e9eef0] to-[#f2e8d9] p-4 sm:p-6`}>
           <div className="flex items-center gap-1.5" role="group" aria-label="Story progress">
             {STEPS.map((s, i) => (
               <button key={s.title} type="button" onClick={() => setStep(i)} aria-label={`Step ${i + 1}: ${s.title}`}
@@ -205,12 +206,12 @@ export function Watch() {
           </div>
 
           <div className="mt-4 grid min-h-[27rem] place-items-center py-2" aria-live="polite">
-            <div key={step} className="lp-scene w-full"><Scene step={step} /></div>
+            <div key={step} className="lp-scene w-full flex justify-center"><Scene step={step} /></div>
           </div>
         </div>
 
         {/* the list: the same five steps, to read or to click */}
-        <ol className="order-2 space-y-1.5 lg:order-1" aria-label="The five steps of a rescue">
+        <ol className="order-first space-y-1.5 lg:order-first" aria-label="The five steps of a rescue">
           {STEPS.map((s, i) => {
             const on = i === step;
             return (
