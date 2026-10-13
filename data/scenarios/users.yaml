@@ -4,7 +4,7 @@
 # IDOR tests, and can still sign in with a username and password (D22).
 users:
   # Mumbai (MH), the live desk
-  - {username: spatil,   name: "S. Patil",       role: duty_officer, incidents: [MH], districts: {MH: [Mumbai Suburban]}}
+  - {username: spatil,   name: "S. Patil",       role: duty_officer, incidents: [MH], districts: {MH: [Mumbai Suburban, Mumbai City]}}
   - {username: afernandes, name: "A. Fernandes", role: call_taker,   incidents: [MH], districts: {MH: [Mumbai Suburban]}}
   - {username: rkulkarni, name: "R. Kulkarni",   role: incharge,     incidents: [MH], districts: {MH: [Mumbai Suburban]}}
   - {username: fb5,      name: "Lead, Fire Brigade Boat 5", role: team_lead, incidents: [MH], districts: {MH: [Mumbai Suburban]}, team: "Fire Brigade Boat 5"}

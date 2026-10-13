@@ -57,7 +57,7 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction, tools }: {
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex items-center justify-between gap-2 px-4 pt-4 pb-2">
         <h2 className="flex items-center gap-2 whitespace-nowrap text-heading font-semibold tracking-tight">
-          Needs you now
+          Needs attention
         </h2>
         {tools}
       </div>
@@ -72,31 +72,44 @@ export function NeedsYouNow({ queue, selected, onSelect, onAction, tools }: {
         </div>
       )}
       {shown.length === 0 ? (
-        <Empty>Nothing needs you. <span className="tabular">{queue.on_it}</span> {queue.on_it === 1 ? "family has" : "families have"} a team on it.</Empty>
+        <Empty>{queue.on_it > 0
+          ? <>Nothing needs you. <span className="tabular">{queue.on_it}</span> {queue.on_it === 1 ? "family has" : "families have"} a team on it.</>
+          : "Nothing needs attention right now."}</Empty>
       ) : (
         <ol className="scroll-quiet flex-1 divide-y divide-line overflow-y-auto px-2 pb-2" aria-label="Needs you now">
           {shown.slice(0, limit).map((r) => {
-            // One row anatomy (m79): what and who, then which case and how long, then the one action, always at
-            // the same left edge. Nothing truncates into the button.
+            // One card (demo pass): the id and priority, who and where, what is happening, whether the place is
+            // verified and who owns it — then exactly one action. Nothing else competes for the eye.
             const { place, people, waiting, owner } = parts(r);
             const label = plainAction(r.action.label);
-            const head = r.kind === "group" ? `Sheet · ${r.public_id}` : `${place}${people ? ` · ${people}` : ""}`;
-            const sub = r.kind === "group" ? `${r.line1 ? withWords(r.line1) : ""} · ${waiting}` : `${r.public_id} · ${waiting}${owner ? ` · ${owner}` : ""}`;
+            const chip = plainChip(r.chip);
+            const chipShown = chip && !["where exactly?", "not checked yet"].includes(chip) ? chip : null;
+            const group = r.kind === "group";
+            const where = group ? (r.line1 ?? "") : `${place}${people ? ` · ${people}` : ""}`;
+            const forWhom = group ? "" : r.checked ? "Place checked" : r.needs_location ? "Where exactly? needs a person" : "Location needs verification";
+            const owned = group ? "" : r.owned ? owner : "No team assigned";
             return (
               <li key={r.id} className={r.handled ? "stale" : ""}>
                 <div role="button" tabIndex={0} onClick={() => onSelect(r.id)} onKeyDown={(e) => e.key === "Enter" && onSelect(r.id)}
                      aria-current={selected === r.id} title={r.line1 ?? undefined}
-                     className={`my-1 flex w-full cursor-pointer gap-3 rounded-xl px-2.5 py-3 text-left transition-colors hover:bg-wash ${selected === r.id ? "bg-wash" : ""}`}>
+                     className={`my-1 flex w-full cursor-pointer gap-3 rounded-xl px-2.5 py-2.5 text-left transition-colors hover:bg-wash ${selected === r.id ? "bg-wash" : ""}`}>
                   <PriorityWell level={r.priority} />
-                  <span className="flex min-w-0 flex-1 flex-col gap-1.5">
-                    <span className="flex items-start justify-between gap-2">
-                      <span className="min-w-0 truncate text-body font-semibold leading-snug">{head}</span>
-                      {r.handled ? <span className="shrink-0 text-small text-ink-3">handled</span> : r.chip && <Chip tone="attention">{plainChip(r.chip)}</Chip>}
+                  <span className="flex min-w-0 flex-1 flex-col gap-1">
+                    <span className="flex items-baseline gap-2">
+                      <span className="tabular text-small font-semibold text-ink-2">{r.public_id}</span>
+                      <Priority level={r.priority} shape={false} />
+                      {!r.handled && chipShown && <Chip tone="attention">{chipShown}</Chip>}
+                      {r.handled && <span className="text-small text-ink-3">handled</span>}
                     </span>
-                    <span className="truncate text-small text-ink-2"><Priority level={r.priority} shape={false} /> · {sub}</span>
+                    <span className="min-w-0 truncate text-body font-semibold leading-snug">{where}</span>
+                    {!group && r.line1 && r.line1 !== place && <span className="truncate text-small text-ink-2">{r.line1}</span>}
+                    {!group && !r.handled && <span className="truncate text-small text-ink-2">{forWhom}</span>}
+                    {(owned || waiting) && <span className="truncate text-small text-ink-2">{owned}{owned && waiting ? " · " : ""}{waiting.replace(/^waiting /, "")}</span>}
                     {!r.handled && (
-                      <span className="flex">
-                        <Button size="sm" className="max-w-full truncate" onClick={(e) => { e.stopPropagation(); onAction(r); }}>{label}</Button>
+                      <span className="flex min-w-0">
+                        <Button size="sm" className="max-w-full" title={label} onClick={(e) => { e.stopPropagation(); onAction(r); }}>
+                          <span className="min-w-0 truncate">{label}</span>
+                        </Button>
                       </span>
                     )}
                   </span>

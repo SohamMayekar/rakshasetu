@@ -35,7 +35,7 @@ export type Case = {
 
 export type Me = {
   user: { id: number; username: string; name: string; role: string; role_label: string };
-  incidents: { id: number; code: string; name: string; status: string }[];
+  incidents: { id: number; code: string; name: string; type: string; status: string }[];
   districts: { id: number; name: string; incident_id: number }[];
   team: { id: number; name: string; has_app: boolean } | null;
   permissions: string[]; demo_mode: boolean; listener: string;

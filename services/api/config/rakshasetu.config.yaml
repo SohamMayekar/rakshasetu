@@ -73,7 +73,7 @@ demo:
                                            # performed demo runs on its pack (data/scenarios/MH/demo.yaml); BR's script stays for the tests
   short_timers_apply_to: live_demo_cases   # seeded cases keep realistic timers: no alarm storm mid-pitch
   sign_in_picker:                          # the 3 profiles on the demo's sign-in screen (D22); every other seeded user stays, off the picker
-    - {username: spatil, title: "Duty officer", line: "Runs the Mumbai Suburban control room desk"}
+    - {username: spatil, title: "Duty officer", line: "Runs the Mumbai control room desk"}
     - {username: fb5,    title: "Rescue team",  line: "Fire Brigade Boat 5's phone app"}
     - {username: admin,  title: "State admin",  line: "Sees every disaster the desks are handling"}
   seed_timestamps_relative_to_reset: true
@@ -85,6 +85,9 @@ lanes: [live_voice, whatsapp_partner, import, surge, backfill]   # claim order; 
 providers:                         # all free (PRD §12.5); first = primary, second = fallback
   stt: [sarvam_saaras, groq_whisper_large_v3]
   llm: [groq_gpt_oss_120b, gemini_flash]
+  geocode: [google_geocoding, photon, nominatim]   # address text → a point. The team's Google key first when
+                                   # GOOGLE_MAPS_API_KEY is set (a doorway-level answer); the free OSM services
+                                   # (no keys) answer without it and whenever Google is over its cap.
   stop_at_fraction_of_free_cap: 0.8   # then fall back; the LLM's last resort is the keyword path
   language_model_enabled: true        # the "language model off" demo control overrides this at runtime
   free_caps:                          # PRD §12.5, checked 12 Oct 2026 — recheck on hack day
@@ -92,6 +95,9 @@ providers:                         # all free (PRD §12.5); first = primary, sec
     groq_whisper_large_v3: {calls_per_min: 20, calls_per_day: 2000}
     groq_gpt_oss_120b: {calls_per_min: 30, calls_per_day: 1000, tokens_per_min: 8000, tokens_per_day: 200000}
     gemini_flash: {calls_per_min: 10, calls_per_day: 250}                   # UNVERIFIED: recheck the free-tier page
+    photon: {calls_per_min: 30, calls_per_day: 1500}                        # public fair-use service, no key
+    nominatim: {calls_per_min: 30, calls_per_day: 1000}                     # OSM policy: 1 request/s, real UA
+    google_geocoding: {calls_per_min: 50, calls_per_day: 2000}              # the team's own key: tune to its quota
   models:
     sarvam_saaras: saaras:v4
     groq_whisper_large_v3: whisper-large-v3

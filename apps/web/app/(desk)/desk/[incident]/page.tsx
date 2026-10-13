@@ -138,7 +138,7 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
       return;
     }
     if (row.action.kind === "check") {      // the one action done straight from the row
-      await api(`/v1/cases/${row.id}/check`, { method: "POST", json: {} }).catch(() => setFocus("Facts"));
+      await api(`/v1/cases/${row.id}/check`, { method: "POST", json: {} }).catch(() => setFocus("Report details"));
       loadQueue();
       return;
     }
@@ -146,7 +146,7 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
     setSelected(row.id);
     setImporting(null);
     if (row.action.kind === "pin") { setPicking(true); setPicked(null); }
-    setFocus({ pin: "Facts", match: "Timeline & evidence", radio: "Assignment", assign: "Assignment", open: null, check: null }[row.action.kind] ?? null);
+    setFocus({ pin: "Report details", match: "Report details", radio: "Assignment", assign: "Assignment", open: null, check: null }[row.action.kind] ?? null);
   }, [loadQueue]);
 
   const card = "rounded-card border border-line/80 bg-paper shadow-[var(--shadow-card)]";

@@ -177,6 +177,7 @@ def queue(conn: Connection, scope: Scope, incident_code: str) -> dict:
             "id": c.id, "kind": "case", "public_id": c.public_id, "priority": c.priority, "status": c.status, "version": c.version,
             "line1": c.summary, "line2": f"{where_line}{owner} · waiting {_minutes(k['waited_s'])}",
             "because": _because(c), "chip": k["chip"], "broken": k["broken"],
+            "owned": k["owned"], "needs_location": k["needs_location"], "checked": not k["unchecked"],
             "action": action_for(c, k, scope),
             "sort": [PRIORITY_RANK[c.priority], 0 if k["broken"] else 1,
                      (c.p1_rank or 0) if c.priority == "P1" else 0, c.queue_since.isoformat()],
@@ -207,6 +208,7 @@ def _group_rows(conn: Connection, groups: dict, now: datetime) -> list[dict]:
             "line2": " · ".join(f"{v} {p}" for p, v in by.items() if v) + f" · waiting {_minutes((now - oldest).total_seconds())}",
             "because": "rows the import created; each has its own priority and reasons", "broken": broken,
             "chip": f"{by['P1']} P1 without an owner" if broken and by["P1"] else None,
+            "owned": False, "needs_location": False, "checked": True,
             "action": {"kind": "import", "label": "Open the list", "target": str(iid)},
             "sort": [PRIORITY_RANK[top], 0 if broken else 1, 0, oldest.isoformat()],
         })

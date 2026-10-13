@@ -1,10 +1,10 @@
 "use client";
 
-// The desk's top row (m73): three numbers about families, not about the system. How many need a person now, how
-// many have a rescue team on the way or on site, how many are rescued or closed. A number turns to ink with one
-// short line only when lives are at risk: an urgent family with no team for 5 minutes, or a team not heard from.
+// The desk's top row (demo pass): four numbers from the queue's own counts — open cases, urgent families with
+// no team (from the promises metric), families with a team on it, and resolved ones. A tile turns to ink only
+// when lives are at risk: an urgent family with no team, or a team not heard from.
 
-import { CircleCheck, LifeBuoy, Siren } from "lucide-react";
+import { AlertTriangle, CircleCheck, LifeBuoy, Siren } from "lucide-react";
 import { type ReactNode, useEffect, useState } from "react";
 
 import { IconWell } from "@/components/ui";
@@ -46,15 +46,18 @@ export function Today({ incident, queue }: { incident: string; queue: Queue | nu
   }, [incident]);
   const unowned = p?.stale.p1_unowned ?? 0, quiet = p?.stale.overdue ?? 0;
   return (
-    // One strip, three parts (m79): the numbers belong together, so they share one surface instead of three cards.
-    <div className="grid grid-cols-1 divide-y divide-line overflow-hidden rounded-card border border-line/80 bg-paper shadow-[var(--shadow-card)] md:grid-cols-3 md:divide-x md:divide-y-0" aria-label="Today">
-      <Tile icon={Siren} label="Need help now" value={queue ? waitingFamilies(queue) : null} alert={unowned > 0}>
-        {unowned > 0 ? warn(`${plural(unowned, "urgent family", "urgent families")} without a team`) : <span className="text-small text-ink-2">families</span>}
+    // One strip, four parts (demo pass): the numbers share one surface, at a glance.
+    <div className="grid grid-cols-2 divide-x divide-y divide-line overflow-hidden rounded-card border border-line/80 bg-paper shadow-[var(--shadow-card)] md:grid-cols-4 md:divide-y-0" aria-label="Today">
+      <Tile icon={Siren} label="Open incidents" value={queue?.open ?? null} alert={quiet > 0}>
+        {quiet > 0 ? warn(`${plural(quiet, "team", "teams")} not heard from`) : <span className="text-small text-ink-2">still being dealt with</span>}
       </Tile>
-      <Tile icon={LifeBuoy} label="A rescue team is on it" value={queue?.on_it ?? null} alert={quiet > 0}>
-        {quiet > 0 ? warn(`${plural(quiet, "team", "teams")} not heard from`) : <span className="text-small text-ink-2">families</span>}
+      <Tile icon={AlertTriangle} label="Urgent and unassigned" value={p ? unowned : null} alert={unowned > 0}>
+        <span className="text-small text-ink-2">no team yet</span>
       </Tile>
-      <Tile icon={CircleCheck} label="Rescued or closed" value={queue ? queue.rescued_closing + queue.closed : null}>
+      <Tile icon={LifeBuoy} label="Responders assigned" value={queue?.on_it ?? null}>
+        <span className="text-small text-ink-2">families with a team</span>
+      </Tile>
+      <Tile icon={CircleCheck} label="Resolved" value={queue ? queue.rescued_closing + queue.closed : null}>
         <span className="text-small text-ink-2">families</span>
       </Tile>
     </div>

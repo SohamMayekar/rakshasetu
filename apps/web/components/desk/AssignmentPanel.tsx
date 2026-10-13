@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { Because, Button, Chip, Ring } from "@/components/ui";
 import { RescueSheet } from "@/components/rescue/RescueSheet";
 import { api, type Assignment, type Case, type Dispatch, type Escalation } from "@/lib/api";
+import { teamLabel } from "@/lib/words";
 
 const CHANNELS = ["VHF", "HAM", "satellite", "phone"];
 const PHASE: Record<string, string> = { offered: "sent, not accepted yet", acknowledged: "accepted", reached: "reached the family" };
@@ -123,12 +124,18 @@ export function AssignmentPanel({ c, assignment, escalation, can, onChanged }: {
   const assign = (teamId: number, rank?: number) => run(() => api("/v1/assignments", { method: "POST", json: { case: c.public_id, team_id: teamId, suggested_rank: rank } }));
   return (
     <div className="space-y-2 text-body">
-      <p className="text-ink-2">No team yet. Nearest suitable teams:</p>
+      {dispatch.suggestions.length === 0 ? (
+        <p><b>No verified suitable responder found.</b>{" "}
+          <span className="text-ink-2">Review the other resources below, or leave the case for the next desk.</span></p>
+      ) : (
+        <p className="text-ink-2">Best suited first — capability, then distance:</p>
+      )}
       <ol className="space-y-1.5">
         {dispatch.suggestions.map((t) => (
           <li key={t.team_id} className="flex items-start justify-between gap-3 rounded-xl border border-line px-3.5 py-2.5">
-            <span className="min-w-0"><span className="font-medium">{t.name}</span><span className="block text-small text-ink-2">{t.line}</span></span>
-            {can("assignment.create") && <Button size="sm" variant={t.rank === 1 ? "primary" : "secondary"} className="shrink-0" onClick={() => assign(t.team_id, t.rank)}>Send</Button>}
+            <span className="min-w-0"><span className="font-medium">{teamLabel(t) || t.name}</span>
+              <span className="block text-small text-ink-2">{t.name} · {t.line}</span></span>
+            {can("assignment.create") && <Button size="sm" variant={t.rank === 1 ? "primary" : "secondary"} className="shrink-0" onClick={() => assign(t.team_id, t.rank)}>{t.rank === 1 ? "Dispatch team" : "Dispatch"}</Button>}
           </li>
         ))}
       </ol>
@@ -138,7 +145,7 @@ export function AssignmentPanel({ c, assignment, escalation, can, onChanged }: {
           <ul className="mt-1 space-y-1">
             {dispatch.more.map((t) => (
               <li key={t.team_id} className="flex items-center justify-between gap-2"><span>{t.name} · {t.line}</span>
-                {can("assignment.create") && <Button size="sm" variant="quiet" onClick={() => assign(t.team_id)}>Send</Button>}</li>
+                {can("assignment.create") && <Button size="sm" variant="quiet" onClick={() => assign(t.team_id)}>Dispatch</Button>}</li>
             ))}
             {dispatch.greyed.map((g) => <li key={g.team_id} className="stale">{g.name} · <Chip tone="quiet">{g.why}</Chip></li>)}
           </ul>

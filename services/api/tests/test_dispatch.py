@@ -1,9 +1,12 @@
 """Dispatch suggestions (PRD F-C4): capability, then straight-line distance, then load; reasons on every line;
-overdue / out-of-service / full teams greyed out with why; deterministic; an officer still decides."""
+overdue / out-of-service / full teams greyed out with why; a team missing what the report needs is listed below
+with the gap named, never as a suggestion; deterministic; an officer still decides."""
+
+from types import SimpleNamespace
 
 from sqlalchemy import text
 
-from app.modules.dispatch.service import needed
+from app.modules.dispatch.service import needed, rank
 from tests.conftest import login, needs_db, one, rows
 
 pytestmark = [needs_db]
@@ -15,6 +18,47 @@ def test_capabilities_follow_the_situation():
     assert needed([], ["food"]) == (set(), set())
 
 
+def _team(**kw):
+    base = dict(id=1, name="Team", agency="Agency", capabilities=[], has_app=True, radio_channel=None,
+                status="available", status_reason=None, max_active=2, last_geom_at=None, lat=19.0, lng=72.0, active=0)
+    return SimpleNamespace(**{**base, **kw})
+
+
+def test_a_boat_team_is_not_the_answer_to_a_collapse():
+    """The complaint that started this: a collapse needs heavy lift; a boat team is listed below with the gap
+    named, and the screen is told there is no suitable team — never dressed up as "best suited"."""
+    boats = [_team(id=1, name="Fire Brigade Boat 5", capabilities=["boat", "medical"]),
+             _team(id=2, name="SDRF Boat 6", capabilities=["boat", "rope"])]
+    out = rank({"lat": 19.05, "lng": 72.85, "hazards": ["structure_collapsed"], "needs": []}, boats)
+    assert out["suggestions"] == []
+    assert [t["name"] for t in out["more"]] == ["Fire Brigade Boat 5", "SDRF Boat 6"]
+    assert all("no heavy_lift for this report" in t["line"] for t in out["more"])
+    assert all(t["missing"] == ["heavy_lift"] for t in out["more"])
+
+
+def test_a_team_with_what_it_needs_is_suggested_and_ranked_by_distance():
+    near = _team(id=1, name="Near boat", capabilities=["boat"], lat=19.06, lng=72.85)
+    far = _team(id=2, name="Far boat", capabilities=["boat"], lat=19.19, lng=72.94)
+    other = _team(id=3, name="Rope team", capabilities=["rope"])
+    out = rank({"lat": 19.05, "lng": 72.85, "hazards": ["trapped_on_roof"], "needs": []}, [far, other, near])
+    assert [t["name"] for t in out["suggestions"]] == ["Near boat", "Far boat"]
+    assert [t["rank"] for t in out["suggestions"]] == [1, 2]
+    assert out["suggestions"][0]["line"].startswith("has boat for this report")     # the reason leads
+    assert [t["name"] for t in out["more"]] == ["Rope team"]           # the gap is named, not hidden
+    assert "no boat for this report" in out["more"][0]["line"]
+
+
+def test_the_reason_leads_with_what_this_report_needs():
+    """A road accident with an urgent medical need must read 'medical' first — not 'boat' (alphabetical once)."""
+    team = _team(id=1, name="NDRF Team 5", agency="NDRF", capabilities=["boat", "medical", "rope"])
+    out = rank({"lat": 19.05, "lng": 72.85, "hazards": [], "needs": ["medical_urgent"]}, [team])
+    top = out["suggestions"][0]
+    assert top["capabilities"] == ["medical", "boat", "rope"]          # relevance order, not alphabetical
+    assert top["line"].startswith("medical cover for this report")
+    plain = rank({"lat": 19.05, "lng": 72.85, "hazards": [], "needs": ["food"]}, [team])["suggestions"][0]
+    assert plain["line"].startswith("closest available unit")          # nothing this report needs: say so plainly
+
+
 def _roof_case(db):
     return one(db, "SELECT c.public_id FROM cases c JOIN districts d ON d.id = c.district_id WHERE d.name = 'Gopalganj'"
                    " AND 'trapped_on_roof' = ANY(c.hazards) AND c.geom IS NOT NULL ORDER BY c.id LIMIT 1")
@@ -24,13 +68,13 @@ def test_suggestions_rank_boats_by_distance_with_reasons_and_grey_out_the_unavai
     login(client, "rdas")
     pid = _roof_case(app_db)
     d = client.get(f"/v1/cases/{pid}/dispatch-suggestions").json()
-    ranked = d["suggestions"] + d["more"]
-    has_boat = ["boat" in t["capabilities"] for t in ranked]
-    assert len(d["suggestions"]) == 3 and has_boat == sorted(has_boat, reverse=True)     # capability first
-    boats = [t["distance_km"] for t in ranked if "boat" in t["capabilities"]]
-    assert boats == sorted(boats) and d["suggestions"][0]["capabilities"].count("boat")  # then distance
+    assert len(d["suggestions"]) >= 2 and all("boat" in t["capabilities"] for t in d["suggestions"])  # what it needs
+    boats = [t["distance_km"] for t in d["suggestions"]]
+    assert boats == sorted(boats) and d["suggestions"][0]["capabilities"].count("boat")               # then distance
     top = d["suggestions"]
     assert all("km straight-line" in t["line"] and "position" in t["line"] for t in top)  # labelled honestly
+    others = [t for t in d["more"] if "boat" not in t["capabilities"]]
+    assert others and all("no boat for this report" in t["line"] for t in others)         # below, gap named
     greyed = {g["name"]: g["why"] for g in d["greyed"]}
     assert greyed["SDRF Boat 4"].startswith("Out of service")
     assert client.get(f"/v1/cases/{pid}/dispatch-suggestions").json() == d                           # deterministic

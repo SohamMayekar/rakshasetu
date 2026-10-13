@@ -226,6 +226,9 @@ export function CaseMap({ cases, selected, dim = new Set(), onSelect, picking = 
   return (
     <div className="relative h-full w-full">
       <div ref={box} className="h-full w-full" aria-label="Map of cases: each circle is where the household may be" />
+      <p className="pointer-events-none absolute bottom-3 left-3 rounded-md bg-paper/90 px-2 py-1 text-small text-ink-2 shadow-sm">
+        Each circle is where a family may be · dashed: the place is uncertain
+      </p>
       {tilesDown && <p className="absolute left-3 top-3 rounded-md bg-paper/90 px-2 py-1 text-small text-ink-2 shadow-sm">Map tiles unavailable: circles only</p>}
     </div>
   );

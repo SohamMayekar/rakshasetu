@@ -186,6 +186,6 @@ def extract_keywords(text: str, lang: str = "hi") -> Extraction:
         language="hi" if DEVANAGARI.search(text) or re.search(r"\b(?:log|mein|hain|gaon|paani|chahiye)\b", text, re.I)
         else "en",
         people_count=_people(text, d), hazards=hazards, needs=needs, vulnerable=vulnerable,
-        location=Location(village_or_locality=_village(text, d), district=None, state=None,
+        location=Location(address=None, village_or_locality=_village(text, d), district=None, state=None,
                           landmarks=_landmarks(text, d)),
         person_names=_names(text, d), callback_phone=_phone(text), reporter_on_site=on_site)

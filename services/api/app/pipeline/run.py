@@ -101,15 +101,20 @@ def extract(report, allow_model: bool = True, rules_why: str = "seeded report") 
             step = {"step": "extract", "by": "AI", "detail": f"{_count(ex)} fields · {src} · {ms} ms"}
     except AllProvidersFailed as e:
         down = any(a["outcome"].startswith("failed") for a in e.attempts)
-        why = "language model down" if down else "language model unavailable (no key)"
+        why = ("language model down" if down else
+               "language model unavailable · " + "; ".join(a["outcome"] for a in e.attempts))
         return Extracted(keywords, "rules", [{"step": "extract", "by": "Rule", "detail": f"{why}: {_count(keywords)} fields"}],
                          backfill=down)
     except ProviderUnavailable as e:
         return Extracted(keywords, "rules", [{"step": "extract", "by": "Rule",
                                               "detail": f"language model unavailable ({e}): {_count(keywords)} fields"}])
-    except ValidationError:
+    except ValidationError as e:
+        first = (e.errors() or [{}])[0]                       # name the field, so a receipt explains itself
+        where = ".".join(str(x) for x in first.get("loc", ())) or "the output"
         return Extracted(keywords, "rules", [{"step": "extract", "by": "Rule",
-                                              "detail": f"model output didn't fit the contract: {_count(keywords)} fields"}])
+                                              "detail": f"model output didn't fit the contract"
+                                                        f" ({where}: {first.get('msg', 'invalid')})"
+                                                        f": {_count(keywords)} fields"}])
     amber = llm_extract.check_quotes(ex, text_in)
     extras = llm_extract.cross_check(ex, keywords)
     checks = "quotes ✓" if not amber else f"{len(amber)} quote(s) not found: amber"

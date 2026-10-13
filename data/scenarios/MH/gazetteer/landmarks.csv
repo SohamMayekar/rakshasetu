@@ -1133,7 +1133,7 @@ way,229636994,0,Dharavi Hospital,hospital,,,Mumbai City,19.039925,72.85189
 node,245660676,0,Rajendra Clinic,hospital,,,Mumbai City,19.016482,72.853345
 way,288426702,0,Conwest And Manjula S. Badani Jain Hospital,hospital,,,Mumbai City,18.954728,72.821088
 way,288446227,0,Sir H. N. Hospital & Research Centre;Sir H.N Reliance foundation hospital,hospital,,,Mumbai City,18.959129,72.820071
-way,353353382,0,Apollo Spectra Hospitals,hospital,,,Mumbai City,18.970323,72.814563
+way,353353382,0,Dr. Niraj Mahajan Gynecologist and Laparoscopic Surgeon,hospital,,,Mumbai City,18.970323,72.814563
 way,353378830,0,Sanjeevni hospital,hospital,,,Mumbai City,19.027798,72.86828
 way,353772277,0,Maru Hospital,hospital,,,Mumbai City,18.998324,72.837017
 way,353799754,0,Balaji Hospital,hospital,,,Mumbai City,18.977284,72.835325
@@ -1400,6 +1400,7 @@ node,14134711969,0,The Sion Circle Speciality Clinic,hospital,,,Mumbai City,19.0
 node,14134731770,0,Vyas Clinic,hospital,,,Mumbai City,19.042288,72.86452
 node,14174264967,0,,hospital,,,Mumbai City,19.038121,72.859249
 node,14174264968,0,Dr. Maunil Ajay Bhuta,hospital,,,Mumbai City,19.038002,72.859655
+way,42441130,0,,market,,,Mumbai City,18.990969,72.814568
 way,47977744,0,Lokmanya Tilak Market,market,,,Mumbai City,18.961095,72.818446
 way,49001325,0,Crawford Market,market,,,Mumbai City,18.947668,72.83473
 way,49176295,0,,market,,,Mumbai City,18.908343,72.825433
@@ -1409,30 +1410,80 @@ way,79304233,0,Mangaldas Market,market,,,Mumbai City,18.948048,72.832381
 way,113696502,0,,market,,,Mumbai City,19.022543,72.843025
 way,113777721,0,Wadala Market,market,,,Mumbai City,19.017558,72.854874
 way,113792252,0,Gopi Tank Market,market,,,Mumbai City,19.030752,72.842177
+way,120175206,0,Star Mall,market,,,Mumbai City,19.022857,72.841986
 way,120177533,0,Chhatrapati Shivaji Municipal Market,market,,,Mumbai City,19.019604,72.841533
 way,150363474,0,Moolji Jaitha Market,market,,,Mumbai City,18.949384,72.830704
 way,151807307,0,MUNCIPAL MARKED,market,,,Mumbai City,19.019057,72.841267
+way,158253052,0,Galeries Lafayette,market,,,Mumbai City,18.930556,72.834575
 way,206348532,0,Fort Market,market,,,Mumbai City,18.934854,72.836607
 way,236629909,0,Dadar Flower Market,market,,,Mumbai City,19.011855,72.837126
+way,275865020,0,East Zone,market,,,Mumbai City,18.994796,72.825208
 way,357082983,0,Mahatma Gandhi Market,market,,,Mumbai City,19.031426,72.85883
 way,358489270,0,Mahatma Jyotiba Phule Wholesale Fish Market,market,,,Mumbai City,18.946218,72.83534
+way,402322279,0,Maker Arcade,market,,,Mumbai City,18.916823,72.817306
 way,426750555,0,Manish Market,market,,,Mumbai City,18.946715,72.836197
+node,461856747,0,Heera Panna,market,,,Mumbai City,18.977539,72.810951
+way,594407882,0,Palladium,market,,,Mumbai City,18.994203,72.82398
 way,625809278,0,Sewri Fish Market,market,,,Mumbai City,18.999159,72.849439
+node,669266128,0,Akbarallys,market,,,Mumbai City,18.932144,72.832503
+way,675133650,0,Nakshatra Mall,market,,,Mumbai City,19.019935,72.841328
 way,680077236,0,Dongri Bazaar,market,,,Mumbai City,18.95923,72.83719
 node,714829538,0,,market,,,Mumbai City,18.955851,72.829718
 node,714858844,0,,market,,,Mumbai City,18.952807,72.83026
+way,852044662,0,admin dept,market,,,Mumbai City,18.943663,72.832036
 way,981951747,0,,market,,,Mumbai City,19.00996,72.829566
-way,1289063011,0,,market,,,Mumbai City,18.97399,72.827531
+way,1289063011,0,,market,,,Mumbai City,18.973961,72.82765
 way,1374671929,0,Fish Market,market,,,Mumbai City,19.046228,72.854004
 way,1379011412,0,,market,,,Mumbai City,19.007965,72.844102
 way,1387934953,0,Swadeshi Market,market,,,Mumbai City,18.949287,72.827878
 way,1394136081,0,,market,,,Mumbai City,19.046371,72.853778
+way,1429482057,0,Grand Zone,market,,,Mumbai City,18.994916,72.824097
+way,1429482058,0,Palladium West Zone,market,,,Mumbai City,18.995393,72.823715
+node,1973402579,0,Sahakari Bhandar,market,,,Mumbai City,18.924329,72.83175
+node,2805280648,0,Lifestyle,market,,,Mumbai City,18.995683,72.825805
+node,3048177681,0,Azad Timber Mart,market,,,Mumbai City,19.038367,72.853759
+node,4048759190,0,Nature's Basket,market,,,Mumbai City,18.914704,72.818102
 node,4133879811,0,Night Market,market,,,Mumbai City,18.947964,72.8363
+node,4346023475,0,tishacreation,market,,,Mumbai City,18.94939,72.828253
+node,4513445593,0,,market,,,Mumbai City,18.96762,72.81996
+node,4803494925,0,Apna Bazar Co-operative,market,,,Mumbai City,18.934271,72.836007
+node,4844675132,0,,market,,,Mumbai City,18.961403,72.829706
+node,4844717523,0,,market,,,Mumbai City,18.954671,72.832722
+node,4844717525,0,,market,,,Mumbai City,18.958289,72.831642
 node,4846878580,0,"Mahila Fish Market, Mahim",market,,,Mumbai City,19.040402,72.843983
 node,4848773730,0,Sabji Market,market,,,Mumbai City,19.031751,72.860364
 node,5792430067,0,Hemant Manjrekar Market,market,,,Mumbai City,19.03665,72.865145
 node,6813483776,0,Umbrella traders market area,market,,,Mumbai City,18.947747,72.82959
+node,6994530085,0,,market,,,Mumbai City,18.922635,72.831612
+node,8138350698,0,Kenorita Super Market,market,,,Mumbai City,18.943606,72.794464
+node,8138701119,0,Nature's Basket Warden Road,market,,,Mumbai City,18.976026,72.807315
+node,10142871481,0,Shah Ookchand and sons,market,,,Mumbai City,18.953397,72.822888
+node,10688895850,0,Sahkari Bhandar Mall,market,,,Mumbai City,19.018815,72.832855
+node,11145671977,0,Nature Basket,market,,,Mumbai City,18.929478,72.827528
+node,11298191069,0,,market,,,Mumbai City,19.031477,72.846851
+node,11456249956,0,Oasis Super market,market,,,Mumbai City,18.972208,72.822183
+node,12509250152,0,orbits mall,market,,,Mumbai City,18.968709,72.807389
+node,12770274373,0,Milap,market,,,Mumbai City,19.027288,72.853732
+node,12770274383,0,Soham Collections,market,,,Mumbai City,19.026982,72.854552
+node,12770274384,0,Paisely,market,,,Mumbai City,19.027407,72.853508
+node,12770280946,0,Arife Lamoulde,market,,,Mumbai City,19.028943,72.857001
 node,12998926092,0,al saadha,market,,,Mumbai City,18.959709,72.830638
+node,13122745701,0,रिलायंस स्मार्ट सुपर स्टोर,market,,,Mumbai City,19.018552,72.830691
+node,13142733051,0,स्मार्ट सहकारी भांडार,market,,,Mumbai City,19.018909,72.832852
+node,13514195736,0,Vithaldas & Co Mewawala,market,,,Mumbai City,18.934247,72.834214
+node,13514250413,0,Elite Shopping Centre,market,,,Mumbai City,18.932119,72.832936
+node,13978031358,0,COTTAGE EMPORIUM,market,,,Mumbai City,18.923062,72.832691
+node,14051478898,0,Arife Bakers & Supermarket,market,,,Mumbai City,18.948659,72.833991
+node,14051493477,0,Dhirubhai Doshi & co.,market,,,Mumbai City,18.948688,72.833905
+node,14051563680,0,New Consume Novelty,market,,,Mumbai City,18.949272,72.833763
+node,14051563683,0,Shiv Traders,market,,,Mumbai City,18.949237,72.83377
+node,14051563686,0,IHM Enterprise,market,,,Mumbai City,18.949313,72.833756
+node,14051563687,0,A1 PLASTIC,market,,,Mumbai City,18.94875,72.833891
+node,14051563692,0,Attari Store,market,,,Mumbai City,18.948763,72.833889
+node,14051563698,0,China Bazaar Citt,market,,,Mumbai City,18.949421,72.833726
+node,14134733015,0,Smart Point,market,,,Mumbai City,19.043099,72.861555
+node,14134782376,0,Dinesh Stores,market,,,Mumbai City,19.042344,72.863296
+node,14144168429,0,Food Arcade,market,,,Mumbai City,19.023592,72.853643
 way,48741850,0,Haji Ali,mosque,muslim,,Mumbai City,18.982824,72.808973
 way,48809212,0,Arab Lane Masjid,mosque,muslim,,Mumbai City,18.963145,72.823319
 way,48809455,0,Chhota Sonapur Masjid,mosque,muslim,,Mumbai City,18.96244,72.824777
@@ -1562,6 +1613,47 @@ node,12811669481,0,Chapel,place_of_worship,,,Mumbai City,19.047573,72.855103
 node,12811673593,0,Murugan Temple,place_of_worship,,,Mumbai City,19.048238,72.854616
 node,12811696956,0,Ganesh Mandal,place_of_worship,,,Mumbai City,19.047789,72.854564
 node,12843656849,0,Shri Godiji Parshwanath Jinalay,place_of_worship,jain,,Mumbai City,18.953788,72.831209
+way,39834520,0,Gamdevi Police Station,police_station,,,Mumbai City,18.960531,72.812386
+way,39839519,0,Traffic Police,police_station,,,Mumbai City,18.961569,72.812845
+way,48754898,0,Tardeo Police Station,police_station,,,Mumbai City,18.969548,72.814202
+way,135732933,0,Shivaji Park Police Station,police_station,,,Mumbai City,19.023275,72.840899
+way,207376649,0,Azad Maidan Police Station,police_station,,,Mumbai City,18.941651,72.832909
+way,207376650,0,,police_station,,,Mumbai City,18.942045,72.833364
+way,207380908,0,,police_station,,,Mumbai City,18.94466,72.83294
+way,207417322,0,Colaba Police Station,police_station,,,Mumbai City,18.922455,72.830993
+way,207538317,0,,police_station,,,Mumbai City,18.954155,72.831985
+way,237025775,0,,police_station,,,Mumbai City,18.960934,72.816902
+way,308016832,0,Dharavi Police Station,police_station,,,Mumbai City,19.043269,72.857507
+way,353758584,0,Cuffe Parade Police Station,police_station,,,Mumbai City,18.911904,72.818716
+way,353810415,0,Worli Police Station,police_station,,,Mumbai City,19.005199,72.817386
+way,354066127,0,Dadar Police Station,police_station,,,Mumbai City,19.015061,72.835465
+node,605221901,0,Lokmanya Tilak Road Police Station,police_station,,,Mumbai City,18.945371,72.830331
+way,829610657,0,Byculla Police Station,police_station,,,Mumbai City,18.973255,72.83401
+node,858544370,0,Null Bazaar Police Chowkie,police_station,,,Mumbai City,18.957007,72.829033
+node,858544419,0,Pydhoni Police Station,police_station,,,Mumbai City,18.954172,72.832021
+node,860348747,0,Dongri Police Station,police_station,,,Mumbai City,18.96214,72.839049
+node,861239805,0,Sir JJ Marg Police Station,police_station,,,Mumbai City,18.963006,72.832291
+way,1009581717,0,Cuffe Parade Police Station,police_station,,,Mumbai City,18.91194,72.818829
+node,1034965532,0,Lokmanya Tilak Police Chowkie Beat No 4,police_station,,,Mumbai City,18.947357,72.833763
+node,1034965537,0,Lokmanya Tilak Police Station,police_station,,,Mumbai City,18.946329,72.833129
+node,1241711502,0,,police_station,,,Mumbai City,18.944448,72.832889
+node,1301593213,0,,police_station,,,Mumbai City,18.967528,72.832365
+node,1332582403,0,,police_station,,,Mumbai City,18.930262,72.824346
+way,1381366790,0,Mahim Traffic Division,police_station,,,Mumbai City,19.042153,72.84016
+way,1442619090,0,Nagpada Police Station,police_station,,,Mumbai City,18.96705,72.829223
+way,1457063703,0,Chhota Sonapur Police Chowki,police_station,,,Mumbai City,18.962005,72.824586
+way,1468852699,0,Colaba Traffic Police Division,police_station,,,Mumbai City,18.935078,72.830343
+node,2449734722,0,Badhamkar Mark Police Station,police_station,,,Mumbai City,18.960821,72.817067
+node,3008501715,0,Police Commissioner's Office,police_station,,,Mumbai City,18.946295,72.833307
+node,4848773734,0,Sion (E) Police Station,police_station,,,Mumbai City,19.031323,72.857588
+node,5057817507,0,Matunga Police Station,police_station,,,Mumbai City,19.031116,72.857879
+node,5448387024,0,,police_station,,,Mumbai City,18.997883,72.837489
+node,5668284373,0,NM Joshi Marg Police Station,police_station,,,Mumbai City,18.991413,72.830977
+node,7499053623,0,Chowki Mohalla Police Chowki,police_station,,,Mumbai City,18.961878,72.830142
+node,7506854141,0,Do Taki Police Chowki,police_station,,,Mumbai City,18.961606,72.82867
+node,9081860659,0,Elphinstone Road Traffic Police Chowki,police_station,,,Mumbai City,19.008542,72.832559
+node,11452014435,0,Chaitya Bhumi Police Chowk,police_station,,,Mumbai City,19.026024,72.834522
+node,13514237453,0,Mata Ramabai Ambedkar Marg Police Thaane,police_station,,,Mumbai City,18.932531,72.83185
 node,621911847,0,Lower Parel,railway_station,,station,Mumbai City,18.99568,72.830276
 node,631579580,0,Grant Road,railway_station,,station,Mumbai City,18.963355,72.815826
 node,632340589,0,Bhakti Park,railway_station,,station,Mumbai City,19.028972,72.877572
@@ -1626,6 +1718,7 @@ way,39836739,0,St. Columba High School,school,,,Mumbai City,18.960652,72.811997
 way,39842003,0,BM Ruia Girls College,school,,,Mumbai City,18.959682,72.810387
 way,48748553,0,Girton High School,school,,,Mumbai City,18.966393,72.815692
 way,49001343,0,"Sir J.J. School of Art, Architecture, and Applied Art",school,,,Mumbai City,18.944014,72.833492
+way,49480318,0,Tata Institute of Fundamental Research,school,,,Mumbai City,18.907009,72.804871
 way,49480385,0,Navy Children School,school,,,Mumbai City,18.909822,72.807613
 way,52754753,0,"Kendriya Vidyalaya No.3, Colaba",school,,,Mumbai City,18.895104,72.809528
 way,53349816,0,Dharavi Municipal School,school,,,Mumbai City,19.042914,72.859719
@@ -1639,6 +1732,7 @@ way,112782814,0,Dr.Ambedkar College,school,,,Mumbai City,19.014739,72.853513
 way,113578545,0,J.B. Vaccha High School for Girls,school,,,Mumbai City,19.019507,72.852144
 way,113578550,0,Ramnarain Ruia College,school,,,Mumbai City,19.023826,72.850136
 way,113696497,0,Chhabildas Boys High School,school,,,Mumbai City,19.020524,72.842347
+way,113711207,0,Central Cotton Research Institute,school,,,Mumbai City,19.021921,72.854022
 way,113715163,0,Institute of Catering Hotel Management & Applied Nutrition,school,,,Mumbai City,19.023504,72.835364
 way,113715166,0,"Kirti M. Doongursee College of Arts, Science and Commerce",school,,,Mumbai City,19.021347,72.830909
 way,113715167,0,Dr. Antonio Da Silva Technical High School & Jr. College Of Science,school,,,Mumbai City,19.022726,72.834806
@@ -1649,10 +1743,12 @@ way,113777719,0,Dadar Athornan Institute,school,,,Mumbai City,19.01895,72.853886
 way,113792227,0,Dadar Parsee Youth Assembly High School,school,,,Mumbai City,19.017972,72.853597
 way,113978749,0,Auxilium Convent School,school,,,Mumbai City,19.016501,72.854738
 way,115830793,0,Seth V.M. Kapole Boarding School,school,,,Mumbai City,19.022646,72.853704
+way,115865053,0,Tree House Play Group,school,,,Mumbai City,19.022786,72.85286
 way,117083034,0,Matunga Premier School,school,,,Mumbai City,19.027295,72.851478
 way,117083050,0,Shri Dayanand Vidyalay and Junior College,school,,,Mumbai City,19.026936,72.851896
 way,118442694,0,Model English Night High School & Jr.College,school,,,Mumbai City,19.028495,72.855666
 way,133405012,0,Vidyalankar Institute of Technology,school,,,Mumbai City,19.021601,72.870798
+way,151485416,0,Mumbai University - Fort Campus,school,,,Mumbai City,18.929478,72.830362
 way,206642300,0,Siddharth College,school,,,Mumbai City,18.936281,72.832169
 way,206806601,0,J. B. Petit High School for Girls,school,,,Mumbai City,18.934618,72.831853
 way,206806617,0,The Alexandra Girls English Institution,school,,,Mumbai City,18.935434,72.831235
@@ -1676,6 +1772,7 @@ way,257073104,0,Mahim Police Colony Municipal School,school,,,Mumbai City,19.047
 way,286014465,0,Byculla School,school,,,Mumbai City,18.980958,72.83234
 way,288426456,0,Chikitsak Samuh High School,school,,,Mumbai City,18.955113,72.821385
 way,310973404,0,SIES College of Commerce & Economics,school,,,Mumbai City,19.043408,72.866635
+way,311083990,0,Institute of Chemical Technology,school,,,Mumbai City,19.023871,72.858587
 way,332516150,0,Gopi Birla Memorial School,school,,,Mumbai City,18.952105,72.803338
 way,347010736,0,Aryan E.S. High School,school,,,Mumbai City,18.95607,72.817378
 way,347012133,0,Marwari Vidyalaya High School,school,,,Mumbai City,18.957268,72.818019
@@ -1784,6 +1881,7 @@ way,979371202,0,Regina Pacis Convent High School,school,,,Mumbai City,18.973801,
 way,979371204,0,Hume High School,school,,,Mumbai City,18.967163,72.833305
 way,979371205,0,St. Anthony's Home And Girl's High School,school,,,Mumbai City,18.967464,72.825777
 way,979371206,0,Kamathipura BMC Municipal School,school,,,Mumbai City,18.965078,72.825267
+way,979386026,0,Marine Engineering and Research Institute - Mumbai Port Campus,school,,,Mumbai City,18.981437,72.859647
 way,979386027,0,Social Service League High School,school,,,Mumbai City,19.005136,72.838464
 way,979397731,0,Victoria High school,school,,,Mumbai City,19.035099,72.841972
 way,979397732,0,SaS Billabong High International School,school,,,Mumbai City,19.039415,72.839221
@@ -1805,6 +1903,7 @@ way,979610953,0,Abhyudaya Nagar Municipal School,school,,,Mumbai City,18.990667,
 way,981822226,0,Sayani Road Municipal School,school,,,Mumbai City,19.013932,72.832235
 way,981822227,0,Rachana Sansad's Academy Of Architecture,school,,,Mumbai City,19.014846,72.831181
 way,981962241,0,Muktangan School,school,,,Mumbai City,19.00681,72.830249
+way,1050345044,0,Indian Institute of Geomagnetism,school,,,Mumbai City,18.896984,72.812409
 way,1132674016,0,Sophia college,school,,,Mumbai City,18.969673,72.807207
 way,1171645929,0,Saifi High School,school,,,Mumbai City,18.955121,72.832649
 way,1186783950,0,,school,,,Mumbai City,19.042626,72.854346
@@ -1815,8 +1914,10 @@ way,1289073491,0,National Medical College,school,,,Mumbai City,18.979464,72.8140
 way,1361121711,0,Lodha Oakwood School,school,,,Mumbai City,19.036408,72.879822
 way,1374686428,0,Mumbai Public School,school,,,Mumbai City,19.047783,72.855472
 way,1387161513,0,RC Mahim Municipal School,school,,,Mumbai City,19.040371,72.840571
+way,1420109924,0,Jai Hind College,school,,,Mumbai City,18.934782,72.825144
 way,1467980774,0,Young Ladies High School,school,,,Mumbai City,18.93555,72.831828
 way,1491318915,0,Chotani Road Municipal High School,school,,,Mumbai City,19.038803,72.844348
+way,1504445716,0,Somaiya Ayurvihar,school,,,Mumbai City,19.046507,72.872268
 node,2168654396,0,Sir JJ College of Commerce,school,,,Mumbai City,18.932846,72.832216
 node,2457605417,0,Edubridge International School,school,,,Mumbai City,18.96004,72.815365
 node,3205780114,0,Little Angels' High School,school,,,Mumbai City,19.037226,72.855081
@@ -1830,6 +1931,7 @@ node,7405863748,0,"The Universal School, Tardeo",school,,,Mumbai City,18.96513,7
 node,7405863749,0,Grant Road Central High School,school,,,Mumbai City,18.963436,72.815923
 node,7405863760,0,Nagrik Shikshan Sanstha's College Of Commerce & Economics,school,,,Mumbai City,18.973461,72.81274
 node,7411177793,0,Tardeo Municipal Secondary School,school,,,Mumbai City,18.970994,72.81737
+node,7411177794,0,Swami Educational Society-Madurai Kamaraj University,school,,,Mumbai City,18.970663,72.817052
 node,7411177799,0,Education Inspector South,school,,,Mumbai City,18.967596,72.818519
 node,7411177802,0,Navneet Education Society Night Degree College,school,,,Mumbai City,18.968747,72.819013
 node,7411177803,0,Gilder Lane Muncipal School,school,,,Mumbai City,18.968479,72.818972
@@ -1852,6 +1954,7 @@ node,7442452591,0,Saraswati College,school,,,Mumbai City,19.019022,72.841612
 node,7442452600,0,Shishuvihar Madhyamik Vidhyala,school,,,Mumbai City,19.0224,72.847758
 node,7442452610,0,Saraswati Mandir School,school,,,Mumbai City,19.020002,72.848181
 node,7442452611,0,Patkar Guruji Vidyalaya,school,,,Mumbai City,19.020641,72.848777
+node,7453717295,0,The Dadar Parsee Youths Assembly High School,school,,,Mumbai City,19.017944,72.853565
 node,7453717309,0,Matunga Labour Camp Upper Primary Marathi School,school,,,Mumbai City,19.035881,72.852766
 node,7453717329,0,Shree Amulakh Amichand Bhimji Vividhlakshi Vidyalaya,school,,,Mumbai City,19.027059,72.86025
 node,7453717330,0,I.H.Bhatia English Primary School,school,,,Mumbai City,19.026344,72.860444
@@ -1866,7 +1969,9 @@ node,9060708505,0,Babasaheb Gawde Institute of Management Studies,school,,,Mumba
 node,9060840937,0,VLN High School,school,,,Mumbai City,18.986855,72.834751
 node,9062426516,0,Sasmira's Institute of Management Studies and Research,school,,,Mumbai City,19.010148,72.819887
 node,9062444517,0,Sasmira's Institute of Man-made Textiles,school,,,Mumbai City,19.010846,72.820092
+node,9652365665,0,Naval Maritime Academy,school,,,Mumbai City,18.895218,72.810538
 node,10048595319,0,Amulakh amichand vidyalaya,school,,,Mumbai City,19.027101,72.860305
+node,12535576374,0,college building,school,,,Mumbai City,18.967762,72.826637
 node,13112025801,0,Hinduja College,school,,,Mumbai City,18.952808,72.818468
 node,13116847401,0,Sant Gadge Maharaj School,school,,,Mumbai City,18.959857,72.82122
 node,13927730285,0,KJ Somaiya Medical College & Research Centre,school,,,Mumbai City,19.046912,72.874987
@@ -5288,6 +5393,7 @@ way,1562122423,2,BKC - SCLR Connector,bridge,,primary,Mumbai Suburban,19.073589,
 way,1562122423,6,BKC - SCLR Connector,bridge,,primary,Mumbai Suburban,19.076562,72.87537
 way,1562122424,1,Kalanagar Flyover,bridge,,motorway,Mumbai Suburban,19.060691,72.846625
 way,1562122424,2,Kalanagar Flyover,bridge,,motorway,Mumbai Suburban,19.05934,72.846605
+way,1565819613,0,St. Anthony's Road,bridge,,residential,Mumbai Suburban,19.055045,72.904437
 way,73058480,0,Holy Cross,church,christian,,Mumbai Suburban,19.0837,72.826666
 way,99206110,0,,church,christian,,Mumbai Suburban,19.270113,72.782482
 way,151402735,0,St.Vincent De Paul Church & St.Elias High School,church,christian,,Mumbai Suburban,19.073679,72.827381
@@ -6604,49 +6710,270 @@ node,14208365745,0,Paramount General Hospital and ICU,hospital,,,Mumbai Suburban
 node,14211880490,0,Dr Priyanka Shukla | Gynecologist in Borivali,hospital,,,Mumbai Suburban,19.23023,72.845617
 node,14246457601,0,SevenHills Reliance Foundation Hospital,hospital,,,Mumbai Suburban,19.117733,72.877973
 way,101310848,0,Topiwala Vegetable Market,market,,,Mumbai Suburban,19.16318,72.84731
+way,102537787,0,Oberoi Mall,market,,,Mumbai Suburban,19.173892,72.860537
+way,120134011,0,,market,,,Mumbai Suburban,19.184889,72.833899
+way,125059117,0,Raghuleela Mega Mall,market,,,Mumbai Suburban,19.213219,72.849082
+way,151205176,0,Magnet Mall,market,,,Mumbai Suburban,19.141461,72.931291
 way,151842114,0,Andheri Market,market,,,Mumbai Suburban,19.12317,72.845843
+way,151848226,0,InOrbit Mall,market,,,Mumbai Suburban,19.172752,72.835264
+way,151889253,0,Phoenix Market City Kurla,market,,,Mumbai Suburban,19.086315,72.888692
 way,185467427,0,Thane Vegetable Market,market,,,Mumbai Suburban,19.193683,72.976952
+way,193632118,0,Infiniti Mall,market,,,Mumbai Suburban,19.14125,72.831056
+way,193632123,0,Citi Mall,market,,,Mumbai Suburban,19.138832,72.83127
+way,195694235,0,Galleria,market,,,Mumbai Suburban,19.119203,72.911732
+way,202516359,0,Mega Mall,market,,,Mumbai Suburban,19.151846,72.834121
+way,202516364,0,Heera Panna Mall,market,,,Mumbai Suburban,19.148589,72.832477
+way,202563247,0,Crystal Point,market,,,Mumbai Suburban,19.130891,72.83087
+way,204884865,0,Kamdhenu,market,,,Mumbai Suburban,19.129642,72.825382
 way,237025757,0,Pali Bazaar,market,,,Mumbai Suburban,19.062731,72.828587
+way,255629913,0,R Odean,market,,,Mumbai Suburban,19.079787,72.90926
 way,260754870,0,Trombay Market,market,,,Mumbai Suburban,19.033751,72.948278
 way,314366757,0,Kena Market,market,,,Mumbai Suburban,19.057559,72.913248
-way,346686045,0,Footware market,market,,,Mumbai Suburban,19.059363,72.887925
-way,346687370,0,footware Market,market,,,Mumbai Suburban,19.058893,72.887111
+node,342120028,0,Crystal Plaza,market,,,Mumbai Suburban,19.140853,72.83246
+way,346686045,0,Footware market,market,,,Mumbai Suburban,19.059492,72.887969
+way,346687370,0,footware Market,market,,,Mumbai Suburban,19.058945,72.887044
+way,352928802,0,V MALL,market,,,Mumbai Suburban,19.213034,72.867684
+way,352963934,0,shopping malls,market,,,Mumbai Suburban,19.170969,72.851625
+way,352974802,0,Utopia Garden Grove Mall,market,,,Mumbai Suburban,19.221081,72.837512
+way,352975397,0,Yash Mart,market,,,Mumbai Suburban,19.192225,72.833713
 way,352988902,0,Sant Jalaram Bappa Market,market,,,Mumbai Suburban,19.17286,72.954586
+way,353198983,0,Sahakari Bhandar,market,,,Mumbai Suburban,19.041859,72.920084
+way,353206876,0,Heera Panna Shopping Complex,market,,,Mumbai Suburban,19.117978,72.904995
+way,353364357,0,Parle Square Mall,market,,,Mumbai Suburban,19.100259,72.845745
+way,353394599,0,Reliance Mall,market,,,Mumbai Suburban,19.223992,72.850008
+way,353396353,0,Surya Shopping Centre,market,,,Mumbai Suburban,19.274522,72.869565
 way,353424934,0,Lakshmi Market,market,,,Mumbai Suburban,19.070262,72.879053
+way,353818730,0,Milap,market,,,Mumbai Suburban,19.196152,72.847058
+way,356284931,0,Patel Provision Stores,market,,,Mumbai Suburban,19.05242,72.824297
+way,358298845,0,Growels 101,market,,,Mumbai Suburban,19.203028,72.859734
+way,389035271,0,DMart,market,,,Mumbai Suburban,19.136263,72.810601
+way,415700352,0,Dmart - Airoli,market,,,Mumbai Suburban,19.143179,72.991296
 way,416559780,0,Jai Kisan Mandai,market,,,Mumbai Suburban,19.062762,72.898017
+way,427242796,0,Kohinoor City Mall,market,,,Mumbai Suburban,19.08183,72.886236
 way,433255062,0,Fish Market,market,,,Mumbai Suburban,19.173075,72.962237
+way,436337946,0,Phoenix Paragon Plaza,market,,,Mumbai Suburban,19.085472,72.888705
+way,495716612,0,Moksha Plaza,market,,,Mumbai Suburban,19.226038,72.854654
+way,617989959,0,Filix Mall,market,,,Mumbai Suburban,19.159673,72.936951
 way,626348893,0,Janata Timber Market,market,,,Mumbai Suburban,19.061556,72.916388
+way,627612997,0,R Mall,market,,,Mumbai Suburban,19.183861,72.951486
+way,627613005,0,DMart,market,,,Mumbai Suburban,19.163988,72.940213
+way,629015648,0,Express Zone Mall,market,,,Mumbai Suburban,19.176129,72.858069
+way,632275578,0,Color Scape Mall,market,,,Mumbai Suburban,19.182621,72.95415
+way,662725588,0,Evershine Mall,market,,,Mumbai Suburban,19.178896,72.835971
 way,665546546,0,Mulund Market,market,,,Mumbai Suburban,19.172908,72.954296
+way,667169215,0,,market,,,Mumbai Suburban,19.166515,72.937599
 way,680538979,0,Fish Market,market,,,Mumbai Suburban,19.193002,72.97842
+way,725461236,0,Eternity Mall,market,,,Mumbai Suburban,19.187179,72.962912
 way,727741043,0,Local Market,market,,,Mumbai Suburban,19.143554,72.992894
+way,816431596,0,MAFCO,market,,,Mumbai Suburban,19.038175,72.926104
+way,827023262,0,Foodin Mart,market,,,Mumbai Suburban,19.141966,72.839446
+way,898489010,0,Poorti Supermarket,market,,,Mumbai Suburban,19.117224,72.882973
+way,909875100,0,DMart,market,,,Mumbai Suburban,19.110911,72.897613
+way,923192619,0,Jio World Drive,market,,,Mumbai Suburban,19.053277,72.850308
 way,950095639,0,Jai Bhawani Dainandin Bazaar,market,,,Mumbai Suburban,19.150408,72.995437
+way,1039904192,0,R City Mall,market,,,Mumbai Suburban,19.09996,72.9165
 way,1063809518,0,Mira Road Fish Market,market,,,Mumbai Suburban,19.279199,72.857776
+node,1070841437,0,Thakur Shopping Mall & Multiplex,market,,,Mumbai Suburban,19.263248,72.874381
+node,1070857100,0,Smart Bazaar,market,,,Mumbai Suburban,19.263036,72.87478
 way,1123427082,0,Parle Market,market,,,Mumbai Suburban,19.099821,72.845174
 way,1127451347,0,Bhattipada Market,market,,,Mumbai Suburban,19.150089,72.936631
 way,1150616850,0,Borivali Municpal Market,market,,,Mumbai Suburban,19.230138,72.855743
+way,1158933429,0,Oberoi - Sky City Mall,market,,,Mumbai Suburban,19.223347,72.86345
+way,1162458608,0,Smart Buy,market,,,Mumbai Suburban,19.081558,72.846066
 way,1167296724,0,Main Bazaar,market,,,Mumbai Suburban,19.174862,72.936802
 way,1216472563,0,Mulund West Market,market,,,Mumbai Suburban,19.17246,72.955563
 way,1216472564,0,Fish Market,market,,,Mumbai Suburban,19.185708,72.946617
+way,1227534715,0,Shoppers Stop,market,,,Mumbai Suburban,19.115246,72.842532
 way,1243972963,0,Vegetable Market,market,,,Mumbai Suburban,19.171757,72.957283
 way,1289361538,0,Tuesday Evening Bazaar,market,,,Mumbai Suburban,19.167343,72.931986
+way,1330349899,0,Alfa 1,market,,,Mumbai Suburban,19.108338,72.839417
 way,1330679653,0,Ghatkopar West Vegetable Market,market,,,Mumbai Suburban,19.087342,72.906749
 way,1330679654,0,Ghatkopar West Market,market,,,Mumbai Suburban,19.08656,72.905678
+way,1332146612,0,DMart,market,,,Mumbai Suburban,19.269074,72.877385
+way,1334755912,0,Adrish Zero Waste,market,,,Mumbai Suburban,19.093109,72.920343
+node,1347496088,0,Nataraj Market,market,,,Mumbai Suburban,19.187572,72.846789
+node,1347716867,0,Dechatholon,market,,,Mumbai Suburban,19.186574,72.835083
+node,1352264164,0,Dattani Trade Centre,market,,,Mumbai Suburban,19.231027,72.855537
+node,1356239107,0,"Big Bazzar, Kandivali",market,,,Mumbai Suburban,19.19004,72.859105
+way,1389997690,0,Goyal Shopping Centre,market,,,Mumbai Suburban,19.228874,72.855578
 way,1390926975,0,Fish Market,market,,,Mumbai Suburban,19.174968,72.96159
 way,1391346720,0,Mulund East Market,market,,,Mumbai Suburban,19.171733,72.9577
 way,1391574380,0,,market,,,Mumbai Suburban,19.178563,72.949122
 way,1392347227,0,,market,,,Mumbai Suburban,19.196455,72.943122
 node,1416488725,0,Charkop Market,market,,,Mumbai Suburban,19.215569,72.828621
+node,1416499241,0,Apna Bazaar,market,,,Mumbai Suburban,19.217707,72.828535
+node,1416514757,0,DMart,market,,,Mumbai Suburban,19.213155,72.84222
 way,1424659348,0,,market,,,Mumbai Suburban,19.06647,72.836118
 way,1459178471,0,,market,,,Mumbai Suburban,19.155608,72.884081
 way,1471657364,0,Veena Nagar Market,market,,,Mumbai Suburban,19.182218,72.945584
 way,1560623730,0,,market,,,Mumbai Suburban,19.141943,72.807434
+node,1697439343,0,Shoppers Stop,market,,,Mumbai Suburban,19.114597,72.8275
 node,1822487247,0,Lakadi Pool Market,market,,,Mumbai Suburban,19.210119,72.953525
+node,1842179248,0,Metro,market,,,Mumbai Suburban,19.226955,72.862977
+node,1855825021,0,Home Town,market,,,Mumbai Suburban,19.120454,72.926389
+node,1936888666,0,Gangar Supermarket,market,,,Mumbai Suburban,19.230373,72.840261
+node,2018031439,0,R S Mani Supermarket,market,,,Mumbai Suburban,19.070539,72.898876
+node,2025969633,0,Sahakari Bhandar,market,,,Mumbai Suburban,19.103535,72.831624
+node,2097757617,0,DMart,market,,,Mumbai Suburban,19.209009,72.873902
+node,2097757621,0,Nature's Basket,market,,,Mumbai Suburban,19.212332,72.872888
+node,2245075636,0,career classes,market,,,Mumbai Suburban,19.102885,72.916903
+node,2319433635,0,Shopper's Stop,market,,,Mumbai Suburban,19.069321,72.900382
+node,2403386465,0,VMall,market,,,Mumbai Suburban,19.211819,72.867388
+node,2456716264,0,Reliance Retail ,market,,,Mumbai Suburban,19.088733,72.837658
+node,2457609056,0,Society Stores,market,,,Mumbai Suburban,19.084444,72.836446
+node,2622695385,0,City Centre Mall,market,,,Mumbai Suburban,19.162342,72.845757
+node,2930708409,0,Baiganwadi,market,,,Mumbai Suburban,19.061894,72.924792
+node,2930713325,0,super market,market,,,Mumbai Suburban,19.06212,72.908841
+node,3202729954,0,apna super market,market,,,Mumbai Suburban,19.060903,72.905307
+node,3204191417,0,,market,,,Mumbai Suburban,19.066281,72.928428
+node,3204405483,0,nehru nagar market,market,,,Mumbai Suburban,19.063214,72.884717
+node,3205945177,0,lucky retail shop,market,,,Mumbai Suburban,19.063314,72.929183
+node,3206026956,0,dolls shops,market,,,Mumbai Suburban,19.058189,72.890176
+node,3213767198,0,ravi market,market,,,Mumbai Suburban,19.061662,72.924759
+node,3213782329,0,maharashtra lime depot,market,,,Mumbai Suburban,19.060473,72.919076
+node,3215560185,0,DWARKA Super market,market,,,Mumbai Suburban,19.064604,72.899745
+node,3216946229,0,FOOTWEAR,market,,,Mumbai Suburban,19.059759,72.888076
+node,3217156681,0,local market,market,,,Mumbai Suburban,19.053695,72.927471
+node,3226348964,0,Big Bazar,market,,,Mumbai Suburban,19.183789,72.951426
+node,3518529217,0,Big Bazzar,market,,,Mumbai Suburban,19.093553,72.883853
+node,3529551822,0,market,market,,,Mumbai Suburban,19.05218,72.932163
+node,3529565707,0,kurla market,market,,,Mumbai Suburban,19.070008,72.878514
 node,3529569766,0,bhaji & machhi market,market,,,Mumbai Suburban,19.048019,72.911338
+node,3602880296,0,DMart,market,,,Mumbai Suburban,19.11084,72.897504
+node,3877840963,0,Saki vihar Dark store,market,,,Mumbai Suburban,19.114811,72.888665
 node,4137663143,0,Orlem Market,market,,,Mumbai Suburban,19.195217,72.838586
+node,4309613193,0,Sahakari Bhandar,market,,,Mumbai Suburban,19.056756,72.839465
+node,4350861908,0,Nature's Basket,market,,,Mumbai Suburban,19.055566,72.831928
+node,4569909367,0,Amrut Stores,market,,,Mumbai Suburban,19.066936,72.904417
+node,4577075790,0,,market,,,Mumbai Suburban,19.11825,72.911359
+node,4761370023,0,Nature's Basket,market,,,Mumbai Suburban,19.119697,72.907868
+node,4791179122,0,,market,,,Mumbai Suburban,19.169893,72.958957
+node,4910114922,0,,market,,,Mumbai Suburban,19.265771,72.873672
+node,5077428235,0,Main Building Print Shop,market,,,Mumbai Suburban,19.133301,72.915308
+node,5125466819,0,Grocery Outlet,market,,,Mumbai Suburban,19.096708,72.890207
 node,5456500630,0,Fish Market,market,,,Mumbai Suburban,19.106677,72.914071
+node,5580528930,0,Brand Factory Vikhroli,market,,,Mumbai Suburban,19.121001,72.926665
+node,5641404341,0,METRO,market,,,Mumbai Suburban,19.218639,72.865423
+node,5663434478,0,Parivar,market,,,Mumbai Suburban,19.172078,72.958511
+node,6052834897,0,,market,,,Mumbai Suburban,19.160947,72.944831
+node,6220388885,0,,market,,,Mumbai Suburban,19.11056,72.866266
+node,6363934285,0,,market,,,Mumbai Suburban,19.131093,72.926902
+node,6381032024,0,Sahakari Bhandar,market,,,Mumbai Suburban,19.174857,72.971971
 node,6786448331,0,Sonapur Market,market,,,Mumbai Suburban,19.163778,72.935875
+node,6795540697,0,,market,,,Mumbai Suburban,19.11534,72.906944
+node,6799612786,0,,market,,,Mumbai Suburban,19.125956,72.917796
+node,6801919204,0,Pooja Grain store,market,,,Mumbai Suburban,19.126994,72.919291
+node,6802123202,0,Jagdish Stores,market,,,Mumbai Suburban,19.127874,72.919715
+node,6805450186,0,,market,,,Mumbai Suburban,19.115458,72.90811
+node,6807300786,0,,market,,,Mumbai Suburban,19.119292,72.911559
+node,6807538287,0,,market,,,Mumbai Suburban,19.124571,72.921266
+node,7147945060,0,imk Bakery,market,,,Mumbai Suburban,19.132357,72.911734
+node,7158055668,0,MG365,market,,,Mumbai Suburban,19.13478,72.825087
+node,7320270232,0,Nature's Basket,market,,,Mumbai Suburban,19.100896,72.827825
+node,7425718020,0,Society Stores Lokhandwala,market,,,Mumbai Suburban,19.145815,72.822955
+node,7426184248,0,Nature's Basket,market,,,Mumbai Suburban,19.145428,72.829255
+node,7624906702,0,Anushaktingar Residents Consumer Cooperative Society (ARCCS),market,,,Mumbai Suburban,19.037951,72.927996
+node,7944293625,0,Roman stores,market,,,Mumbai Suburban,19.100058,72.917853
+node,7944294397,0,grocery store,market,,,Mumbai Suburban,19.116579,72.887152
+node,7944302261,0,A.P.MANI AND SONS,market,,,Mumbai Suburban,19.054923,72.904634
+node,7944398836,0,general food store,market,,,Mumbai Suburban,19.101669,72.911245
+node,7944524405,0,Aksar grocery shop,market,,,Mumbai Suburban,19.140335,72.837543
+node,7944563278,0,grocery store,market,,,Mumbai Suburban,19.087495,72.896489
+node,7953949108,0,Amin dry fruits store,market,,,Mumbai Suburban,19.081179,72.856032
+node,8170851537,0,DMart,market,,,Mumbai Suburban,19.185963,72.835666
+node,8218238670,0,misha supermarket,market,,,Mumbai Suburban,19.159284,72.841261
+node,8251738919,0,Rare Earth,market,,,Mumbai Suburban,19.07146,72.838751
+node,8401473560,0,STAR HOME  SUPERMARKET,market,,,Mumbai Suburban,19.195943,72.822772
+node,8401473570,0,JYOTI MATCHING CENTER,market,,,Mumbai Suburban,19.196273,72.826001
 node,8438952889,0,Bandra Market,market,,,Mumbai Suburban,19.053719,72.832916
+node,8447958683,0,st charles,market,,,Mumbai Suburban,19.079825,72.855659
+node,8464424453,0,DMart,market,,,Mumbai Suburban,19.281399,72.876374
+node,9021942517,0,,market,,,Mumbai Suburban,19.049354,72.906581
+node,9024157517,0,Nature's Basket,market,,,Mumbai Suburban,19.045605,72.902934
+node,9122378286,0,Health & More,market,,,Mumbai Suburban,19.13304,72.825547
+node,9132847880,0,Heath Guard Chemist and Supermarket,market,,,Mumbai Suburban,19.127766,72.831759
+node,9132850194,0,Apna Bazar,market,,,Mumbai Suburban,19.127973,72.832415
+node,9134213522,0,Ratna Departmental Store,market,,,Mumbai Suburban,19.079094,72.908221
+node,9391517229,0,Rathodi Society Store,market,,,Mumbai Suburban,19.195679,72.814193
+node,9510095589,0,haria supermarket,market,,,Mumbai Suburban,19.181937,72.946341
+node,9795260924,0,Jio Mart,market,,,Mumbai Suburban,19.150335,72.987272
 node,9811689656,0,Divagaon Fish Market,market,,,Mumbai Suburban,19.148174,72.992983
+node,9887550804,0,DMart,market,,,Mumbai Suburban,19.163755,72.940169
+node,9887635358,0,Ratna Supermakert,market,,,Mumbai Suburban,19.1691,72.945875
+node,9887637253,0,Rmall,market,,,Mumbai Suburban,19.18388,72.95174
+node,10132520069,0,Milan Store,market,,,Mumbai Suburban,19.237585,72.853787
+node,10170631383,0,Sahakari Bhandar,market,,,Mumbai Suburban,19.243476,72.851332
+node,10227697404,0,Food Square,market,,,Mumbai Suburban,19.076424,72.834536
+node,10244097259,0,Shakti super store,market,,,Mumbai Suburban,19.238585,72.854963
+node,10244127476,0,Bhanu Medical,market,,,Mumbai Suburban,19.210116,72.867683
+node,10246289348,0,Shiv SuperMart,market,,,Mumbai Suburban,19.218223,72.82856
+node,10280126561,0,Oswal Supermarket,market,,,Mumbai Suburban,19.173224,72.954368
+node,10303027466,0,Apna Bazar,market,,,Mumbai Suburban,19.168018,72.951745
+node,10928530153,0,Harmony Mall,market,,,Mumbai Suburban,19.157595,72.834679
+node,10929744306,0,,market,,,Mumbai Suburban,19.113616,72.847794
+node,11057110863,0,Nuts N More,market,,,Mumbai Suburban,19.145337,72.829509
+node,11100706440,0,,market,,,Mumbai Suburban,19.037409,72.932318
+node,11217402649,0,thethar,market,,,Mumbai Suburban,19.093635,72.883855
+node,11230941355,0,Shetty's Corner,market,,,Mumbai Suburban,19.037359,72.932402
+node,11276393339,0,AC repair shop,market,,,Mumbai Suburban,19.180049,72.958692
+node,11276416801,0,Ac repair shop,market,,,Mumbai Suburban,19.180104,72.958643
+node,11400865995,0,DMart,market,,,Mumbai Suburban,19.081222,72.892318
+node,11451515800,0,Reliance Smart,market,,,Mumbai Suburban,19.09502,72.88365
+node,11451995918,0,7-Eleven,market,,,Mumbai Suburban,19.084268,72.884804
+node,11483837680,0,Marks & Spencer,market,,,Mumbai Suburban,19.084782,72.834823
+node,11579725641,0,Kute General Store,market,,,Mumbai Suburban,19.056992,72.88988
+node,11591072336,0,HEERSON,market,,,Mumbai Suburban,19.099552,72.845758
+node,11613055041,0,society center,market,,,Mumbai Suburban,19.208961,72.864063
+node,11617861153,0,bhakti,market,,,Mumbai Suburban,19.123097,72.91335
+node,11697795359,0,Powai Plaza,market,,,Mumbai Suburban,19.122939,72.913129
+node,11697823599,0,Hakone,market,,,Mumbai Suburban,19.122497,72.913637
+node,11697857176,0,DMart,market,,,Mumbai Suburban,19.1167,72.91035
+node,11716428186,0,WMART,market,,,Mumbai Suburban,19.037279,72.93228
+node,11716428226,0,Aasaan stores,market,,,Mumbai Suburban,19.040454,72.918423
+node,11716428237,0,St. Thomas Stores,market,,,Mumbai Suburban,19.039365,72.911779
+node,11716428250,0,Apna Kirana Store,market,,,Mumbai Suburban,19.037572,72.909571
+node,11716428251,0,Dilip Kirana Stores,market,,,Mumbai Suburban,19.037198,72.909439
+node,11716428252,0,,market,,,Mumbai Suburban,19.037505,72.909417
+node,11716428259,0,Raj depot,market,,,Mumbai Suburban,19.037488,72.911769
+node,11807678169,0,,market,,,Mumbai Suburban,19.172945,72.955968
+node,11962654785,0,Kohinoor Enterprises,market,,,Mumbai Suburban,19.076545,72.880259
+node,12192784839,0,The Urban Platter Store,market,,,Mumbai Suburban,19.062685,72.830635
+node,12254525062,0,Indraprasth Shopping Center,market,,,Mumbai Suburban,19.226947,72.85594
+node,12290032454,0,National,market,,,Mumbai Suburban,19.14535,72.846762
+node,12328181742,0,Tirumala Shopping Center,market,,,Mumbai Suburban,19.129089,72.827977
+node,12381958981,0,Anand,market,,,Mumbai Suburban,19.228917,72.825141
+node,12411907729,0,Kishor Supermarket,market,,,Mumbai Suburban,19.145275,72.823513
+node,12477833891,0,Albino Lifestyle,market,,,Mumbai Suburban,19.17289,72.855369
+node,12600517519,0,Meena Bazar,market,,,Mumbai Suburban,19.060319,72.849998
+node,12843082708,0,Nature's Basket,market,,,Mumbai Suburban,19.084711,72.834797
+node,12848913147,0,Intop,market,,,Mumbai Suburban,19.10598,72.826378
+node,12862551934,0,Star Bazaar,market,,,Mumbai Suburban,19.221143,72.837582
+node,12864736675,0,Rice Merchant,market,,,Mumbai Suburban,19.168918,72.931841
+node,12921345552,0,Mahaveer Supermarket,market,,,Mumbai Suburban,19.060008,72.842539
+node,12960843831,0,DMart,market,,,Mumbai Suburban,19.111853,72.87518
+node,13069769342,0,New D. X. B Wholesale Stores,market,,,Mumbai Suburban,19.054061,72.83205
+node,13240695947,0,New Grand Stores,market,,,Mumbai Suburban,19.129656,72.822181
+node,13352965911,0,24/7,market,,,Mumbai Suburban,19.137063,72.854146
+node,13378736237,0,Niti General Stores,market,,,Mumbai Suburban,19.190098,72.969741
+node,13380799815,0,Infiniti Mall,market,,,Mumbai Suburban,19.185135,72.835372
+node,13516940287,0,,market,,,Mumbai Suburban,19.12822,72.840635
+node,13609452193,0,Blink Commerce,market,,,Mumbai Suburban,19.17071,72.942544
+node,13609452197,0,Dark Store,market,,,Mumbai Suburban,19.171165,72.942684
+node,13638004709,0,SMART Sahakari Bhandar,market,,,Mumbai Suburban,19.136162,72.868348
+node,13760631764,0,Vasant Trading Co,market,,,Mumbai Suburban,19.175518,72.943324
+node,13760631765,0,Jineshwar Enterprises,market,,,Mumbai Suburban,19.175517,72.943516
+node,13760631766,0,N-Vee Enterprises,market,,,Mumbai Suburban,19.175514,72.943429
+node,13764788413,0,Hiral Supermarket,market,,,Mumbai Suburban,19.14668,72.823582
+node,13937984456,0,bhoomi mart,market,,,Mumbai Suburban,19.202341,72.821687
+node,14006259820,0,Nature's Basket,market,,,Mumbai Suburban,19.056264,72.847776
+node,14082444135,0,Sahakari Bhandar,market,,,Mumbai Suburban,19.173214,72.865666
+node,14144168872,0,Satjeevan,market,,,Mumbai Suburban,19.041838,72.887207
+node,14158954581,0,Tata Star Bazaar,market,,,Mumbai Suburban,19.130942,72.830984
+node,14172771969,0,rainbow mini super market,market,,,Mumbai Suburban,19.052985,72.936088
+node,14178218906,0,Shivraj Supermarket,market,,,Mumbai Suburban,19.079804,72.909356
+node,14207023202,0,Janta dairy and firdous kirana,market,,,Mumbai Suburban,19.074929,72.872528
+node,14207023203,0,Nagori Sweets.,market,,,Mumbai Suburban,19.074896,72.872539
+node,14207023204,0,AARADHANA SUPER MARKET,market,,,Mumbai Suburban,19.074857,72.872561
 way,202918262,0,Jama Masjid,mosque,muslim,,Mumbai Suburban,19.051706,72.838546
 way,249897555,0,Sunni Madina Masjid,mosque,muslim,,Mumbai Suburban,19.149336,72.834861
 way,251508381,0,Hazrat Nizamuddin Hussain Shah Bagdadi Rahmatullah Alaih Mosque,mosque,muslim,,Mumbai Suburban,19.134819,72.781984
@@ -6863,6 +7190,80 @@ node,13506458577,0,,place_of_worship,jain,,Mumbai Suburban,19.182739,72.94738
 node,13610946231,0,Saibaba Mandir,place_of_worship,,,Mumbai Suburban,19.173169,72.93297
 node,13625315001,0,"Trimandir, Mumbai",place_of_worship,,,Mumbai Suburban,19.237194,72.873093
 node,14134685923,0,Shri Sai Baba Mandir,place_of_worship,,,Mumbai Suburban,19.053056,72.872888
+way,118898002,0,Versova Police station (D.N.Nagar),police_station,,,Mumbai Suburban,19.124579,72.83025
+way,179915833,0,Govandi Police station,police_station,,,Mumbai Suburban,19.048691,72.917566
+way,196092411,0,Santacruz Police Station,police_station,,,Mumbai Suburban,19.084135,72.834952
+way,196620996,0,Versova Police Chowki,police_station,,,Mumbai Suburban,19.136756,72.810607
+way,235939616,0,RPF Reserve Line - Mulund,police_station,,,Mumbai Suburban,19.173974,72.959395
+way,312763210,0,Borivali Police Station,police_station,,,Mumbai Suburban,19.229545,72.855911
+way,317222141,0,Mulund Police Station,police_station,,,Mumbai Suburban,19.17736,72.951683
+way,347008831,0,beat no 2,police_station,,,Mumbai Suburban,19.061802,72.890851
+node,347152618,0,Khar Police Station,police_station,,,Mumbai Suburban,19.064037,72.837114
+way,353192704,0,Bail Bazar Police Station,police_station,,,Mumbai Suburban,19.0853,72.881049
+way,354063829,0,Kopri Police Station,police_station,,,Mumbai Suburban,19.178283,72.969253
+way,356258967,0,Bandra Railway Police Station,police_station,,,Mumbai Suburban,19.055639,72.839791
+way,357472397,0,"Additional Commisioner of Police, Mumbai, West Region",police_station,,,Mumbai Suburban,19.062802,72.822675
+way,417320262,0,Oshiwara Police Station,police_station,,,Mumbai Suburban,19.14762,72.831613
+way,427979103,0,,police_station,,,Mumbai Suburban,19.228714,72.804703
+way,621696888,0,Goregaon Police Station,police_station,,,Mumbai Suburban,19.157331,72.845538
+way,627802514,0,Nehru Nagar Kurla Police Station,police_station,,,Mumbai Suburban,19.058816,72.880525
+way,628861218,0,Marol Police Camp,police_station,,,Mumbai Suburban,19.125235,72.883205
+way,816431603,0,Trombay Police Station,police_station,,,Mumbai Suburban,19.038022,72.945228
+node,985121037,0,Aarey Police Station,police_station,,,Mumbai Suburban,19.166485,72.854382
+node,985121043,0,Goregaon (E) Police Station,police_station,,,Mumbai Suburban,19.155874,72.857676
+way,1068842996,0,Rabale Traffic Police Station,police_station,,,Mumbai Suburban,19.148504,72.993121
+way,1120071108,0,,police_station,,,Mumbai Suburban,19.169132,72.968478
+way,1122104211,0,Mulund Police Chowky,police_station,,,Mumbai Suburban,19.172363,72.956274
+way,1149824750,0,Kherwadi Police Station,police_station,,,Mumbai Suburban,19.065911,72.850055
+way,1150984455,0,Naupada Police Station,police_station,,,Mumbai Suburban,19.188732,72.967208
+way,1226336527,0,Juhu Tara Road Police Station,police_station,,,Mumbai Suburban,19.096474,72.826941
+way,1334676842,0,Bandra Police Station,police_station,,,Mumbai Suburban,19.055924,72.835712
+way,1411467112,0,Homeguard Central Training Institute,police_station,,,Mumbai Suburban,19.090396,72.891599
+way,1424156817,0,,police_station,,,Mumbai Suburban,19.08413,72.835315
+way,1428230096,0,Bandra Reclamation Police Station,police_station,,,Mumbai Suburban,19.050765,72.829923
+way,1457969605,0,Shivajinagar Police Station,police_station,,,Mumbai Suburban,19.063424,72.916826
+way,1523903435,0,Bangur Nagar Link Road Police Station,police_station,,,Mumbai Suburban,19.175244,72.831888
+node,1697431324,0,D.N. Nagar Police Station,police_station,,,Mumbai Suburban,19.122585,72.83
+node,1905389024,0,Versova Police Station,police_station,,,Mumbai Suburban,19.124125,72.83037
+node,2097757614,0,,police_station,,,Mumbai Suburban,19.228207,72.858217
+node,2171447204,0,Police Chowki,police_station,,,Mumbai Suburban,19.062832,72.829219
+node,2298079810,0,"Police Station, Thakur Village",police_station,,,Mumbai Suburban,19.205951,72.872904
+node,2308138695,0,Dindoshi Police station,police_station,,,Mumbai Suburban,19.178949,72.857733
+node,2562631232,0,Gokuldham Police Station,police_station,,,Mumbai Suburban,19.175591,72.867653
+node,2680678193,0,Police Chowk,police_station,,,Mumbai Suburban,19.07389,72.829485
+node,2930732807,0,Tilak Nagar Police Station,police_station,,,Mumbai Suburban,19.065286,72.895998
+node,2933183452,0,VB Nagar Police Station,police_station,,,Mumbai Suburban,19.071717,72.884227
+node,3186544582,0,,police_station,,,Mumbai Suburban,19.229495,72.855948
+node,3204171992,0,POLICE STATION,police_station,,,Mumbai Suburban,19.0537,72.9357
+node,3205945190,0,trombay police station,police_station,,,Mumbai Suburban,19.036145,72.949946
+node,3205950901,0,Tembhipada Police Chowki,police_station,,,Mumbai Suburban,19.15489,72.929111
+node,3205956099,0,chembur police station,police_station,,,Mumbai Suburban,19.063949,72.900825
+node,3215545236,0,Maharashtra Nagar Police Station,police_station,,,Mumbai Suburban,19.050247,72.937862
+node,3215577539,0,Govandi Police station,police_station,,,Mumbai Suburban,19.059521,72.911665
+node,3215584200,0,Lallubhai Police Station,police_station,,,Mumbai Suburban,19.052848,72.9271
+node,3215621243,0,gaikwaad nagar police station,police_station,,,Mumbai Suburban,19.060352,72.91044
+node,3263043837,0,WAGLE POLICE STATION,police_station,,,Mumbai Suburban,19.203187,72.955099
+node,3532121099,0,Nehru Nagar Kurla E Police Chowky,police_station,,,Mumbai Suburban,19.065066,72.880875
+node,3547889593,0,Khardev Nagar Police Station,police_station,,,Mumbai Suburban,19.055743,72.90883
+node,3602876220,0,Vikhroli Police Station,police_station,,,Mumbai Suburban,19.118719,72.937325
+node,4402150675,0,Chheda Nagar Police Station,police_station,,,Mumbai Suburban,19.067214,72.903157
+node,4621598794,0,,police_station,,,Mumbai Suburban,19.257384,72.865094
+node,4658680890,0,,police_station,,,Mumbai Suburban,19.16955,72.959176
+node,4791178925,0,,police_station,,,Mumbai Suburban,19.171584,72.956655
+node,5116459526,0,Kandivali Police Station,police_station,,,Mumbai Suburban,19.209583,72.85014
+node,5258276335,0,Mount Mary Police Chouki,police_station,,,Mumbai Suburban,19.051928,72.823281
+node,5506320530,0,BKC Police Station,police_station,,,Mumbai Suburban,19.064515,72.860341
+node,5614984680,0,Versova Police Station,police_station,,,Mumbai Suburban,19.142974,72.804488
+node,5667043327,0,Samatanagar Police Station,police_station,,,Mumbai Suburban,19.199839,72.861415
+node,6052581621,0,Traffic Police Chowky,police_station,,,Mumbai Suburban,19.163976,72.937481
+node,8170852418,0,,police_station,,,Mumbai Suburban,19.183497,72.844506
+node,9139914820,0,,police_station,,,Mumbai Suburban,19.098188,72.826643
+node,9730701801,0,Khar Police Station,police_station,,,Mumbai Suburban,19.072887,72.837653
+node,10296626442,0,Juhu Police Station,police_station,,,Mumbai Suburban,19.103166,72.832712
+node,10705115166,0,,police_station,,,Mumbai Suburban,19.187185,72.975904
+node,12026381269,0,Shivaji Nagar Police Station,police_station,,,Mumbai Suburban,19.061098,72.843369
+node,12878867195,0,"Office Of The Inspector Incharge, Mulund East",police_station,,,Mumbai Suburban,19.17216,72.957515
+node,14197852563,0,Oshiwara Police Station,police_station,,,Mumbai Suburban,19.14,72.825865
 way,107303404,0,Bandra Terminus,railway_station,,station,Mumbai Suburban,19.062838,72.841228
 way,151205149,0,Ghatkopar L1,railway_station,,station,Mumbai Suburban,19.086467,72.908034
 node,213030669,0,Dahisar,railway_station,,station,Mumbai Suburban,19.249357,72.85963
@@ -6967,9 +7368,11 @@ node,13758670735,0,Dahisar (East) [Line 9],railway_station,,station,Mumbai Subur
 node,13758670736,0,Pandurang Wadi,railway_station,,station,Mumbai Suburban,19.259726,72.872486
 node,13758670737,0,Miragaon,railway_station,,station,Mumbai Suburban,19.271007,72.880698
 node,13758670740,0,Kashigaon,railway_station,,station,Mumbai Suburban,19.277666,72.88024
+way,27054841,0,Central Fisheries Institute,school,,,Mumbai Suburban,19.131816,72.816631
 way,27054865,0,Chatrabhuj Narsee Monjee School,school,,,Mumbai Suburban,19.106724,72.841494
 way,27054961,0,M A Government School,school,,,Mumbai Suburban,19.116476,72.84523
 way,27055930,0,Fr Conceicao Rodrigues College of Engineering,school,,,Mumbai Suburban,19.044337,72.820834
+way,49682797,0,University of Mumbai,school,,,Mumbai Suburban,19.071378,72.856124
 way,52511403,0,Environmental Science & Engineering,school,,,Mumbai Suburban,19.132401,72.91831
 way,52513988,0,Applied Materials Exploration Centre,school,,,Mumbai Suburban,19.135253,72.918825
 way,52514091,0,Centifuge Facility,school,,,Mumbai Suburban,19.13536,72.916863
@@ -6984,6 +7387,7 @@ way,120022416,0,KES College Ground,school,,,Mumbai Suburban,19.201905,72.846536
 way,120134555,0,,school,,,Mumbai Suburban,19.188673,72.841167
 way,120516304,0,St. Judes High School,school,,,Mumbai Suburban,19.197461,72.820076
 way,121513368,0,Nutan Vidya Mandir,school,,,Mumbai Suburban,19.04184,72.931372
+way,122294390,0,"Tata Institute of Social Sciences, New Campus",school,,,Mumbai Suburban,19.040632,72.912772
 way,131957113,0,Shivaji Shikshan Sanstha High School,school,,,Mumbai Suburban,19.08422,72.913409
 way,136172048,0,Chikalwadi BMC School - 3,school,,,Mumbai Suburban,19.061699,72.928756
 way,136333110,0,Sanjay Nagar Municipal School,school,,,Mumbai Suburban,19.064426,72.925934
@@ -7011,10 +7415,12 @@ way,202554195,0,Ryan International School,school,,,Mumbai Suburban,19.148144,72.
 way,202555835,0,Fairie Land School,school,,,Mumbai Suburban,19.150026,72.827344
 way,202555853,0,Euro Kids,school,,,Mumbai Suburban,19.149611,72.828676
 way,202917456,0,Maneckji Cooper Educational trust School,school,,,Mumbai Suburban,19.08879,72.827591
+way,202917551,0,"SNDT Women's University,Juhu",school,,,Mumbai Suburban,19.087514,72.831595
 way,202918263,0,Madrasa,school,muslim,,Mumbai Suburban,19.051586,72.838646
 way,203145786,0,Utpal Sanghvi School,school,,,Mumbai Suburban,19.112278,72.828317
 way,204635784,0,Holy Family High School,school,,,Mumbai Suburban,19.07136,72.906445
 way,204884862,0,Gyan Kendra Higher Secondary School,school,,,Mumbai Suburban,19.132421,72.824775
+way,204885504,0,National Institute of Oceanography,school,,,Mumbai Suburban,19.137059,72.825203
 way,204887184,0,Oberoi International School - OGC Campus,school,,,Mumbai Suburban,19.169806,72.866537
 way,207901853,0,Jankidevi Public School,school,,,Mumbai Suburban,19.139293,72.819602
 way,207905223,0,Roshan Taneja School of Acting,school,,,Mumbai Suburban,19.137218,72.823224
@@ -7029,6 +7435,7 @@ way,231592040,0,St Francis D'Assissi High School,school,,,Mumbai Suburban,19.243
 way,234978129,0,Vidya Prasarak Mandal Polytechnic,school,,,Mumbai Suburban,19.189369,72.980839
 way,235772566,0,Vidyanidhi School,school,,,Mumbai Suburban,19.111772,72.832772
 way,237025763,0,St Joseph's Convent (Girls School),school,,,Mumbai Suburban,19.056285,72.830284
+way,237027561,0,IES College Of Architecture,school,,,Mumbai Suburban,19.050174,72.829897
 node,245668712,0,Classic,school,,,Mumbai Suburban,19.083553,72.838475
 way,246288037,0,Rajiv Gandhi Institute Of Technology,school,,,Mumbai Suburban,19.121382,72.823699
 node,246446609,0,Home for mental deficient childern,school,,,Mumbai Suburban,19.043673,72.925687
@@ -7047,12 +7454,14 @@ way,279196737,0,Atomic Energy Central School V,school,,,Mumbai Suburban,19.03812
 way,288600315,0,Suvidya High school,school,,,Mumbai Suburban,19.229261,72.828021
 way,291310460,0,,school,,,Mumbai Suburban,19.059144,72.844407
 way,291324679,0,,school,,,Mumbai Suburban,19.061906,72.845635
+way,291327674,0,Yuva Parivartan ( Youth Recreation center ) ,school,,,Mumbai Suburban,19.063421,72.844233
 way,291330549,0,Chetana College,school,,,Mumbai Suburban,19.061121,72.848427
 way,292305703,0,"St. Joseph's School, Orlem",school,,,Mumbai Suburban,19.194828,72.836712
 way,292306935,0,Our Lady of Lourdes Church & St.Annes School Compound,school,christian,,Mumbai Suburban,19.19485,72.83736
 way,292306937,0,St. Joseph's School Compound,school,,,Mumbai Suburban,19.194928,72.836651
 way,294276634,0,JBCN International School,school,,,Mumbai Suburban,19.146583,72.830142
 way,301042038,0,Atomic Energy Junior College,school,,,Mumbai Suburban,19.036966,72.918875
+way,302858264,0,Tata Institute of Social Sciences (TISS),school,,,Mumbai Suburban,19.044451,72.912545
 way,307395924,0,Sana Classes,school,,,Mumbai Suburban,19.040518,72.947101
 way,307396170,0,Azad High School and jr.college,school,,,Mumbai Suburban,19.040832,72.948695
 way,314399835,0,saraswati vidyalaya school....,school,,,Mumbai Suburban,19.056682,72.899002
@@ -7124,6 +7533,7 @@ way,486564717,0,Padhmabhushan Vasantdada Patil Pratishthan's College Of Engineer
 way,496837192,0,,school,,,Mumbai Suburban,19.111081,72.916018
 way,496837203,0,BMC School (Abandoned),school,,,Mumbai Suburban,19.10718,72.91685
 way,510983346,0,Holy cross centenary Grounds,school,,,Mumbai Suburban,19.082702,72.886044
+way,512468398,0,Don Bosco Grounds,school,,,Mumbai Suburban,19.0818,72.888882
 way,518957680,0,Chembur Vidya Niketan High School,school,,,Mumbai Suburban,19.061328,72.895813
 way,528846345,0,Bhairav Vidyalay,school,,,Mumbai Suburban,19.071518,72.915841
 way,545621122,0,Arya Vidya Mandir,school,,,Mumbai Suburban,19.057456,72.828492
@@ -7192,6 +7602,7 @@ way,675093586,0,Marathi Municipal school,school,,,Mumbai Suburban,19.075763,72.9
 way,675094134,0,Vidya Bhavan,school,,,Mumbai Suburban,19.072108,72.906419
 way,678334926,0,PES New English School,school,,,Mumbai Suburban,19.180915,72.979151
 way,680563772,0,Shiva Samarth School Ground,school,,,Mumbai Suburban,19.193999,72.973281
+way,682033562,0,Industrial Training Institute (ITI),school,,,Mumbai Suburban,19.179963,72.971884
 way,682033564,0,Vidyasagar Education Soc,school,,,Mumbai Suburban,19.181963,72.973145
 way,706489199,0,"Raheja College, Juhu",school,,,Mumbai Suburban,19.085694,72.832824
 way,723512525,0,Kendriya Vidyalaya IIT Powai,school,,,Mumbai Suburban,19.128896,72.918392
@@ -7248,6 +7659,7 @@ way,1123725998,0,Municipalty School,school,,,Mumbai Suburban,19.114486,72.936869
 way,1123725999,0,Asmita College,school,,,Mumbai Suburban,19.119943,72.939095
 way,1123730797,0,St. Josephs High School,school,,,Mumbai Suburban,19.110387,72.927381
 way,1123859440,0,,school,,,Mumbai Suburban,19.087174,72.909519
+way,1123953008,0,Homi Bhabha National Institute,school,,,Mumbai Suburban,19.033824,72.925588
 way,1123961010,0,Shahaji Nagar Municipal Public School,school,,,Mumbai Suburban,19.038552,72.944998
 way,1126750031,0,Sheth Karamshi Kanji English School,school,,,Mumbai Suburban,19.170237,72.950284
 way,1126750034,0,Purandare School,school,,,Mumbai Suburban,19.170083,72.949442
@@ -7275,6 +7687,7 @@ node,1168348939,0,St. Thomas School Ground,school,,,Mumbai Suburban,19.169335,72
 way,1170351951,0,Jamnabai Narsee School,school,,,Mumbai Suburban,19.104949,72.832306
 way,1170351963,0,Sir Sorabji Pochkhanawala Bankers Training College,school,,,Mumbai Suburban,19.109703,72.835118
 way,1170351964,0,SVKM,school,,,Mumbai Suburban,19.107493,72.837342
+way,1170351966,0,Narsee Monjee Institute Of Management Studies,school,,,Mumbai Suburban,19.103078,72.836438
 way,1170351967,0,Mithibai College of Arts and Jitendra Chauhan College of Science,school,,,Mumbai Suburban,19.102831,72.837327
 way,1170351971,0,Mukesh Patel School of Technology Management and Engineering,school,,,Mumbai Suburban,19.110069,72.837742
 way,1170368723,0,S. P. Jain Institute of Management and Research,school,,,Mumbai Suburban,19.123768,72.837055
@@ -7311,6 +7724,7 @@ node,1368753139,0,IB Patel School,school,,,Mumbai Suburban,19.157842,72.847655
 way,1372204911,0,Model High School,school,,,Mumbai Suburban,19.036344,72.90531
 way,1383241902,0,Taraben Master School,school,,,Mumbai Suburban,19.084958,72.833161
 way,1384662221,0,Shanti Nagar Highschool Ground,school,,,Mumbai Suburban,19.278324,72.859644
+way,1390433259,0,Somaiya Vidyavihar University,school,,,Mumbai Suburban,19.07392,72.899926
 way,1391802079,0,Govt School,school,,,Mumbai Suburban,19.173766,72.962914
 way,1391802081,0,Mumbai Public School,school,,,Mumbai Suburban,19.173254,72.962833
 way,1411438353,0,Bombay College of Pharmacy,school,,,Mumbai Suburban,19.076793,72.859759
@@ -7400,6 +7814,10 @@ node,7463765603,0,Vivekanand English High School,school,,,Mumbai Suburban,19.034
 node,7463765609,0,Trombay Municipal Marathi School,school,,,Mumbai Suburban,19.033844,72.949352
 node,7463765611,0,Fazlani Star English High School and Junior College,school,,,Mumbai Suburban,19.037827,72.951103
 node,7463765612,0,Trombay Public High School,school,,,Mumbai Suburban,19.040674,72.948564
+node,7463765613,0,Kendriya Vidyalaya Mankhurd,school,,,Mumbai Suburban,19.039249,72.939332
+node,7463765614,0,"Naval KG School,Mankhurd",school,,,Mumbai Suburban,19.039125,72.938827
+node,7463765615,0,"NOFRA, Mankhurd",school,,,Mumbai Suburban,19.039155,72.940036
+node,7463765700,0,Atomic Energy Central School -1,school,,,Mumbai Suburban,19.04081,72.920012
 node,7484386953,0,Rustomjee Cambridge International school,school,,,Mumbai Suburban,19.243396,72.857242
 node,7896696885,0,"Orchids The International School, Kurla",school,,,Mumbai Suburban,19.06784,72.879118
 node,7907742485,0,,school,,,Mumbai Suburban,19.19384,72.840923

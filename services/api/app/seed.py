@@ -281,15 +281,18 @@ def _wipe_and_load(owner_url: str, root: Path, packs, reason: str) -> dict:
     raise AssertionError("unreachable")
 
 
-def seed(owner_url: str, packs=PACKS, root: Path | None = None, reason: str = "demo seed") -> dict:
+def seed(owner_url: str, packs=PACKS, root: Path | None = None, reason: str = "demo seed",
+         cases: bool = True) -> dict:
+    """`cases=False` loads the reference data only — incidents, districts, teams, users, gazetteer — and leaves
+    the desk empty: the performed demo starts from a citizen's own report instead of our test families."""
     root = root or get_settings().data_dir / "scenarios"
     with engine_for(owner_url).begin() as conn:
         pause_jobs(conn)
     loaded, users, now = _wipe_and_load(owner_url, root, packs, reason)
-    cases = seed_cases(owner_url, root, loaded, now)
+    n_cases = seed_cases(owner_url, root, loaded, now) if cases else 0
     with engine_for(owner_url).begin() as conn:
-        owned = seed_owners(conn, root, loaded)
-    return {"owned_p1": owned, "incidents": len(loaded), "cases": cases, "teams": sum(len(p["teams"]) for p in loaded.values()),
+        owned = seed_owners(conn, root, loaded) if cases else 0
+    return {"owned_p1": owned, "incidents": len(loaded), "cases": n_cases, "teams": sum(len(p["teams"]) for p in loaded.values()),
             "users": users}
 
 
@@ -314,6 +317,8 @@ def _load(owner_url: str, root: Path, packs, reason: str):
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--packs", default=",".join(PACKS))
+    ap.add_argument("--no-cases", action="store_true",
+                    help="reference data only (incidents, districts, teams, users, gazetteer): a clean desk")
     args = ap.parse_args()
     if not get_settings().demo_mode:
         sys.exit("refusing to seed: DEMO_MODE is off (seeding wipes the database)")
@@ -322,7 +327,7 @@ def main() -> None:
         sys.exit("DEMO_OWNER_DATABASE_URL is not set")
     from app.modules.partners.webhooks import quiet_streams
     with quiet_streams(engine_for(url)):   # partners never receive the seed as news
-        print(seed(url, tuple(args.packs.split(","))))
+        print(seed(url, tuple(args.packs.split(",")), cases=not args.no_cases))
 
 
 if __name__ == "__main__":

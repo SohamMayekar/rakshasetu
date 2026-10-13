@@ -1,0 +1,54 @@
+# RakshaSetu local Caddy configuration for running without Docker
+# Two listeners (PRD §12.4, rule R18).
+#   :80   local  — the projector desk, demo controls, the "sign in as…" picker.
+#   :8080 public — the reporter and responder PWAs and the public APIs.
+{
+	auto_https off
+	admin off
+}
+
+:80 {
+	@toobig expression `{http.request.header.Content-Length} != "" && int({http.request.header.Content-Length}) > 6291456`
+	handle @toobig {
+		respond "Too large" 413
+	}
+	request_body {
+		max_size 6MB
+	}
+	@api path /v1/* /healthz
+	handle @api {
+		reverse_proxy 127.0.0.1:8000 {
+			header_up X-RS-Listener local
+		}
+	}
+	handle {
+		reverse_proxy 127.0.0.1:3000
+	}
+}
+
+:8080 {
+	@toobig expression `{http.request.header.Content-Length} != "" && int({http.request.header.Content-Length}) > 2097152`
+	handle @toobig {
+		respond "Too large" 413
+	}
+	request_body {
+		max_size 2MB
+	}
+	@demo path /v1/demo /v1/demo/* /login /login/*
+	handle @demo {
+		respond "Not available on the public address" 404
+	}
+	@api path /healthz /v1/public/* /v1/ingest/* /v1/partners/* /v1/auth/* /v1/me /v1/ws /v1/assignments/* /v1/cases/* /v1/evidence/* /v1/audit/head /v1/teams/me/*
+	handle @api {
+		reverse_proxy 127.0.0.1:8000 {
+			header_up X-RS-Listener public
+		}
+	}
+	@web path /r /r/* /s/* /responder /responder/* /_next/* /favicon.ico /manifest.webmanifest /responder.webmanifest /responder-sw.js /icons/* /audio/* /fonts/*
+	handle @web {
+		reverse_proxy 127.0.0.1:3000
+	}
+	handle {
+		respond "Not found" 404
+	}
+}

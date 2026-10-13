@@ -30,10 +30,14 @@ export function plainChip(chip: string | null): string | null {
   } as Record<string, string>)[chip] ?? chip;
 }
 
-/** A queue row's one action button, in plain words. */
+/** A queue row's one action button, in plain words. The team's postcode-style bracket ("(Byculla)") is dropped
+ * on the card so the action fits; the full name stays in the Assignment list and on the Teams page. */
 export function plainAction(label: string): string {
   const send = label.match(/^Assign → (.+?) · ([\d.]+ km|no pin)/);
-  if (send) return `Send ${send[1]} · ${send[2] === "no pin" ? "place unknown" : `${send[2]} away`}`;
+  if (send) {
+    const team = send[1].replace(/\s*\([^)]*\)\s*$/, "");
+    return `Send ${team} · ${send[2] === "no pin" ? "place unknown" : send[2]}`;
+  }
   const match = label.match(/^Review match → (.+)$/);
   if (match) return `Same family as ${match[1]}?`;
   return ({
@@ -54,6 +58,19 @@ export function plainPlace(method: string): string {
 export const STEP_WORD: Record<string, string> = {
   stt: "speech to text", extract: "facts read", quotes: "quotes checked", place: "place found", priority: "priority set",
 };
+
+/** A team's readable name from its own data — agency · what it does · where it is based. Never invented: a
+ * missing part is simply left out, and the official name stays visible wherever this is used. */
+export function teamLabel(t: { agency?: string | null; capabilities?: string[] | null; district?: string | null }): string {
+  const caps = (t.capabilities ?? []).map((c) => c.replace(/_/g, " ")).join(", ") || null;
+  return [t.agency, caps, t.district].filter(Boolean).join(" · ");
+}
+
+/** Plain availability words for a team's status (the API's codes stay codes). */
+export const AVAILABILITY: Record<string, string> = {
+  available: "Available", assigned: "Responding", overdue: "Check-in overdue", out_of_service: "Out of service",
+};
+export const availability = (status: string | null | undefined) => AVAILABILITY[status ?? ""] ?? "Status unknown";
 
 /** The audit log's event codes ("assignment.acknowledged") as words ("Assignment acknowledged"). */
 const EVENT_WORD: Record<string, string> = {

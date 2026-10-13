@@ -97,6 +97,13 @@ export function Facts({ c, canEdit, onQuote, onChanged }: {
           {c.location_source && <MethodChip method={c.location_source === "human" ? "human" : "rule"} />}
         </span>
         {c.location_method && <Because>{plainPlace(c.location_method)}</Because>}
+        {c.lat != null && c.lng != null && (
+          <a href={`https://www.google.com/maps/search/?api=1&query=${c.lat},${c.lng}`} target="_blank" rel="noreferrer"
+             className="mt-1 inline-flex items-baseline gap-1.5 text-small font-medium text-ink underline underline-offset-4">
+            The exact pin on Google Maps
+            <span className="tabular text-ink-3">{c.lat.toFixed(5)}, {c.lng.toFixed(5)}</span>
+          </a>
+        )}
         {(() => {   // P1 #1: a merged report from outside the circle never moves the pin by itself
           const m = (c.attributes?.proposed_move ?? null) as { from: string; metres_away: number; method?: string } | null;
           return m && (

@@ -7,8 +7,8 @@ import httpx
 import pytest
 from sqlalchemy import text
 
-from app.providers import llm, stt, usage
-from app.providers.base import AllProvidersFailed, ProviderUnavailable, run_chain
+from app.providers import geocode, llm, stt, usage
+from app.providers.base import AllProvidersFailed, ProviderFailed, ProviderUnavailable, run_chain
 from tests.conftest import needs_db
 
 pytestmark = needs_db
@@ -66,6 +66,94 @@ def test_groq_llm_uses_strict_json_schema_and_no_priority_field(live, monkeypatc
     assert "description" not in json.dumps(rf["json_schema"]["schema"])
     assert kw["json"]["model"] == "openai/gpt-oss-120b" and kw["json"]["reasoning_effort"] == "low"
     assert out == {"ok": True}
+
+
+# --- the geocoders (free OSM services, no keys): address text → a point ---------------------------------------
+
+def test_photon_request_and_a_venue_hit(live, monkeypatch):
+    cap = Captured(body={"features": [{"geometry": {"coordinates": [72.8464, 19.1197]},
+                                       "properties": {"osm_key": "tourism", "osm_value": "hotel",
+                                                      "name": "Regency Hotel", "street": "Andheri East",
+                                                      "city": "Mumbai", "state": "Maharashtra", "country": "India"}}]})
+    monkeypatch.setattr(httpx, "get", cap)
+    hit, model = geocode.photon("Regency Hotel, Andheri East, Mumbai")
+    url, kw = cap.calls[0]
+    assert url == "https://photon.komoot.io/api"
+    assert kw["params"]["q"] == "Regency Hotel, Andheri East, Mumbai" and kw["params"]["limit"] == 1
+    assert (hit.lat, hit.lng) == (19.1197, 72.8464) and hit.kind == "venue" and model == "photon"
+    assert hit.label == "Regency Hotel, Andheri East, Mumbai, Maharashtra, India"
+
+
+def test_nominatim_request_a_settlement_and_its_extent(live, monkeypatch):
+    cap = Captured(body=[{"lat": "19.3919", "lon": "72.8397", "display_name": "Vasai, Palghar, Maharashtra, India",
+                          "class": "place", "type": "town", "boundingbox": ["19.35", "19.43", "72.78", "72.90"]}])
+    monkeypatch.setattr(httpx, "get", cap)
+    hit, _ = geocode.nominatim("Vasai")
+    url, kw = cap.calls[0]
+    assert url.startswith("https://nominatim.openstreetmap.org/search")
+    assert "User-Agent" in kw["headers"]                       # the OSM policy requires one
+    assert hit.kind == "settlement" and hit.label.startswith("Vasai")
+    assert hit.extent_m and 7_000 < hit.extent_m < 8_500        # half the box diagonal, in metres
+
+
+@pytest.mark.parametrize("key,value,want", [("tourism", "hotel", "venue"), ("highway", "residential", "street"),
+                                            ("place", "neighbourhood", "settlement"), ("place", "state", "area"),
+                                            ("amenity", "hospital", "venue"), ("railway", "station", "venue")])
+def test_geocode_kinds(key, value, want):
+    assert geocode.kind_of(key, value) == want
+
+
+def test_a_geocoder_with_no_result_lets_the_next_one_try(live, monkeypatch):
+    cap = Captured(body={"features": []})
+    monkeypatch.setattr(httpx, "get", cap)
+    with pytest.raises(ProviderUnavailable):
+        geocode.photon("nowhere at all xyzzy")
+
+
+def test_google_geocoding_request_and_a_doorway_hit(live, monkeypatch):
+    monkeypatch.setenv("GOOGLE_MAPS_API_KEY", "test-google-key")
+    cap = Captured(body={"status": "OK", "results": [{
+        "formatted_address": "The Regency Hotel, Andheri East, Mumbai, Maharashtra 400069, India",
+        "types": ["premise", "point_of_interest", "establishment"],
+        "geometry": {"location": {"lat": 19.1197, "lng": 72.8464}, "location_type": "ROOFTOP",
+                     "viewport": {"southwest": {"lat": 19.1190, "lng": 72.8455},
+                                  "northeast": {"lat": 19.1205, "lng": 72.8475}}}}]})
+    monkeypatch.setattr(httpx, "get", cap)
+    hit, model = geocode.google("Regency Hotel, Andheri East, Mumbai")
+    url, kw = cap.calls[0]
+    assert url == "https://maps.googleapis.com/maps/api/geocode/json"
+    assert kw["params"]["key"] == "test-google-key" and kw["params"]["address"] == "Regency Hotel, Andheri East, Mumbai"
+    assert (hit.lat, hit.lng) == (19.1197, 72.8464) and hit.kind == "venue" and model == "google_geocoding"
+    assert hit.label.startswith("The Regency Hotel") and hit.extent_m and 120 < hit.extent_m < 150
+
+
+@pytest.mark.parametrize("types,want", [(["street_address"], "venue"), (["premise"], "venue"), (["route"], "street"),
+                                        (["locality", "political"], "settlement"), (["sublocality_level_1"], "settlement"),
+                                        (["administrative_area_level_1"], "area"), (["country"], "area"),
+                                        (["point_of_interest", "establishment"], "venue")])
+def test_google_kinds(types, want):
+    assert geocode.kind_of_google(types) == want
+
+
+def test_google_over_its_quota_fails_so_the_free_geocoder_takes_over(live, monkeypatch):
+    monkeypatch.setenv("GOOGLE_MAPS_API_KEY", "test-google-key")
+    cap = Captured(body={"status": "OVER_QUERY_LIMIT", "error_message": "You have exceeded your rate-limit."})
+    monkeypatch.setattr(httpx, "get", cap)
+    with pytest.raises(ProviderFailed):
+        geocode.google("Vasai West")
+
+
+def test_the_cache_answers_first_and_fixture_mode_never_calls_the_network(seeded, owner_db, monkeypatch):
+    monkeypatch.setenv("PROVIDER_MODE", "fixture")
+    q = "Regency Hotel, Andheri East, Mumbai"
+    with owner_db.begin() as c:
+        c.execute(text("TRUNCATE geocode_cache"))
+    with pytest.raises(AllProvidersFailed):                    # a miss in fixture mode: no network, no pin
+        geocode.geocode(q)
+    geocode.remember(q, "photon", geocode.Hit(19.1197, 72.8464, "Regency Hotel, Andheri East", "venue"))
+    res = geocode.geocode(q)
+    assert res.provider == "photon" and res.value.label == "Regency Hotel, Andheri East"
+    assert res.attempts[0]["outcome"] == "cached"
 
 
 def test_gemini_request(live, monkeypatch):

@@ -25,6 +25,13 @@ seed: ## Wipe the demo database and load the BR, OD and HP scenario packs (DEMO_
 
 demo-reset: ## Reset the demo to a scene's starting point (make demo-reset SCENE=stale; scenes in data/scenarios/BR/demo.yaml)
 	$(COMPOSE) exec -T api python -m app.modules.demo.scenes --scene $(or $(SCENE),son)
+demo-live: ## Run natively with live provider keys and perform the demonstration (make demo-live GROQ_API_KEY=gsk_…)
+	./scripts/demo_live.sh --scene $(or $(SCENE),receipts)
+demo-clean: ## Empty the desk for the live demo: reference data only (teams, users, gazetteer), no cases
+	bash -c 'source native/env.sh && cd services/api && .venv/bin/python -m app.seed --no-cases'
+demo-mixed: ## Wipe, then send one simulated report per incident (flood, cyclone, landslide) through the real pipeline
+	bash -c 'source native/env.sh && cd services/api && .venv/bin/python -m app.seed --no-cases'
+	./scripts/demo_mixed.sh
 surge: ## Synthetic partner-report surge through the public listener (make surge RATE=50 DURATION=60); watch /surge
 	$(COMPOSE) exec -T api python -m app.surge --rate $(or $(RATE),50) --duration $(or $(DURATION),60)
 partner-demo: ## A SIMULATED partner's annotations on a case, signed, through the public listener (make partner-demo CASE=BR-199); see /partners
@@ -79,6 +86,9 @@ drills: ## Failure drills on the running stack (worker crash mid-surge, desk off
 	cd apps/web && node e2e/drills.mjs
 contracts: ## Regenerate packages/contracts/openapi.json from the code
 	services/api/.venv/bin/python scripts/export_openapi.py
+
+local-up: ## Run the entire platform locally without docker (Postgres, API, Worker, Ticker, Web, Caddy)
+	./scripts/run_local.sh
 
 dev-api: ## Run the API natively on :8000 (needs services/api/.venv)
 	cd $(API) && .venv/bin/uvicorn app.main:app --reload --port 8000

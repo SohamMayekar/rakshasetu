@@ -25,9 +25,12 @@ DEMO_EXTRACTION = {
     "needs": [{"type": "medicine", "quote": "dawai chahiye"}],
     "vulnerable": [{"type": "elderly", "quote": "ek buzurg"}],
     "location": {
+        "address": {"text": "Durga mandir, Benibad, Muzaffarpur", "quote": "Benibad gaon mein, mandir ke peeche"},
         "village_or_locality": {"original": "बेनीबाद", "latin": "Benibad", "quote": "Benibad gaon mein"},
         "district": "Muzaffarpur", "state": "Bihar",
         "landmarks": [{"type": "temple", "name": None, "relation": "behind", "quote": "mandir ke peeche"},
+                      {"type": "other", "name": "Gundavali metro station", "relation": "beside",
+                       "quote": "metro station ke paas"},
                       {"type": "bridge", "name": None, "relation": "near", "quote": "pul ke paas"}]},
     "person_names": [],
     "callback_phone": None,

@@ -12,12 +12,12 @@ import { AssignmentPanel } from "@/components/desk/AssignmentPanel";
 import { Facts } from "@/components/desk/Facts";
 import { Matches } from "@/components/desk/Matches";
 import { Timeline } from "@/components/desk/Timeline";
-import { ArrowUpDown, ChevronDown, ClipboardCheck, History, LifeBuoy, type LucideIcon, MapPin, ShieldCheck, Users, X } from "lucide-react";
+import { ArrowUpDown, ChevronDown, ClipboardCheck, History, MapPin, Users, X, type LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { Because, Button, Chip, Priority, PriorityWell } from "@/components/ui";
+import { Because, Button, Chip, Priority } from "@/components/ui";
 import { plainPlace, priorityWord, withWords } from "@/lib/words";
-import { api, type Assignment, type Case, type CaseDetail, type Dispatch, type Escalation, type Evidence, type Me, type PartnerNote,
+import { api, type Assignment, type Case, type CaseDetail, type Escalation, type Evidence, type Me, type PartnerNote,
          type Suggestion, type TimelineEvent } from "@/lib/api";
 
 export type Picked = { lat: number; lng: number } | null;
@@ -46,20 +46,25 @@ function waited(iso: string) {
   return min < 60 ? `${min} min` : `${Math.floor(min / 60)} h ${min % 60} min`;
 }
 
-// The status in one plain line.
-function statusLine(c: Case, a: Assignment | null): string {
-  if (c.status === "merged") return "Added to another case (the same family)";
-  if (c.status === "cancelled") return "Cancelled";
-  if (c.status === "closed") return "Closed";
-  if (c.status === "rescued") return c.people_count ? `Rescued ${c.people_count} of ${c.people_count}` : "Rescued";
-  if (a) {
-    const phase = { offered: "sent, not accepted yet", acknowledged: `accepted${a.eta_minutes ? `, there in about ${a.eta_minutes} min` : ""}`,
-                    reached: "reached the family" }[a.phase];
-    return a.state === "overdue" ? `${a.team}: contact overdue (not heard from since ${hhmm(a.last_contact_at ?? a.created_at)})`
-      : `${a.team} has it: ${phase}`;
-  }
-  const left = c.people_remaining != null && c.people_count ? `${c.people_remaining} of ${c.people_count} still there · ` : "";
-  return `${left}Waiting for a team · ${waited(c.queue_since)}`;
+// Who the case is about, when the report gave a name ("Devesh"); never invented.
+function callerName(c: Case): string {
+  const names = ((c.provenance ?? {}) as Record<string, unknown>).names;
+  const first = Array.isArray(names) ? (names[0] as { value?: unknown } | undefined) : undefined;
+  return typeof first?.value === "string" && first.value.trim() ? first.value : "A family";
+}
+
+// The RESCUE block: only states the application really has (PRD F-C4/F-S1) — no invented "en route".
+function rescueState(c: Case, a: Assignment | null): { line: string; detail: string } {
+  if (c.status === "rescued") return { line: "Outcome recorded", detail: c.people_count ? `Rescued ${c.people_count} of ${c.people_count}` : "Rescued" };
+  if (c.status === "closed") return { line: "Closed", detail: "the officer closed this case" };
+  if (c.status === "cancelled") return { line: "Cancelled", detail: "not a real request" };
+  if (c.status === "merged") return { line: "Added to another case", detail: "the same family" };
+  if (!a) return { line: "No team assigned", detail: `waiting ${waited(c.queue_since)}` };
+  if (a.state === "overdue") return { line: "Contact overdue", detail: `${a.team} · not heard since ${hhmm(a.last_contact_at ?? a.created_at)}` };
+  if (a.phase === "offered") return { line: "Dispatch issued", detail: `${a.team} · awaiting acknowledgement` };
+  if (a.phase === "acknowledged") return { line: "Acknowledged", detail: `${a.team}${a.eta_minutes ? ` · there in about ${a.eta_minutes} min` : ""}` };
+  if (a.phase === "reached") return { line: "Arrived", detail: `${a.team} · reached the family` };
+  return { line: a.phase, detail: a.team };
 }
 
 
@@ -172,13 +177,7 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
   useEffect(() => { if (focus) show(focus); }, [focus, c.id, show]);
 
   // The best team, for the summary's one button when nobody has the case yet (the same list as Assignment's).
-  const [best, setBest] = useState<Dispatch["suggestions"][number] | null>(null);
   const owned = !!detail?.assignment;
-  useEffect(() => {
-    setBest(null);
-    if (owned || !can("assignment.create") || ["merged", "closed", "cancelled", "rescued"].includes(c.status)) return;
-    api<Dispatch>(`/v1/cases/${c.id}/dispatch-suggestions`).then((d) => setBest(d.suggestions[0] ?? null)).catch(() => {});
-  }, [c.id, c.version, owned]);   // eslint-disable-line react-hooks/exhaustive-deps
 
   const act = async (fn: () => Promise<unknown>) => {
     setError(null);
@@ -190,7 +189,7 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
     onPickEnd();
   });
 
-  // ONE next step, by the queue's rule: an answer owed, a silent team, the place, a possible repeat, a team, the check.
+  // ONE next step, by the queue's rule: an answer owed, a silent team, the place, a possible repeat, the teams, the check.
   const a = detail?.assignment ?? null;
   const open = !["merged", "closed", "cancelled", "rescued"].includes(c.status);
   const repeat = suggestions.find((x) => x.strength !== "refused" && (x.case_id === c.id || x.candidate_case_id === c.id));
@@ -201,13 +200,9 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
     : c.flags.includes("disputed") ? { label: "Radio the team", run: () => show("Assignment") }
     : a?.state === "overdue" && can("team.radio_contact") ? { label: "Heard from them?", run: () => show("Assignment") }
     : c.lat == null && can("case.move_pin") ? { label: "Fix the place", run: onPickStart }
-    : repeat && can("merge.decide") ? { label: `Same family as ${repeat.case_id === c.id ? repeat.candidate : repeat.public_id}?`, run: () => show("Timeline & evidence") }
-    : !a && c.priority === "P1" && best ? { label: `Send ${best.name}`, run: () => act(async () => {
-        await api("/v1/assignments", { method: "POST", json: { case: c.public_id, team_id: best.team_id, suggested_rank: 1 } }); onChanged(); }) }
+    : repeat && can("merge.decide") ? { label: `Same family as ${repeat.case_id === c.id ? repeat.candidate : repeat.public_id}?`, run: () => show("Report details") }
+    : !a && can("assignment.create") ? { label: "Find suitable rescue teams", run: () => show("Assignment") }
     : unchecked ? { label: "Mark checked", run: check }
-    : !a && best ? { label: `Send ${best.name}`, run: () => act(async () => {
-        await api("/v1/assignments", { method: "POST", json: { case: c.public_id, team_id: best.team_id, suggested_rank: 1 } }); onChanged(); }) }
-    : !a && can("assignment.create") ? { label: "Choose a team", run: () => show("Assignment") }
     : null;
   const evidenceCount = tl?.evidence.length ?? 0;
 
@@ -216,27 +211,45 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
       <div ref={body} className="scroll-quiet flex-1 overflow-y-auto">
       <div className="m-3 mb-0 rounded-xl bg-wash p-4">
         <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-3">
-            <PriorityWell level={c.priority} size="lg" />
-            <p className="flex min-w-0 flex-wrap items-baseline gap-2">
+          <div className="min-w-0">
+            <p className="text-title font-semibold leading-tight">{callerName(c)} needs rescue</p>
+            <p className="mt-1 flex flex-wrap items-baseline gap-2">
+              <span className="tabular text-body font-semibold text-ink-2">{c.public_id}</span>
               <Priority level={c.priority} shape={false} />
-              <span className="tabular text-title font-semibold">{c.public_id}</span>
             </p>
           </div>
           <Button variant="quiet" size="sm" onClick={onClose} aria-label="Close" title="Close"><X className="size-4" aria-hidden />Close</Button>
         </div>
-        <p className="mt-4 text-heading font-semibold">{c.summary}</p>
-        {/* where and status share one icon column, so their text starts at the same edge (m80) */}
-        <dl className="mt-3 grid grid-cols-[1rem_1fr] gap-x-2.5 gap-y-2 text-body">
-          <dt className="pt-0.5"><MapPin className="size-4 text-ink-3" aria-label="Where" /></dt>
-          <dd className="min-w-0">{c.location_text ?? "Place not known yet"}{c.radius_m ? <span className="text-ink-2"> · {within(c.radius_m)}</span> : null}
-            {c.location_method && <span className="block text-small text-ink-3">{plainPlace(c.location_method).replace(/^within [^:]+: /, "")}</span>}</dd>
-          <dt className="pt-0.5"><LifeBuoy className="size-4 text-ink-3" aria-label="Status" /></dt>
-          <dd className="min-w-0">
-            <span className={a?.state === "overdue" ? "rounded-md bg-ink px-1.5 text-paper" : ""}>{statusLine(c, a)}</span>
-            {!c.checked_at && open && <span className="block text-small text-ink-3">not checked yet</span>}
-          </dd>
-        </dl>
+        <p className="mt-3 text-body">
+          Caller reports {c.summary || "an emergency"}{c.location_text ? <> at <b>{c.location_text}</b></> : null}.
+        </p>
+        <div className="mt-4 space-y-3 text-body">
+          <div>
+            <p className="text-small font-semibold uppercase tracking-wide text-ink-3">Location</p>
+            <p className="mt-0.5">
+              {c.location_text ?? "Not known yet"}
+              {c.radius_m ? <span className="text-ink-2"> · {within(c.radius_m)}</span> : null}
+            </p>
+            <p className="text-small text-ink-2">
+              {c.checked_at ? "Verified by a person" : c.lat == null ? "Where exactly? a person must place it" : "Location needs verification"}
+            </p>
+            {c.location_method && <p className="text-small text-ink-3">{plainPlace(c.location_method).replace(/^within [^:]+: /, "")}</p>}
+            {c.lat != null && c.lng != null && (
+              <a href={`https://www.google.com/maps/search/?api=1&query=${c.lat},${c.lng}`} target="_blank" rel="noreferrer"
+                 className="mt-1 inline-flex items-baseline gap-1.5 text-small font-medium text-ink underline underline-offset-4">
+                The exact pin on Google Maps
+                <span className="tabular text-ink-3">{c.lat.toFixed(5)}, {c.lng.toFixed(5)}</span>
+              </a>
+            )}
+          </div>
+          <div>
+            <p className="text-small font-semibold uppercase tracking-wide text-ink-3">Rescue</p>
+            <p className="mt-0.5">
+              <span className={a?.state === "overdue" ? "rounded-md bg-ink px-1.5 text-paper" : "font-semibold"}>{rescueState(c, a).line}</span>
+              <span className="text-ink-2"> · {rescueState(c, a).detail}</span>
+            </p>
+          </div>
+        </div>
         {c.flags.includes("instruction_like_text") && <p className="mt-2"><Chip tone="attention">words that look like orders: read them</Chip></p>}
         {notes.filter((n) => n.kind === "priority").map((n) => (   // a partner suggests; an officer decides
           <div key={n.id} className="mt-3 rounded-xl border border-line bg-paper px-3 py-2.5 text-body">
@@ -291,25 +304,23 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
                                      can={can} onChanged={() => { onChanged(); load(); }} />
                   : <p className="text-body text-ink-3">Loading…</p>}
         </Fold>
-        <Fold title="Facts" icon={ClipboardCheck} open={opened.has("Facts")} onToggle={() => toggle("Facts")}
-              hint="with the caller's own words">
+        <Fold title="Report details" icon={ClipboardCheck} open={opened.has("Report details")} onToggle={() => toggle("Report details")}
+              hint="the caller's words, the facts read from them, contact">
           <Facts c={c} canEdit={can("case.edit")} onQuote={setQuote} onChanged={load} />
           {detail?.reports[0]?.reporter_phone_masked && (
             <p className="mt-2 text-body"><span className="text-ink-3">Contact</span> <span className="tabular">{detail.reports[0].reporter_phone_masked}</span>
               {detail.reports[0].reporter_relation && detail.reports[0].reporter_relation !== "unknown" && <span className="text-ink-3"> · {detail.reports[0].reporter_relation}</span>}</p>
           )}
-        </Fold>
-        <Fold title="Timeline & evidence" icon={History} open={opened.has("Timeline & evidence")} onToggle={() => toggle("Timeline & evidence")}
-              hint={tl ? `${tl.events.length} events · ${evidenceCount ? `${evidenceCount} evidence ${evidenceCount === 1 ? "item" : "items"}` : "no evidence yet"}` : undefined}>
           <Matches c={c} suggestions={suggestions} lookup={lookup} canDecide={can("merge.decide")}
                    onDone={(kept) => { onChanged(); load(); if (kept && kept !== c.id) onSelect(kept); }} />
+          {can("merge.decide") && <ManualMerge c={c} onDone={(kept) => { onChanged(); load(); if (kept !== c.id) onSelect(kept); }} />}
+        </Fold>
+        <Fold title="Activity history" icon={History} open={opened.has("Activity history")} onToggle={() => toggle("Activity history")}
+              hint={tl ? `${tl.events.length} events · ${evidenceCount ? `${evidenceCount} evidence ${evidenceCount === 1 ? "item" : "items"}` : "no evidence yet"} · the transcript and the audit trail` : undefined}>
           {tl && detail ? <Timeline events={tl.events} evidence={tl.evidence} reports={detail.reports} quote={quote} notes={notes}
                                     canUndo={can("merge.decide")} onChanged={() => { onChanged(); load(); }} />
                         : <p className="text-body text-ink-3">Loading…</p>}
-          {can("merge.decide") && <ManualMerge c={c} onDone={(kept) => { onChanged(); load(); if (kept !== c.id) onSelect(kept); }} />}
-        </Fold>
-        <Fold title="Audit" icon={ShieldCheck} open={opened.has("Audit")} onToggle={() => toggle("Audit")} hint="every change to this case">
-          <a className="inline-block text-body underline underline-offset-2" href={`/audit?case=${c.id}`}>See this case&rsquo;s full history</a>
+          <p className="mt-3"><a className="text-body underline underline-offset-2" href={`/audit?case=${c.id}`}>Check nothing was changed — this case&rsquo;s full history</a></p>
         </Fold>
       </div>
       </div>

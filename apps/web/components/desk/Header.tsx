@@ -1,7 +1,7 @@
 "use client";
 
-// The desk's top line: which incident, which districts, whether live updates are flowing, and today's date and
-// time (a control room lives by the clock). Navigation, who you are and Sign out live in the sidebar (m60).
+// The desk's top line: the platform names itself; live updates, the date and the clock sit on the right.
+// Nothing about which scenario is showing here — that is the data's job, not the interface's.
 
 import { CalendarDays } from "lucide-react";
 
@@ -10,15 +10,12 @@ import type { Me } from "@/lib/api";
 import type { LiveState } from "@/lib/live";
 
 export function Header({ me, incident, live }: { me: Me | null; incident: string; live: LiveState }) {
-  const inc = me?.incidents.find((i) => i.code === incident);
   const now = useNow(30_000);
-  const districts = me?.districts.filter((d) => d.incident_id === inc?.id).map((d) => d.name) ?? [];
   return (
     <header className="flex items-start justify-between gap-4 px-1">
       <div className="min-w-0">
-        <h1 className="truncate text-title font-semibold leading-tight tracking-tight">{inc ? inc.name : incident}</h1>
-        <p className="text-small text-ink-2">{districts.length ? `${districts.join(" · ")} control room` : "District control room"}
-          {me?.demo_mode && <span className="text-ink-3"> · demo data, clock 60× faster</span>}</p>
+        <h1 className="truncate text-title font-semibold leading-tight tracking-tight">RakshaSetu — National Incident Command</h1>
+        <p className="truncate text-small text-ink-2">One operational view for emergency response across locations and incident types</p>
       </div>
       <div className="flex h-8 shrink-0 items-center gap-4 text-small text-ink-2">   {/* plain text, not more cards (m79) */}
         {live.connected ? (

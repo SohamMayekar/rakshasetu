@@ -27,6 +27,10 @@ SOURCES = {"BR": "https://download.openstreetmap.fr/extracts/asia/india/bihar.os
 BUFFER_DEG = 0.02            # ~2 km around each district, so landmarks just over the line still count
 PLACE_TYPES = {"village", "hamlet", "town", "suburb", "neighbourhood", "locality", "isolated_dwelling", "city"}
 RELIGION = {"hindu": "temple", "muslim": "mosque", "islam": "mosque", "christian": "church", "sikh": "gurdwara"}
+# Callers name specific places ("DMart in Powai", "Rajiv Gandhi Institute of Technology"): the ladder can only
+# pin what the gazetteer holds. Campuses go into `school` and big retail into `market` (the contract's nearest
+# types); small shops stay out, so "near the market" can't pin on a kirana.
+SHOP_TYPES = {"supermarket", "department_store", "wholesale", "mall"}
 
 
 def landmark_type(tags) -> str | None:
@@ -34,7 +38,7 @@ def landmark_type(tags) -> str | None:
         return RELIGION.get(tags.get("religion", ""), "place_of_worship")
     if tags.get("bridge") in ("yes", "viaduct", "aqueduct") or tags.get("man_made") == "bridge":
         return "bridge"
-    if tags.get("amenity") in ("school", "college"):
+    if tags.get("amenity") in ("school", "college", "university"):
         return "school"
     if tags.get("amenity") in ("hospital", "clinic"):
         return "hospital"
@@ -42,8 +46,10 @@ def landmark_type(tags) -> str | None:
         return "water_tower"
     if tags.get("railway") in ("station", "halt"):
         return "railway_station"
-    if tags.get("amenity") == "marketplace":
+    if tags.get("amenity") == "marketplace" or tags.get("shop") in SHOP_TYPES:
         return "market"
+    if tags.get("amenity") == "police":
+        return "police_station"
     if tags.get("man_made") in ("tower", "mast") and tags.get("tower:type") == "communication":
         return "tower"
     return None
@@ -238,7 +244,8 @@ def main() -> None:
 OVERPASS_QUERY = """[out:json][timeout:180];
 area["boundary"="administrative"]["admin_level"="5"]["name"~"^(Gopalganj|Muzaffarpur)$"]->.d;
 ( node(area.d)["place"~"village|hamlet|town|suburb|neighbourhood|locality|city"];
-  nwr(area.d)["amenity"~"place_of_worship|school|college|hospital|clinic|marketplace"];
+  nwr(area.d)["amenity"~"place_of_worship|school|college|university|hospital|clinic|marketplace|police"];
+  nwr(area.d)["shop"~"supermarket|department_store|wholesale|mall"];
   way(area.d)["bridge"~"yes|viaduct|aqueduct"]; nwr(area.d)["man_made"~"bridge|water_tower"];
   node(area.d)["railway"~"station|halt"]; );
 out center tags;"""

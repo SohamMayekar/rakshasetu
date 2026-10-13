@@ -5,8 +5,9 @@ import math
 import struct
 import wave
 
-from app.providers import llm, stt
+from app.providers import geocode, llm, stt
 from app.providers.base import ProviderFailed, ProviderUnavailable
+from app.providers.base import mode as provider_mode
 
 
 def _tone_wav(seconds=1.0, rate=16000) -> bytes:
@@ -35,6 +36,17 @@ def main() -> None:
         try:
             out, model = fn("Reply with JSON.", 'Return {"ok": true}.', schema, 50)
             print(f"OK       {name} ({model}): {out}")
+        except ProviderUnavailable as e:
+            print(f"BLOCKED  {name}: {e}")
+        except ProviderFailed as e:
+            print(f"FAILED   {name}: {e}")
+    for name, fn in geocode.ADAPTERS.items():
+        if provider_mode() == "fixture":
+            print(f"BLOCKED  {name}: fixture mode never calls the network")
+            continue
+        try:
+            hit, _ = fn("Andheri East, Mumbai")
+            print(f"OK       {name}: {hit.label!r} ({hit.lat}, {hit.lng}, {hit.kind})")
         except ProviderUnavailable as e:
             print(f"BLOCKED  {name}: {e}")
         except ProviderFailed as e:

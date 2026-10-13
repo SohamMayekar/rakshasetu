@@ -21,12 +21,14 @@ along its banks in Kurla in a heavy monsoon; the team and the judges know these 
   Malad West, Bandra East, Dharavi, Sion Koliwada, Wadala, Parel): water in ground floors, people stuck in
   buildings, chawls and stalled buses, landslides on the Vikhroli, Ghatkopar and Chembur hillsides; plus a
   place-only Low case and a no-location case.
-- `gazetteer/`: the OSM extract for the two districts (+2 km): 935 places, 4,398 bridge points (flyovers and foot
-  over-bridges included), 163 stations, temples, mosques, churches, schools, hospitals; district boundaries.
+- `gazetteer/`: the OSM extract for the two districts (+2 km): 936 places, 4,399 bridge points (flyovers and foot
+  over-bridges included), 163 stations, 1,508 hospitals, 763 schools and campuses (colleges and universities),
+  453 temples, 170 mosques, 109 churches, 349 markets and big retail (supermarkets, department stores, wholesale,
+  malls — a named "DMart in Powai" pins), 115 police stations; district boundaries.
   Built by `python scripts/import_osm.py --pack MH --pbf <extract>`; the ladder reads only these committed rows.
 
 **Source and licence:** OpenStreetMap data © OpenStreetMap contributors, available under the Open Database License
 (ODbL). Extract: `https://download.openstreetmap.fr/extracts/asia/india/maharashtra.osm.pbf`
-(md5 `df99746cd01cfc02e65f201e8827d965`, downloaded 12 Oct 2026).
+(md5 `dfd802f82a50345d1ab2a80807348cda`, downloaded 13 Oct 2026).
 
 **Synthetic:** every person, name and phone number here is invented and never dialled. Places are real.

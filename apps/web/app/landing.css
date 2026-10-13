@@ -1,0 +1,330 @@
+/* ==========================================================================
+   RakshaSetu Landing Page Design System
+   Adapted from House of Al Hadeetha design language and layout architecture
+   ========================================================================== */
+
+:root {
+  --ink: #080b0f;
+  --ink-soft: #161c22;
+  --slate: #4b5b63;
+  --slate-light: #7c8b93;
+  --surface: #f6f6f6;
+  --surface-alt: #f0f2f4;
+  --hairline: #e2e5e8;
+  --container: 1320px;
+  --gutter: clamp(1.25rem, 4vw, 2.5rem);
+  --section: clamp(4.5rem, 3rem + 5vw, 8rem);
+  --header-gap: clamp(2.25rem, 1.5rem + 2.5vw, 3.75rem);
+  --ghost: #c7c7c7;
+  --sky-wash: #cfe3ef;
+
+  /* Priority tints for emergency desk context */
+  --p1-alert: #c62828;
+  --p2-warn: #d97706;
+  --p3-active: #2563eb;
+  --p-safe: #15803d;
+
+  /* Motion vocabulary */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.87, 0, 0.13, 1);
+  --ease-spring: cubic-bezier(0.3, 1.32, 0.5, 1);
+  --ease-glide: cubic-bezier(0.25, 1.08, 0.35, 1);
+
+  --dur-micro: 300ms;
+  --dur-exit: 400ms;
+  --dur-base: 700ms;
+  --dur-reveal: 900ms;
+
+  --font-archivo: "Archivo Variable", "Archivo", system-ui, sans-serif;
+  --font-jakarta: "Plus Jakarta Sans Variable", "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-instrument: "Instrument Serif", Georgia, serif;
+}
+
+/* Base landing font bindings */
+.landing-root {
+  font-family: var(--font-jakarta);
+  color: var(--ink);
+  background-color: #ffffff;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.landing-root h1,
+.landing-root h2,
+.landing-root h3,
+.landing-root h4 {
+  font-family: var(--font-archivo);
+  letter-spacing: -0.025em;
+}
+
+/* Font utilities */
+.font-display { font-family: var(--font-archivo); }
+.font-body { font-family: var(--font-jakarta); }
+.font-accent { font-family: var(--font-instrument); }
+
+/* Color utilities */
+.bg-ink { background-color: var(--ink); }
+.bg-ink-soft { background-color: var(--ink-soft); }
+.bg-surface { background-color: var(--surface); }
+.bg-surface-alt { background-color: var(--surface-alt); }
+.text-ink { color: var(--ink); }
+.text-slate { color: var(--slate); }
+.text-slate-light { color: var(--slate-light); }
+.border-hairline { border-color: var(--hairline); }
+
+/* Type scale */
+.text-label { font-size: 12px; line-height: 1.4; }
+.text-caption { font-size: 13px; line-height: 1.5; }
+.text-body-sm { font-size: 14px; line-height: 1.6; }
+.text-body { font-size: 15px; line-height: 1.6; }
+.text-body-lg { font-size: 16px; line-height: 1.6; }
+.text-lead { font-size: 17px; line-height: 1.5; }
+.text-title { font-size: clamp(1.35rem, 2.2vw, 1.9rem); line-height: 1.2; }
+.text-display-sm { font-size: clamp(1.75rem, 3vw, 2.15rem); line-height: 1.1; }
+.text-display-md { font-size: clamp(1.75rem, 4vw, 3rem); line-height: 1.15; }
+.text-display-lg { font-size: clamp(2rem, 4.4vw, 3.4rem); line-height: 1.08; }
+.text-display-xl { font-size: clamp(2.5rem, 5.6vw, 4.6rem); line-height: 1.06; }
+.text-numeral { font-size: clamp(3.2rem, 7.5vw, 6.5rem); line-height: 1; }
+.text-marquee { font-size: clamp(1.6rem, 3.2vw, 2.8rem); line-height: 1.2; }
+.text-wordmark { font-size: clamp(3.5rem, 16vw, 14.5rem); line-height: 0.95; }
+
+/* Layout utilities */
+.container-site {
+  width: min(var(--container), calc(100% - var(--gutter) * 2));
+  margin-inline: auto;
+}
+
+.section {
+  padding-bottom: var(--section);
+}
+
+.section-top {
+  padding-top: var(--section);
+}
+
+.header-gap {
+  margin-bottom: var(--header-gap);
+}
+
+/* ==========================================================================
+   Motion primitives and entrance reveals
+   ========================================================================== */
+
+html[data-motion="full"] [data-reveal] {
+  --reveal-opacity: 0;
+  --reveal-translate: 0 20px;
+  --reveal-scale: 0.9;
+  --reveal-filter: none;
+}
+
+html[data-motion="full"] [data-reveal="fade"] {
+  --reveal-translate: 0 -18px;
+  --reveal-scale: 1;
+}
+
+html[data-motion="full"] [data-reveal="blur"] {
+  --reveal-translate: 0 0.5em;
+  --reveal-scale: 1;
+  --reveal-filter: blur(12px);
+}
+
+html[data-motion="full"] [data-reveal="rise"] {
+  --reveal-opacity: 1;
+  --reveal-translate: 0 0.35em;
+  --reveal-scale: 1;
+}
+
+html[data-motion="full"] [data-reveal]:not(.is-in, .is-in [data-reveal]) {
+  opacity: var(--reveal-opacity);
+  translate: var(--reveal-translate);
+  scale: var(--reveal-scale);
+  filter: var(--reveal-filter);
+  transition:
+    opacity var(--dur-exit) var(--ease-out),
+    translate var(--dur-exit) var(--ease-out),
+    scale var(--dur-exit) var(--ease-out),
+    filter var(--dur-exit) var(--ease-out);
+}
+
+html[data-motion="full"] .is-in [data-reveal],
+html[data-motion="full"] [data-reveal].is-in {
+  animation: reveal-in var(--dur-reveal) var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 60ms + var(--delay, 0ms));
+}
+
+html[data-motion="full"] .is-in [data-reveal="fade"],
+html[data-motion="full"] [data-reveal="fade"].is-in {
+  animation-name: reveal-in-fade;
+}
+
+html[data-motion="full"] .is-in [data-reveal="blur"],
+html[data-motion="full"] [data-reveal="blur"].is-in {
+  animation-name: reveal-in-blur;
+}
+
+html[data-motion="full"] .is-in [data-reveal="rise"],
+html[data-motion="full"] [data-reveal="rise"].is-in {
+  animation-name: reveal-in-rise;
+}
+
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    translate: 0 20px;
+    scale: 0.9;
+  }
+}
+
+@keyframes reveal-in-fade {
+  from {
+    opacity: 0;
+    translate: 0 -18px;
+  }
+}
+
+@keyframes reveal-in-blur {
+  from {
+    opacity: 0;
+    translate: 0 0.5em;
+    filter: blur(12px);
+  }
+}
+
+@keyframes reveal-in-rise {
+  from {
+    translate: 0 0.35em;
+  }
+}
+
+/* Hero image settle */
+html[data-motion="full"] .photo-settle {
+  animation: photo-settle 1.8s var(--ease-expo) both;
+}
+
+@keyframes photo-settle {
+  from {
+    scale: 1.12;
+  }
+}
+
+/* Card image zoom out on entrance */
+html[data-motion="full"] [data-reveal-image] {
+  transform: scale(1.08);
+  transition: transform var(--dur-exit) var(--ease-expo);
+}
+
+html[data-motion="full"] .is-in [data-reveal-image] {
+  transform: scale(1);
+  transition-duration: 1400ms;
+  transition-delay: calc(var(--i, 0) * 60ms);
+}
+
+/* Hover and interaction primitives */
+.img-zoom {
+  transform: scale(1);
+  transition: transform 900ms var(--ease-expo);
+}
+
+@media (hover: hover) {
+  .group:hover .img-zoom {
+    transform: scale(1.05);
+  }
+}
+
+.lift {
+  transition:
+    transform var(--dur-micro) var(--ease-out),
+    box-shadow var(--dur-micro) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 32px -12px rgba(8, 11, 15, 0.22);
+  }
+}
+
+.lift:active {
+  transform: translateY(0) scale(0.985);
+  transition-duration: 120ms;
+}
+
+.press:active {
+  transform: scale(0.97);
+  transition: transform 120ms var(--ease-out);
+}
+
+.arrow-badge {
+  transition: transform var(--dur-micro) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .group:hover .arrow-badge {
+    transform: rotate(45deg);
+  }
+}
+
+/* Marquee animation */
+@keyframes marquee-band {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee-band 35s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Scroll cue bead */
+@keyframes scroll-cue {
+  0% { transform: translateY(0); opacity: 0; }
+  20% { opacity: 1; }
+  70% { transform: translateY(14px); opacity: 0; }
+  100% { transform: translateY(14px); opacity: 0; }
+}
+
+.animate-scroll-cue {
+  animation: scroll-cue 2.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+
+/* Link sweep underline */
+.link-sweep {
+  position: relative;
+}
+
+.link-sweep::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.15em;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.link-sweep:hover::after,
+.link-sweep:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Reduced motion overrides */
+html[data-motion="reduced"] *,
+html[data-motion="reduced"] *::before,
+html[data-motion="reduced"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+html[data-motion="reduced"] [data-blur] {
+  filter: none !important;
+}

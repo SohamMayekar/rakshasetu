@@ -4,7 +4,7 @@
 // person and phone on screen is synthetic. On the desk it folds to icons so the map keeps its width.
 // Calm: neutral only (hue means priority), the current page is a quiet wash, never a colour.
 
-import { BellRing, ClipboardList, FileSpreadsheet, LayoutGrid, LifeBuoy, ListChecks, LogOut, type LucideIcon, ShieldCheck } from "lucide-react";
+import { BellRing, ClipboardList, FileSpreadsheet, LayoutDashboard, LayoutGrid, LifeBuoy, ListChecks, LogOut, type LucideIcon, ShieldCheck } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import type { Me } from "@/lib/api";
@@ -36,6 +36,7 @@ function navItems(me: Me | null, path: string): Item[] {
   const code = path.match(/^\/desk\/([A-Za-z]+)/)?.[1] ?? one;
   const base = `/desk/${code}`;
   const all: Item[] = [
+    { href: "/?door=1", label: "Front door", icon: LayoutDashboard, show: true, match: () => false },
     { href: "/", label: "All incidents", icon: LayoutGrid, show: !one, match: (p: string) => p === "/" },
     { href: base, label: "Desk", icon: ClipboardList, show: desk && !!code, match: (p: string) => p === base },
     { href: `${base}/cases`, label: "Cases", icon: ListChecks, show: desk && !!code && can("queue.view") },

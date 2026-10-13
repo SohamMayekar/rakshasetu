@@ -9,7 +9,8 @@ from dataclasses import dataclass, field
 log = logging.getLogger("rakshasetu.providers")
 
 KEYS = {"sarvam_saaras": "SARVAM_API_KEY", "groq_whisper_large_v3": "GROQ_API_KEY",
-        "groq_gpt_oss_120b": "GROQ_API_KEY", "gemini_flash": "GEMINI_API_KEY"}
+        "groq_gpt_oss_120b": "GROQ_API_KEY", "gemini_flash": "GEMINI_API_KEY",
+        "google_geocoding": "GOOGLE_MAPS_API_KEY"}
 
 
 class ProviderUnavailable(Exception):

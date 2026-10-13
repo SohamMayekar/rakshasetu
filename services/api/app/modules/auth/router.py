@@ -51,14 +51,28 @@ def logout(response: Response) -> dict:
 
 
 @router.get("/v1/auth/users")
-def picker_users(request: Request) -> list[dict]:
-    """The demo sign-in picker: the 3 profiles in config (demo.sign_in_picker), in that order. Local listener +
-    DEMO_MODE only. Every other seeded user still exists (the permission and IDOR tests use them), off the picker."""
+def picker_users(request: Request, role: str | None = None) -> list[dict]:
+    """Who can sign in without typing a password on this listener (DEMO_MODE + local only).
+
+    No `role`: the profiles in config (demo.sign_in_picker), in that order — the desk, a team, the admin.
+    `role=team_lead`: every rescue team's lead with its team and district, so the team app can offer a chooser
+    instead of hard-wiring one boat. Every other seeded user still exists (the permission and IDOR tests use
+    them), off this list."""
     if not _picker_allowed(request):
         raise HTTPException(status_code=404, detail="Not found")
     roles = get_bundle().roles.roles
-    shown = get_config().demo.get("sign_in_picker", [])
     with get_engine().connect() as c:
+        if role:
+            rows = c.execute(text(
+                "SELECT u.username, u.name, u.role, t.name AS team, d.name AS district, i.code AS incident"
+                " FROM users u LEFT JOIN teams t ON t.id = u.team_id"
+                " LEFT JOIN districts d ON d.id = t.district_id LEFT JOIN incidents i ON i.id = t.incident_id"
+                " WHERE u.role = :r AND u.team_id IS NOT NULL"
+                " ORDER BY i.code, d.name, t.name"), {"r": role}).all()
+            return [{"username": r.username, "name": r.name, "role": r.role, "role_label": roles[r.role]["label"],
+                     "team": r.team, "district": r.district, "incident": r.incident, "title": r.team, "line": r.district or ""}
+                    for r in rows]
+        shown = get_config().demo.get("sign_in_picker", [])
         rows = {r.username: r for r in c.execute(text(
             "SELECT u.username, u.name, u.role, t.name AS team FROM users u LEFT JOIN teams t ON t.id = u.team_id"
             " WHERE u.username = ANY(:names)"), {"names": [p["username"] for p in shown]}).all()}
@@ -71,7 +85,7 @@ def picker_users(request: Request) -> list[dict]:
 def me(request: Request, scope: Scope = Depends(current_scope)) -> dict:
     b = get_bundle()
     with get_engine().connect() as c:
-        incidents = c.execute(text("SELECT id, code, name, status FROM incidents WHERE id = ANY(:ids) ORDER BY id"),
+        incidents = c.execute(text("SELECT id, code, name, type, status FROM incidents WHERE id = ANY(:ids) ORDER BY id"),
                               {"ids": list(scope.incident_ids)}).all()
         districts = c.execute(text("SELECT id, name, incident_id FROM districts WHERE id = ANY(:ids) ORDER BY id"),
                               {"ids": list(scope.district_ids)}).all()

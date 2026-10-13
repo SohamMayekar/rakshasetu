@@ -9,6 +9,11 @@ Rank the teams already deployed in the case's district by
 Overdue and out-of-service teams are greyed out with the reason, never suggested; so is a team that still owes a
 stand-down (it went quiet, a case was moved off it, and nobody has heard from it since). (An overdue team is greyed
 until it's heard from).
+
+A team that does NOT have what this report needs (a collapse needs heavy lift: a boat team is not the answer) is
+never a suggestion either: it is listed BELOW the line with the gap in its own words ("no heavy_lift for this
+report"), still dispatchable — the officer may judge that rope is better than nothing, and the gap stays on the
+screen. If no team matches, the suggestions come back empty and the screen says so.
 """
 
 import math
@@ -58,12 +63,13 @@ def teams_for(conn: Connection, incident_id: int, district_id: int | None) -> li
 
 
 def rank(case: dict, teams: list, now: datetime | None = None) -> dict:
-    """{suggestions: top_n [{team…, reasons, line}], greyed: [{team, why}]} — pure over the rows given."""
+    """{suggestions: top_n [{team…, reasons, line}], more: the fit ones below top_n + the ones missing what this
+    report needs, greyed: [{team, why}]} — pure over the rows given."""
     cfg = get_config().dispatch
     now = now or datetime.now(UTC)
     required, preferred = needed(case.get("hazards") or [], case.get("needs") or [])
     excluded = set(cfg.get("exclude_team_status", ["overdue", "out_of_service"]))
-    ranked, greyed = [], []
+    fit, unfit, greyed = [], [], []
     for t in teams:
         if t.status in excluded:
             why = t.status_reason or {"overdue": "contact overdue: greyed until heard from",
@@ -78,26 +84,38 @@ def rank(case: dict, teams: list, now: datetime | None = None) -> dict:
             continue
         caps = set(t.capabilities or [])
         missing = required - caps
-        cap_score = (0 if missing else 2) + (1 if preferred & caps else 0)
+        # Lead with what THIS report needs: a road accident with an urgent medical need reads "medical" first,
+        # not "boat" (capabilities were sorted alphabetically once — every line shouted boat).
+        first = sorted(required & caps)
+        cover = sorted((preferred & caps) - required)
+        ordered = first + cover + sorted(caps - required - preferred)
+        if first:
+            why = f"has {', '.join(first)} for this report"
+        elif cover:
+            why = f"{', '.join(cover)} cover for this report"
+        else:
+            why = "closest available unit"
         dist = (_km(case["lat"], case["lng"], t.lat, t.lng)
                 if case.get("lat") is not None and t.lat is not None else None)
         age = (now - t.last_geom_at).total_seconds() / 60 if t.last_geom_at else None
-        parts = [f"{dist:.1f} km straight-line" if dist is not None else "distance unknown (no pin)"]
+        parts = [why, f"{dist:.1f} km straight-line" if dist is not None else "distance unknown (no pin)"]
         if age is not None:
             parts.append(f"position {_age(age)} old")
-        parts.append(", ".join(sorted(caps)) or "no listed equipment")
+        parts.append(", ".join(ordered) or "no listed equipment")
         parts.append(f"{t.active} active")
         if missing:
-            parts.append(f"no {', '.join(sorted(missing))}")
+            parts.append(f"no {', '.join(sorted(missing))} for this report")
         if not t.has_app:
             parts.append(f"radio only ({t.radio_channel or 'radio'})")
-        ranked.append({"team_id": t.id, "name": t.name, "agency": t.agency, "capabilities": sorted(caps),
-                       "has_app": t.has_app, "distance_km": None if dist is None else round(dist, 1),
-                       "position_age_min": None if age is None else int(age), "active": t.active,
-                       "max_active": t.max_active, "missing": sorted(missing), "line": " · ".join(parts),
-                       "_key": (-cap_score, dist if dist is not None else 1e9, t.active, t.id)})
-    ranked.sort(key=lambda r: r.pop("_key"))
-    for i, r in enumerate(ranked, start=1):
+        row = {"team_id": t.id, "name": t.name, "agency": t.agency, "capabilities": ordered,
+               "has_app": t.has_app, "distance_km": None if dist is None else round(dist, 1),
+               "position_age_min": None if age is None else int(age), "active": t.active,
+               "max_active": t.max_active, "missing": sorted(missing), "line": " · ".join(parts),
+               "_key": (-(1 if preferred & caps else 0), dist if dist is not None else 1e9, t.active, t.id)}
+        (unfit if missing else fit).append(row)
+    fit.sort(key=lambda r: r.pop("_key"))
+    unfit.sort(key=lambda r: r.pop("_key"))
+    for i, r in enumerate(fit, start=1):
         r["rank"] = i
     top = cfg.get("top_n", 3)
-    return {"suggestions": ranked[:top], "more": ranked[top:], "greyed": greyed}
+    return {"suggestions": fit[:top], "more": fit[top:] + unfit, "greyed": greyed}

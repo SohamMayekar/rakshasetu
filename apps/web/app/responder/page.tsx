@@ -5,7 +5,7 @@
 // "Accept: we'll be there in 15 / 30 / 60 min" (one tap). New assignments arrive over the
 // WebSocket with a vibration and a sound. While the app is open it says "last seen" every 10 s — display only.
 
-import { LifeBuoy } from "lucide-react";
+import { ChevronRight, LifeBuoy } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useWakeLock } from "@/lib/wakelock";
@@ -21,11 +21,38 @@ import { PRIORITY_WORD } from "@/lib/words";
 
 function Login({ onIn }: { onIn: () => void }) {
   const [error, setError] = useState<string | null>(null);
+  // On the demo listener, a team can be picked instead of typed: every lead signs in with one tap.
+  const [teams, setTeams] = useState<{ username: string; team: string; district: string | null; incident: string }[] | null>(null);
+  useEffect(() => {
+    api<{ username: string; team: string; district: string | null; incident: string }[]>("/v1/auth/users?role=team_lead")
+      .then(setTeams).catch(() => setTeams(null));
+  }, []);
+  const quick = async (username: string) => {
+    try { await api("/v1/auth/login", { method: "POST", json: { username } }); onIn(); }
+    catch (x) { setError(x instanceof Error ? x.message : String(x)); }
+  };
   return (
     <main className="safe-page mx-auto min-h-dvh max-w-md bg-canvas px-5">
       <p className="flex items-center gap-2 text-body font-semibold"><Mark className="size-6" />RakshaSetu · Team</p>
       <h1 className="mt-6 text-3xl font-semibold tracking-tight">Sign in as your team</h1>
-      <form className="mt-6 space-y-3 rounded-card bg-paper p-5 shadow-[var(--shadow-card)]" onSubmit={async (e) => {
+      {teams && teams.length > 0 && (
+        <ul className="mt-5 space-y-2">
+          {teams.map((t) => (
+            <li key={t.username}>
+              <button onClick={() => quick(t.username)}
+                      className="flex w-full items-center justify-between gap-3 rounded-2xl border border-line bg-paper px-4 py-3.5 text-left transition-colors hover:bg-wash">
+                <span className="min-w-0">
+                  <span className="block font-semibold">{t.team}</span>
+                  <span className="block text-small text-ink-2">{t.district ?? "no district"} · {t.incident}</span>
+                </span>
+                <ChevronRight className="size-5 shrink-0 text-ink-3" aria-hidden />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="mt-6 text-small text-ink-3">{teams && teams.length > 0 ? "Or sign in with a username and password" : "Sign in with your username and password"}</p>
+      <form className="mt-3 space-y-3 rounded-card bg-paper p-5 shadow-[var(--shadow-card)]" onSubmit={async (e) => {
         e.preventDefault();
         const f = new FormData(e.currentTarget);
         try { await api("/v1/auth/login", { method: "POST", json: { username: f.get("u"), password: f.get("p") } }); onIn(); }

@@ -102,7 +102,7 @@ export default function ReporterPage() {
     <main className="safe-page mx-auto flex min-h-dvh max-w-md flex-col bg-canvas px-5">
       <header className="mb-4">
         <p className="flex items-center gap-2 text-body font-semibold text-ink"><Mark className="size-6" />RakshaSetu</p>
-        <h1 className="mt-4 text-display font-semibold leading-tight tracking-tight">Tell us who needs help, and where</h1>
+        <h1 className="mt-4 text-display font-semibold leading-tight tracking-tight">Need help?</h1>
       </header>
 
       <section aria-live="polite" className="flex flex-1 flex-col items-center justify-center rounded-card bg-paper px-5 py-8 text-center shadow-[var(--shadow-card)]">

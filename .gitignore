@@ -25,3 +25,8 @@ infra/certs/*.crt
 # throwaway measurement scripts (kept out of the repo)
 apps/web/e2e/_*.mjs
 docs/screens/golden/FAILED-*.png
+
+# Cloner template and IDE tool metadata
+ai-website-cloner-template/
+.commandcode/
+.impeccable/

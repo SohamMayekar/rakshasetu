@@ -16,7 +16,8 @@ Hazard = Literal["trapped_on_roof", "trapped_inside", "water_entering", "water_r
 Need = Literal["rescue", "medicine", "medical_urgent", "food", "drinking_water", "shelter", "baby_supplies"]
 Vulnerable = Literal["elderly", "infant", "child", "pregnant", "disabled", "sick", "injured"]
 LandmarkType = Literal["temple", "mosque", "church", "gurdwara", "place_of_worship", "bridge", "school", "hospital",
-                       "water_tower", "railway_station", "police_station", "market", "panchayat_bhawan", "canal", "tower"]
+                       "water_tower", "railway_station", "police_station", "market", "panchayat_bhawan", "canal", "tower",
+                       "other"]   # "other": any named place the types above don't cover (a hotel, a building, a stop)
 LandmarkRelation = Literal["behind", "near", "opposite", "beside", "in_front", "inside", "unknown"]
 
 Quote = Field(min_length=1, max_length=300)
@@ -94,6 +95,13 @@ class Village(Closed):
     quote: str = Quote
 
 
+class Address(Closed):
+    """The one most precise address the report gives (building, flat, street, area), in Latin script: what a
+    person would type into a map. The words it came from stay in `quote`."""
+    text: str = Field(min_length=1, max_length=200)
+    quote: str = Quote
+
+
 class Landmark(Closed):
     type: LandmarkType
     name: str | None = Field(max_length=100)
@@ -102,6 +110,7 @@ class Landmark(Closed):
 
 
 class Location(Closed):
+    address: Address | None
     village_or_locality: Village | None
     district: str | None = Field(max_length=100)
     state: str | None = Field(max_length=100)
@@ -128,5 +137,5 @@ class Extraction(Closed):
     @classmethod
     def empty(cls, language: str | None = None) -> "Extraction":
         return cls(language=language, people_count=None, hazards=[], needs=[], vulnerable=[],
-                   location=Location(village_or_locality=None, district=None, state=None, landmarks=[]),
+                   location=Location(address=None, village_or_locality=None, district=None, state=None, landmarks=[]),
                    person_names=[], callback_phone=None, reporter_on_site=None)

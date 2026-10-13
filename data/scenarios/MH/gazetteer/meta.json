@@ -1,26 +1,27 @@
 {
   "source": "https://download.openstreetmap.fr/extracts/asia/india/maharashtra.osm.pbf",
-  "md5": "df99746cd01cfc02e65f201e8827d965",
+  "md5": "dfd802f82a50345d1ab2a80807348cda",
   "districts": [
     "Mumbai Suburban",
     "Mumbai City"
   ],
-  "built_at": "2026-10-12T19:32:48+00:00",
+  "built_at": "2026-10-12T21:17:09+00:00",
   "counts": {
-    "places": 935,
+    "places": 936,
     "landmarks": {
       "railway_station": 163,
       "hospital": 1508,
-      "school": 733,
+      "school": 763,
+      "market": 349,
       "church": 109,
+      "police_station": 115,
       "place_of_worship": 175,
       "mosque": 170,
       "temple": 453,
-      "market": 77,
       "water_tower": 72,
       "gurdwara": 24,
       "tower": 40,
-      "bridge": 4398
+      "bridge": 4399
     }
   },
   "licence": "ODbL, \u00a9 OpenStreetMap contributors"

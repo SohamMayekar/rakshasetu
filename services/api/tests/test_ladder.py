@@ -3,6 +3,7 @@
 import math
 
 import pytest
+from sqlalchemy import text
 
 from app.modules.location.ladder import resolve
 from app.pipeline.keywords import extract_keywords
@@ -99,3 +100,82 @@ def test_end_to_end_a_typed_report_gets_its_circle(seeded, client, app_db):
     assert case["location_text"] == "Thawe" and case["location_method"].endswith("in Thawe")
     assert len(case["attributes"]["location_detail"]["landmarks"]) == 2
     assert any(step["step"] == "place" for step in case["reports"][0]["receipt"])
+
+
+# The contract lets the model and the rules call one mapped feature with any worship word ("Shankar mandir" as
+# temple or place_of_worship). The gazetteer keeps each feature under its own OSM type, so the ladder must find
+# the named one either way: otherwise two reports of one family land on two different temples (the Mumbai demo:
+# the clip's report got a place_of_worship 1.5 km from the forward's temple, and no merge was suggested).
+def test_the_same_mandir_is_found_whether_the_words_say_temple_or_place_of_worship(seeded, app_db):
+    line = ("My family is in Kurla West, behind the Shankar mandir, near the bridge. 6 people are stuck on the roof.")
+    mh = one(app_db, "SELECT id FROM incidents WHERE code = 'MH'")
+    with app_db.connect() as c:
+        worded = extract_keywords(line)
+        worded.location.landmarks[0].type = "place_of_worship"   # what the live model returned for the clip
+        a = resolve(c, mh, worded, line)
+        b = resolve(c, mh, extract_keywords(line), line)         # the rules read the same words as "temple"
+        t = c.execute(text("SELECT ST_Y(geom::geometry), ST_X(geom::geometry) FROM landmarks"
+                           " WHERE name LIKE 'shankar mandir (kranti nagar%'")).one()
+    assert (a.lat, a.lng) == (b.lat, b.lng)                      # one household, one circle
+    assert a.confidence == "high" and a.radius_m == 150
+    assert "shankar mandir (kranti nagar" in a.method and "Railway Colony Road" in a.method
+    assert metres((a.lat, a.lng), (t[0], t[1])) <= a.radius_m    # the named mandir is inside the circle
+
+
+# A specific place named in the words (a campus, a store): the model files it in the village field as often as
+# in the landmarks, so a name matching exactly ONE mapped feature pins the report wherever it was filed — with
+# its district. A name the city holds many of (fourteen DMarts) stays for a person, and the village's own name
+# is not a landmark (a station carries "Versova" too, but the caller means the neighbourhood).
+def _extraction(village: str | None = None, address: str | None = None):
+    from app.contracts import Address, Extraction, Location, Village
+    return Extraction(language="en", people_count=None, hazards=[], needs=[], vulnerable=[],
+                      location=Location(address=Address(text=address, quote=address or "said") if address else None,
+                                        village_or_locality=Village(original=village, latin=village, quote=village or "")
+                                        if village else None, district=None, state=None, landmarks=[]),
+                      person_names=[], callback_phone=None, reporter_on_site=None)
+
+
+def test_a_name_matching_exactly_one_mapped_feature_pins_a_campus(seeded, app_db):
+    mh = one(app_db, "SELECT id FROM incidents WHERE code = 'MH'")
+    line = "I am stuck at Rajiv Gandhi Institute of Technology, 2 people"
+    with app_db.connect() as c:
+        loc = resolve(c, mh, _extraction(village="Rajiv Gandhi Institute of Technology"), line)
+    assert loc.step == 4 and loc.confidence == "medium" and loc.radius_m == 300
+    assert "Rajiv Gandhi Institute Of Technology" in loc.method and "by name" in loc.method
+    assert loc.district_id == one(app_db, "SELECT id FROM districts WHERE name = 'Mumbai Suburban'")
+
+
+def test_a_name_the_city_holds_many_of_stays_for_a_person(seeded, app_db):
+    mh = one(app_db, "SELECT id FROM incidents WHERE code = 'MH'")
+    with app_db.connect() as c:
+        loc = resolve(c, mh, _extraction(village="DMart"), "we are stuck at DMart, 3 people")
+    assert loc.lat is None and "needs_location" in loc.flags     # fourteen DMarts: not a distance guess
+
+
+def test_the_villages_own_name_is_not_a_landmark(seeded, app_db):
+    mh = one(app_db, "SELECT id FROM incidents WHERE code = 'MH'")
+    with app_db.connect() as c:
+        loc = resolve(c, mh, _extraction(village="Versova"), "Versova, 2 people stuck")
+    assert loc.step == 6 and loc.confidence == "low" and loc.method.endswith("village only: Versova")
+
+
+# An address the committed gazetteer does not hold (a hotel, a building, a street anywhere) is geocoded by the
+# free OSM services and the pin names the service. Tests run in fixture mode, so the cache is the only source.
+def test_an_address_the_gazetteer_does_not_hold_is_pinned_by_the_geocoder(seeded, app_db):
+    import json
+
+    from app.providers import geocode
+    q = "Regency Hotel, Andheri East, Mumbai"
+    with app_db.begin() as c:                                     # what a live call would have remembered
+        c.execute(text("INSERT INTO geocode_cache (text_sha256, provider, result)"
+                       " VALUES (:h, 'photon', CAST(:r AS jsonb))"),
+                  {"h": geocode.text_sha(q),
+                   "r": json.dumps({"lat": 19.1197, "lng": 72.8464, "label": "Regency Hotel, Andheri East",
+                                    "kind": "venue", "extent_m": None})})
+    mh = one(app_db, "SELECT id FROM incidents WHERE code = 'MH'")
+    with app_db.connect() as c:
+        loc = resolve(c, mh, _extraction(address=q), "I am stuck in the basement of the Regency Hotel")
+    assert loc.step == 4 and loc.confidence == "medium" and loc.radius_m == 300
+    assert loc.method.startswith("Medium · 300 m · geocoded “Regency Hotel, Andheri East” (photon, cached)")
+    assert loc.address == "Regency Hotel, Andheri East"
+    assert loc.district_id == one(app_db, "SELECT id FROM districts WHERE name = 'Mumbai Suburban'")

@@ -28,7 +28,7 @@ def test_the_picker_list_is_local_only(seeded, client, public_client):
     assert public_client.get("/v1/auth/users").status_code == 404
     users = client.get("/v1/auth/users").json()
     assert {"username": "spatil", "name": "S. Patil", "role": "duty_officer", "role_label": "Duty officer",
-            "team": None, "title": "Duty officer", "line": "Runs the Mumbai Suburban control room desk"} in users
+            "team": None, "title": "Duty officer", "line": "Runs the Mumbai control room desk"} in users
 
 
 def test_the_picker_shows_three_profiles_and_the_other_users_still_exist(seeded, client, app_db):
