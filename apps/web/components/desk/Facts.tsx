@@ -13,6 +13,7 @@ import { plainPlace } from "@/lib/words";
 const WORD: Record<string, string> = {
   trapped_on_roof: "on the roof", trapped_inside: "trapped inside", water_entering: "water inside", water_rising: "water rising",
   strong_current: "strong current", buried: "buried", structure_collapsed: "collapse", landslide: "landslide", cut_off: "cut off",
+  fire: "fire", smoke_gas: "smoke or gas", road_accident: "road accident", earthquake: "earthquake", wind_damage: "storm damage",
   rescue: "rescue", medicine: "medicine", medical_urgent: "urgent medical", food: "food", drinking_water: "drinking water",
   shelter: "shelter", baby_supplies: "baby milk", elderly: "elderly", infant: "infant", child: "child", pregnant: "pregnant",
   disabled: "disabled", sick: "sick", injured: "injured",
@@ -73,8 +74,8 @@ export function Facts({ c, canEdit, onQuote, onChanged }: {
       <dd>
         {editing ? (
           <form className="flex flex-wrap items-center gap-2" onSubmit={(e) => { e.preventDefault(); save(new FormData(e.currentTarget)); }}>
-            <input name="people" type="number" min={0} max={5000} defaultValue={c.people_count ?? ""} className="h-8 w-20 rounded-lg border border-line px-2 tabular" autoFocus />
-            <input name="reason" required minLength={3} placeholder="Why (logged)" className="h-8 flex-1 rounded-lg border border-line px-2" />
+            <input name="people" type="number" min={0} max={5000} defaultValue={c.people_count ?? ""} className="field-compact w-20 tabular" autoFocus />
+            <input name="reason" required minLength={3} placeholder="Why (logged)" className="field-compact flex-1" />
             <Button size="sm" variant="primary" type="submit">Save</Button>
             <Button size="sm" variant="quiet" type="button" onClick={() => setEditing(false)}>Cancel</Button>
             {error && <span className="w-full text-small">{error}</span>}
@@ -107,7 +108,7 @@ export function Facts({ c, canEdit, onQuote, onChanged }: {
         {(() => {   // P1 #1: a merged report from outside the circle never moves the pin by itself
           const m = (c.attributes?.proposed_move ?? null) as { from: string; metres_away: number; method?: string } | null;
           return m && (
-            <p className="mt-1 rounded-lg border border-line px-2 py-1 text-small">
+            <p className="mt-1 rounded-xl border border-line px-2 py-1 text-small">
               <b>Maybe a different place:</b> {m.from}&apos;s report puts them {m.metres_away.toLocaleString("en-IN")} m away
               {m.method ? ` (${plainPlace(m.method)})` : ""}. The place stays until a person moves it.
             </p>

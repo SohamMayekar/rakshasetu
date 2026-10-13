@@ -17,7 +17,7 @@ function Extend({ id, run }: { id: number; run: (fn: () => Promise<unknown>) => 
   const send = (eta: number | null) => run(() => api(`/v1/escalations/${id}/extend`, { method: "POST", json: { channel, new_eta: eta } }));
   return (
     <span className="flex flex-wrap items-center gap-1.5">
-      <select value={channel} onChange={(x) => setChannel(x.target.value)} aria-label="Heard on" className="h-7 rounded-lg border border-line bg-paper px-1.5 text-small">
+      <select value={channel} onChange={(x) => setChannel(x.target.value)} aria-label="Heard on" className="field-compact !h-8 text-small">
         {CHANNELS.map((c) => <option key={c}>{c}</option>)}
       </select>
       {[15, 30, 60].map((m) => <Button key={m} size="sm" variant={m === 30 ? "primary" : "secondary"} onClick={() => send(m)}>Heard · ETA {m}</Button>)}

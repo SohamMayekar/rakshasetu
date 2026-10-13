@@ -68,7 +68,7 @@ export function Matches({ c, suggestions, lookup, canDecide, onDone }: {
           <form className="mt-2 flex flex-wrap gap-2" onSubmit={(e) => { e.preventDefault(); decide(s, asking.kind, String(new FormData(e.currentTarget).get("reason") || "") || null); }}>
             <input name="reason" required={refused && asking.kind === "merge"} minLength={3} autoFocus
                    placeholder={asking.kind === "merge" ? (refused ? "Why merge them anyway? (logged)" : "Reason (optional, logged)") : "Why not? (optional, logged)"}
-                   className="h-8 min-w-0 flex-1 rounded-lg border border-line px-2 text-body" />
+                   className="field-compact min-w-0 flex-1" />
             <Button size="sm" variant="primary" type="submit">{asking.kind === "merge" ? "Merge" : "Not the same family"}</Button>
             <Button size="sm" variant="quiet" type="button" onClick={() => setAsking(null)}>Cancel</Button>
           </form>

@@ -22,5 +22,5 @@ export function AppShell({ me: given, compact = false, children }: { me?: Me | n
 
 // The standard page body beside the sidebar: generous margins, a readable width.
 export function Page({ children, wide = false }: { children: ReactNode; wide?: boolean }) {
-  return <main className={`mx-auto w-full px-4 pb-16 pt-6 md:px-8 md:pt-10 ${wide ? "max-w-6xl" : "max-w-5xl"}`}>{children}</main>;
+  return <main className={`page-in mx-auto w-full px-4 pb-16 pt-6 md:px-8 md:pt-10 ${wide ? "max-w-6xl" : "max-w-5xl"}`}>{children}</main>;
 }

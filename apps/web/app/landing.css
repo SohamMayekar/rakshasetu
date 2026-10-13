@@ -1,330 +1,133 @@
-/* ==========================================================================
-   RakshaSetu Landing Page Design System
-   Adapted from House of Al Hadeetha design language and layout architecture
-   ========================================================================== */
+/* RakshaSetu landing. Built on the app's own tokens (globals.css): ink on paper, a warm light canvas, pill buttons,
+   hue only for priority. The page adds ONE accent (a deep river blue) and one display face (Plus Jakarta Sans),
+   one radius scale (cards 28 px, inner 20 px, controls pill) and a small, calm motion vocabulary. */
 
-:root {
-  --ink: #080b0f;
-  --ink-soft: #161c22;
-  --slate: #4b5b63;
-  --slate-light: #7c8b93;
-  --surface: #f6f6f6;
-  --surface-alt: #f0f2f4;
-  --hairline: #e2e5e8;
-  --container: 1320px;
-  --gutter: clamp(1.25rem, 4vw, 2.5rem);
-  --section: clamp(4.5rem, 3rem + 5vw, 8rem);
-  --header-gap: clamp(2.25rem, 1.5rem + 2.5vw, 3.75rem);
-  --ghost: #c7c7c7;
-  --sky-wash: #cfe3ef;
-
-  /* Priority tints for emergency desk context */
-  --p1-alert: #c62828;
-  --p2-warn: #d97706;
-  --p3-active: #2563eb;
-  --p-safe: #15803d;
-
-  /* Motion vocabulary */
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in-out: cubic-bezier(0.87, 0, 0.13, 1);
-  --ease-spring: cubic-bezier(0.3, 1.32, 0.5, 1);
-  --ease-glide: cubic-bezier(0.25, 1.08, 0.35, 1);
-
-  --dur-micro: 300ms;
-  --dur-exit: 400ms;
-  --dur-base: 700ms;
-  --dur-reveal: 900ms;
-
-  --font-archivo: "Archivo Variable", "Archivo", system-ui, sans-serif;
-  --font-jakarta: "Plus Jakarta Sans Variable", "Plus Jakarta Sans", system-ui, sans-serif;
-  --font-instrument: "Instrument Serif", Georgia, serif;
+.lp {
+  --lp-accent: #1f4e79;          /* the one accent: icons, emphasis, the progress marker */
+  --lp-accent-ink: #163a5c;
+  --lp-wash: #e9f0f6;            /* the accent at 8%: icon wells, soft panels */
+  --lp-sky-top: #d6e6f4;
+  --lp-sky-mid: #e9f0f5;
+  --lp-radius: 28px;
+  --lp-radius-inner: 20px;
+  --lp-ease: cubic-bezier(.22, 1, .36, 1);
+  overflow-x: clip;
+  background: var(--color-canvas);
 }
+html:has(.lp) { scroll-behavior: smooth; scroll-padding-top: 5.5rem; }
+.lp h1, .lp h2, .lp h3 { text-wrap: balance; }
+/* The one display accent: a word set in italic serif, as in the reference mood. Room under it for the descenders. */
+.lp em.lp-em { font-family: "Instrument Serif", Georgia, "Times New Roman", serif; font-style: italic; font-weight: 400; font-size: 1.14em; line-height: 1.05; color: var(--lp-accent); letter-spacing: -0.01em; padding-right: .05em; }
 
-/* Base landing font bindings */
-.landing-root {
-  font-family: var(--font-jakarta);
-  color: var(--ink);
-  background-color: #ffffff;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
+/* ---------------------------------------------------------------- reveals (armed by the page, so no-JS still reads) */
+.lp[data-rv] .rv { opacity: 0; transform: translateY(18px); transition: opacity .8s var(--lp-ease), transform .8s var(--lp-ease); transition-delay: var(--d, 0ms); }
+.lp[data-rv] .rv.in { opacity: 1; transform: none; }
+html[data-motion="reduced"] .lp[data-rv] .rv { opacity: 1; transform: none; transition: none; }
+
+@keyframes lp-rise { from { opacity: 0; transform: translateY(22px) scale(.985); } to { opacity: 1; transform: none; } }
+.lp-rise { animation: lp-rise .9s var(--lp-ease) both; animation-delay: var(--d, 0ms); }
+
+@keyframes lp-ping { 0% { transform: scale(1); opacity: .45; } 80%, 100% { transform: scale(2.6); opacity: 0; } }
+.lp-ping { animation: lp-ping 2.2s cubic-bezier(0, 0, .2, 1) infinite; }
+
+/* ---------------------------------------------------------------- backdrops */
+.lp-hero-bg {
+  background:
+    radial-gradient(46rem 26rem at 88% -6%, rgb(255 232 200 / .8), transparent 70%),
+    radial-gradient(40rem 22rem at -4% 6%, rgb(255 255 255 / .9), transparent 70%),
+    linear-gradient(180deg, var(--lp-sky-top) 0%, var(--lp-sky-mid) 42%, var(--color-canvas) 100%);
 }
-
-.landing-root h1,
-.landing-root h2,
-.landing-root h3,
-.landing-root h4 {
-  font-family: var(--font-archivo);
-  letter-spacing: -0.025em;
+.lp-grid {
+  background-image: linear-gradient(to right, rgb(21 21 21 / .05) 1px, transparent 1px), linear-gradient(to bottom, rgb(21 21 21 / .05) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(ellipse 70% 60% at 60% 30%, #000, transparent 75%);
 }
-
-/* Font utilities */
-.font-display { font-family: var(--font-archivo); }
-.font-body { font-family: var(--font-jakarta); }
-.font-accent { font-family: var(--font-instrument); }
-
-/* Color utilities */
-.bg-ink { background-color: var(--ink); }
-.bg-ink-soft { background-color: var(--ink-soft); }
-.bg-surface { background-color: var(--surface); }
-.bg-surface-alt { background-color: var(--surface-alt); }
-.text-ink { color: var(--ink); }
-.text-slate { color: var(--slate); }
-.text-slate-light { color: var(--slate-light); }
-.border-hairline { border-color: var(--hairline); }
-
-/* Type scale */
-.text-label { font-size: 12px; line-height: 1.4; }
-.text-caption { font-size: 13px; line-height: 1.5; }
-.text-body-sm { font-size: 14px; line-height: 1.6; }
-.text-body { font-size: 15px; line-height: 1.6; }
-.text-body-lg { font-size: 16px; line-height: 1.6; }
-.text-lead { font-size: 17px; line-height: 1.5; }
-.text-title { font-size: clamp(1.35rem, 2.2vw, 1.9rem); line-height: 1.2; }
-.text-display-sm { font-size: clamp(1.75rem, 3vw, 2.15rem); line-height: 1.1; }
-.text-display-md { font-size: clamp(1.75rem, 4vw, 3rem); line-height: 1.15; }
-.text-display-lg { font-size: clamp(2rem, 4.4vw, 3.4rem); line-height: 1.08; }
-.text-display-xl { font-size: clamp(2.5rem, 5.6vw, 4.6rem); line-height: 1.06; }
-.text-numeral { font-size: clamp(3.2rem, 7.5vw, 6.5rem); line-height: 1; }
-.text-marquee { font-size: clamp(1.6rem, 3.2vw, 2.8rem); line-height: 1.2; }
-.text-wordmark { font-size: clamp(3.5rem, 16vw, 14.5rem); line-height: 0.95; }
-
-/* Layout utilities */
-.container-site {
-  width: min(var(--container), calc(100% - var(--gutter) * 2));
-  margin-inline: auto;
+.lp-sunrise {
+  background:
+    radial-gradient(36rem 18rem at 50% 108%, rgb(255 214 170 / .9), transparent 70%),
+    linear-gradient(180deg, #e3edf6 0%, #f1efe9 68%, #f8e9d4 100%);
 }
+.lp-frame-sky { background: linear-gradient(180deg, #cfe2f2 0%, #e6eef3 38%, #f6ead8 78%, #f3dfc4 100%); }
 
-.section {
-  padding-bottom: var(--section);
-}
+/* ---------------------------------------------------------------- the 20-second story */
+@keyframes lp-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.lp-fill { transform-origin: left; animation: lp-fill linear forwards; }
 
-.section-top {
-  padding-top: var(--section);
-}
+@keyframes lp-scene-in { from { opacity: 0; transform: translateY(14px) scale(.985); } to { opacity: 1; transform: none; } }
+.lp-scene { animation: lp-scene-in .6s var(--lp-ease) both; }
 
-.header-gap {
-  margin-bottom: var(--header-gap);
-}
+@keyframes lp-pop { from { opacity: 0; transform: translateY(10px) scale(.96); } to { opacity: 1; transform: none; } }
+.lp-pop { opacity: 0; animation: lp-pop .6s var(--lp-ease) forwards; animation-delay: calc(var(--d, 0ms) + 200ms); }
 
-/* ==========================================================================
-   Motion primitives and entrance reveals
-   ========================================================================== */
+@keyframes lp-wave { 0%, 100% { height: .35rem; } 50% { height: 1.9rem; } }
+.lp-wave i { display: block; width: 4px; border-radius: 4px; background: currentColor; height: .35rem; animation: lp-wave 1s ease-in-out infinite; }
 
-html[data-motion="full"] [data-reveal] {
-  --reveal-opacity: 0;
-  --reveal-translate: 0 20px;
-  --reveal-scale: 0.9;
-  --reveal-filter: none;
-}
+@keyframes lp-ring-out { 0% { transform: scale(.7); opacity: .5; } 100% { transform: scale(1.7); opacity: 0; } }
+.lp-ring-out { animation: lp-ring-out 2.4s ease-out infinite; animation-delay: var(--d, 0ms); }
 
-html[data-motion="full"] [data-reveal="fade"] {
-  --reveal-translate: 0 -18px;
-  --reveal-scale: 1;
-}
+@keyframes lp-type { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+.lp-type { animation: lp-type 2.2s steps(30, end) .5s both; }
 
-html[data-motion="full"] [data-reveal="blur"] {
-  --reveal-translate: 0 0.5em;
-  --reveal-scale: 1;
-  --reveal-filter: blur(12px);
-}
+@keyframes lp-fly { 0% { opacity: 0; transform: translate(var(--fx, -40px), var(--fy, 0)) scale(.9); } 30% { opacity: 1; } 100% { opacity: 1; transform: none; } }
+.lp-fly { animation: lp-fly .9s var(--lp-ease) both; animation-delay: var(--d, 0ms); }
 
-html[data-motion="full"] [data-reveal="rise"] {
-  --reveal-opacity: 1;
-  --reveal-translate: 0 0.35em;
-  --reveal-scale: 1;
-}
+@keyframes lp-press { 0%, 55% { transform: none; } 68% { transform: scale(.94); } 100% { transform: none; } }
+.lp-press { animation: lp-press 1.8s ease-out .5s both; }
 
-html[data-motion="full"] [data-reveal]:not(.is-in, .is-in [data-reveal]) {
-  opacity: var(--reveal-opacity);
-  translate: var(--reveal-translate);
-  scale: var(--reveal-scale);
-  filter: var(--reveal-filter);
-  transition:
-    opacity var(--dur-exit) var(--ease-out),
-    translate var(--dur-exit) var(--ease-out),
-    scale var(--dur-exit) var(--ease-out),
-    filter var(--dur-exit) var(--ease-out);
-}
+@keyframes lp-dot { from { transform: scale(.4); opacity: 0; } to { transform: none; opacity: 1; } }
+.lp-dot { animation: lp-dot .5s var(--lp-ease) both; animation-delay: var(--d, 0ms); }
 
-html[data-motion="full"] .is-in [data-reveal],
-html[data-motion="full"] [data-reveal].is-in {
-  animation: reveal-in var(--dur-reveal) var(--ease-out) backwards;
-  animation-delay: calc(var(--i, 0) * 60ms + var(--delay, 0ms));
-}
+@keyframes lp-grow { from { width: 0; } }
+.lp-grow { animation: lp-grow 1.4s var(--lp-ease) .3s both; }
 
-html[data-motion="full"] .is-in [data-reveal="fade"],
-html[data-motion="full"] [data-reveal="fade"].is-in {
-  animation-name: reveal-in-fade;
-}
+/* ---------------------------------------------------------------- the three ideas */
+@keyframes lp-chip { 0%, 18% { transform: translateX(0); opacity: 1; } 52%, 80% { transform: translateX(calc(100% + 3rem)); opacity: 0; } 100% { transform: translateX(0); opacity: 1; } }
+.lp-chip { animation: lp-chip 5.4s cubic-bezier(.65, 0, .35, 1) infinite; }
+@keyframes lp-case { 0%, 40% { transform: translateY(-50%) scale(.96); } 60%, 85% { transform: translateY(-50%) scale(1.05); } 100% { transform: translateY(-50%) scale(.96); } }
+.lp-case { animation: lp-case 5.4s ease-in-out infinite; }
+@keyframes lp-circle { 0%, 100% { transform: scale(.55); opacity: .35; } 55% { transform: scale(1); opacity: 1; } }
+.lp-circle { animation: lp-circle 3.6s var(--lp-ease) infinite; }
+@keyframes lp-ring { 0% { stroke-dashoffset: 214; } 70%, 100% { stroke-dashoffset: 0; } }
+.lp-ring { animation: lp-ring 5s linear infinite; }
+@keyframes lp-alarm { 0%, 68% { opacity: 0; transform: translateY(6px); } 76%, 94% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+.lp-alarm { animation: lp-alarm 5s ease infinite; }
+@keyframes lp-okay { 0%, 62% { opacity: 1; } 70%, 96% { opacity: 0; } 100% { opacity: 1; } }
+.lp-okay { animation: lp-okay 5s ease infinite; }
 
-html[data-motion="full"] .is-in [data-reveal="blur"],
-html[data-motion="full"] [data-reveal="blur"].is-in {
-  animation-name: reveal-in-blur;
-}
+/* ---------------------------------------------------------------- hero art */
+@keyframes lp-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.lp-bob { animation: lp-bob 7s ease-in-out infinite; }
+.lp-bob-slow { animation: lp-bob 9s ease-in-out -3s infinite; }
+@keyframes lp-drift { from { transform: translateX(-2%); } to { transform: translateX(2%); } }
+.lp-drift { animation: lp-drift 14s ease-in-out infinite alternate; }
+@keyframes lp-sun { 0%, 100% { opacity: .85; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
+.lp-sun { transform-origin: center; animation: lp-sun 8s ease-in-out infinite; }
 
-html[data-motion="full"] .is-in [data-reveal="rise"],
-html[data-motion="full"] [data-reveal="rise"].is-in {
-  animation-name: reveal-in-rise;
-}
+/* ---------------------------------------------------------------- FAQ */
+.lp-acc { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .4s var(--lp-ease); }
+.lp-acc[data-open="true"] { grid-template-rows: 1fr; }
+.lp-acc > div { overflow: hidden; }
 
-@keyframes reveal-in {
-  from {
-    opacity: 0;
-    translate: 0 20px;
-    scale: 0.9;
-  }
-}
+/* ---------------------------------------------------------------- phone frame */
+.lp-phone { border-radius: 2.6rem; box-shadow: 0 0 0 7px #1b1b1b, 0 0 0 8px #3a3a3a, var(--shadow-lift); }
 
-@keyframes reveal-in-fade {
-  from {
-    opacity: 0;
-    translate: 0 -18px;
-  }
-}
+/* ---------------------------------------------------------------- calm for people who ask for it */
+html[data-motion="reduced"] .lp-rise, html[data-motion="reduced"] .lp-ping, html[data-motion="reduced"] .lp-bob,
+html[data-motion="reduced"] .lp-bob-slow, html[data-motion="reduced"] .lp-drift, html[data-motion="reduced"] .lp-sun,
+html[data-motion="reduced"] .lp-chip, html[data-motion="reduced"] .lp-case, html[data-motion="reduced"] .lp-circle,
+html[data-motion="reduced"] .lp-ring, html[data-motion="reduced"] .lp-alarm, html[data-motion="reduced"] .lp-okay,
+html[data-motion="reduced"] .lp-wave i, html[data-motion="reduced"] .lp-ring-out, html[data-motion="reduced"] .lp-type,
+html[data-motion="reduced"] .lp-press, html[data-motion="reduced"] .lp-grow, html[data-motion="reduced"] .lp-scene { animation: none; }
+html[data-motion="reduced"] .lp-pop, html[data-motion="reduced"] .lp-fly, html[data-motion="reduced"] .lp-dot { opacity: 1; animation: none; }
 
-@keyframes reveal-in-blur {
-  from {
-    opacity: 0;
-    translate: 0 0.5em;
-    filter: blur(12px);
-  }
-}
-
-@keyframes reveal-in-rise {
-  from {
-    translate: 0 0.35em;
-  }
-}
-
-/* Hero image settle */
-html[data-motion="full"] .photo-settle {
-  animation: photo-settle 1.8s var(--ease-expo) both;
-}
-
-@keyframes photo-settle {
-  from {
-    scale: 1.12;
-  }
-}
-
-/* Card image zoom out on entrance */
-html[data-motion="full"] [data-reveal-image] {
-  transform: scale(1.08);
-  transition: transform var(--dur-exit) var(--ease-expo);
-}
-
-html[data-motion="full"] .is-in [data-reveal-image] {
-  transform: scale(1);
-  transition-duration: 1400ms;
-  transition-delay: calc(var(--i, 0) * 60ms);
-}
-
-/* Hover and interaction primitives */
-.img-zoom {
-  transform: scale(1);
-  transition: transform 900ms var(--ease-expo);
-}
-
-@media (hover: hover) {
-  .group:hover .img-zoom {
-    transform: scale(1.05);
-  }
-}
-
-.lift {
-  transition:
-    transform var(--dur-micro) var(--ease-out),
-    box-shadow var(--dur-micro) var(--ease-out);
-}
-
-@media (hover: hover) {
-  .lift:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 14px 32px -12px rgba(8, 11, 15, 0.22);
-  }
-}
-
-.lift:active {
-  transform: translateY(0) scale(0.985);
-  transition-duration: 120ms;
-}
-
-.press:active {
-  transform: scale(0.97);
-  transition: transform 120ms var(--ease-out);
-}
-
-.arrow-badge {
-  transition: transform var(--dur-micro) var(--ease-out);
-}
-
-@media (hover: hover) {
-  .group:hover .arrow-badge {
-    transform: rotate(45deg);
-  }
-}
-
-/* Marquee animation */
-@keyframes marquee-band {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-
-.animate-marquee {
-  animation: marquee-band 35s linear infinite;
-}
-
-.animate-marquee:hover {
-  animation-play-state: paused;
-}
-
-/* Scroll cue bead */
-@keyframes scroll-cue {
-  0% { transform: translateY(0); opacity: 0; }
-  20% { opacity: 1; }
-  70% { transform: translateY(14px); opacity: 0; }
-  100% { transform: translateY(14px); opacity: 0; }
-}
-
-.animate-scroll-cue {
-  animation: scroll-cue 2.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
-}
-
-/* Link sweep underline */
-.link-sweep {
-  position: relative;
-}
-
-.link-sweep::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -0.15em;
-  height: 1px;
-  background: currentColor;
-  transform: scaleX(0);
-  transform-origin: right;
-  transition: transform var(--dur-base) var(--ease-out);
-}
-
-.link-sweep:hover::after,
-.link-sweep:focus-visible::after {
-  transform: scaleX(1);
-  transform-origin: left;
-}
-
-/* Reduced motion overrides */
-html[data-motion="reduced"] *,
-html[data-motion="reduced"] *::before,
-html[data-motion="reduced"] *::after {
-  animation-duration: 0.01ms !important;
-  animation-iteration-count: 1 !important;
-  transition-duration: 0.01ms !important;
-  scroll-behavior: auto !important;
-}
-
-html[data-motion="reduced"] [data-blur] {
-  filter: none !important;
-}
+/* ---------------------------------------------------------------- the no-signal page */
+@keyframes lp-draw { from { stroke-dashoffset: var(--len, 420); } to { stroke-dashoffset: 0; } }
+.lp-draw { stroke-dasharray: var(--len, 420); animation: lp-draw .9s cubic-bezier(.22, 1, .36, 1) both; }
+@keyframes lp-dash { to { stroke-dashoffset: -28; } }
+.lp-dash { stroke-dasharray: 6 8; animation: lp-dash 1s linear infinite; }
+.lp-svg-origin { transform-box: fill-box; transform-origin: center; }
+@keyframes lp-log-in { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+.lp-log-in { animation: lp-log-in .5s cubic-bezier(.22, 1, .36, 1) both; }
+@keyframes lp-badge { 0% { transform: scale(0); } 70% { transform: scale(1.18); } 100% { transform: scale(1); } }
+.lp-badge { transform-box: fill-box; transform-origin: center; animation: lp-badge .5s cubic-bezier(.22, 1, .36, 1) both; }
+html[data-motion="reduced"] .lp-draw, html[data-motion="reduced"] .lp-dash, html[data-motion="reduced"] .lp-log-in, html[data-motion="reduced"] .lp-badge { animation: none; }

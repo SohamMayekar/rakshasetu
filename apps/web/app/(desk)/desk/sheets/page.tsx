@@ -4,7 +4,7 @@
 // family again, rows to check, rows that could not be read). Adding or opening a sheet happens on the desk.
 
 import { FileSpreadsheet, Plus } from "lucide-react";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { IncidentPage, useMe } from "@/components/desk/IncidentPage";
 import { Card, Empty, useNow, ago } from "@/components/ui";
@@ -28,29 +28,28 @@ function Num({ value, label }: { value: number; label: string }) {
   );
 }
 
-export default function Sheets({ params }: { params: Promise<{ incident: string }> }) {
-  const { incident } = use(params);
+export default function Sheets() {
   const me = useMe();
   const now = useNow(30_000);
   const [sheets, setSheets] = useState<Sheet[] | null>(null);
 
   useEffect(() => {
-    const load = () => api<Sheet[]>(`/v1/imports?incident=${encodeURIComponent(incident)}`).then(setSheets).catch(() => setSheets([]));
+    const load = () => api<Sheet[]>("/v1/imports").then(setSheets).catch(() => setSheets([]));
     load();
     const t = setInterval(load, 5000);
     return () => clearInterval(t);
-  }, [incident]);
+  }, []);
 
   return (
-    <IncidentPage me={me} code={incident} title="Sheets" sub="volunteer spreadsheets and what became of each row"
-                  aside={<a href={`/desk/${incident}?import=new`} className="inline-flex h-10 items-center gap-2 rounded-full bg-ink px-4 text-body font-medium text-paper active:scale-[0.98]">
+    <IncidentPage me={me} title="Sheets" sub="volunteer spreadsheets and what became of each row"
+                  aside={<a href={"/desk?import=new"} className="inline-flex h-10 items-center gap-2 rounded-full bg-ink px-4 text-body font-medium text-paper active:scale-[0.98]">
                     <Plus className="size-4" aria-hidden />Add a sheet</a>}>
       <Card className="overflow-hidden">
         {!sheets ? <Empty>Loading…</Empty> : sheets.length === 0 ? <Empty>No sheets yet. Add a volunteer&rsquo;s Excel or CSV file.</Empty> : (
           <ul className="divide-y divide-line">
             {sheets.map((s) => (
               <li key={s.id}>
-                <a href={`/desk/${incident}?import=${s.id}`}
+                <a href={`/desk?import=${s.id}`}
                    className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-3 px-4 py-3.5 transition-colors hover:bg-wash md:grid-cols-[auto_minmax(0,1fr)_repeat(4,6.5rem)_9rem]">
                   <FileSpreadsheet className="size-5 text-ink-3" strokeWidth={1.8} aria-hidden />
                   <span className="min-w-0">

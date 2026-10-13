@@ -53,7 +53,7 @@ export function RescueSheet({ reported, onRecord, big = true }: {
           <button className={btn()} onClick={() => setMore(more === "other" ? null : "other")}>Other: tell the officer</button>
           {more === "other" && (
             <form className="space-y-2" onSubmit={(e) => { e.preventDefault(); onRecord({ outcome: "other", reason: String(new FormData(e.currentTarget).get("reason")) }, "Told the officer"); }}>
-              <textarea name="reason" required minLength={3} rows={3} placeholder="What should the officer know?" className="w-full rounded-xl border border-line p-3" />
+              <textarea name="reason" required minLength={3} rows={3} placeholder="What should the officer know?" className="field" />
               <button className={btn(true)}>Send to the officer</button>
               <p className="text-small text-ink-3">No automatic message goes to the family after this.</p>
             </form>

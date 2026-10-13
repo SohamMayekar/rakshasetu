@@ -88,7 +88,7 @@ export function AssignmentPanel({ c, assignment, escalation, can, onChanged }: {
         {mode === "rescue" && (
           <div className="rounded-xl border border-line p-3.5">
             <p className="mb-2 flex items-center gap-2 text-small text-ink-2">The team&rsquo;s rescue sheet, recorded on its behalf · via
-              <select value={via} onChange={(e) => setVia(e.target.value)} className="h-7 rounded-lg border border-line bg-paper px-1.5">
+              <select value={via} onChange={(e) => setVia(e.target.value)} className="field-compact !h-8">
                 {["VHF", "HAM", "satellite", "phone"].map((x) => <option key={x}>{x}</option>)}
               </select> · {a.team}
             </p>
@@ -111,7 +111,7 @@ export function AssignmentPanel({ c, assignment, escalation, can, onChanged }: {
         {mode === "release" && (
           <form className="flex flex-wrap gap-2" onSubmit={(e) => { e.preventDefault(); const reason = String(new FormData(e.currentTarget).get("reason"));
             run(() => api(`/v1/assignments/${a.id}/release`, { method: "POST", json: { reason, channel: "phone" } })); }}>
-            <input name="reason" required minLength={3} autoFocus placeholder="Why hand it back? (logged)" className="h-8 min-w-0 flex-1 rounded-lg border border-line px-2" />
+            <input name="reason" required minLength={3} autoFocus placeholder="Why hand it back? (logged)" className="field-compact min-w-0 flex-1" />
             <Button size="sm" variant="primary" type="submit">Hand back</Button>
           </form>
         )}

@@ -3,7 +3,7 @@
 // Alerts: every warning the desk raised for this incident. Open ones first (a team not heard from, or more urgent
 // families than free teams), then the ones already dealt with and how. Acting on an alert happens on the case.
 
-import { use, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { IncidentPage, useMe } from "@/components/desk/IncidentPage";
 import { Card, Empty, useNow, ago } from "@/components/ui";
@@ -12,7 +12,7 @@ import { withWords } from "@/lib/words";
 
 type Alert = Escalation & { resolved_at: string | null; resolution: string | null };
 
-function Row({ e, incident, ids, now }: { e: Alert; incident: string; ids: Map<number, string>; now: number }) {
+function Row({ e, ids, now }: { e: Alert; ids: Map<number, string>; now: number }) {
   const state = e.status === "resolved" ? `Dealt with${e.resolution ? `: ${e.resolution}` : ""}`
     : e.status === "acked" ? `${e.acked_by_name ?? "An officer"} is on it` : "Nobody on it yet";
   return (
@@ -26,7 +26,7 @@ function Row({ e, incident, ids, now }: { e: Alert; incident: string; ids: Map<n
       <span className={`text-small ${e.status === "open" ? "font-medium text-ink" : "text-ink-2"}`}>{state}</span>
       <span className="flex flex-wrap gap-1.5 md:justify-end">
         {e.case_ids.slice(0, 3).map((id) => (
-          <a key={id} href={`/desk/${incident}?case=${ids.get(id) ?? id}`}
+          <a key={id} href={`/desk?case=${ids.get(id) ?? id}`}
              className="tabular inline-flex min-h-9 items-center rounded-full border border-line px-3 text-small font-medium hover:bg-wash">
             Open {ids.get(id) ?? `#${id}`}
           </a>
@@ -37,20 +37,19 @@ function Row({ e, incident, ids, now }: { e: Alert; incident: string; ids: Map<n
   );
 }
 
-export default function Alerts({ params }: { params: Promise<{ incident: string }> }) {
-  const { incident } = use(params);
+export default function Alerts() {
   const me = useMe();
   const now = useNow(30_000);
   const [alerts, setAlerts] = useState<Alert[] | null>(null);
   const [ids, setIds] = useState<Map<number, string>>(new Map());
 
   useEffect(() => {
-    const load = () => api<Alert[]>(`/v1/escalations?incident=${encodeURIComponent(incident)}&open=false`).then(setAlerts).catch(() => setAlerts([]));
+    const load = () => api<Alert[]>("/v1/escalations?open=false").then(setAlerts).catch(() => setAlerts([]));
     load();
-    listCases({ incident }).then(({ cases }) => setIds(new Map(cases.map((c) => [c.id, c.public_id])))).catch(() => {});
+    listCases({}).then(({ cases }) => setIds(new Map(cases.map((c) => [c.id, c.public_id])))).catch(() => {});
     const t = setInterval(load, 5000);
     return () => clearInterval(t);
-  }, [incident]);
+  }, []);
 
   const [open, done] = useMemo(() => {
     const all = alerts ?? [];
@@ -59,18 +58,18 @@ export default function Alerts({ params }: { params: Promise<{ incident: string 
   }, [alerts]);
 
   return (
-    <IncidentPage me={me} code={incident} title="Alerts" sub="teams with contact overdue, and too few free teams">
+    <IncidentPage me={me} title="Alerts" sub="teams with contact overdue, and too few free teams">
       <h2 className="text-heading font-semibold">Open <span className="tabular font-normal text-ink-3">{open.length}</span></h2>
       <Card className="mt-2 overflow-hidden">
         {!alerts ? <Empty>Loading…</Empty> : open.length === 0 ? <Empty>No open alerts. Every team has checked in.</Empty> : (
-          <ul className="divide-y divide-line">{open.map((e) => <Row key={e.id} e={e} incident={incident} ids={ids} now={now} />)}</ul>
+          <ul className="divide-y divide-line">{open.map((e) => <Row key={e.id} e={e} ids={ids} now={now} />)}</ul>
         )}
       </Card>
       {done.length > 0 && (
         <>
           <h2 className="mt-8 text-heading font-semibold">Dealt with <span className="tabular font-normal text-ink-3">{done.length}</span></h2>
           <Card className="mt-2 overflow-hidden">
-            <ul className="divide-y divide-line">{done.slice(0, 50).map((e) => <Row key={e.id} e={e} incident={incident} ids={ids} now={now} />)}</ul>
+            <ul className="divide-y divide-line">{done.slice(0, 50).map((e) => <Row key={e.id} e={e} ids={ids} now={now} />)}</ul>
           </Card>
         </>
       )}

@@ -81,8 +81,8 @@ function Decide({ c, onDone }: { c: Case; onDone: () => void }) {
       try { await api(`/v1/cases/${c.id}/${f.get("kind")}`, { method: "POST", json: { reason: String(f.get("reason")) } }); setOpen(false); onDone(); }
       catch (x) { setError(x instanceof Error ? x.message : String(x)); }
     }}>
-      <select name="kind" className="h-8 rounded-lg border border-line bg-paper px-2 text-body">{kinds.map((k) => <option key={k} value={k}>{{ close: "close", cancel: "cancel (not a real request)", reopen: "reopen" }[k]}</option>)}</select>
-      <input name="reason" required minLength={3} autoFocus placeholder="Why (logged)" className="h-8 min-w-0 flex-1 rounded-lg border border-line px-2 text-body" />
+      <select name="kind" className="field-compact">{kinds.map((k) => <option key={k} value={k}>{{ close: "close", cancel: "cancel (not a real request)", reopen: "reopen" }[k]}</option>)}</select>
+      <input name="reason" required minLength={3} autoFocus placeholder="Why (logged)" className="field-compact min-w-0 flex-1" />
       <Button size="sm" variant="primary" type="submit">Confirm</Button>
       <Button size="sm" variant="quiet" type="button" onClick={() => setOpen(false)}>Cancel</Button>
       {error && <span className="w-full text-small">{error}</span>}
@@ -107,11 +107,11 @@ function PriorityCall({ c, onDone }: { c: Case; onDone: () => void }) {
         setOpen(false); onDone();
       } catch (x) { setError(x instanceof Error ? x.message : String(x)); }
     }}>
-      <select name="level" defaultValue={c.priority} className="h-8 rounded-lg border border-line bg-paper px-2 text-body">
+      <select name="level" defaultValue={c.priority} className="field-compact">
         {["P1", "P2", "P3", "P4"].map((l) => <option key={l} value={l}>{priorityWord(l)} ({l})</option>)}
         {o && <option value="rules">back to the rules</option>}
       </select>
-      <input name="reason" required minLength={3} autoFocus placeholder="Why (shown on the case)" className="h-8 min-w-0 flex-1 rounded-lg border border-line px-2 text-body" />
+      <input name="reason" required minLength={3} autoFocus placeholder="Why (shown on the case)" className="field-compact min-w-0 flex-1" />
       <Button size="sm" variant="primary" type="submit">Confirm</Button>
       <Button size="sm" variant="quiet" type="button" onClick={() => setOpen(false)}>Cancel</Button>
       {error && <span className="w-full text-small">{error}</span>}
@@ -125,7 +125,7 @@ function ManualMerge({ c, onDone }: { c: Case; onDone: (kept: number) => void })
   const [error, setError] = useState<string | null>(null);
   if (!open) return <div className="mt-3"><Button size="sm" variant="quiet" onClick={() => setOpen(true)}>Same family as another case…</Button></div>;
   return (
-    <form className="mt-3 flex flex-wrap gap-2 rounded-lg border border-line p-3" onSubmit={async (e) => {
+    <form className="mt-3 flex flex-wrap gap-2 rounded-xl border border-line p-3" onSubmit={async (e) => {
       e.preventDefault();
       const f = new FormData(e.currentTarget);
       try {
@@ -134,8 +134,8 @@ function ManualMerge({ c, onDone }: { c: Case; onDone: (kept: number) => void })
         setOpen(false); onDone(kept.id);
       } catch (x) { setError(x instanceof Error ? x.message : String(x)); }
     }}>
-      <input name="other" required placeholder="BR-214" className="h-8 w-24 rounded-lg border border-line px-2 text-body tabular" autoFocus />
-      <input name="reason" required minLength={3} placeholder="Why (logged)" className="h-8 min-w-0 flex-1 rounded-lg border border-line px-2 text-body" />
+      <input name="other" required placeholder="CASE-214" className="field-compact w-24 tabular" autoFocus />
+      <input name="reason" required minLength={3} placeholder="Why (logged)" className="field-compact min-w-0 flex-1" />
       <Button size="sm" variant="primary" type="submit">Merge</Button>
       <Button size="sm" variant="quiet" type="button" onClick={() => setOpen(false)}>Cancel</Button>
       {error && <span className="w-full text-small">{error}</span>}
@@ -207,7 +207,7 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
   const evidenceCount = tl?.evidence.length ?? 0;
 
   return (
-    <aside className="fixed inset-0 z-40 flex flex-col overflow-hidden bg-paper md:static md:h-full md:w-[440px] md:shrink-0 md:rounded-card md:border md:border-line/80 md:shadow-[var(--shadow-card)]" aria-label={`Case ${c.public_id}`}>
+    <aside className="panel-in fixed inset-0 z-40 flex flex-col overflow-hidden bg-paper md:static md:h-full md:w-[440px] md:shrink-0 md:rounded-card md:border md:border-line/80 md:shadow-[var(--shadow-card)]" aria-label={`Case ${c.public_id}`}>
       <div ref={body} className="scroll-quiet flex-1 overflow-y-auto">
       <div className="m-3 mb-0 rounded-xl bg-wash p-4">
         <div className="flex items-start justify-between gap-3">
@@ -287,14 +287,14 @@ export function Drawer({ c, me, focus, picking, picked, onPickStart, onPickEnd, 
           <form className="mt-3 space-y-2 rounded-xl border border-line bg-paper p-3 text-body" onSubmit={(e) => { e.preventDefault(); savePin(new FormData(e.currentTarget)); }}>
             <p>{picked ? <>New place at <span className="tabular">{picked.lat.toFixed(5)}, {picked.lng.toFixed(5)}</span> · a person placed it, so its circle is 50 m.</>
                        : "Click the map where the family is."}</p>
-            {picked && <input name="reason" required minLength={3} placeholder="Why (logged), e.g. caller confirmed on phone" className="h-8 w-full rounded-lg border border-line px-2" autoFocus />}
+            {picked && <input name="reason" required minLength={3} placeholder="Why (logged), e.g. caller confirmed on phone" className="field-compact w-full" autoFocus />}
             <div className="flex gap-2">
               {picked && <Button size="sm" variant="primary" type="submit">Save the place</Button>}
               <Button size="sm" variant="quiet" type="button" onClick={onPickEnd}>Cancel</Button>
             </div>
           </form>
         )}
-        {error && <p className="mt-2 rounded-lg bg-paper px-2 py-1 text-small">{error}</p>}
+        {error && <p className="mt-2 rounded-xl bg-paper px-2 py-1 text-small">{error}</p>}
       </div>
       <div className="px-5 pt-1">
         <Fold title="Assignment" icon={Users} open={opened.has("Assignment")} onToggle={() => toggle("Assignment")}

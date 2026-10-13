@@ -9,9 +9,10 @@
 import { useEffect, useRef, useState } from "react";
 
 import { Button, Chip } from "@/components/ui";
-import { api } from "@/lib/api";
+import { api, type Me } from "@/lib/api";
 
 import { word } from "./Facts";
+import { IncidentSelect } from "./IncidentSelect";
 
 type Preview = { summary: string; extraction: {
   people_count?: { value: number; kind: string }; hazards?: { type: string }[]; needs?: { type: string }[];
@@ -21,8 +22,8 @@ type Preview = { summary: string; extraction: {
 
 const newId = () => (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`);
 
-export function NewReport({ incident, onSaved, onClose }: {
-  incident: string; onSaved: (reportId: number) => void; onClose: () => void;
+export function NewReport({ incident: initial, incidents, onSaved, onClose }: {
+  incident: string; incidents: Me["incidents"]; onSaved: (reportId: number) => void; onClose: () => void;
 }) {
   const [text, setText] = useState("");
   const [preview, setPreview] = useState<Preview | null>(null);
@@ -30,6 +31,7 @@ export function NewReport({ incident, onSaved, onClose }: {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const clientId = useRef(newId());
+  const [incident, setIncident] = useState(initial);
 
   useEffect(() => {   // live chips, 300 ms after the last keystroke
     if (!text.trim()) { setPreview(null); return; }
@@ -61,18 +63,27 @@ export function NewReport({ incident, onSaved, onClose }: {
     } catch (e) { setError(e instanceof Error ? e.message : String(e)); setSaving(false); }
   };
 
+  if (incidents.length === 0) {
+    return (
+      <aside className="panel-in fixed inset-0 z-40 flex flex-col bg-paper p-6 md:static md:h-full md:w-[440px] md:shrink-0 md:rounded-card md:border md:border-line/80 md:shadow-[var(--shadow-card)]" aria-label="New report">
+        <div className="flex items-center justify-between"><h2 className="text-lg font-semibold tracking-tight">New report</h2><Button variant="quiet" size="sm" onClick={onClose}>Close</Button></div>
+        <p className="mt-4 text-body text-ink-2">There is no incident to file this under yet. Start one on the <a className="font-semibold underline underline-offset-4" href="/desk/incidents">Incidents</a> page, then come back.</p>
+      </aside>
+    );
+  }
   return (
-    <aside className="fixed inset-0 z-40 flex flex-col overflow-hidden bg-paper md:static md:h-full md:w-[440px] md:shrink-0 md:rounded-card md:border md:border-line/80 md:shadow-[var(--shadow-card)]" aria-label="New report">
+    <aside className="panel-in fixed inset-0 z-40 flex flex-col overflow-hidden bg-paper md:static md:h-full md:w-[440px] md:shrink-0 md:rounded-card md:border md:border-line/80 md:shadow-[var(--shadow-card)]" aria-label="New report">
       <div className="flex items-center justify-between border-b border-line px-5 py-4">
         <h2 className="text-lg font-semibold tracking-tight">New report</h2>
         <Button variant="quiet" size="sm" onClick={onClose}>Close</Button>
       </div>
       <form className="flex-1 space-y-4 overflow-y-auto px-5 py-4" onSubmit={(e) => { e.preventDefault(); save(new FormData(e.currentTarget)); }}>
+        <IncidentSelect incidents={incidents} value={incident} onChange={setIncident} />
         <label className="block">
           <span className="text-body text-ink-2">What did they say? Type the call, or paste a forwarded message.</span>
           <textarea value={text} onChange={(e) => setText(e.target.value)} rows={6} required autoFocus
-                    placeholder="In Thawe village, behind the Durga temple, near the bridge, 6 people are stuck on the roof…"
-                    className="mt-1 w-full rounded-lg border border-line p-3 text-body leading-snug" />
+                    placeholder="In Ward 12, behind the primary school, near the bridge, 6 people are trapped on the first floor…"
+                    className="field mt-1 leading-snug" />
         </label>
         <div aria-live="polite" className="min-h-14">
           {chips.length > 0 && (
@@ -90,12 +101,12 @@ export function NewReport({ incident, onSaved, onClose }: {
         </label>
         <div className="grid grid-cols-2 gap-3 text-body">
           <label className="block"><span className="text-ink-2">Phone to call back</span>
-            <input name="phone" inputMode="tel" placeholder="98765 43210" className="mt-1 h-9 w-full rounded-lg border border-line px-2 tabular" /></label>
+            <input name="phone" inputMode="tel" placeholder="98765 43210" className="field-compact mt-1 w-full tabular" /></label>
           <label className="block"><span className="text-ink-2">Name (optional)</span>
-            <input name="name" className="mt-1 h-9 w-full rounded-lg border border-line px-2" /></label>
+            <input name="name" className="field-compact mt-1 w-full" /></label>
           {!forward && (
             <label className="col-span-2 block"><span className="text-ink-2">Who is calling</span>
-              <select name="relation" defaultValue="unknown" className="mt-1 h-9 w-full rounded-lg border border-line bg-paper px-2">
+              <select name="relation" defaultValue="unknown" className="field-compact mt-1 w-full">
                 <option value="unknown">Not said</option><option value="self">The person in danger</option><option value="family">Family</option>
                 <option value="neighbour">Neighbour</option><option value="volunteer">Volunteer</option><option value="official">Official</option>
               </select></label>

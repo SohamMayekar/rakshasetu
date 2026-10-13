@@ -30,7 +30,7 @@ function Undo({ mergeId, onDone }: { mergeId: number; onDone: () => void }) {
         setOpen(false); onDone();
       } catch (x) { setError(x instanceof Error ? x.message : String(x)); }
     }}>
-      <input name="reason" required minLength={3} autoFocus placeholder="Why undo? (logged)" className="h-8 min-w-0 flex-1 rounded-lg border border-line px-2 text-body" />
+      <input name="reason" required minLength={3} autoFocus placeholder="Why undo? (logged)" className="field-compact min-w-0 flex-1" />
       <Button size="sm" variant="primary" type="submit">Undo merge</Button>
       <Button size="sm" variant="quiet" type="button" onClick={() => setOpen(false)}>Cancel</Button>
       {error && <span className="w-full text-small">{error}</span>}

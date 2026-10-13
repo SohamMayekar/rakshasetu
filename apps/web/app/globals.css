@@ -59,6 +59,36 @@ p { text-wrap: pretty; }
 /* Spacing rhythm (m78): 4 px steps. 8 inside a group, 12 between cards, 20 inside a card, 32 between page
    sections. Pages keep a 16 px side gutter on phones and 32 px from tablets up (components/shell/AppShell). */
 
+
+/* Form controls: one family. field = a normal desk control (44 px), field-compact = inline in a panel (36 px),
+   field-lg = the touch screens' control (56 px). Same border, radius family, focus ring everywhere. */
+@layer components {
+  .field, .field-compact, .field-lg {
+    display: block; border: 1px solid var(--color-line); background: var(--color-paper); color: var(--color-ink);
+    font-size: var(--text-body); line-height: 1.4; transition: border-color .15s ease, box-shadow .15s ease, background-color .15s ease;
+  }
+  .field { width: 100%; height: 2.75rem; padding: 0 .875rem; border-radius: .875rem; }
+  .field-compact { height: 2.25rem; padding: 0 .75rem; border-radius: .75rem; }
+  .field-lg { width: 100%; height: 3.5rem; padding: 0 1rem; border-radius: 1rem; font-size: 1.125rem; }
+  textarea.field, textarea.field-compact, textarea.field-lg { height: auto; padding-top: .7rem; padding-bottom: .7rem; }
+  .field::placeholder, .field-compact::placeholder, .field-lg::placeholder { color: var(--color-ink-3); }
+  .field:hover, .field-compact:hover, .field-lg:hover { border-color: #cfcdc7; }
+  .field:focus, .field-compact:focus, .field-lg:focus { outline: none; border-color: var(--color-ink); box-shadow: 0 0 0 3px rgb(21 21 21 / .08); }
+  .field:disabled, .field-compact:disabled, .field-lg:disabled { background: var(--color-wash); color: var(--color-ink-3); cursor: not-allowed; }
+}
+
+/* Fluidity: a page eases in, a side panel slides in, rows and buttons answer the pointer. Short and quiet. */
+@keyframes page-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes page-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes panel-in { from { opacity: 0; transform: translateX(14px); } to { opacity: 1; transform: none; } }
+.page-in { animation: page-in .45s cubic-bezier(.22, 1, .36, 1) both; }
+.page-fade { animation: page-fade .4s ease-out both; }
+.panel-in { animation: panel-in .35s cubic-bezier(.22, 1, .36, 1) both; }
+@layer base {   /* in the base layer, so any component's own transition utilities still win */
+  a, button { transition-property: color, background-color, border-color, box-shadow, opacity, transform; transition-duration: .15s; transition-timing-function: ease; }
+  button:not(:disabled):active, a[class*="rounded-full"]:active { transform: scale(0.985); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }

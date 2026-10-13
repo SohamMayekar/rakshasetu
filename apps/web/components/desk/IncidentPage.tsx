@@ -1,7 +1,7 @@
 "use client";
 
-// The frame for an incident's own pages (Cases, Teams, Alerts, Sheets): the sidebar, the page title and, under
-// it, which disaster and district this is. Signed out → the sign-in page.
+// The frame for the desk's own pages (Cases, Teams, Alerts, Sheets): the sidebar and the page title. These pages
+// are national: they list every incident this person may see. Signed out → the sign-in page.
 
 import { type ReactNode, useEffect, useState } from "react";
 
@@ -17,14 +17,13 @@ export function useMe(): Me | null {
   return me;
 }
 
-export function IncidentPage({ me, code, title, sub, aside, children }: {
-  me: Me | null; code: string; title: string; sub: string; aside?: ReactNode; children: ReactNode;
+export function IncidentPage({ me, title, sub, aside, children }: {
+  me: Me | null; title: string; sub: string; aside?: ReactNode; children: ReactNode;
 }) {
-  const inc = me?.incidents.find((i) => i.code === code);
   return (
     <AppShell me={me}>
       <Page wide>
-        <PageHeader title={title} sub={inc ? `${inc.name} · ${sub}` : sub} aside={aside} />
+        <PageHeader title={title} sub={sub} aside={aside} />
         <div className="mt-6">{children}</div>
       </Page>
     </AppShell>

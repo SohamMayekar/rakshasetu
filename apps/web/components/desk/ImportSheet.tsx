@@ -7,7 +7,9 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { Button, Chip } from "@/components/ui";
-import { api } from "@/lib/api";
+import { api, type Me } from "@/lib/api";
+
+import { IncidentSelect } from "./IncidentSelect";
 
 type Imp = {
   id: number; file_name: string; file_kind: string; status: string; headers: string[]; proposed: Record<string, string>;
@@ -27,9 +29,10 @@ const OUTCOMES: [string, string][] = [["waiting", "waiting for a team"], ["new",
 const flagWord = (f: string) => ({ needs_location: "where exactly?", old_report: "old report", sheet_says_done: "the sheet says done" } as Record<string, string>)[f]
   ?? f.replace(/_/g, " ");
 
-export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClose }: {
-  incident: string; openId: number | null; initialFilter?: string; onOpenCase: (caseId: number) => void; onClose: () => void;
+export function ImportSheet({ incident: initial, incidents, openId, initialFilter, onOpenCase, onClose }: {
+  incident: string; incidents: Me["incidents"]; openId: number | null; initialFilter?: string; onOpenCase: (caseId: number) => void; onClose: () => void;
 }) {
+  const [incident, setIncident] = useState(initial);
   const [imp, setImp] = useState<Imp | null>(null);
   const [recent, setRecent] = useState<Imp[]>([]);
   const [mapping, setMapping] = useState<Record<string, string>>({});
@@ -42,8 +45,8 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
 
   useEffect(() => {
     if (openId != null) load(openId).catch((e) => setError(String(e.message)));
-    else api<Imp[]>(`/v1/imports?incident=${incident}`).then(setRecent).catch(() => {});
-  }, [openId, incident, load]);
+    else api<Imp[]>("/v1/imports").then(setRecent).catch(() => {});
+  }, [openId, load]);
   useEffect(() => { if (initialFilter) setFilter(initialFilter); }, [initialFilter]);
 
   useEffect(() => {   // live progress while the job runs (the desk stays usable: this is a 1 s poll of one row)
@@ -58,6 +61,7 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
   }, [imp?.id, imp?.status]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const upload = async (file: File) => {
+    if (!incident) { setError("Start an incident first (the Incidents page), then add the sheet."); return; }
     setBusy(true); setError(null);
     const form = new FormData();
     form.set("file", file); form.set("incident", incident);
@@ -81,7 +85,7 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
   const count = (k: string) => rows?.filter((r) => k === "waiting" ? r.outcome === "new" && !r.owned && r.status !== "closed" : r.outcome === k).length ?? 0;
 
   return (
-    <aside className="fixed inset-0 z-40 flex flex-col overflow-hidden bg-paper md:static md:h-full md:w-[500px] md:shrink-0 md:rounded-card md:border md:border-line/80 md:shadow-[var(--shadow-card)]" aria-label="Import a sheet">
+    <aside className="panel-in fixed inset-0 z-40 flex flex-col overflow-hidden bg-paper md:static md:h-full md:w-[500px] md:shrink-0 md:rounded-card md:border md:border-line/80 md:shadow-[var(--shadow-card)]" aria-label="Import a sheet">
       <div className="flex items-center justify-between border-b border-line px-5 py-4">
         <h2 className="text-lg font-semibold tracking-tight">{imp ? imp.file_name : "Import a volunteer sheet"}</h2>
         <Button variant="quiet" size="sm" onClick={onClose}>Close</Button>
@@ -89,6 +93,7 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
       <div className="flex-1 overflow-y-auto px-5 py-4 text-body">
         {!imp && (
           <>
+            <div className="mb-3"><IncidentSelect incidents={incidents} value={incident} onChange={setIncident} /></div>
             <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border border-dashed border-ink-3 px-4 py-10 text-center hover:bg-wash"
                    onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) upload(f); }}>
               <span className="font-medium">{busy ? "Reading…" : "Drop a CSV or XLSX here, or choose a file"}</span>
@@ -119,7 +124,7 @@ export function ImportSheet({ incident, openId, initialFilter, onOpenCase, onClo
                     <td className="py-1.5 pr-2 font-medium">{h}</td>
                     <td className="py-1.5">
                       <select value={mapping[h] === "unknown" ? "ignore" : mapping[h]} onChange={(e) => setMapping({ ...mapping, [h]: e.target.value })}
-                              className="h-8 rounded-lg border border-line bg-paper px-2">
+                              className="field-compact">
                         {FIELDS.map((f) => <option key={f} value={f}>{f}</option>)}
                       </select>
                       {imp.proposed[h] === "unknown" && <span className="ml-2 text-small text-ink-3">not used</span>}

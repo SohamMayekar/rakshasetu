@@ -4,10 +4,12 @@
 // person and phone on screen is synthetic. On the desk it folds to icons so the map keeps its width.
 // Calm: neutral only (hue means priority), the current page is a quiet wash, never a colour.
 
-import { BellRing, ClipboardList, FileSpreadsheet, LayoutDashboard, LayoutGrid, LifeBuoy, ListChecks, LogOut, type LucideIcon, ShieldCheck } from "lucide-react";
+import { BellRing, ClipboardList, FileSpreadsheet, Gauge, Globe, LayoutDashboard, LifeBuoy, ListChecks, LogOut, type LucideIcon, ShieldCheck } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import type { Me } from "@/lib/api";
+import { signOut } from "@/lib/session";
 
 export function Mark({ className = "size-8" }: { className?: string }) {
   // A bridge's arch inside a shield: "RakshaSetu", the bridge of protection. Ink only.
@@ -20,48 +22,106 @@ export function Mark({ className = "size-8" }: { className?: string }) {
   );
 }
 
-type Item = { href: string; label: string; icon: LucideIcon; show: boolean; match?: (p: string) => boolean };
+type Item = {
+  href: string; label: string; icon: LucideIcon; show: boolean; group: "top" | "ops" | "intake" | "admin";
+  match?: (p: string) => boolean; badge?: "alerts" | "sensors";
+};
 
 function initials(name: string) {
   return name.replace(/[^A-Za-z ]/g, " ").split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]!.toUpperCase()).join("");
 }
 
-// The desk's places (m85): the live desk, every case, the teams, the alerts and the volunteer sheets of one incident,
-// then History (the audit trail). Someone who sees several incidents also gets All incidents; the incident tabs
-// follow the incident they have open.
-function navItems(me: Me | null, path: string): Item[] {
+const GROUPS: { key: Item["group"]; title: string | null }[] = [
+  { key: "top", title: null }, { key: "ops", title: "Operations" }, { key: "intake", title: "Intake and signals" }, { key: "admin", title: "Admin" },
+];
+
+// The desk's places: the one national desk, every case, the teams, the alerts and the volunteer sheets (all of them
+// across every incident this person may see), the sensors, then the admin's own: incidents and History.
+function navItems(me: Me | null): Item[] {
   const can = (p: string) => !!me?.permissions.includes(p);
   const desk = !!me && ["call_taker", "duty_officer", "incharge", "admin"].includes(me.user.role);
-  const one = me?.incidents.length === 1 ? me.incidents[0].code : null;
-  const code = path.match(/^\/desk\/([A-Za-z]+)/)?.[1] ?? one;
-  const base = `/desk/${code}`;
+  const base = "/desk";
   const all: Item[] = [
-    { href: "/?door=1", label: "Front door", icon: LayoutDashboard, show: true, match: () => false },
-    { href: "/", label: "All incidents", icon: LayoutGrid, show: !one, match: (p: string) => p === "/" },
-    { href: base, label: "Desk", icon: ClipboardList, show: desk && !!code, match: (p: string) => p === base },
-    { href: `${base}/cases`, label: "Cases", icon: ListChecks, show: desk && !!code && can("queue.view") },
-    { href: `${base}/teams`, label: "Teams", icon: LifeBuoy, show: desk && !!code && can("queue.view") },
-    { href: `${base}/alerts`, label: "Alerts", icon: BellRing, show: desk && !!code && can("escalation.ack") },
-    { href: `${base}/sheets`, label: "Sheets", icon: FileSpreadsheet, show: desk && !!code && can("import.run") },
-    { href: "/audit", label: "History", icon: ShieldCheck, show: can("audit.read") },
+    { href: "/", label: "Home page", icon: LayoutDashboard, show: true, group: "top", match: () => false },
+    { href: base, label: "Desk", icon: ClipboardList, show: desk, group: "ops", match: (p) => p === base },
+    { href: `${base}/cases`, label: "Cases", icon: ListChecks, show: desk && can("queue.view"), group: "ops" },
+    { href: `${base}/teams`, label: "Teams", icon: LifeBuoy, show: desk && can("queue.view"), group: "ops" },
+    { href: `${base}/alerts`, label: "Alerts", icon: BellRing, show: desk && can("escalation.ack"), group: "ops", badge: "alerts" },
+    { href: `${base}/sheets`, label: "Sheets", icon: FileSpreadsheet, show: desk && can("import.run"), group: "intake" },
+    { href: `${base}/sensors`, label: "Sensors", icon: Gauge, show: desk && can("totals.view"), group: "intake", badge: "sensors" },
+    { href: `${base}/incidents`, label: "Incidents", icon: Globe, show: desk && can("incident.admin"), group: "admin" },
+    { href: "/audit", label: "History", icon: ShieldCheck, show: can("audit.read"), group: "admin" },
   ];
   return all.filter((i) => i.show);
 }
 
-const isOn = (i: Item, path: string) => (i.match ? i.match(path) : path.startsWith(i.href));
+const isOn = (i: Item, path: string) => (i.match ? i.match(path) : path === i.href || path.startsWith(`${i.href}/`));
+
+// The two numbers worth a glance from anywhere: teams not heard from, and sensors in danger. Quiet if the
+// person may not see them or the call fails; refreshed every 15 s.
+function useBadges(me: Me | null): Record<"alerts" | "sensors", number> {
+  const [n, setN] = useState({ alerts: 0, sensors: 0 });
+  const canAlerts = !!me?.permissions.includes("escalation.ack");
+  const canSensors = !!me?.permissions.includes("totals.view") && !!me && ["call_taker", "duty_officer", "incharge", "admin"].includes(me.user.role);
+  useEffect(() => {
+    if (!canAlerts && !canSensors) return;
+    let alive = true;
+    const load = async () => {
+      const next = { alerts: 0, sensors: 0 };
+      try {
+        if (canAlerts) {
+          const r = await fetch("/v1/escalations?open=true", { cache: "no-store" });
+          if (r.ok) next.alerts = ((await r.json()) as { status: string }[]).filter((e) => e.status !== "resolved").length;
+        }
+        if (canSensors) {
+          const r = await fetch("/v1/telemetry", { cache: "no-store" });
+          if (r.ok) next.sensors = ((await r.json()) as { state: string }[]).filter((s) => s.state === "danger").length;
+        }
+      } catch { /* quiet: a badge is a convenience */ }
+      if (alive) setN(next);
+    };
+    void load();
+    const t = setInterval(load, 15_000);
+    return () => { alive = false; clearInterval(t); };
+  }, [canAlerts, canSensors]);
+  return n;
+}
+
+function onSignOut(e: React.MouseEvent) {
+  e.preventDefault();   // let the sign-out finish before leaving, or the cookie can outlive the click
+  void signOut("/");
+}
+
+function Badge({ n, tone = "ink" }: { n: number; tone?: "ink" | "light" }) {
+  if (n <= 0) return null;
+  return (
+    <span aria-label={`${n} need attention`}
+          className={`tabular grid h-5 min-w-5 place-items-center rounded-full px-1.5 text-micro font-semibold ${tone === "ink" ? "bg-ink text-paper" : "bg-paper text-ink"}`}>
+      {n > 99 ? "99+" : n}
+    </span>
+  );
+}
 
 // Below the desk breakpoint the sidebar folds into one row across the top of the page.
 export function PhoneBar({ me }: { me: Me | null }) {
   const path = usePathname() ?? "/";
+  const items = navItems(me);
+  const badges = useBadges(me);
+  const row = useRef<HTMLElement>(null);
+  useEffect(() => {   // keep the current page in view as the row scrolls sideways
+    row.current?.querySelector("[aria-current='page']")?.scrollIntoView({ inline: "center", block: "nearest" });
+  }, [path, items.length]);
   return (
-    <nav className="flex items-center gap-1 overflow-x-auto px-3 pt-3 md:hidden" aria-label="Navigation">
+    <nav ref={row} className="scroll-quiet flex items-center gap-1 overflow-x-auto px-3 pt-3 md:hidden" aria-label="Navigation">
       <a href="/" className="mr-1 shrink-0 text-ink" title="RakshaSetu"><Mark className="size-7" /></a>
-      {navItems(me, path).map((i) => {
+      {items.map((i) => {
         const Icon = i.icon;
+        const on = isOn(i, path);
         return (
-          <a key={i.href} href={i.href} aria-current={isOn(i, path) ? "page" : undefined}
-             className={`flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3 text-small ${isOn(i, path) ? "bg-paper font-medium text-ink shadow-[var(--shadow-card)]" : "text-ink-2"}`}>
+          <a key={i.href} href={i.href} aria-current={on ? "page" : undefined}
+             className={`flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3 text-small transition-[background-color,color,box-shadow] duration-200 ${on ? "bg-paper font-medium text-ink shadow-[var(--shadow-card)]" : "text-ink-2 active:bg-black/[0.05]"}`}>
             <Icon className="size-4" strokeWidth={1.8} aria-hidden />{i.label}
+            {i.badge && <Badge n={badges[i.badge]} />}
           </a>
         );
       })}
@@ -71,55 +131,95 @@ export function PhoneBar({ me }: { me: Me | null }) {
 
 export function Sidebar({ me, compact = false }: { me: Me | null; compact?: boolean }) {
   const path = usePathname() ?? "/";
-  const items = navItems(me, path);
-  const on = (i: Item) => isOn(i, path);
+  const items = navItems(me);
+  const badges = useBadges(me);
+  const [hover, setHover] = useState(false);
+  const wide = !compact || hover;            // labels showing: always on full pages, on hover or focus on the desk
+  const list = useRef<HTMLDivElement>(null);
+  const [mark, setMark] = useState<{ top: number; height: number } | null>(null);
+
+  // One quiet marker that glides to the current page instead of every item flashing its own background.
+  useLayoutEffect(() => {
+    const el = list.current?.querySelector<HTMLElement>("[aria-current='page']");
+    setMark(el ? { top: el.offsetTop, height: el.offsetHeight } : null);
+  }, [path, items.length, wide]);
 
   return (
-    <aside className={`sticky top-0 hidden h-dvh shrink-0 flex-col py-5 md:flex ${compact ? "w-[68px] items-center px-2" : "w-60 px-4"}`}
-           aria-label="Navigation">
-      <a href="/" className={`flex items-center gap-2.5 text-ink ${compact ? "" : "px-2"}`} title="RakshaSetu">
-        <Mark className="size-8 shrink-0" />
-        {!compact && <span className="text-heading font-semibold tracking-tight">RakshaSetu</span>}
-      </a>
+    <aside aria-label="Navigation" className={`sticky top-0 z-30 hidden h-dvh shrink-0 md:block ${compact ? "w-[68px]" : "w-60"}`}>
+      <div onMouseEnter={() => compact && setHover(true)} onMouseLeave={() => setHover(false)}
+           onFocus={() => compact && setHover(true)} onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setHover(false); }}
+           className={`absolute inset-y-0 left-0 flex flex-col overflow-hidden py-5 transition-[width,box-shadow,background-color] duration-300 ease-[cubic-bezier(.22,1,.36,1)]
+             ${compact ? (wide ? "w-[236px] rounded-r-3xl bg-canvas px-3 shadow-[var(--shadow-lift)]" : "w-[68px] bg-transparent px-3") : "w-60 px-3"}`}>
+        <a href="/" className="flex h-10 shrink-0 items-center gap-2.5 px-1.5 text-ink" title="RakshaSetu">
+          <Mark className="size-8 shrink-0" />
+          <span className={`overflow-hidden whitespace-nowrap text-heading font-semibold tracking-tight transition-[opacity,max-width] duration-300 ${wide ? "max-w-40 opacity-100" : "max-w-0 opacity-0"}`}>RakshaSetu</span>
+        </a>
 
-      <nav className={`mt-8 flex flex-col gap-1 ${compact ? "items-center" : ""}`}>
-        {items.map((i) => {
-          const Icon = i.icon;
-          return (
-            <a key={i.href} href={i.href} title={compact ? i.label : undefined} aria-current={on(i) ? "page" : undefined}
-               className={`flex items-center gap-3 rounded-xl text-body transition-colors ${compact ? "size-11 justify-center" : "h-10 px-3"}
-                 ${on(i) ? "bg-paper font-medium text-ink shadow-[0_1px_2px_rgba(20,20,20,0.06)]" : "text-ink-2 hover:bg-black/[0.04] hover:text-ink"}`}>
-              <Icon className="size-[18px] shrink-0" strokeWidth={1.8} aria-hidden />
-              {!compact && <span className="truncate">{i.label}</span>}
-              {compact && <span className="sr-only">{i.label}</span>}
-            </a>
-          );
-        })}
-      </nav>
+        <nav className="scroll-quiet mt-6 min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+          <div ref={list} className="relative">
+            {mark && (
+              <span aria-hidden className="pointer-events-none absolute inset-x-0 rounded-xl bg-paper shadow-[0_1px_2px_rgba(20,20,20,0.06),0_4px_14px_rgba(20,20,20,0.05)] transition-[transform,height] duration-300 ease-[cubic-bezier(.22,1,.36,1)]"
+                    style={{ height: mark.height, transform: `translateY(${mark.top}px)` }} />
+            )}
+            {GROUPS.map((g) => {
+              const group = items.filter((i) => i.group === g.key);
+              if (!group.length) return null;
+              return (
+                <div key={g.key} className={g.key === "top" ? "" : "mt-5"}>
+                  {/* a fixed-height row, so nothing below it moves while the rail opens */}
+                  {g.title && (
+                    <div className="relative mb-1 flex h-5 items-center px-3">
+                      <p aria-hidden={!wide} className={`whitespace-nowrap text-micro font-semibold uppercase tracking-[0.12em] text-ink-3 transition-opacity duration-300 ${wide ? "opacity-100" : "opacity-0"}`}>{g.title}</p>
+                      <span aria-hidden className={`absolute inset-x-3 h-px bg-line transition-opacity duration-300 ${wide ? "opacity-0" : "opacity-100"}`} />
+                    </div>
+                  )}
+                  <ul className="flex flex-col gap-0.5">
+                    {group.map((i) => {
+                      const Icon = i.icon;
+                      const on = isOn(i, path);
+                      const n = i.badge ? badges[i.badge] : 0;
+                      return (
+                        <li key={i.href}>
+                          <a href={i.href} title={wide ? undefined : i.label} aria-current={on ? "page" : undefined}
+                             className={`group relative flex h-11 items-center gap-3 rounded-xl px-3 text-body transition-colors duration-200
+                               ${on ? "font-medium text-ink" : "text-ink-2 hover:bg-black/[0.04] hover:text-ink"}`}>
+                            <span className="relative grid size-5 shrink-0 place-items-center">
+                              <Icon className={`size-[18px] transition-transform duration-200 ${on ? "" : "group-hover:scale-110"}`} strokeWidth={on ? 2.1 : 1.8} aria-hidden />
+                              {n > 0 && !wide && <span aria-hidden className="absolute -right-1 -top-1 size-2 rounded-full bg-ink ring-2 ring-canvas" />}
+                            </span>
+                            <span className={`min-w-0 flex-1 truncate transition-opacity duration-200 ${wide ? "opacity-100" : "opacity-0"}`}>{i.label}</span>
+                            {wide && <Badge n={n} />}
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
+        </nav>
 
-      <div className="flex-1" />
+        {wide && me?.demo_mode && (   // honesty (CLAUDE.md §1.6): one line, not a banner
+          <p className="mb-3 mt-3 px-2 text-small leading-snug text-ink-3">Demo data: made-up people and phone numbers. The clock runs 60× faster.</p>
+        )}
 
-      {!compact && me?.demo_mode && (   // honesty (CLAUDE.md §1.6): one line, not a banner
-        <p className="mb-4 px-2 text-small leading-snug text-ink-3">Demo data: made-up people and phone numbers. The clock runs 60× faster.</p>
-      )}
-
-      {me && (
-        <div className={`flex items-center gap-2.5 ${compact ? "flex-col" : "px-1"}`}>
-          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-ink text-small font-semibold text-paper" title={`${me.user.name} · ${me.user.role_label}`}>
-            {initials(me.user.name)}
-          </span>
-          {!compact && (
-            <span className="min-w-0 flex-1 leading-tight">
+        {me && (
+          <div className="mt-2 flex shrink-0 items-center gap-2.5 px-1 py-1.5">
+            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-ink text-small font-semibold text-paper" title={`${me.user.name} · ${me.user.role_label}`}>
+              {initials(me.user.name)}
+            </span>
+            <span className={`min-w-0 flex-1 overflow-hidden leading-tight transition-opacity duration-200 ${wide ? "opacity-100" : "pointer-events-none opacity-0"}`}>
               <span className="block truncate text-body font-medium">{me.user.name}</span>
               {me.user.role_label !== me.user.name && <span className="block truncate text-small text-ink-3">{me.user.role_label}</span>}
             </span>
-          )}
-          <a href="/login" onClick={() => fetch("/v1/auth/logout", { method: "POST" })} title="Sign out"
-             className="grid size-9 shrink-0 place-items-center rounded-full text-ink-3 hover:bg-black/[0.05] hover:text-ink">
-            <LogOut className="size-4" strokeWidth={1.8} aria-hidden /><span className="sr-only">Sign out</span>
-          </a>
-        </div>
-      )}
+            <a href="/" onClick={onSignOut} title="Sign out" tabIndex={wide ? 0 : -1}
+               className={`grid size-9 shrink-0 place-items-center rounded-full text-ink-3 transition-[opacity,background-color,color] hover:bg-black/[0.05] hover:text-ink ${wide ? "opacity-100" : "pointer-events-none opacity-0"}`}>
+              <LogOut className="size-4" strokeWidth={1.8} aria-hidden /><span className="sr-only">Sign out</span>
+            </a>
+          </div>
+        )}
+      </div>
     </aside>
   );
 }

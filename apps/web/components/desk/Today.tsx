@@ -35,11 +35,11 @@ const warn = (text: string) => <span className="rounded-md bg-ink px-1.5 text-bo
 /** Families waiting for a person: a sheet's group row stands for each family in it. */
 export const waitingFamilies = (q: Queue) => q.rows.reduce((n, r) => n + (r.kind === "group" ? r.members?.length ?? 1 : 1), 0);
 
-export function Today({ incident, queue }: { incident: string; queue: Queue | null }) {
+export function Today({ incident, queue }: { incident?: string; queue: Queue | null }) {
   const [p, setP] = useState<Promises | null>(null);   // only for the two life-at-risk warnings
   useEffect(() => {
     let alive = true;
-    const load = () => api<Promises>(`/v1/metrics/promises?incident=${encodeURIComponent(incident)}`).then((x) => alive && setP(x)).catch(() => {});
+    const load = () => api<Promises>(incident ? `/v1/metrics/promises?incident=${encodeURIComponent(incident)}` : "/v1/metrics/promises").then((x) => alive && setP(x)).catch(() => {});
     load();
     const t = setInterval(load, 2000);
     return () => { alive = false; clearInterval(t); };
@@ -48,7 +48,7 @@ export function Today({ incident, queue }: { incident: string; queue: Queue | nu
   return (
     // One strip, four parts (demo pass): the numbers share one surface, at a glance.
     <div className="grid grid-cols-2 divide-x divide-y divide-line overflow-hidden rounded-card border border-line/80 bg-paper shadow-[var(--shadow-card)] md:grid-cols-4 md:divide-y-0" aria-label="Today">
-      <Tile icon={Siren} label="Open incidents" value={queue?.open ?? null} alert={quiet > 0}>
+      <Tile icon={Siren} label="Open cases" value={queue?.open ?? null} alert={quiet > 0}>
         {quiet > 0 ? warn(`${plural(quiet, "team", "teams")} not heard from`) : <span className="text-small text-ink-2">still being dealt with</span>}
       </Tile>
       <Tile icon={AlertTriangle} label="Urgent and unassigned" value={p ? unowned : null} alert={unowned > 0}>

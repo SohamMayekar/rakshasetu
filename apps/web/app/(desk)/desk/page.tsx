@@ -4,11 +4,12 @@
 // in 1-second frames; the cases they name are re-read from the API (scoped), so the screen shows only what
 // this user may see, and it is never more than a second behind the database.
 
-import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { CaseMap } from "@/components/desk/CaseMap";
 import { Drawer, type Picked } from "@/components/desk/Drawer";
 import { Header } from "@/components/desk/Header";
+import { pickDefault } from "@/components/desk/IncidentSelect";
 import { Today } from "@/components/desk/Today";
 import { NeedsYouNow } from "@/components/desk/NeedsYouNow";
 import { ImportSheet } from "@/components/desk/ImportSheet";
@@ -35,8 +36,11 @@ function caseIds(events: Envelope[]): number[] {
   return [...ids];
 }
 
-export default function Desk({ params }: { params: Promise<{ incident: string }> }) {
-  const { incident } = use(params);
+// The one desk: every incident this person may see, in one queue and on one map. There is no per-disaster desk.
+const INCIDENT = "";
+
+export default function Desk() {
+  const incident = INCIDENT;
   const [me, setMe] = useState<Me | null>(null);
   const [cases, setCases] = useState<Map<number, Case>>(new Map());
   const [since, setSince] = useState<number | null>(null);
@@ -61,10 +65,10 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
     setMatchesTick((t) => t + 1);
     if (queueBusy.current) { queueAgain.current = true; return; }
     queueBusy.current = true;
-    const q = encodeURIComponent(incident);
+    const qs = incident ? `?incident=${encodeURIComponent(incident)}` : "";
     Promise.all([
-      api<Escalation[]>(`/v1/escalations?incident=${q}`).then(setEscalations).catch(() => setEscalations([])),
-      api<Queue>(`/v1/queue?incident=${q}`).then(setQueue).catch(() => {}),
+      api<Escalation[]>(`/v1/escalations${qs}`).then(setEscalations).catch(() => setEscalations([])),
+      api<Queue>(`/v1/queue${qs}`).then(setQueue).catch(() => {}),
     ]).finally(() => {
       queueBusy.current = false;
       if (queueAgain.current) { queueAgain.current = false; setTimeout(loadQueue, 2000); }
@@ -77,14 +81,14 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
 
   useEffect(() => {
     api<Me>("/v1/me").then(setMe).catch((e) => { if (e instanceof ApiError && e.status === 401) location.href = "/login"; });
-    listCases({ incident }).then(({ cases, seq }) => {
+    listCases({ incident: incident || undefined }).then(({ cases, seq }) => {
       setCases(new Map(cases.map((c) => [c.id, c])));
       setSince(seq);
       const query = new URLSearchParams(location.search);
-      const want = query.get("case");   // deep link: /desk/BR?case=BR-214
+      const want = query.get("case");   // deep link: /desk?case=CASE-214
       const hit = want ? cases.find((c) => c.public_id === want || String(c.id) === want) : undefined;
       if (hit) setSelected(hit.id);
-      const sheet = query.get("import");   // from the Sheets page: /desk/BR?import=new or ?import=12
+      const sheet = query.get("import");   // from the Sheets page: /desk?import=new or ?import=12
       if (sheet) setImporting({ id: sheet === "new" ? null : Number(sheet) || null });
     })
       .catch((e) => { if (e instanceof ApiError && e.status === 401) location.href = "/login"; });
@@ -115,7 +119,7 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
     setCases((prev) => {
       const next = new Map(prev);
       for (const id of ids) next.delete(id);          // gone from scope (or merged away) unless re-read below
-      for (const c of fresh) if (c.incident_code === incident) next.set(c.id, c);
+      for (const c of fresh) if (!incident || c.incident_code === incident) next.set(c.id, c);
       return next;
     });
   }, [incident, loadQueue]);
@@ -153,7 +157,7 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
   return (
     <div className="flex h-dvh bg-canvas">
       <Sidebar me={me} compact />
-      <div className="flex min-w-0 flex-1 flex-col gap-3 p-3 md:pl-0">
+      <div className="page-fade flex min-w-0 flex-1 flex-col gap-3 p-3 md:pl-0">
       <Header me={me} incident={incident} live={live} />
       {me?.permissions.includes("totals.view") && <Today incident={incident} queue={queue} />}
       <div className="flex min-h-0 flex-1 gap-3">
@@ -179,10 +183,10 @@ export default function Desk({ params }: { params: Promise<{ incident: string }>
                    picking={picking} picked={picked} onPick={setPicked} />
         </main>
         {importing && !composing && (
-          <ImportSheet incident={incident} openId={importing.id} initialFilter={importing.filter}
+          <ImportSheet incident={pickDefault(me?.incidents ?? [])} incidents={me?.incidents ?? []} openId={importing.id} initialFilter={importing.filter}
                        onOpenCase={(id) => { setImporting(null); setSelected(id); }} onClose={() => setImporting(null)} />
         )}
-        {composing && <NewReport incident={incident} onClose={() => setComposing(false)}
+        {composing && <NewReport incident={pickDefault(me?.incidents ?? [])} incidents={me?.incidents ?? []} onClose={() => setComposing(false)}
                                  onSaved={(id) => { setComposing(false); setSaved({ reportId: id, line: "· reading it…" }); }} />}
         {!composing && !importing && current && <Drawer c={current} me={me} focus={focus} picking={picking} picked={picked}
                             onPickStart={() => { setPicking(true); setPicked(null); }} onPickEnd={endPick}

@@ -5,7 +5,7 @@
 // "Accept: we'll be there in 15 / 30 / 60 min" (one tap). New assignments arrive over the
 // WebSocket with a vibration and a sound. While the app is open it says "last seen" every 10 s — display only.
 
-import { ChevronRight, LifeBuoy } from "lucide-react";
+import { ChevronRight, LifeBuoy, LogOut } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { useWakeLock } from "@/lib/wakelock";
@@ -15,6 +15,7 @@ import { BigButton, TapStatus } from "@/components/responder/Field";
 import { Clock, Priority, Ring } from "@/components/ui";
 import { api, ApiError } from "@/lib/api";
 import { useLive } from "@/lib/live";
+import { signOut } from "@/lib/session";
 import { tap } from "@/lib/outbox";
 import type { MyCase, MyTeam } from "@/lib/responder";
 import { PRIORITY_WORD } from "@/lib/words";
@@ -33,7 +34,10 @@ function Login({ onIn }: { onIn: () => void }) {
   };
   return (
     <main className="safe-page mx-auto min-h-dvh max-w-md bg-canvas px-5">
-      <p className="flex items-center gap-2 text-body font-semibold"><Mark className="size-6" />RakshaSetu · Team</p>
+      <header className="flex items-center justify-between gap-3">
+        <p className="flex items-center gap-2 text-body font-semibold"><Mark className="size-6" />RakshaSetu · Team</p>
+        <a href="/" className="text-small font-medium text-ink-2 underline underline-offset-4">Home page</a>
+      </header>
       <h1 className="mt-6 text-3xl font-semibold tracking-tight">Sign in as your team</h1>
       {teams && teams.length > 0 && (
         <ul className="mt-5 space-y-2">
@@ -58,8 +62,8 @@ function Login({ onIn }: { onIn: () => void }) {
         try { await api("/v1/auth/login", { method: "POST", json: { username: f.get("u"), password: f.get("p") } }); onIn(); }
         catch (x) { setError(x instanceof Error ? x.message : String(x)); }
       }}>
-        <input name="u" placeholder="Username" autoComplete="username" className="h-14 w-full rounded-xl border border-line px-4 text-lg" />
-        <input name="p" type="password" placeholder="Password" autoComplete="current-password" className="h-14 w-full rounded-xl border border-line px-4 text-lg" />
+        <input name="u" placeholder="Username" autoComplete="username" className="field-lg" />
+        <input name="p" type="password" placeholder="Password" autoComplete="current-password" className="field-lg" />
         <BigButton>Sign in</BigButton>
         {error && <p className="text-body">{error}</p>}
       </form>
@@ -157,7 +161,12 @@ export default function Responder() {
   return (
     <main className="safe-page mx-auto min-h-dvh max-w-md bg-canvas px-5">
       {offered && <NewCase c={offered} />}
-      <p className="flex items-center gap-2 text-body font-semibold"><Mark className="size-6" />RakshaSetu · {team?.name}</p>
+      <header className="flex items-center justify-between gap-3">
+        <a href="/" className="flex min-w-0 items-center gap-2 text-body font-semibold" title="Home page"><Mark className="size-6 shrink-0" /><span className="truncate">RakshaSetu · {team?.name}</span></a>
+        <button onClick={() => void signOut("/responder")} className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-full border border-line bg-paper px-3.5 text-small font-medium text-ink-2 hover:text-ink">
+          <LogOut className="size-4" aria-hidden />Sign out
+        </button>
+      </header>
       <h1 className="mt-5 text-3xl font-semibold tracking-tight">My cases</h1>
       {offlineSince && (
         <p className="mt-3 rounded-xl bg-ink px-4 py-2 text-base text-paper">

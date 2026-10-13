@@ -3,7 +3,7 @@
 // The public status page (PRD F-L3). Polls every 3 s (no WebSocket through the tunnel). One sentence says where
 // things stand (m70), with when it last changed; the four steps are a tap away. Nothing else: no names, numbers,
 // location, priority or ETA. "Help assigned", never
-// "help on the way": we don't know the boat is moving. When a team goes quiet, only "last update" ages.
+// "help on the way": we don't know the team is moving. When a team goes quiet, only "last update" ages.
 
 import { Clock3, Phone } from "lucide-react";
 import { use, useEffect, useState } from "react";
@@ -15,7 +15,7 @@ import { adoptDevice, deviceId } from "@/lib/device";
 type Status = { public_id: string; tracked_as: string | null; other_reports: number | null; step: string; steps: string[]; last_update_at: string;
                 check?: { people_taken: number | null; answered: string | null } | null };
 
-// One sentence per step, in the family's words. "Assigned", never "on the way": we don't know the boat is moving.
+// One sentence per step, in the family's words. "Assigned", never "on the way": we don't know the team is moving.
 const SENTENCE: Record<string, string> = {
   registered: "We have your report. The control room is finding a rescue team.",
   help_assigned: "Help assigned: a rescue team has your report.",

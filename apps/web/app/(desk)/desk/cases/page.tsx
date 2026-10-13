@@ -4,7 +4,7 @@
 // rescued, closed) and search by place, case number or what was said. A row opens the case on the desk.
 
 import { Search } from "lucide-react";
-import { use, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Filters, IncidentPage, useMe } from "@/components/desk/IncidentPage";
 import { Card, Empty, Priority, PriorityWell, useNow, ago } from "@/components/ui";
@@ -21,8 +21,7 @@ const STATUS: Record<string, string> = {
 };
 const PAGE = 100;
 
-export default function Cases({ params }: { params: Promise<{ incident: string }> }) {
-  const { incident } = use(params);
+export default function Cases() {
   const me = useMe();
   const now = useNow(30_000);
   const [cases, setCases] = useState<Case[] | null>(null);
@@ -31,11 +30,11 @@ export default function Cases({ params }: { params: Promise<{ incident: string }
   const [limit, setLimit] = useState(PAGE);
 
   useEffect(() => {
-    const load = () => listCases({ incident }).then(({ cases }) => setCases(cases.filter((c) => c.status !== "merged"))).catch(() => {});
+    const load = () => listCases({}).then(({ cases }) => setCases(cases.filter((c) => c.status !== "merged"))).catch(() => {});
     load();
     const t = setInterval(load, 10_000);
     return () => clearInterval(t);
-  }, [incident]);
+  }, []);
 
   const counts = useMemo(() => {
     const n: Record<Group, number> = { all: 0, waiting: 0, team: 0, rescued: 0, closed: 0 };
@@ -51,7 +50,7 @@ export default function Cases({ params }: { params: Promise<{ incident: string }
   }, [cases, group, q]);
 
   return (
-    <IncidentPage me={me} code={incident} title="Cases" sub="every family reported, newest first">
+    <IncidentPage me={me} title="Cases" sub="every family reported, newest first">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <Filters value={group} onChange={(g) => { setGroup(g); setLimit(PAGE); }} items={[
           { key: "all", label: "All", count: counts.all }, { key: "waiting", label: "Waiting", count: counts.waiting },
@@ -62,7 +61,7 @@ export default function Cases({ params }: { params: Promise<{ incident: string }
           <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-ink-3" aria-hidden />
           <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Place, case number or words…"
                  autoComplete="off" spellCheck={false}
-                 className="h-10 w-full rounded-full border border-line bg-paper pl-10 pr-4 text-body" />
+                 className="field !rounded-full !pl-10 !pr-4 !h-10" />
         </label>
       </div>
 
@@ -71,7 +70,7 @@ export default function Cases({ params }: { params: Promise<{ incident: string }
           <ul className="divide-y divide-line">
             {shown.slice(0, limit).map((c) => (
               <li key={c.id}>
-                <a href={`/desk/${incident}?case=${c.public_id}`}
+                <a href={`/desk?case=${c.public_id}`}
                    className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-0.5 px-4 py-3 transition-colors hover:bg-wash md:grid-cols-[auto_7rem_minmax(0,1fr)_12rem_6.5rem]">
                   <PriorityWell level={c.priority} />
                   <span className="min-w-0 md:contents">

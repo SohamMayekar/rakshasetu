@@ -75,7 +75,8 @@ export const availability = (status: string | null | undefined) => AVAILABILITY[
 /** The audit log's event codes ("assignment.acknowledged") as words ("Assignment acknowledged"). */
 const EVENT_WORD: Record<string, string> = {
   "demo.clock_real": "Timer set to the real clock", "demo.clock_advanced": "Timer moved forward (demo clock)",
-  "demo.clip_played": "Recorded clip sent", "demo.language_model": "AI reading switched", "chain.genesis": "History started",
+  "demo.clip_played": "Recorded clip sent", "sensor.registered": "A sensor joined", "sensor.state_changed": "A sensor changed level",
+  "incident.created": "A new incident was started", "incident.updated": "An incident changed stage", "demo.language_model": "AI reading switched", "chain.genesis": "History started",
 };
 export function plainEvent(action: string): string {
   if (EVENT_WORD[action]) return EVENT_WORD[action];

@@ -89,7 +89,7 @@ export default function ResponderCase({ params }: { params: Promise<{ id: string
                 <form className="space-y-2" onSubmit={(e) => { e.preventDefault();
                   tap({ url: `/v1/assignments/${a.id}/release`, body: { reason: String(new FormData(e.currentTarget).get("reason")) }, label: "Handed back", caseId: c.id });
                   setReleasing(false); }}>
-                  <input name="reason" required minLength={3} placeholder="Why? For example, the engine failed…" className="h-14 w-full rounded-xl border border-line px-4 text-lg" />
+                  <input name="reason" required minLength={3} placeholder="Why? For example, the engine failed…" className="field-lg" />
                   <BigButton>Hand back</BigButton>
                 </form>
               )}

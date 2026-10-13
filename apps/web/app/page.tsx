@@ -19,6 +19,7 @@ import { Card, Chip, IconWell, PageHeader } from "@/components/ui";
 import type { Queue } from "@/lib/queue";
 import type { Promises } from "@/lib/api";
 import { api, ApiError, type Me } from "@/lib/api";
+import { enterNationalDesk } from "@/lib/enter";
 
 type Incident = { id: number; code: string; name: string; type: string; states: string[]; status: string; lat: number; lng: number;
                   districts: string[]; promises: Promises | null };
@@ -52,23 +53,14 @@ const DESK_ROLES = ["call_taker", "duty_officer", "incharge", "admin"];
 // Two big choices, nothing else competing: who are you? (Works from 320 px phones to the projector.)
 function FrontDoor({ me }: { me?: Me | null }) {
   const choice = "group flex flex-col items-start gap-4 rounded-card border border-line/80 bg-paper p-6 text-left shadow-[var(--shadow-card)] transition-colors hover:bg-wash md:p-8 disabled:opacity-60";
-  const deskUrl = me ? (me.incidents[0] ? `/desk/${me.incidents[0].code}` : "/") : "/login";
+  const deskUrl = !me ? "/login" : me.user.role === "team_lead" ? "/responder" : DESK_ROLES.includes(me.user.role) ? "/desk" : "/?incidents";
   const [busy, setBusy] = useState(false);
   // One tap into the control room: on the demo listener the duty officer's profile in config signs in with no
   // password (the same mechanism the old picker used). Anywhere else (or if that fails) it asks for a password.
   const enterDesk = async () => {
     if (me) { location.href = deskUrl; return; }
     setBusy(true);
-    try {
-      const profiles = await api<{ username: string; role: string }[]>("/v1/auth/users");
-      const desk = profiles.find((p) => ["duty_officer", "call_taker", "incharge"].includes(p.role)) ?? profiles[0];
-      if (!desk) throw new Error("no desk account");
-      await api("/v1/auth/login", { method: "POST", json: { username: desk.username } });
-      const signed = await api<Me>("/v1/me");
-      location.href = signed.incidents[0] ? `/desk/${signed.incidents[0].code}` : "/login";
-    } catch {
-      location.href = "/login";
-    }
+    await enterNationalDesk();
   };
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center bg-canvas px-4 py-10">
@@ -81,7 +73,7 @@ function FrontDoor({ me }: { me?: Me | null }) {
             </div>
             <div className="flex items-center gap-3">
               <a href={deskUrl} className="inline-flex h-9 items-center rounded-full bg-ink px-4 text-small font-medium text-paper hover:bg-[#2b2b2b]">
-                Open Control Room →
+                {me && me.user.role === "team_lead" ? "Open the team app →" : "Open Control Room →"}
               </a>
               <button
                 type="button"
@@ -165,7 +157,7 @@ export default function Incidents() {
 
   const appRedirect = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("app");
   const home = appRedirect && me && !door && (me.user.role === "team_lead" ? "/responder"
-    : DESK_ROLES.includes(me.user.role) && me.incidents.length === 1 ? `/desk/${me.incidents[0].code}` : null);
+    : DESK_ROLES.includes(me.user.role) ? "/desk" : null);
   useEffect(() => { if (home) location.replace(home); }, [home]);
 
   if (door) return <FrontDoor me={me} />;
@@ -173,11 +165,11 @@ export default function Incidents() {
   const showIncidents = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("incidents");
   if (showIncidents && me) {
     const desk = DESK_ROLES.includes(me.user.role);
-    const go = (code: string) => { if (desk) location.href = `/desk/${code}`; };
+    const go = () => { if (desk) location.href = "/desk"; };
     return (
       <AppShell me={me}>
         <Page wide>
-          <PageHeader title="All incidents" sub="Each disaster has its own control room. Open one to start helping." />
+          <PageHeader title="All incidents" sub="One national desk covers every disaster below. Open it to start helping." />
           <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
             <section className="space-y-4" aria-label="Incidents">
               {(list ?? []).map((i) => {
@@ -196,8 +188,8 @@ export default function Incidents() {
                     </div>
                     <Numbers q={queues[i.code] ?? null} p={i.promises} />
                     {desk && (
-                      <a href={`/desk/${i.code}`} className="mt-4 inline-flex h-9 items-center gap-1.5 rounded-full bg-ink px-4 text-body font-medium text-paper hover:bg-[#2b2b2b]">
-                        Open the control room<ArrowRight className="size-4" aria-hidden />
+                      <a href="/desk" className="mt-4 inline-flex h-9 items-center gap-1.5 rounded-full bg-ink px-4 text-body font-medium text-paper hover:bg-[#2b2b2b]">
+                        Open the national desk<ArrowRight className="size-4" aria-hidden />
                       </a>
                     )}
                   </Card>

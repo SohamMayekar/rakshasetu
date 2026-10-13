@@ -5,11 +5,12 @@
 // Contact overdue first (they need a radio call), then responding, available and out of service. A team's
 // "last contact" is real contact only (a tap or a radio call), never the app merely being open.
 
-import { Radio, Smartphone } from "lucide-react";
-import { use, useEffect, useMemo, useState } from "react";
+import { Plus, Radio, Smartphone } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { Filters, IncidentPage, useMe } from "@/components/desk/IncidentPage";
-import { Card, Chip, Empty, useNow, ago } from "@/components/ui";
+import { NewTeam } from "@/components/desk/NewTeam";
+import { Button, Card, Chip, Empty, useNow, ago } from "@/components/ui";
 import { api } from "@/lib/api";
 import { availability, teamLabel } from "@/lib/words";
 
@@ -22,19 +23,21 @@ const groupOf = (t: Team): Exclude<Group, "all"> =>
   t.status === "out_of_service" ? "out" : t.status === "overdue" || t.standdowns_owed > 0 ? "quiet" : t.active > 0 ? "busy" : "free";
 const ORDER: Exclude<Group, "all">[] = ["quiet", "busy", "free", "out"];
 
-export default function Teams({ params }: { params: Promise<{ incident: string }> }) {
-  const { incident } = use(params);
+export default function Teams() {
   const me = useMe();
   const now = useNow(30_000);
   const [teams, setTeams] = useState<Team[] | null>(null);
   const [group, setGroup] = useState<Group>("all");
+  const [adding, setAdding] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
+  const admin = !!me?.permissions.includes("incident.admin");
+  const load = useCallback(() => { api<Team[]>("/v1/teams").then(setTeams).catch(() => setTeams([])); }, []);
 
   useEffect(() => {
-    const load = () => api<Team[]>(`/v1/teams?incident=${encodeURIComponent(incident)}`).then(setTeams).catch(() => setTeams([]));
     load();
     const t = setInterval(load, 5000);
     return () => clearInterval(t);
-  }, [incident]);
+  }, [load]);
 
   const counts = useMemo(() => {
     const n: Record<Group, number> = { all: 0, quiet: 0, busy: 0, free: 0, out: 0 };
@@ -45,14 +48,22 @@ export default function Teams({ params }: { params: Promise<{ incident: string }
     .sort((a, b) => ORDER.indexOf(groupOf(a)) - ORDER.indexOf(groupOf(b)) || a.name.localeCompare(b.name));
 
   return (
-    <IncidentPage me={me} code={incident} title="Teams" sub="who can go, who is busy, whose check-in is overdue">
+    <IncidentPage me={me} title="Teams" sub="who can go, who is busy, whose check-in is overdue"
+                  aside={admin ? <Button variant="primary" onClick={() => { setAdding((a) => !a); setNote(null); }}><Plus className="size-4" aria-hidden />Add a team</Button> : undefined}>
+      {adding && admin && (
+        <Card className="mb-4">
+          <h2 className="border-b border-line px-4 py-3 text-heading font-semibold">Add a team</h2>
+          <NewTeam me={me} onCreated={(n) => { setAdding(false); setNote(n); load(); }} />
+        </Card>
+      )}
+      {note && <p role="status" className="mb-4 rounded-xl bg-wash px-4 py-3 text-body">{note}</p>}
       <Filters value={group} onChange={setGroup} items={[
         { key: "all", label: "All", count: counts.all }, { key: "quiet", label: "Check-in overdue", count: counts.quiet },
         { key: "busy", label: "Responding", count: counts.busy }, { key: "free", label: "Available", count: counts.free },
         { key: "out", label: "Out of service", count: counts.out }]} />
 
       <Card className="mt-3 overflow-hidden">
-        {!teams ? <Empty>Loading…</Empty> : shown.length === 0 ? <Empty>No teams here.</Empty> : (
+        {!teams ? <Empty>Loading…</Empty> : shown.length === 0 ? <Empty>{teams.length === 0 ? (admin ? "No teams yet. Add the first one with “Add a team”." : "No teams yet. The national admin adds them.") : "No teams here."}</Empty> : (
           <ul className="divide-y divide-line">
             {shown.map((t) => {
               const g = groupOf(t);

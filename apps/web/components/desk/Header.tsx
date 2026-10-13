@@ -9,7 +9,7 @@ import { Clock, useNow } from "@/components/ui";
 import type { Me } from "@/lib/api";
 import type { LiveState } from "@/lib/live";
 
-export function Header({ me, incident, live }: { me: Me | null; incident: string; live: LiveState }) {
+export function Header({ me, incident, live }: { me: Me | null; incident?: string; live: LiveState }) {
   const now = useNow(30_000);
   return (
     <header className="flex items-start justify-between gap-4 px-1">
