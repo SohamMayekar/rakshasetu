@@ -30,3 +30,5 @@ docs/screens/golden/FAILED-*.png
 ai-website-cloner-template/
 .commandcode/
 .impeccable/
+.vercel
+.env*
