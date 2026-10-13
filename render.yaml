@@ -1,0 +1,59 @@
+# Render Blueprint: the RakshaSetu API, as infrastructure as code.
+#
+# The live service is named `rakshasetu-api`, because that is the hostname the web app expects:
+#   https://rakshasetu-api.onrender.com   (apps/web reads API_ORIGIN / next.config.ts)
+#
+# Validate this file with:  render blueprints validate render.yaml
+# Recreate the service in one step: Render Dashboard → New → Blueprint → this repository.
+# (Applying it again creates a SECOND service; the running one was created through the Render API.)
+#
+# Free plan, honestly: a free instance sleeps after 15 minutes without traffic and cold-starts in
+# ~30-60 s. .github/workflows/keepalive.yml pings /healthz every 10 minutes to keep it awake.
+services:
+  - type: web
+    name: rakshasetu-api
+    runtime: docker
+    plan: free
+    region: singapore # nearest to India; use oregon if singapore is unavailable on the free plan
+    branch: main
+    repo: https://github.com/SohamMayekar/rakshasetu
+    autoDeployTrigger: commit
+    healthCheckPath: /healthz
+    dockerfilePath: ./Dockerfile.render
+    dockerContext: .
+    envVars:
+      # --- database: Neon Postgres (serverless, connects from anywhere) -----------------------
+      - key: DATABASE_URL # rakshasetu_app: INSERT+SELECT on events, owns nothing
+        sync: false
+      - key: OWNER_DATABASE_URL # rakshasetu_owner: runs migrations
+        sync: false
+      - key: DEMO_OWNER_DATABASE_URL # the seed loader and the demo reset (DEMO_MODE only)
+        sync: false
+
+      # --- behaviour -------------------------------------------------------------------------
+      - key: DEMO_MODE
+        value: "true" # the one-tap sign-in and /v1/demo/* need it
+      - key: PUBLIC_URL
+        sync: false # the reporter's public address, e.g. https://myrakshasetu.vercel.app
+      - key: PROVIDER_MODE
+        value: auto
+
+      # --- secrets ---------------------------------------------------------------------------
+      - key: SECRET_KEY # signs session cookies
+        sync: false
+      - key: PHONE_HASH_KEY # matches phones without storing them in clear
+        sync: false
+      - key: PHONE_ENC_KEY # Fernet key for phones at rest
+        sync: false
+      - key: PARTNER_DEMO_SECRET
+        sync: false
+
+      # --- free-tier providers (empty = that provider is skipped; no keys still works) --------
+      - key: SARVAM_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GOOGLE_MAPS_API_KEY
+        sync: false

@@ -1,7 +1,3 @@
 {
-  "rootDirectory": "apps/web",
-  "framework": "nextjs",
-  "rewrites": [
-    { "source": "/v1/:path*", "destination": "https://rakshasetu-api.onrender.com/v1/:path*" }
-  ]
+  "framework": "nextjs"
 }

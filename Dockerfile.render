@@ -1,0 +1,39 @@
+# Render image, at the repository root because Render resolves the Dockerfile against the build
+# context (which has to be the root: the API needs packages/contracts and data/).
+#
+# The compose image (services/api/Dockerfile) is unchanged, and stays next to the service: it uses
+# compose `additional_contexts` for the optional extra CAs and for packages/contracts, which
+# Render's builder does not have. So this one copies what it needs itself.
+#
+#   docker build -f Dockerfile.render -t rakshasetu-api .
+FROM public.ecr.aws/docker/library/python:3.12-slim
+
+# ffmpeg transcodes voice clips to 16 kHz mono WAV (PRD F-L2).
+RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
+
+WORKDIR /srv
+COPY services/api/pyproject.toml ./
+# Runtime dependencies only: the image never runs the test suite.
+RUN python -c "import tomllib; p=tomllib.load(open('pyproject.toml','rb'))['project']; \
+open('/tmp/req.txt','w').write('\n'.join(p['dependencies']))" \
+    && pip install --no-cache-dir -r /tmp/req.txt
+
+COPY services/api/ ./
+COPY packages/contracts /contracts
+COPY data /data
+
+# config/ is team-owned YAML (agencies, capabilities, roles) and ships in the image.
+# data/ is read-only reference data: the scenario packs, the gazetteer and the eval sheet.
+# /files is evidence storage: empty on every start (Render's disk is ephemeral; see docs/DEPLOY.md).
+ENV PYTHONPATH=/srv \
+    CONFIG_DIR=/srv/config \
+    CONTRACTS_DIR=/contracts \
+    DATA_DIR=/data \
+    FILES_DIR=/files
+RUN mkdir -p /files
+
+EXPOSE 8000
+CMD ["bash", "/srv/render_start.sh"]

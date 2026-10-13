@@ -1,0 +1,27 @@
+# Keeps the free Render instance awake so the first click is never a cold start.
+#
+# Render's free plan sleeps a service after 15 minutes without traffic, and waking it takes ~30-60 s.
+# This pings the health check every 10 minutes. It is a keepalive, not monitoring: it never fails the
+# run, so a broken service does not fill the repository with red.
+#
+# Note: GitHub pauses scheduled workflows after 60 days without a commit to the repository.
+name: keepalive
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping the API
+        run: |
+          for attempt in 1 2 3; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" -m 120 https://rakshasetu-api-vmc1.onrender.com/healthz || true)
+            echo "attempt $attempt: HTTP $code"
+            if [ "$code" = "200" ]; then exit 0; fi
+            sleep 30
+          done
+          echo "no 200 yet: the instance may still be starting"
