@@ -5,7 +5,7 @@ WEB := apps/web
 
 COMPOSE := docker compose -f infra/docker-compose.yml --env-file .env
 
-.PHONY: help env up down nuke ps logs smoke psql demo-sheet read-eval sheet-eval screens count e2e drills contracts seed demo-reset surge partner-demo webhook-sink verify tamper provider-check keys copy-check dev-api dev-web test test-api test-web lint
+.PHONY: help env up down nuke ps logs smoke psql demo-sheet read-eval sheet-eval screens count e2e drills contracts seed seed-demo demo-reset surge partner-demo telemetry-demo webhook-sink verify tamper provider-check keys copy-check dev-api dev-web test test-api test-web lint
 
 help: ## List the targets
 	@grep -E '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) | awk -F':.*?## ' '{printf "  make %-12s %s\n", $$1, $$2}'
@@ -20,22 +20,26 @@ up: env ## Build and start the whole stack (db, api, worker, ticker, web)
 down: ## Stop the stack (data volume kept)
 	$(COMPOSE) down
 
-seed: ## Wipe the demo database and load the BR, OD and HP scenario packs (DEMO_MODE only)
+seed: ## An EMPTY platform: wipe the database and create one admin (DEMO_MODE only). Then start an incident and add teams in the app
 	$(COMPOSE) exec -T api python -m app.seed
+seed-demo: ## Wipe, then load the four sample scenario packs (Mumbai, Bihar, Odisha, Himachal) for rehearsals and the test suite
+	$(COMPOSE) exec -T api python -m app.seed --demo
 
 demo-reset: ## Reset the demo to a scene's starting point (make demo-reset SCENE=stale; scenes in data/scenarios/BR/demo.yaml)
 	$(COMPOSE) exec -T api python -m app.modules.demo.scenes --scene $(or $(SCENE),son)
 demo-live: ## Run natively with live provider keys and perform the demonstration (make demo-live GROQ_API_KEY=gsk_…)
 	./scripts/demo_live.sh --scene $(or $(SCENE),receipts)
 demo-clean: ## Empty the desk for the live demo: reference data only (teams, users, gazetteer), no cases
-	bash -c 'source native/env.sh && cd services/api && .venv/bin/python -m app.seed --no-cases'
+	bash -c 'source native/env.sh && cd services/api && .venv/bin/python -m app.seed --demo --no-cases'
 demo-mixed: ## Wipe, then send one simulated report per incident (flood, cyclone, landslide) through the real pipeline
-	bash -c 'source native/env.sh && cd services/api && .venv/bin/python -m app.seed --no-cases'
+	bash -c 'source native/env.sh && cd services/api && .venv/bin/python -m app.seed --demo --no-cases'
 	./scripts/demo_mixed.sh
 surge: ## Synthetic partner-report surge through the public listener (make surge RATE=50 DURATION=60); watch /surge
 	$(COMPOSE) exec -T api python -m app.surge --rate $(or $(RATE),50) --duration $(or $(DURATION),60)
 partner-demo: ## A SIMULATED partner's annotations on a case, signed, through the public listener (make partner-demo CASE=BR-199); see /partners
 	$(COMPOSE) exec -T api python -m app.partner_demo --case $(or $(CASE),BR-199)
+telemetry-demo: ## SIMULATED sensors (river, rain, wind gauges) rising through their warning lines, signed, through the public listener; see Sensors on the desk
+	$(COMPOSE) exec -T api python -m app.telemetry_demo --ticks $(or $(TICKS),12) --every $(or $(EVERY),2)
 webhook-sink: ## A partner's webhook receiver (verifies our signature) on api:9009; set DEMO_PARTNER_WEBHOOK_URL=http://api:9009/hook
 	$(COMPOSE) exec api python -m app.webhook_sink
 verify: ## Verify the audit hash chain of the demo database

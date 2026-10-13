@@ -7,15 +7,15 @@ from app.core.auth import Scope, require
 from app.core.listener import require_local
 from app.db import get_engine
 from app.modules.metrics import surge
-from app.modules.metrics.service import integrity, promises
+from app.modules.metrics.service import integrity, promises, promises_all
 
 router = APIRouter(tags=["metrics"], dependencies=[Depends(require_local)])
 
 
 @router.get("/v1/metrics/promises")
-def promise_bar(incident: str, scope: Scope = Depends(require("totals.view"))) -> dict:
+def promise_bar(incident: str | None = None, scope: Scope = Depends(require("totals.view"))) -> dict:
     with get_engine().connect() as conn:
-        out = promises(conn, scope, incident)
+        out = promises(conn, scope, incident) if incident else promises_all(conn, scope)
     if out is None:
         raise HTTPException(404, "No such incident")
     return out

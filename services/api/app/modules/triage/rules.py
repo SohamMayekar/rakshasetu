@@ -29,6 +29,8 @@ def facts_of(fields: dict) -> dict:
         "needs_supplies": bool(needs & SUPPLIES), "vulnerable": bool(vulnerable), "infant": "infant" in vulnerable,
         "elderly": "elderly" in vulnerable, "child": "child" in vulnerable, "pregnant": "pregnant" in vulnerable,
         "disabled": "disabled" in vulnerable, "people_count": fields.get("people_count"),
+        "fire": "fire" in hazards, "smoke_gas": "smoke_gas" in hazards, "road_accident": "road_accident" in hazards,
+        "earthquake": "earthquake" in hazards, "wind_damage": "wind_damage" in hazards, "injured": "injured" in vulnerable,
     }
 
 
@@ -50,7 +52,8 @@ def p1_rank(facts: dict) -> int:
     for rank, key in enumerate(get_config().p1_order, start=1):
         if key == "infant_or_medical_urgent" and (facts["infant"] or facts["medical_urgent"]):
             return rank
-        if key == "water_rising" and facts["water_rising"]:
+        # a danger that is still spreading: rising water, a fire, or gas
+        if key == "water_rising" and (facts["water_rising"] or facts["fire"] or facts["smoke_gas"]):
             return rank
         if key == "vulnerable" and facts["vulnerable"]:
             return rank

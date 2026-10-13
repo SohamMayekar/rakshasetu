@@ -118,6 +118,26 @@ hazards:
     - '\b(?:road|sadak|rasta) (?:pe|par) (?:ghutne|kamar|gale) tak pa+ni\b'
     - '\b(?:local )?(?:train|bus) (?:is )?(?:stuck|stopped|halted|stalled)\b'
     - '\bstalled (?:bus|train|car)\b'
+  fire:
+    - '\b(?:aag|aag lagi|aag lag gayi|on fire|caught fire|fire broke out|burning|jal (?:raha|rahi|gaya|gayi)|jalte hue)\b[^,.;]{0,20}'
+    - '\bfire\b(?! (?:brigade|station|engine|department|team|force|and rescue|& rescue))[^,.;]{0,20}'
+    - '(?:आग|जल रहा|जल रही|जल गया)\S*'
+    - '\b(?:aag|aagit|aagi)\b'
+    - '(?:आग लागली|आगीत|जळत)'
+  smoke_gas:
+    - '\b(?:dhuan|dhuaan|dhuwan|smoke|gas leak(?:age)?|cylinder (?:blast|burst|leak)|toxic fumes?|fumes|short circuit|electric shock|current lag)\w*\b[^,.;]{0,15}'
+    - '(?:धुआं|धुँआ|धुवां|गैस (?:लीक|रिसाव)|सिलेंडर|शॉर्ट सर्किट|करंट)\S*'
+    - '(?:धूर|गॅस गळती|गॅस लीक)'
+  road_accident:
+    - '\b(?:road accident|accident|collision|collided|crash(?:ed)?|overturned|hit and run|takkar|takra\w*|hadsa|durghatna)\b[^,.;]{0,20}'
+    - '(?:दुर्घटना|हादसा|टक्कर|अपघात)\S*'
+  earthquake:
+    - '\b(?:earthquake|quake|tremors?|aftershocks?|bhukamp|bhookamp|zalzala)\b[^,.;]{0,15}'
+    - '(?:भूकंप|भूकम्प|भूकंपाचा|जलजला|झटके)\S*'
+  wind_damage:
+    - '\b(?:cyclone|toofan|tufan|storm|gale|strong winds?|heavy winds?|andhi|roof (?:blown|flew|has flown|uda)|chhat (?:ud|uda)|tree (?:fell|fallen|has fallen)|ped gir\w*|pole (?:fell|fallen)|uprooted|vadal)\b[^,.;]{0,20}'
+    - '(?:तूफान|तूफ़ान|चक्रवात|आंधी|आँधी|पेड़ गिर|छत उड़|छत उड)\S*'
+    - '(?:वादळ|झाड पडले|झाड पडल)'
 
 # --- needs -------------------------------------------------------------------------------------------
 needs:
@@ -139,6 +159,12 @@ needs:
   baby_supplies:
     - '\b(?:doodh|milk)\b[^,.;]{0,20}'
     - 'दूध[^,।]{0,10}'
+  shelter:
+    - '\b(?:shelter|relief camp|rehne ki jagah|rahne ki jagah|ghar nahi raha|ghar toot|homeless|aashray|ashray|nivara)\b[^,.;]{0,20}'
+    - '(?:आश्रय|निवारा|राहण्याची सोय|रहने की जगह|बेघर)'
+  rescue:
+    - '\b(?:rescue|bachao|bachaao|bacha lo|bachalo|nikalo|nikaliye|save us|help us|need help|madad)\b[^,.;]{0,15}'
+    - '(?:बचाओ|बचा लो|बचाव|मदद|वाचवा|मदत)\S*'
 
 # --- vulnerable people -------------------------------------------------------------------------------
 vulnerable:

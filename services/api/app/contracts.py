@@ -12,7 +12,8 @@ from pydantic import BaseModel, ConfigDict, Field
 Channel = Literal["voice", "whatsapp", "web_form", "spreadsheet", "partner"]
 Relation = Literal["self", "family", "neighbour", "volunteer", "forwarder", "official", "unknown"]
 Hazard = Literal["trapped_on_roof", "trapped_inside", "water_entering", "water_rising", "strong_current",
-                 "buried", "structure_collapsed", "landslide", "cut_off"]
+                 "buried", "structure_collapsed", "landslide", "cut_off",
+                 "fire", "smoke_gas", "road_accident", "earthquake", "wind_damage"]
 Need = Literal["rescue", "medicine", "medical_urgent", "food", "drinking_water", "shelter", "baby_supplies"]
 Vulnerable = Literal["elderly", "infant", "child", "pregnant", "disabled", "sick", "injured"]
 LandmarkType = Literal["temple", "mosque", "church", "gurdwara", "place_of_worship", "bridge", "school", "hospital",

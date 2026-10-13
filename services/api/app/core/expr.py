@@ -12,7 +12,8 @@ import ast
 
 FACTS = {"trapped", "water_rising", "water_entering", "medical_urgent", "buried", "structure_collapsed",
          "landslide", "cut_off", "vulnerable", "infant", "elderly", "child", "pregnant", "disabled", "medicine",
-         "needs_supplies", "people_count"}
+         "needs_supplies", "people_count",
+         "fire", "smoke_gas", "road_accident", "earthquake", "wind_damage", "injured"}
 _CMP = {ast.GtE: lambda a, b: a >= b, ast.Gt: lambda a, b: a > b, ast.LtE: lambda a, b: a <= b,
         ast.Lt: lambda a, b: a < b, ast.Eq: lambda a, b: a == b, ast.NotEq: lambda a, b: a != b}
 

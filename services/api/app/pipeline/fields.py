@@ -9,9 +9,11 @@ from app.contracts import Extraction
 
 HAZARD_LABEL = {"trapped_on_roof": "roof", "trapped_inside": "trapped", "water_entering": "water inside",
                 "water_rising": "water rising", "strong_current": "strong current", "buried": "buried",
-                "structure_collapsed": "collapse", "landslide": "landslide", "cut_off": "cut off"}
+                "structure_collapsed": "collapse", "landslide": "landslide", "cut_off": "cut off",
+                "fire": "fire", "smoke_gas": "smoke or gas", "road_accident": "road accident", "earthquake": "earthquake",
+                "wind_damage": "storm damage"}
 NEED_LABEL = {"rescue": "rescue", "medicine": "medicine", "medical_urgent": "urgent medical", "food": "food",
-              "drinking_water": "drinking water", "baby_supplies": "baby milk"}
+              "drinking_water": "drinking water", "baby_supplies": "baby milk", "shelter": "shelter"}
 
 METHOD_OF = {"ai": "ai", "rules": "rule", "structured": "partner"}
 

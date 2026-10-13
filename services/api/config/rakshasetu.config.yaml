@@ -33,6 +33,10 @@ priority:                          # highest matching level wins; every matching
   - {level: P1, when: "trapped and vulnerable", reason: "trapped + vulnerable person"}
   - {level: P1, when: "medical_urgent", reason: "urgent medical need"}
   - {level: P1, when: "people_count >= 10 and trapped", reason: "10+ people trapped"}
+  - {level: P1, when: "fire or smoke_gas", reason: "fire or gas: people at risk"}
+  - {level: P1, when: "road_accident and (injured or medical_urgent)", reason: "accident with injured people"}
+  - {level: P1, when: "earthquake and (trapped or buried or structure_collapsed or injured)", reason: "earthquake: trapped or hurt"}
+  - {level: P2, when: "road_accident or earthquake or wind_damage", reason: "accident, quake or storm damage: check"}
   - {level: P2, when: "trapped or medicine or vulnerable", reason: "trapped, medicine or vulnerable"}
   - {level: P3, when: "needs_supplies", reason: "supplies"}
   - {level: P4, when: "true", reason: "no urgent signal yet: check"}

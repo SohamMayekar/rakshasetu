@@ -18,6 +18,7 @@ import asyncio
 import hashlib
 import os
 import tempfile
+from datetime import UTC, datetime, timedelta
 
 from fastapi import APIRouter, File, Form, HTTPException, Request, UploadFile
 from fastapi.concurrency import run_in_threadpool
@@ -38,9 +39,19 @@ MAX_UPLOAD = 2 * 1024 * 1024
 REPLY = {"en": "Your report is registered. You don't need to remember anything."}
 
 
-def live_incident() -> str:
-    """Where a public report goes when its page names no incident (?i=): the live one (config demo.incident)."""
-    return get_config().demo.get("incident", "MH")
+def live_incident() -> str | None:
+    """Where a public report goes when its page names no incident (?i=): the configured live incident if it exists
+    and is open, otherwise the newest open one. With no incident at all it is None, and the report is kept for
+    review rather than lost (a platform with no incident yet still hears from people)."""
+    configured = get_config().demo.get("incident")
+    try:
+        with get_engine().connect() as c:
+            row = c.execute(text(
+                "SELECT code FROM incidents WHERE status IN ('active', 'standing_down')"
+                " ORDER BY (code = :cfg) DESC, id DESC LIMIT 1"), {"cfg": configured or ""}).scalar()
+    except Exception:   # a database hiccup must not stop a request for help from being accepted
+        row = None
+    return row or configured
 
 
 def audio_mime(head: bytes) -> str:
@@ -72,6 +83,26 @@ def _caps(dev: str) -> None:
         raise HTTPException(429, "Please wait a moment and try again. If urgent, call 112 / 1077.")
 
 
+def _callback_number(raw: str | None) -> str | None:
+    """The number as typed, only if it is a real Indian mobile number: a typo must never stop a request for help."""
+    from app.core.phones import normalise
+    return normalise(raw)
+
+
+def _written_at(raw: str | None) -> datetime | None:
+    """When the person actually asked (the phone's clock), kept only as a label: a report sent after a long time
+    without signal says so. A value that doesn't parse, or is in the future, is ignored. Never used for timers."""
+    if not raw:
+        return None
+    try:
+        t = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if t.tzinfo is None:
+        t = t.replace(tzinfo=UTC)
+    return t if t <= datetime.now(UTC) + timedelta(minutes=5) else None
+
+
 def _wait_seconds() -> float:
     return float(os.environ.get("VOICE_WAIT_SECONDS", "15"))
 
@@ -95,7 +126,8 @@ def turn_status(report_id: int) -> dict:
     return {"report_id": report_id, "public_id": r.public_id, "status": "registered" if r.public_id else "processing"}
 
 
-def _register_voice(upload_path: str, device_id: str, session_id: str, incident: str) -> dict:
+def _register_voice(upload_path: str, device_id: str, session_id: str, incident: str, phone: str | None = None,
+                    written_at: datetime | None = None) -> dict:
     caps = get_config().voice_caps
     dev = device_hash(device_id)
     _caps(dev)
@@ -111,8 +143,9 @@ def _register_voice(upload_path: str, device_id: str, session_id: str, incident:
     orig_sha, orig_size = storage.store_bytes(original, MAX_UPLOAD)
     wav_sha, _ = storage.store_bytes(wav, 10 * MAX_UPLOAD)
     report = CanonicalReport(schema_version="1", idempotency_key=session_id, channel="voice", incident_hint=incident,
-                             reporter=Reporter(device_id=device_id, relation="unknown"),
-                             content=Content(audio_ref=storage.uri_for(orig_sha)), source=Source(system="reporter-pwa"))
+                             reporter=Reporter(device_id=device_id, phone=phone, relation="unknown"),
+                             content=Content(audio_ref=storage.uri_for(orig_sha)),
+                             source=Source(system="reporter-pwa", written_at=written_at))
     with get_engine().begin() as conn:
         res = accept(conn, report, source_ns=f"voice:{dev[:16]}", actor=Actor("reporter", dev[:12], "reporter"))
         if not res.replay:
@@ -127,14 +160,17 @@ def _register_voice(upload_path: str, device_id: str, session_id: str, incident:
 @router.post("/voice-turns")
 async def voice_turn(audio: UploadFile = File(...), device_id: str = Form(..., min_length=8, max_length=100),
                      session_id: str = Form(..., min_length=8, max_length=100),
-                     incident: str | None = Form(None, pattern=r"^[A-Z]{2,4}$")) -> dict:
+                     incident: str | None = Form(None, pattern=r"^[A-Z]{2,4}$"),
+                     phone: str | None = Form(None, max_length=40),
+                     written_at: str | None = Form(None, max_length=40)) -> dict:
     data = await audio.read(MAX_UPLOAD + 1)
     if len(data) > MAX_UPLOAD:
         raise HTTPException(413, "Clip too large")
     with tempfile.NamedTemporaryFile(suffix=".upload") as tmp:
         tmp.write(data)
         tmp.flush()
-        reg = await run_in_threadpool(_register_voice, tmp.name, device_id, session_id, incident or live_incident())
+        reg = await run_in_threadpool(_register_voice, tmp.name, device_id, session_id, incident or live_incident(),
+                                         _callback_number(phone), _written_at(written_at))
     return {**(await _wait_for_case(reg["report_id"])), "reply": REPLY}
 
 
@@ -143,16 +179,21 @@ class TextTurn(BaseModel):
     session_id: str = Field(min_length=8, max_length=100)
     incident: str | None = Field(None, pattern=r"^[A-Z]{2,4}$")   # default: the live incident
     text: str = Field(min_length=2, max_length=2000)
+    written_at: str | None = Field(None, max_length=40)   # when it was written on the phone, if sent later
+    phone: str | None = Field(None, max_length=40)   # optional call-back number; a bad one is ignored, never blocks help
 
 
 @router.post("/text-turns")
 async def text_turn(body: TextTurn) -> dict:
+    if len(body.text.strip()) < 2:
+        raise HTTPException(422, {"code": "empty_text", "message": "Please write a few words."})
     dev = device_hash(body.device_id)
 
     def register():
         report = CanonicalReport(schema_version="1", idempotency_key=body.session_id, channel="web_form",
-                                 incident_hint=body.incident or live_incident(), reporter=Reporter(device_id=body.device_id),
-                                 content=Content(text=body.text), source=Source(system="reporter-pwa"))
+                                 incident_hint=body.incident or live_incident(), reporter=Reporter(device_id=body.device_id, phone=_callback_number(body.phone)),
+                                 content=Content(text=body.text.strip()),
+                                 source=Source(system="reporter-pwa", written_at=_written_at(body.written_at)))
         with get_engine().begin() as conn:
             return accept(conn, report, source_ns=f"voice:{dev[:16]}", actor=Actor("reporter", dev[:12], "reporter"),
                           lane="live_voice")

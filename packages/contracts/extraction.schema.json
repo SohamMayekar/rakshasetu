@@ -8,7 +8,7 @@
   "required": ["language", "people_count", "hazards", "needs", "vulnerable", "location", "person_names", "callback_phone", "reporter_on_site"],
   "$defs": {
     "quote": {"type": "string", "minLength": 1, "maxLength": 300},
-    "hazard": {"enum": ["trapped_on_roof", "trapped_inside", "water_entering", "water_rising", "strong_current", "buried", "structure_collapsed", "landslide", "cut_off"]},
+    "hazard": {"enum": ["trapped_on_roof", "trapped_inside", "water_entering", "water_rising", "strong_current", "buried", "structure_collapsed", "landslide", "cut_off", "fire", "smoke_gas", "road_accident", "earthquake", "wind_damage"]},
     "need": {"enum": ["rescue", "medicine", "medical_urgent", "food", "drinking_water", "shelter", "baby_supplies"]},
     "vulnerable": {"enum": ["elderly", "infant", "child", "pregnant", "disabled", "sick", "injured"]},
     "landmark_type": {"enum": ["temple", "mosque", "church", "gurdwara", "place_of_worship", "bridge", "school", "hospital", "water_tower", "railway_station", "police_station", "market", "panchayat_bhawan", "canal", "tower", "other"]},

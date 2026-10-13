@@ -90,6 +90,30 @@ def promises(conn: Connection, scope: Scope, incident_code: str) -> dict | None:
     }
 
 
+def promises_all(conn: Connection, scope: Scope) -> dict:
+    """The national bar: the three promises added up over every incident this person may see. A number breaks
+    when it breaks anywhere, and the funnel still adds up because each incident's funnel does."""
+    codes = [r[0] for r in conn.execute(text("SELECT code FROM incidents ORDER BY id"))]
+    parts = [p for c in codes if (p := promises(conn, scope, c)) is not None]
+    total = {"lost": {"reports": 0, "cases": 0, "merged": 0, "to_check": 0, "without_home": 0, "oldest_waiting_s": None,
+                      "adds_up": True, "broken": False},
+             "doubled": {"merged": 0, "to_check": 0, "refused": 0, "broken": False},
+             "stale": {"p1_unowned": 0, "overdue": 0, "owned": 0, "broken": False}}
+    for p in parts:
+        for group, fields in total.items():
+            for k, v in p[group].items():
+                if k == "oldest_waiting_s":
+                    if v is not None:
+                        fields[k] = v if fields[k] is None else max(fields[k], v)
+                elif k == "adds_up":
+                    fields[k] = fields[k] and v
+                elif k == "broken":
+                    fields[k] = fields[k] or v
+                else:
+                    fields[k] += v
+    return {"incident": None, "at": datetime.now(UTC).isoformat(), **total}
+
+
 def integrity(conn: Connection) -> dict:
     """Invariants that must hold at any moment (PRD §13: "every rehearsal ends with Verify ✓ and integrity = 0").
     Each problem is named with what it found; 0 problems is the bar."""

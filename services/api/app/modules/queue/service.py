@@ -128,13 +128,14 @@ def _because(c) -> str:
     return " · ".join(c.priority_reasons or [])
 
 
-def queue(conn: Connection, scope: Scope, incident_code: str) -> dict:
+def queue(conn: Connection, scope: Scope, incident_code: str | None = None) -> dict:
+    """One incident's queue, or (code None) the national one: every incident this person may see, in one list."""
     where, params = scope.case_where("c")
     rows = conn.execute(text(f"""
         SELECT c.id, c.public_id, c.status, c.priority, c.priority_reasons, c.priority_override, c.p1_rank, c.summary, c.location_text,
                c.location_confidence, ST_Y(c.geom::geometry) AS lat, ST_X(c.geom::geometry) AS lng, c.flags,
                c.queue_since, c.people_count, c.people_remaining, c.hazards, c.needs, c.incident_id, c.district_id,
-               c.checked_at, c.attributes,
+               c.checked_at, c.attributes, i.code AS incident_code,
                c.version, a.state AS assignment_state, a.next_contact_due, a.phase, t.name AS team,
                (SELECT k.public_id FROM merge_suggestions s JOIN cases k ON k.id = s.candidate_case_id
                  WHERE s.case_id = c.id AND s.status = 'open' AND s.strength <> 'refused'
@@ -144,12 +145,12 @@ def queue(conn: Connection, scope: Scope, incident_code: str) -> dict:
           FROM cases c JOIN incidents i ON i.id = c.incident_id
           LEFT JOIN assignments a ON a.case_id = c.id AND a.state IN ('open', 'overdue')
           LEFT JOIN teams t ON t.id = a.team_id
-         WHERE i.code = :code AND (c.status IN {OPEN} OR (c.status = 'rescued' AND 'disputed' = ANY(c.flags)))
+         WHERE (CAST(:code AS text) IS NULL OR i.code = :code) AND (c.status IN {OPEN} OR (c.status = 'rescued' AND 'disputed' = ANY(c.flags)))
            AND {where}"""), {**params, "code": incident_code}).all()
     counts = conn.execute(text(f"""
         SELECT count(*) FILTER (WHERE c.status = 'rescued') AS rescued_closing,
                count(*) FILTER (WHERE c.status = 'closed') AS closed
-          FROM cases c JOIN incidents i ON i.id = c.incident_id WHERE i.code = :code AND {where}"""),
+          FROM cases c JOIN incidents i ON i.id = c.incident_id WHERE (CAST(:code AS text) IS NULL OR i.code = :code) AND {where}"""),
         {**params, "code": incident_code}).one()
     now = datetime.now(UTC)
     unowned_after = parse_duration(get_config().escalation.get("p1_unowned_after", "5m")).total_seconds()
@@ -158,9 +159,10 @@ def queue(conn: Connection, scope: Scope, incident_code: str) -> dict:
     for c in rows:
         k = classify(c, now, unowned_after)
         if officer and k["attention"] and not k["owned"]:
-            if c.district_id not in teams:
-                teams[c.district_id] = teams_for(conn, c.incident_id, c.district_id)
-            top = rank(dict(c._mapping), teams[c.district_id], now)["suggestions"]
+            key = (c.incident_id, c.district_id)
+            if key not in teams:
+                teams[key] = teams_for(conn, c.incident_id, c.district_id)
+            top = rank(dict(c._mapping), teams[key], now)["suggestions"]
             k["best_team"] = top[0] if top else None
         if not k["attention"]:
             on_it += 1
@@ -174,7 +176,7 @@ def queue(conn: Connection, scope: Scope, incident_code: str) -> dict:
         if last.get("outcome") == "couldnt_reach" and not k["owned"]:
             owner = f" · {last.get('team')} couldn't reach ({last.get('reason')})"
         out.append({
-            "id": c.id, "kind": "case", "public_id": c.public_id, "priority": c.priority, "status": c.status, "version": c.version,
+            "id": c.id, "kind": "case", "public_id": c.public_id, "incident": c.incident_code, "priority": c.priority, "status": c.status, "version": c.version,
             "line1": c.summary, "line2": f"{where_line}{owner} · waiting {_minutes(k['waited_s'])}",
             "because": _because(c), "chip": k["chip"], "broken": k["broken"],
             "owned": k["owned"], "needs_location": k["needs_location"], "checked": not k["unchecked"],

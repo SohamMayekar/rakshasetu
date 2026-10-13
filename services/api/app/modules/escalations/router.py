@@ -40,13 +40,13 @@ def _view(r) -> dict:
 
 
 @router.get("")
-def list_escalations(incident: str, open: bool = True, scope: Scope = Depends(require("escalation.ack"))) -> list[dict]:
+def list_escalations(incident: str | None = None, open: bool = True, scope: Scope = Depends(require("escalation.ack"))) -> list[dict]:
     where, params = _where(scope)
     with get_engine().connect() as conn:
         rows = conn.execute(text(
             "SELECT e.*, t.name AS team, u.name AS acked_by_name FROM escalations e JOIN incidents i ON i.id = e.incident_id"
             " LEFT JOIN teams t ON t.id = e.team_id LEFT JOIN users u ON u.id = e.acked_by"
-            f" WHERE i.code = :code AND (NOT :open OR e.status <> 'resolved') AND {where} ORDER BY e.level DESC, e.opened_at"),
+            f" WHERE (CAST(:code AS text) IS NULL OR i.code = :code) AND (NOT :open OR e.status <> 'resolved') AND {where} ORDER BY e.level DESC, e.opened_at"),
             {**params, "code": incident, "open": open}).all()
     return [_view(r) for r in rows]
 

@@ -48,7 +48,7 @@
 			header_up X-RS-Listener public
 		}
 	}
-	@web path /r /r/* /s/* /responder /responder/* /_next/* /favicon.ico /manifest.webmanifest /responder.webmanifest /responder-sw.js /icons/* /audio/* /fonts/*
+	@web path /r /r/* /s/* /mesh /responder /responder/* /_next/* /favicon.ico /manifest.webmanifest /responder.webmanifest /responder-sw.js /icons/* /audio/* /fonts/*
 	handle @web {
 		reverse_proxy web:3000
 	}

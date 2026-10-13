@@ -1,4 +1,5 @@
-"""GET /v1/queue?incident= — "Needs you now" for the signed-in desk user (local listener, scoped in SQL)."""
+"""GET /v1/queue[?incident=] — "Needs you now" for the signed-in desk user (local listener, scoped in SQL).
+Without `incident` it is the national queue: every incident this person may see."""
 
 from fastapi import APIRouter, Depends
 
@@ -11,6 +12,6 @@ router = APIRouter(tags=["queue"], dependencies=[Depends(require_local)])
 
 
 @router.get("/v1/queue")
-def needs_you_now(incident: str, scope: Scope = Depends(require("queue.view"))) -> dict:
+def needs_you_now(incident: str | None = None, scope: Scope = Depends(require("queue.view"))) -> dict:
     with get_engine().connect() as conn:
         return queue(conn, scope, incident)

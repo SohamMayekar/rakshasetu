@@ -2,7 +2,8 @@
 relative to the moment of seeding (otherwise every seeded case would look hours stale on stage).
 
 Runs as rakshasetu_owner (it truncates tables, which the app role can't), and only with DEMO_MODE=true.
-    python -m app.seed            # all packs
+    python -m app.seed            # an empty platform with one admin (the default)
+    python -m app.seed --demo     # all four sample packs
     python -m app.seed --packs BR
 """
 
@@ -238,7 +239,9 @@ def load_users(conn: Connection, root: Path, packs: dict) -> int:
     pw = _demo_password_hash()
     n = 0
     for u in users:
-        if not set(u["incidents"]) & set(packs):
+        # The national admin is always created, with or without scenario packs: an empty platform still has someone
+        # who can start an incident. Everyone else belongs to a pack and is created only with it.
+        if u["role"] != "admin" and not set(u["incidents"]) & set(packs):
             continue
         incident_ids = [packs[c]["incident_id"] for c in u["incidents"] if c in packs]
         district_ids = []
@@ -316,7 +319,9 @@ def _load(owner_url: str, root: Path, packs, reason: str):
 
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
-    ap.add_argument("--packs", default=",".join(PACKS))
+    ap.add_argument("--packs", default="",
+                    help="comma-separated sample packs to load (BR,OD,HP,MH). Default: none, an empty platform with one admin")
+    ap.add_argument("--demo", action="store_true", help="load all four sample scenario packs (same as --packs BR,OD,HP,MH)")
     ap.add_argument("--no-cases", action="store_true",
                     help="reference data only (incidents, districts, teams, users, gazetteer): a clean desk")
     args = ap.parse_args()
@@ -327,7 +332,10 @@ def main() -> None:
         sys.exit("DEMO_OWNER_DATABASE_URL is not set")
     from app.modules.partners.webhooks import quiet_streams
     with quiet_streams(engine_for(url)):   # partners never receive the seed as news
-        print(seed(url, tuple(args.packs.split(",")), cases=not args.no_cases))
+        packs = tuple(PACKS) if args.demo else tuple(p.strip() for p in args.packs.split(",") if p.strip())
+        print(seed(url, packs, cases=not args.no_cases))
+        if not packs:
+            print("An empty platform: sign in as admin, start an incident (Incidents), then add teams (Teams).")
 
 
 if __name__ == "__main__":

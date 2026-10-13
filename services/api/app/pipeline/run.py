@@ -67,9 +67,10 @@ def transcribe(engine: Engine, report) -> tuple[str | None, dict]:
             f"{a['provider']} {a['outcome']}" for a in e.attempts)}
     by, label = ("Fixture", "recorded transcript (not live speech to text)") if res.provider == "fixture" \
         else ("AI", f"{res.provider} {res.model} · {res.latency_ms / 1000:.1f} s")
-    if not res.value.text.strip():
+    spoken = stt.clean(res.value.text)
+    if not spoken:
         return None, {"step": "stt", "by": by, "detail": f"{label}: empty transcript"}
-    return res.value.text.strip(), {"step": "stt", "by": by, "detail": label, "language": res.value.language}
+    return spoken, {"step": "stt", "by": by, "detail": label, "language": res.value.language}
 
 
 def extract(report, allow_model: bool = True, rules_why: str = "seeded report") -> Extracted:

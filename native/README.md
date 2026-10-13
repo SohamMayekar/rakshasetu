@@ -39,7 +39,7 @@ Reseed the demo data (Bihar flood, Odisha cyclone, Himachal landslide, Mumbai fl
 40 teams, 17 synthetic users):
 
 ```bash
-cd services/api && source ../native/env.sh && .venv/bin/python -m app.seed
+cd services/api && source ../native/env.sh && .venv/bin/python -m app.seed --demo   # the four sample packs (without --demo: an empty platform)
 ```
 
 ## Environment

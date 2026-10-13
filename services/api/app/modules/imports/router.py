@@ -100,12 +100,12 @@ def upload(file: UploadFile = File(...), incident: str = Form(..., max_length=10
 
 
 @router.get("")
-def list_imports(incident: str, scope: Scope = Depends(require("import.run"))) -> list[dict]:
+def list_imports(incident: str | None = None, scope: Scope = Depends(require("import.run"))) -> list[dict]:
     """This desk's imports for an incident, newest first."""
     where, params = _where(scope)
     with get_engine().connect() as conn:
         rows = conn.execute(text(f"SELECT m.* FROM imports m JOIN incidents i ON i.id = m.incident_id"
-                                 f" WHERE i.code = :code AND {where} ORDER BY m.id DESC LIMIT 20"),
+                                 f" WHERE (CAST(:code AS text) IS NULL OR i.code = :code) AND {where} ORDER BY m.id DESC LIMIT 20"),
                             {**params, "code": incident}).all()
     return [_view(r) for r in rows]
 

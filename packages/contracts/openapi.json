@@ -79,11 +79,35 @@
             ],
             "title": "Incident"
           },
+          "phone": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
           "session_id": {
             "maxLength": 100,
             "minLength": 8,
             "title": "Session Id",
             "type": "string"
+          },
+          "written_at": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Written At"
           }
         },
         "required": [
@@ -345,6 +369,47 @@
         "title": "HTTPValidationError",
         "type": "object"
       },
+      "Lead": {
+        "properties": {
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "minLength": 8,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Password"
+          },
+          "username": {
+            "maxLength": 40,
+            "minLength": 3,
+            "pattern": "^[a-z0-9._-]+$",
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "username"
+        ],
+        "title": "Lead",
+        "type": "object"
+      },
       "Login": {
         "properties": {
           "password": {
@@ -487,6 +552,109 @@
           "districts"
         ],
         "title": "NewIncident",
+        "type": "object"
+      },
+      "NewTeam": {
+        "properties": {
+          "agency": {
+            "maxLength": 60,
+            "minLength": 2,
+            "title": "Agency",
+            "type": "string"
+          },
+          "capabilities": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "district": {
+            "maxLength": 100,
+            "minLength": 2,
+            "title": "District",
+            "type": "string"
+          },
+          "has_app": {
+            "default": true,
+            "title": "Has App",
+            "type": "boolean"
+          },
+          "incident": {
+            "pattern": "^[A-Z]{2,4}$",
+            "title": "Incident",
+            "type": "string"
+          },
+          "lat": {
+            "anyOf": [
+              {
+                "maximum": 90.0,
+                "minimum": -90.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lat"
+          },
+          "lead": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Lead"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "lng": {
+            "anyOf": [
+              {
+                "maximum": 180.0,
+                "minimum": -180.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lng"
+          },
+          "max_active": {
+            "default": 2,
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "Max Active",
+            "type": "integer"
+          },
+          "name": {
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Name",
+            "type": "string"
+          },
+          "radio_channel": {
+            "anyOf": [
+              {
+                "maxLength": 30,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Radio Channel"
+          }
+        },
+        "required": [
+          "incident",
+          "district",
+          "name",
+          "agency"
+        ],
+        "title": "NewTeam",
         "type": "object"
       },
       "PinMove": {
@@ -809,6 +977,74 @@
         "title": "Switch",
         "type": "object"
       },
+      "TeamEdit": {
+        "properties": {
+          "agency": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "minLength": 2,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agency"
+          },
+          "capabilities": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 30,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capabilities"
+          },
+          "max_active": {
+            "anyOf": [
+              {
+                "maximum": 20.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Active"
+          },
+          "radio_channel": {
+            "anyOf": [
+              {
+                "maxLength": 30,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Radio Channel"
+          },
+          "reason": {
+            "maxLength": 300,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "TeamEdit",
+        "type": "object"
+      },
       "TeamStep": {
         "properties": {
           "channel": {
@@ -886,6 +1122,18 @@
             ],
             "title": "Incident"
           },
+          "phone": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Phone"
+          },
           "session_id": {
             "maxLength": 100,
             "minLength": 8,
@@ -897,6 +1145,18 @@
             "minLength": 2,
             "title": "Text",
             "type": "string"
+          },
+          "written_at": {
+            "anyOf": [
+              {
+                "maxLength": 40,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Written At"
           }
         },
         "required": [
@@ -1515,8 +1775,26 @@
     },
     "/v1/auth/users": {
       "get": {
-        "description": "The demo sign-in picker: the 3 profiles in config (demo.sign_in_picker), in that order. Local listener +\nDEMO_MODE only. Every other seeded user still exists (the permission and IDOR tests use them), off the picker.",
+        "description": "Who can sign in without typing a password on this listener (DEMO_MODE + local only).\n\nNo `role`: the profiles in config (demo.sign_in_picker), in that order — the desk, a team, the admin.\n`role=team_lead`: every rescue team's lead with its team and district, so the team app can offer a chooser\ninstead of hard-wiring one boat. Every other seeded user still exists (the permission and IDOR tests use\nthem), off this list.",
         "operationId": "picker_users_v1_auth_users_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "role",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Role"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {
@@ -1532,6 +1810,16 @@
               }
             },
             "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
           }
         },
         "summary": "Picker Users",
@@ -2507,10 +2795,17 @@
           {
             "in": "query",
             "name": "incident",
-            "required": true,
+            "required": false,
             "schema": {
-              "title": "Incident",
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Incident"
             }
           },
           {
@@ -2834,10 +3129,17 @@
           {
             "in": "query",
             "name": "incident",
-            "required": true,
+            "required": false,
             "schema": {
-              "title": "Incident",
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Incident"
             }
           }
         ],
@@ -3604,6 +3906,29 @@
         ]
       }
     },
+    "/v1/ingest/telemetry": {
+      "post": {
+        "operationId": "ingest_telemetry_v1_ingest_telemetry_post",
+        "responses": {
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Ingest Telemetry V1 Ingest Telemetry Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Ingest Telemetry",
+        "tags": [
+          "telemetry"
+        ]
+      }
+    },
     "/v1/integrity": {
       "get": {
         "operationId": "integrity_check_v1_integrity_get",
@@ -3933,10 +4258,17 @@
           {
             "in": "query",
             "name": "incident",
-            "required": true,
+            "required": false,
             "schema": {
-              "title": "Incident",
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Incident"
             }
           }
         ],
@@ -4535,10 +4867,17 @@
           {
             "in": "query",
             "name": "incident",
-            "required": true,
+            "required": false,
             "schema": {
-              "title": "Incident",
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Incident"
             }
           }
         ],
@@ -4579,10 +4918,17 @@
           {
             "in": "query",
             "name": "incident",
-            "required": true,
+            "required": false,
             "schema": {
-              "title": "Incident",
-              "type": "string"
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Incident"
             }
           }
         ],
@@ -4614,6 +4960,71 @@
           }
         },
         "summary": "List Teams",
+        "tags": [
+          "teams"
+        ]
+      },
+      "post": {
+        "operationId": "create_team_v1_teams_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewTeam"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Create Team V1 Teams Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Create Team",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/v1/teams/catalog": {
+      "get": {
+        "description": "The lists the \"add a team\" form offers. A team may carry a capability not listed here; it is kept as written.",
+        "operationId": "catalog_v1_teams_catalog_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Catalog V1 Teams Catalog Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Catalog",
         "tags": [
           "teams"
         ]
@@ -4661,6 +5072,60 @@
           }
         },
         "summary": "Heartbeat",
+        "tags": [
+          "teams"
+        ]
+      }
+    },
+    "/v1/teams/{team_id}": {
+      "patch": {
+        "operationId": "edit_team_v1_teams__team_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "team_id",
+            "required": true,
+            "schema": {
+              "title": "Team Id",
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TeamEdit"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Edit Team V1 Teams  Team Id  Patch",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Edit Team",
         "tags": [
           "teams"
         ]
@@ -4717,6 +5182,61 @@
         "summary": "Contact",
         "tags": [
           "teams"
+        ]
+      }
+    },
+    "/v1/telemetry": {
+      "get": {
+        "description": "Every sensor this person may see, worst state first, with its last 24 readings oldest → newest.",
+        "operationId": "list_sensors_v1_telemetry_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "incident",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Incident"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response List Sensors V1 Telemetry Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "List Sensors",
+        "tags": [
+          "telemetry"
         ]
       }
     }

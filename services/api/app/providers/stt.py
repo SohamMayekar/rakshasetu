@@ -6,6 +6,8 @@ team for a clip they recorded); the receipt then says `fixture`, never a provide
 """
 
 import json
+import re
+import time
 from dataclasses import dataclass
 
 import httpx
@@ -16,6 +18,44 @@ from app.providers.base import ChainResult, ProviderFailed, ProviderUnavailable,
 from app.settings import get_settings
 
 TIMEOUT = httpx.Timeout(20.0, connect=5.0)
+
+# What a speech model "hears" in near-silence or room noise. These are not reports: they must never become a
+# transcript (the clip still becomes an "audio only: listen" case, so nothing is lost).
+_NOISE = {"thank you", "thanks", "thanks for watching", "thank you for watching", "you", "bye", "okay", "ok", "hmm", "mm",
+          "uh", "um", "yeah", "subtitles by the amara.org community", "धन्यवाद", "शुक्रिया"}
+
+# A short vocabulary hint helps a model spell Hindi/English flood words; it is never shown to anyone.
+HINT = ("Flood rescue call in India, Hindi and English mixed. chhat, paani, bachche, buzurg, nav, boat, gaon, mandir, "
+        "pul, ghar, madad, log phase hain.")
+
+
+def clean(text: str | None) -> str:
+    """Whitespace tidied; a transcript that is only noise, or only our own hint echoed back, becomes ''."""
+    t = re.sub(r"\s+", " ", (text or "")).strip()
+    bare = re.sub(r"[^\w\s]", "", t, flags=re.UNICODE).strip().lower()
+    if not bare or bare in _NOISE or not re.search(r"\w", bare):
+        return ""
+    if HINT.lower()[:40] in t.lower():
+        return ""
+    return t
+
+
+def _post(url: str, **kw) -> httpx.Response:
+    """One retry for a failure that is plainly transient (connection trouble, 429, 5xx); never for a slow read."""
+    last: Exception | None = None
+    for attempt in range(2):
+        try:
+            r = httpx.post(url, timeout=TIMEOUT, **kw)
+        except (httpx.ConnectError, httpx.ConnectTimeout, httpx.RemoteProtocolError) as e:
+            last = e
+        except httpx.HTTPError as e:
+            raise ProviderFailed(f"network: {e}") from e
+        else:
+            if r.status_code not in (429, 500, 502, 503, 504) or attempt == 1:
+                return r
+            last = None
+        time.sleep(0.6)
+    raise ProviderFailed(f"network: {last}")
 
 
 @dataclass
@@ -35,17 +75,17 @@ def sarvam(wav: bytes, seconds: float) -> tuple[Transcript, str]:
         raise ProviderUnavailable("no SARVAM_API_KEY")
     usage.check("sarvam_saaras", audio_seconds=seconds)
     model = _model("sarvam_saaras")
-    try:
-        r = httpx.post("https://api.sarvam.ai/speech-to-text", headers={"api-subscription-key": key},
-                       data={"model": model, "mode": "transcribe", "language_code": "unknown"},
-                       files={"file": ("clip.wav", wav, "audio/wav")}, timeout=TIMEOUT)
-    except httpx.HTTPError as e:
-        raise ProviderFailed(f"network: {e}") from e
+    r = _post("https://api.sarvam.ai/speech-to-text", headers={"api-subscription-key": key},
+              data={"model": model, "mode": "transcribe", "language_code": "unknown"},
+              files={"file": ("clip.wav", wav, "audio/wav")})
     usage.record("sarvam_saaras", audio_seconds=seconds)
     if r.status_code != 200:
         raise ProviderFailed(f"HTTP {r.status_code}: {r.text[:200]}")
     body = r.json()
-    return Transcript(body.get("transcript", ""), body.get("language_code"), body.get("language_probability")), model
+    text = clean(body.get("transcript"))
+    if not text:
+        raise ProviderFailed("empty transcript")   # let the next provider try the same clip
+    return Transcript(text, body.get("language_code"), body.get("language_probability")), model
 
 
 def groq_whisper(wav: bytes, seconds: float) -> tuple[Transcript, str]:
@@ -54,18 +94,17 @@ def groq_whisper(wav: bytes, seconds: float) -> tuple[Transcript, str]:
         raise ProviderUnavailable("no GROQ_API_KEY")
     usage.check("groq_whisper_large_v3")
     model = _model("groq_whisper_large_v3")
-    try:
-        r = httpx.post("https://api.groq.com/openai/v1/audio/transcriptions",
-                       headers={"Authorization": f"Bearer {key}"},
-                       data={"model": model, "response_format": "verbose_json", "temperature": "0"},
-                       files={"file": ("clip.wav", wav, "audio/wav")}, timeout=TIMEOUT)
-    except httpx.HTTPError as e:
-        raise ProviderFailed(f"network: {e}") from e
+    r = _post("https://api.groq.com/openai/v1/audio/transcriptions", headers={"Authorization": f"Bearer {key}"},
+              data={"model": model, "response_format": "verbose_json", "temperature": "0", "prompt": HINT},
+              files={"file": ("clip.wav", wav, "audio/wav")})
     usage.record("groq_whisper_large_v3")
     if r.status_code != 200:
         raise ProviderFailed(f"HTTP {r.status_code}: {r.text[:200]}")
     body = r.json()
-    return Transcript(body.get("text", "").strip(), body.get("language")), model
+    text = clean(body.get("text"))
+    if not text:
+        raise ProviderFailed("empty transcript")
+    return Transcript(text, body.get("language")), model
 
 
 def fixture(original_sha256: str) -> tuple[Transcript, str]:

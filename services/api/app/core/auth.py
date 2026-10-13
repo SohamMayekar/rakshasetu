@@ -123,8 +123,14 @@ def load_user_scope(user_id: int) -> Scope | None:
                            " WHERE id = :id"), {"id": user_id}).one_or_none()
     if not u:
         return None
+    incident_ids, district_ids = tuple(u.incident_ids), tuple(u.district_ids)
+    if u.role == "admin":
+        # The national admin sees every incident, including ones started after the account was made.
+        with get_engine().connect() as c:
+            incident_ids = tuple(r[0] for r in c.execute(text("SELECT id FROM incidents ORDER BY id")))
+            district_ids = tuple(r[0] for r in c.execute(text("SELECT id FROM districts ORDER BY id")))
     return Scope(kind="user", role=u.role, user_id=u.id, username=u.username, name=u.name,
-                 incident_ids=tuple(u.incident_ids), district_ids=tuple(u.district_ids), team_id=u.team_id)
+                 incident_ids=incident_ids, district_ids=district_ids, team_id=u.team_id)
 
 
 def optional_scope(conn: HTTPConnection) -> Scope:

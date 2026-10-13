@@ -13,13 +13,15 @@ from cryptography.fernet import Fernet
 from app.settings import get_settings
 
 _DIGITS = re.compile(r"\D+")
+# A number said aloud and written down in Devanagari ("९८७६५…") is still a number.
+_ASCII_DIGITS = str.maketrans("०१२३४५६७८९٠١٢٣٤٥٦٧٨٩", "01234567890123456789")
 
 
 def normalise(raw: str | None) -> str | None:
     """'+91 98765-43210', '098765 43210', '9876543210' → '+919876543210'. Anything else → None."""
     if not raw:
         return None
-    s = str(raw).strip()
+    s = str(raw).strip().translate(_ASCII_DIGITS)
     if re.search(r"[eE][+-]?\d", s):  # Excel's exponential notation: digits already lost (see imports)
         return None
     digits = _DIGITS.sub("", s)

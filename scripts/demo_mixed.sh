@@ -40,7 +40,5 @@ send BR demo-mixed-flood-02    "Flood water has entered our village Thawe. Five 
 say
 say "waiting for the pipeline to file them…"
 sleep 8
-say "open http://localhost:3000 — All incidents lists every scenario; each desk opens with the same workflow."
-say "   Desk (flood · Mumbai):    $API/desk/MH"
-say "   Desk (cyclone · Odisha):  $API/desk/OD"
-say "   Desk (landslide · HP):    $API/desk/HP"
+say "open http://localhost:3000 — the one national desk shows every scenario's families in one queue and on one map:"
+say "   National desk:  $API/desk"

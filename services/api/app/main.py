@@ -32,6 +32,7 @@ from app.modules.realtime.hub import hub
 from app.modules.realtime.router import router as realtime_router
 from app.modules.rescues.router import router as rescues_router
 from app.modules.teams.router import router as teams_router
+from app.modules.telemetry.router import router as telemetry_router
 
 
 def create_app() -> FastAPI:
@@ -109,6 +110,7 @@ def create_app() -> FastAPI:
     app.include_router(teams_router)
     app.include_router(realtime_router)
     app.include_router(partners_router)
+    app.include_router(telemetry_router)
     return app
 
 

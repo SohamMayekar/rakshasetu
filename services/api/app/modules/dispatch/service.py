@@ -21,21 +21,32 @@ from datetime import UTC, datetime
 
 from sqlalchemy import Connection, text
 
+from app.capabilities import helpful
 from app.config import get_config
 
-WATER = {"trapped_on_roof", "trapped_inside", "water_entering", "water_rising", "strong_current", "cut_off"}
-COLLAPSE = {"buried", "structure_collapsed", "landslide"}
+WATER = {"water_entering", "water_rising", "strong_current"}          # the water itself: a boat is needed
+NOT_WATER = {"fire", "smoke_gas", "earthquake", "wind_damage", "structure_collapsed", "buried", "landslide", "road_accident"}
+COLLAPSE = {"buried", "structure_collapsed", "landslide", "earthquake"}
+FIRE = {"fire", "smoke_gas"}
+FIRE_AGENCIES = {"Fire & Rescue", "Fire Brigade", "Fire"}               # a fire crew counts as "fire" without a listing
 
 
 def needed(hazards: list[str], needs: list[str]) -> tuple[set[str], set[str]]:
     """(required capabilities, preferred capabilities) for a case."""
+    h = set(hazards)
     required, preferred = set(), set()
-    if set(hazards) & WATER:
+    # A boat is for water. "Trapped" or "stranded" alone (a fire, a collapse, a stalled bus) never asks for one; a
+    # roof does, unless something other than water explains why they are up there.
+    if h & WATER or ("trapped_on_roof" in h and not h & NOT_WATER):
         required.add("boat")
-    if set(hazards) & COLLAPSE:
+    if h & COLLAPSE:
         required.add("heavy_lift")
-    if "medical_urgent" in needs:
+    if h & FIRE:
+        preferred.add("fire")
+    if h & {"smoke_gas", "road_accident", "fire"} or "medical_urgent" in needs:
         preferred.add("medical")
+    if "road_accident" in h:
+        preferred.add("heavy_lift")   # cutting people out of a vehicle
     return required, preferred
 
 
@@ -68,6 +79,7 @@ def rank(case: dict, teams: list, now: datetime | None = None) -> dict:
     cfg = get_config().dispatch
     now = now or datetime.now(UTC)
     required, preferred = needed(case.get("hazards") or [], case.get("needs") or [])
+    preferred = preferred | helpful(case.get("hazards"), case.get("needs"))   # catalog: a better fit, never a requirement
     excluded = set(cfg.get("exclude_team_status", ["overdue", "out_of_service"]))
     fit, unfit, greyed = [], [], []
     for t in teams:
@@ -83,6 +95,8 @@ def rank(case: dict, teams: list, now: datetime | None = None) -> dict:
             greyed.append({"team_id": t.id, "name": t.name, "why": f"at capacity ({t.active} of {t.max_active})"})
             continue
         caps = set(t.capabilities or [])
+        if getattr(t, "agency", None) in FIRE_AGENCIES:
+            caps.add("fire")
         missing = required - caps
         # Lead with what THIS report needs: a road accident with an urgent medical need reads "medical" first,
         # not "boat" (capabilities were sorted alphabetically once — every line shouted boat).
@@ -111,7 +125,7 @@ def rank(case: dict, teams: list, now: datetime | None = None) -> dict:
                "has_app": t.has_app, "distance_km": None if dist is None else round(dist, 1),
                "position_age_min": None if age is None else int(age), "active": t.active,
                "max_active": t.max_active, "missing": sorted(missing), "line": " · ".join(parts),
-               "_key": (-(1 if preferred & caps else 0), dist if dist is not None else 1e9, t.active, t.id)}
+               "_key": (-len(preferred & caps), dist if dist is not None else 1e9, t.active, t.id)}   # more of what helps first, then nearest
         (unfit if missing else fit).append(row)
     fit.sort(key=lambda r: r.pop("_key"))
     unfit.sort(key=lambda r: r.pop("_key"))
